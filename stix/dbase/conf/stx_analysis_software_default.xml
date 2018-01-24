@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+<header>
+<history>
+	<change date="XXX" author="Laszlo I. Etesi" affiliation="FHNW">
+		<log>TBA</log>
+	</change>
+</history>
+</header> 
+-->
+<configuration application="stx_analysis_software" type="system">
+	<section name="global" alias="">
+		<description>Global</description>
+		<parameter name="debug" default="0b" valid="ppl_xml_value_is_boolean(X)" type="byte">
+			<description>Turns debugging behaviour on or off.</description>
+		</parameter>
+		<parameter name="stop_on_error" default="0b" valid="ppl_xml_value_is_boolean(X)" type="byte">
+			<description>If set to 1, the program will stop where an error has occurred. If set to 0, the program will return to %main.</description>
+		</parameter>
+		<parameter name="math_error_level" default="1b" valid="ppl_xml_value_in_array_test(X,[0b,1b,2b])" type="byte">
+			<description>This parameter control how IDL should react to math errors (over/underflows, divisions by zero, etc.). See "!EXCEPT" in "Error Handling System Variables" in the IDL help.</description>
+		</parameter>
+		<parameter name="subc_file" default="concat_dir(getenv('STX_GRID'), 'stx_subc_params.txt')" valid="file_exist(X)" type="string">
+			<description>This parameter point to the STIX subcollimator parameter file</description>
+		</parameter>
+		<parameter name="simulation" default="1b" valid="ppl_xml_value_in_array_test(X,[0b,1b,2b])" type="byte">
+			<description>This parameter is used to control the internal clock, i.e. the time bin size for reading data in from the Data Simulation</description>
+		</parameter>
+		<parameter name="plotting" default="0b" valid="ppl_xml_value_is_boolean(X)" type="byte">
+			<description>This parameter controls the plotting output (on or off)</description>
+		</parameter>
+		<parameter name="max_reprocess_level" default="0" valid="X ge 0 AND X le 5" type="int">
+			<description>This parameter controls the plotting output (on or off)</description>
+		</parameter>
+	</section>
+	<section name="stx_module_create_visibilities" alias="cv">
+		<description>This module calculates visibilities from pixel summed detector counts.</description>
+		<parameter name="f2r_sep" default="550d" valid="X gt 0" type="double">
+			<description>This is the front to rear grid separation in mm.</description>
+			<unit>millimeters</unit>
+		</parameter>
+	</section>
+	<section name="stx_module_sum_over_pixels" alias="sp">
+		<description>This module calculates the summations over pixels.</description>
+		<parameter name="sumcase" default="0" valid="ppl_xml_value_in_array_test(X,indgen(5))" type="int">
+			<description>This parameter specifies the desired summation method. (0) Pixel sum over two big pixels, (1) Pixel sum over two big pixels and small pixel, (2) Only upper row pixels, (3) Only lower row pixels, (4) Only small pixels.</description>
+		</parameter>
+	</section>
+	<section name="stx_module_create_map" alias="img">
+		<description>This module generates maps from visibilities.</description>
+		<parameter name="detector_mask" default="bytarr(30)+1b" valid="n_elements(X) eq 30" type="byte_array">
+			<description>This parameter defines the detectors to use when reconstructing an image from visibilities.</description>
+		</parameter>
+		<parameter name="shift_map_center_to_bpmap_peak" default="1b" valid="ppl_xml_value_is_boolean(X)" type="byte">
+			<description>???</description>
+		</parameter>
+		<parameter name="image_dim" default="131" valid="X gt 0" type="int">
+			<description>This parameter defines the desired X/Y image dimensions.</description>
+			<unit>pixels</unit>
+		</parameter>
+		<parameter name="pixel" default="1." valid="X gt 0" type="float">
+			<description>This parameter defines the number of pixels per arcsecond on the sun.</description>
+			<unit>arcseconds</unit>
+		</parameter>
+		<parameter name="algo" default="'clean'" valid="ppl_xml_value_in_array_test(X,['clean','bpmap','bproj','memnjit','uvsmooth','fwdfit'])" type="string">
+			<description>This parameter selects the reconstruction algorithm to use. Every reconstruction algorithm can have its own parameters.</description>
+			<section name="clean">
+				<parameter name="niter" default="100" valid="X gt 0" type="int">
+					<description>This parameter defines the maximum number of iterations before the algorithm will stop (regardless of convergence).</description>
+				</parameter>
+				<parameter name="gain" default="0.05" valid="X gt 0" type="float">
+					<description>This is the clean loop gain factor.</description>
+				</parameter>
+				<parameter name="beam_width" default="4." valid="X gt 0" type="float">
+					<description>Point Spread Function beam width (FWHM) in arcseconds.</description>
+					<unit>arcseconds</unit>
+				</parameter>
+			</section>
+			<section name="bpmap">
+
+			</section>
+			<section name="bproj">
+
+			</section>
+			<section name="memnjit">
+
+			</section>
+			<section name="uvsmooth">
+
+			</section>
+			<section name="fwdfit">
+				<parameter name="circle" default="0b" valid="ppl_xml_value_is_boolean(X)" type="byte">
+					<description>???</description>
+				</parameter>
+			</section>
+		</parameter>
+	</section>
+	<section name="stx_module_coarse_flare_location" alias="cfl">
+		<description>This module etimates the coarse flare location.</description>
+	</section>
+	<section name="stx_module_determine_background" alias="bg">
+		<description>This module calculates the background.</description>
+	</section>
+	<section name="stx_module_interval_selection" alias="isa">
+		<description>This module executes the Interval Selection Algorithm.</description>
+	</section>
+	<section name="stx_module_pixel_e_calibration" alias="pec">
+		<description>This module executes the energy calibration on the data.</description>
+	</section>
+	<section name="stx_module_pixel_phase_calibration" alias="ppc">
+		<description>This module calibrates the phase information in the data.</description>
+	</section>
+	<section name="stx_module_sum_over_time_energy" alias="ste">
+		<description>This module sums over time and energy.</description>
+	</section>
+	<section name="stx_module_calibrate_visibilities" alias="clv">
+		<description>This module calibrates visibilities</description>
+		<parameter name="calibration_file" default="''" valid="1" type="string"/>
+	</section>
+	<section name="stx_module_detector_simulation" alias="sim">
+		<description>To be removed</description>
+		<parameter name="src_shape" default="'point'" valid="1" type="string"/>
+		<parameter name="src_xcen" default="0" valid="1" type="int"/>
+		<parameter name="src_ycen" default="0" valid="1" type="int"/>
+		<parameter name="src_duration" default="0L" valid="1" type="long"/>
+		<parameter name="src_flux" default="1000L" valid="1" type="long"/>
+		<parameter name="src_distance" default="1" valid="1" type="int"/>
+		<parameter name="src_fwhm_wd" default="20" valid="1" type="int"/>
+		<parameter name="src_fwhm_ht" default="20" valid="1" type="int"/>
+		<parameter name="src_phi" default="0" valid="1" type="int"/>
+		<parameter name="src_loop_ht" default="0" valid="1" type="int"/>
+		<parameter name="src_spectra" default="0" valid="1" type="int"/>
+		<parameter name="bkg_flux" default="lonarr(32) + 10l" valid="1" type="long_array"/>
+		<parameter name="bkg_duration" default="1" valid="1" type="int"/>
+	</section>
+</configuration>

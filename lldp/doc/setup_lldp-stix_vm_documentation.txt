@@ -1,0 +1,47 @@
+Setup LLDP-STIX VM
+------------------
+*	Update INSTR
+	*	$HOME/svn/scripts/config_paths -> INSTR=STIX
+	
+*	Update common/solo_telemetry__define.pro with FHNW-fix
+	*	Line 226 needs an IF-THEN-ELSE statement, since ALPHA_IX can be NULL
+	
+*	Create IO folders
+	*	<root>\top_input
+	*	<root>\instr_output
+	*	<root>\top_input\STIX
+	*	<root>\top_input\STIX\requests <- this is the place to put test requests
+
+*	Link IO folders from host system to guest system
+	*	<root>\top_input to top_input
+	*	<root>\instr_output to instr_output
+	*	(Virtual Machine Settings -> Options -> Shared Folders: e.g. C:\Users\LaszloIstvan\Development\stix\lldp\testing\TEST_INPUT to top_input)
+
+*	Edit startup_config for FHNW testing (no NFS use VMware Player Shared Folders)
+	*	$HOME/svn/scripts/startup_config
+		*	Edit "sudo mount $LLVM_OUTPUTDIR $instr_output -o lookupcache=none,nfsver=3,instr" with "sudo mount -t vmhgfs $LLVM_OUTPUTDIR $instr_output"
+		*	Edit "sudo mount $LLVM_OUTPUTDIR $instr_output -o lookupcache=none,nfsver=3,instr" with "sudo mount -t vmhgfs $LLVM_INPUTDIR $top_input"
+		
+*	Configure configuration ISO file
+	* 	Update $HOME/svn/iso-config/Low_Latency_VM_props/UIO.cfg
+		*	LLVM_IDL_LIC=1700@soleil-int.cs.technik.fhnw.ch
+		*	LLVM_INPUTDIR=.host:/top_input
+		*	LLVM_OUTPUTDIR=.host:/instr_output
+	*	Generate ISO file
+		*	$HOME/svn/scripts/iso-commands UIO
+		*	New ISO is at $HOME/svn/iso-config/Low_Latency_VM_props.iso
+	* 	Load Low_Latency_VM_props.iso in CD/DVD of VM
+
+*	Copy updated STIX IDL sources
+	*	Destination $HOME/svn/idl/stix
+	*	Source files from lldp to: lldp\... + process_request.pro, process_telemetry.pro, stx_lldp_parse_packet.pro, tmtc_packet_mapping.csv
+	*	Also copy contents of "stix" folder from STIX IDL folder to $HOME/svn/idl/stix/lib, DO NOT COPY _FPGA_ AND _FSW_ AND _stx_counts.sav_ TESTING FOLDERS (size!)
+	*	Also copy ppl folder
+	*	Final destination: $HOME/svn/idl/stix/lib/[stix, lldp, ppl]
+	
+*	Convert TMTC binary to hex
+	*	hexdump -v -e '1/1 "%02x"' FILE > OUTFILE
+	
+	
+BEFORE SENDING VM TO ESA:
+*	Undo the startup_config edit!
