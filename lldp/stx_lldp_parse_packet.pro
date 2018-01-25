@@ -28,7 +28,7 @@ PRO stx_lldp_parse_packet, bitreader, tmtc_writer, monotony_reset=monotony_reset
   if pid ne 93 then return
   if pid_cat ne 12 then return
   if type ne 21 then return
-  if subtype ne 3 then return
+  if subtype ne 6 then return
 
 
   ; Formula to convert OBT to TAI derivable from fits_tlm_compare - BUT we're not
