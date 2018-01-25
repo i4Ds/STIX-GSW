@@ -2,9 +2,12 @@
 .metadata
 
 # ignore personal startup files
-startup_stix_sswidl*.bat
-stix_personal_startup*.pro
-**/.project
+startup_stix_sswidl*
+stix_personal_startup*
+dev/.project
+iunit/.project
+lldp/**/.project
+
 
 # ignore the fpga data folder
 fpga
