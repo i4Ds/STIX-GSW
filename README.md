@@ -25,7 +25,7 @@ devel_env_setup, 'on'
 
 ### Step 3: Create STIX-specific startup shell script ###
 1. Create a script file with name *startup_stix_sswidl.\[bat,sh\]* (\*.bat on Windows or \*.sh on Unix/Mac systems), e.g. inside your *STIX_SW_DEST* folder.
-2. Add the following content to the script file (**make sure that you choose the correct version for your system!**), and replace the variables indicated by *$VARNAME$* with the appropriate values for your system:
+2. Add the following content to the script file (**make sure that you choose the correct version for your system!**), and replace the variables indicated by *$$VARNAME$$* with the appropriate values for your system:
 
 *$$IDL_DIR$$:* Full path to your IDL directory, e.g. *C:\Program Files\Exelis\IDL85*
 *$$SSW$$:* Full path to your Solar SoftWare installation directory, e.g. *C:\SSW*
@@ -65,3 +65,6 @@ source $$SSW$$/gen/setup/setup.ssw
 
 idlde -data $IDL_WORKSPACE_PATH
 ```
+
+### Step 4: Start development environment ###
+SSW IDL can now be started by executing the startup script, created in *Step 3*.
