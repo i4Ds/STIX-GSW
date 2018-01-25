@@ -26,6 +26,7 @@
 ;    11-Apr-2013 - Nicky Hochmuth (FHNW), initial release
 ;    22-Sep-2016 - Simon Marcin (FHNW), added getdata procedure. Refactoring: use intermediate format.
 ;    14-Oct-2016 - Simon Marcin (FHNW), added state to reader object. Multiple getData calls are now possible.
+;    25-Jan-2017 - Laszlo I. Etesi (FHNW), added a workaround that allows reading calibration specra with incorrect sequencing flag (lines 81/82)
 ;-
 
 function stx_telemetry_reader::init, stream=stream, filename=filename, buffersize=buffersize, scan_mode=scan_mode
@@ -78,6 +79,7 @@ pro stx_telemetry_reader::update_statistics, solo_packet=solo_packet, type=type
 
   ; create a new list entry if we have a new packet_sequence or a standalone packet
   if(seq_flag eq 3 or seq_flag eq 1 or (type eq 'stx_tmtc_ql_calibration_spectrum')) then begin
+  ;if(seq_flag eq 3 or seq_flag eq 1 or (type eq 'stx_tmtc_ql_calibration_spectrum')) then begin
     ; create new entry
     ((self.stats_packets)[type]).add, 1
     stx_telemetry_util_time2scet, coarse_time=solo_packet.coarse_time, fine_time=solo_packet.fine_time, $
@@ -112,6 +114,7 @@ pro stx_telemetry_reader::add_solo,solo_packet=solo_packet,type=type
   ; create a new list entry if we have a new packet_sequence or a standalone packet
   seq_flag = solo_packet.segmentation_grouping_flags
   if(seq_flag eq 3 or seq_flag eq 1 or (type eq 'stx_tmtc_ql_calibration_spectrum')) then begin
+  ;if(seq_flag eq 3 or seq_flag eq 1 or (type eq 'stx_tmtc_ql_calibration_spectrum')) then begin
     ; create new entry
     (self.all_solo_packets)[type].add, list(solo_packet)
   endif else begin
@@ -131,6 +134,7 @@ pro stx_telemetry_reader::getdata, $
   asw_ql_variance=asw_ql_variance, $
   asw_ql_flare_list=asw_ql_flare_list, $
   fsw_m_ql_spectra = fsw_m_ql_spectra, $
+  stx_asw_ql_spectra = stx_asw_ql_spectra, $
   fsw_m_sd_aspect = fsw_m_sd_aspect, $
   asw_ql_flare_flag_location=asw_ql_flare_flag_location, $
   asw_ql_background_monitor=asw_ql_background_monitor, $
@@ -324,15 +328,17 @@ pro stx_telemetry_reader::getdata, $
   endif
 
   ; fsw_m_ql_spectra
-  if(arg_present(fsw_m_ql_spectra)) then begin
+  if(arg_present(fsw_m_ql_spectra) or  arg_present(stx_asw_ql_spectra)) then begin
     type = 'stx_tmtc_ql_spectra'
     if(self.stats_packets.haskey(type)) then begin
       self->update_packets,type=type
       fsw_m_ql_spectra = list()
+      stx_asw_ql_spectra = list()
       for idx = 0L, ((self.stats_structs)[type])-1 do begin
         stx_telemetry_prepare_structure_ql_spectra, solo_slices=((self.all_solo_packets)[type])[idx], $
           fsw_m_ql_spectra=ql_spectra, _extra=extra
-        fsw_m_ql_spectra.add, ql_spectra
+        fsw_m_ql_spectra.add,  ql_spectra
+        if arg_present(stx_asw_ql_spectra) then stx_asw_ql_spectra.add, stx_convert_fsw_ql_spectra_to_asw(ql_spectra)
       endfor
     endif
   endif

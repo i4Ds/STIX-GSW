@@ -31,7 +31,7 @@ pro stx_sim_fsw_run, dss, fsw, test_name, sequence_name, t_l=t_l, t_r=t_r, t_ig=
 
   ; don't check for the moment, must be done globally
   ;if(total(triggers.triggers) ne trigger_eventlist_counter) then stop
-  ;goto, skip
+
   ; create the rotating buffer structure
   rotating_buffer  = stx_fsw_archive2rotatingbuffer(archive_buffer=archive_buffer, trigger_accumulators=triggers, start_time=stx_time2any(0))
 
@@ -39,7 +39,7 @@ pro stx_sim_fsw_run, dss, fsw, test_name, sequence_name, t_l=t_l, t_r=t_r, t_ig=
   rotating_buffer_name = test_name + '_rotating_buffer'
   rotating_buffer_bin = rotating_buffer_name + '.bin'
   stx_rotatingbuffer2file, rotating_buffer=rotating_buffer, filename=rotating_buffer_bin
-;skip:
+
   ; verify that the write procedure worked
   ;rb_verify = stx_file2rotatingbuffer(filename=rotating_buffer_bin)
 

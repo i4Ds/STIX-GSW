@@ -19,6 +19,7 @@
 ;                                         - mapping detector to FPGA scheme
 ;   26-Aug-2015 - Laszlo I. Etesi (FHNW), bugfix: fixed auto resetting of timestamps
 ;   13-Jul-2016 - Laszlo I. Etesi (FHNW), added aspect block handling (data are ignored!)
+;   20-Jan-2017 - Laszlo I. Etesi (FHNW), added new (and corrected) FPGA-to-Subcollimator detector mapping
 ;-
 ;+
 ; :description:

@@ -24,6 +24,7 @@
 ;                                         - fixed block number
 ;                                         - mapping detector to FPGA scheme
 ;   06-Mar-2017 - Laszlo I. Etesi (FHNW), increased file size
+;   25-Jan-2017 - Laszlo I. Etesi (FHNW), added new (and corrected) FPGA-to-Subcollimator detector mapping
 ;-
 ;+
 ; :description:

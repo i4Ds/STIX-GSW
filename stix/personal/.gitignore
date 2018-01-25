@@ -1,0 +1,6 @@
+# Personal folder should be used for personal files. They should not be added to the repository.
+# If it is desired to add personal things to the repository, use a branch.
+# Ignore everything in this directory
+*
+# Except this file
+!.gitignore

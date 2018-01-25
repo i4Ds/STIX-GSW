@@ -19,6 +19,7 @@
 ;
 ; :history:
 ;     19-Jun-2015 - Marek Steslicki (Wro), initial release
+;     25-Jan-2017 - Laszlo I. Etesi (FHNW), added new (and corrected) FPGA-to-Subcollimator detector mapping
 ;
 ;-
 function  stx_sim_dss_detector_numbering, number, dss=dss, subcollimator=subcollimator

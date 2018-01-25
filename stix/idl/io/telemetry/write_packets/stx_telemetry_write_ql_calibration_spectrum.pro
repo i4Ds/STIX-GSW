@@ -46,7 +46,7 @@ pro stx_telemetry_write_ql_calibration_spectrum, calibration_spectrum_packet_str
   endfor
 
   ; process all dyamic fields
-  for struct_idx = 0L, calibration_spectrum_packet_structure.number_of_structures-1L do begin
+  for struct_idx = 0L, calibration_spectrum_packet_structure.number_of_structures-1 do begin
 
     ;write spare bits
     data = (*calibration_spectrum_packet_structure.dynamic_spare)[struct_idx]

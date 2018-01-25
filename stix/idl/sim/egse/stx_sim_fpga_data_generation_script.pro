@@ -213,6 +213,7 @@ end
 ;   05-Oct-2016 - Laszlo I. Etesi (FHNW), - updated the script to be able to repeatedly run a sequence in sequence
 ;                                         - minor updates
 ;   06-Mar-2017 - Laszlo I. Etesi (FHNW), - minor updates
+;   25-Jan-2017 - Laszlo I. Etesi (FHNW), added new (and corrected) FPGA-to-Subcollimator detector mapping
 ;-
 ;+
 ; :description:
