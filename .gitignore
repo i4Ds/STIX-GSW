@@ -23,3 +23,11 @@ lldp/testing/TEST_OUTPUT/failed/*
 lldp/testing/TEST_OUTPUT/logs/*
 lldp/testing/TEST_OUTPUT/temporary/*
 lldp/testing/TEST_OUTPUT/products/*
+
+# ignore scenario output folders and contents
+stx_scenario_*
+
+# ignore stuff that is laying around in the root folder
+/*.bin
+/*.pro
+/*.xml
