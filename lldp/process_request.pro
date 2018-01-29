@@ -2,11 +2,9 @@
 ;;
 PRO process_request, input_dir, output_dir
 
-  ; This should be done in the config file.
-  env = 'STX_TMTC='
-  env += FILE_DIRNAME(ROUTINE_FILEPATH())
-  setenv, env
-
+  ; initialize environment
+  stx_lldp_init_environment
+  
   request = file_basename(input_dir)
   print
   print, "PROCESSING: "+request
@@ -35,6 +33,10 @@ PRO process_request, input_dir, output_dir
   aux_dir = input_dir + "/auxiliary"
   filename = aux_dir + "/filtered_tmtc.bin"
   tmtc_reader = stx_telemetry_reader(stream=stream)
+  
+  ; create emtpy lists, in case no data are returned
+  asw_ql_lightcurve = list()
+  asw_ql_flare_flag_location = list()
 
   ; create lightcurve and flare_flag_location
   tmtc_reader->getdata, solo_packets = solo_packets_r, statistics = statistics, $

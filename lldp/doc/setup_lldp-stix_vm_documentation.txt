@@ -1,4 +1,4 @@
-Setup LLDP-STIX VM
+Setup LLDP-STIX VM, Updated 26.01.2018 (lie)
 ------------------
 *	Update INSTR
 	*	$HOME/svn/scripts/config_paths -> INSTR=STIX
@@ -33,11 +33,8 @@ Setup LLDP-STIX VM
 	* 	Load Low_Latency_VM_props.iso in CD/DVD of VM
 
 *	Copy updated STIX IDL sources
-	*	Destination $HOME/svn/idl/stix
-	*	Source files from lldp to: lldp\... + process_request.pro, process_telemetry.pro, stx_lldp_parse_packet.pro, tmtc_packet_mapping.csv
-	*	Also copy contents of "stix" folder from STIX IDL folder to $HOME/svn/idl/stix/lib, DO NOT COPY _FPGA_ AND _FSW_ AND _stx_counts.sav_ TESTING FOLDERS (size!)
-	*	Also copy ppl folder
-	*	Final destination: $HOME/svn/idl/stix/lib/[stix, lldp, ppl]
+	*	Use Git to download IDL repository to $HOME/svn/idl/stix/STIX-ASW
+	*	(removed) NB: There is a .gitignore in STIX-ASW/lldp/common that must not be uploaded. It is there to keep "common" empty and to only use $HOME/svn/idl/common!
 	
 *	Convert TMTC binary to hex
 	*	hexdump -v -e '1/1 "%02x"' FILE > OUTFILE
