@@ -153,7 +153,7 @@ pro stx_fsw_accumulation_of_calibration_spectrum, events_in, $
 ;    detector_index: 0b, $
 ;    original_eadc: uint(0), $
 ;    energy_ad_channel: uint(0) $
-  }
+;  }
 
 ;  s_calib_event_ptr = 0l
 
