@@ -39,6 +39,11 @@ Setup LLDP-STIX VM, Updated 26.01.2018 (lie)
 *	Convert TMTC binary to hex
 	*	hexdump -v -e '1/1 "%02x"' FILE > OUTFILE
 	
+*	Use OVF Tool to convert vmx to ova
+	*	Download OVFTool from https://www.vmware.com/support/developer/ovf/
+	*	ovftool.exe "C:\Users\laszl\Documents\Virtual Machines\LLDP-STIX-00.06.00\LLDP-STIX-00.06.00.vmx" "C:\Users\laszl\Documents\Virtual Machines\LLDP-STIX-00.06.00\LLDP-STIX-00.06.00.ova"
+	
+	
 	
 BEFORE SENDING VM TO ESA:
 *	Undo the startup_config edit!
