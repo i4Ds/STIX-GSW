@@ -1,4 +1,4 @@
-# STIX-ASW
+# STIX-GSW (STIX Ground Software)
 Ground-analysis software repository
 
 ## Setup of local development repository ##
@@ -12,7 +12,7 @@ Ground-analysis software repository
 ### Step 1: Checkout code ###
 1. Start SourceTree (or your Git client). 
 2. Go to *File > Clone/New*. This opens the *Clone* dialogue. 
-3. In the *Clone* dialogue, set *Source Path / URL:* to https://github.com/i4Ds/STIX-ASW.git, and *Destination Path:* to your desired STIX ground analysis software location on your workstation (referred to as *STIX_SW_DEST* later on). The field *Name:* will be filled automatically, and *Local Folder: \[ROOT\]* should be left as is. Once you clicked on the *Clone* button, **SourceTree will ask for your GitHub credentials**, so it can log you in. **SourceTree will also ask you, under which Name and Email your changes shall be registered. The Name and email does not have to correspond with the information you use to log in to GitHub. Please make sure it is a clear and identifiable Name (e.g. *John Doe*) and an email you want to be affiliated with.** 
+3. In the *Clone* dialogue, set *Source Path / URL:* to https://github.com/i4Ds/STIX-GSW.git, and *Destination Path:* to your desired STIX ground analysis software location on your workstation (referred to as *STIX_SW_DEST* later on). The field *Name:* will be filled automatically, and *Local Folder: \[ROOT\]* should be left as is. Once you clicked on the *Clone* button, **SourceTree will ask for your GitHub credentials**, so it can log you in. **SourceTree will also ask you, under which Name and Email your changes shall be registered. The Name and email does not have to correspond with the information you use to log in to GitHub. Please make sure it is a clear and identifiable Name (e.g. *John Doe*) and an email you want to be affiliated with.** 
 4. Once the checkout completed successfully, you should find the sources in the *STIX_SW_DEST* folder you specified in step 3. 
 
 ### Step 2: Create personal STIX IDL startup script (PRO-file for IDL) ###
@@ -68,3 +68,13 @@ idlde -data $IDL_WORKSPACE_PATH
 
 ### Step 4: Start development environment ###
 SSW IDL can now be started by executing the startup script, created in *Step 3*.
+
+## Troubleshooting ##
+### SourceTree keeps asking for your login information and rejects your username/password ###
+Make sure your username and password are actually correct and try again. If all looks in order, but the password is still not accepted, try the following:
+
+1. Open the STIX repository in SourceTree
+1. Go to your STIX repository slider/page
+1. To the upper-right you see the gear symbol labelled "Settings". Click on it.
+1. In new dialog window, you should see the repository link in the box labelled "Remote repository paths". In our case it should be *https://github.com/i4Ds/STIX-GSW.git*. Please double click that entry and add your username between the "//" and "github", followed by an "at" sign, e.g. *https://your-user-name@github.com/i4Ds/STIX-GSW.git*.
+1. Save your changes and try again logging in. NB: You can provoke a login by clicking on *Fetch*
