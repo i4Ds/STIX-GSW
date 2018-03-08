@@ -3,8 +3,17 @@
 <!-- 
 <header>
 <history>
-	<change date="XXX" author="Laszlo I. Etesi" affiliation="FHNW">
-		<log>TBA</log>
+	<change date="11-Oct-2016" author="Laszlo I. Etesi" affiliation="FHNW">
+		<log>New default configuration with initial parameters</log>
+	</change>
+	<change date="14-Oct-2016" author="Laszlo I. Etesi" affiliation="FHNW">
+		<log>Changed location of temperature and energy ad to sc channel LUTs</log>
+	</change>
+	<change date="23-Jan-2016" author="Laszlo I. Etesi" affiliation="FHNW">
+		<log>Fixed archive buffer active detectors</log>
+	</change>
+	<change date="13-Feb-2017" author="Laszlo I. Etesi" affiliation="FHNW">
+		<log>Updated RCR parameters</log>
 	</change>
 </history>
 </header> 
@@ -34,6 +43,7 @@
 		<parameter name="tq" default="0.005d" valid="X ge 0" type="double">
 			<description>Time interval that separates to events.</description>
 			<unit>seconds</unit>
+			<value>0d</value>
 		</parameter>
 		<parameter name="ts" default="0d" valid="X ge 0" type="double">
 			<description>Time interval for software gate. Assuming a constant time the software is busy upon processing a calibration event.</description>
@@ -60,6 +70,7 @@
 		<link>https://www.dropbox.com/s/7l1vn8uhs8grixy/FSWenergyCalibration20130625.docx</link>
 		<parameter name="temperature_correction_table_file" default="concat_dir(getenv('STX_DET'), 'stx_temperature_correction.csv')" valid="file_exist(X)" type="string">
 			<description>The file path to the temperature correction table</description>
+			<value>concat_dir(getenv('STX_CONF'), 'TemperatureCorrection_TLUT0_20150708_1.csv')</value>
 		</parameter>
 		<parameter name="update_frequency" default="4" valid="X gt 0" type="int">
 			<description>Update frequency of this module in seconds</description>
@@ -71,6 +82,7 @@
 		<link>https://www.dropbox.com/s/7l1vn8uhs8grixy/FSWenergyCalibration20130625.docx</link>
 		<parameter name="science_channel_conversion_table_file" default="concat_dir(getenv('STX_DET'), 'ad_energy_table.csv')" valid="file_exist(X)" type="string">
 			<description>The file path to the A/D [4096] to science channel [32] conversion table.</description>
+			<value>concat_dir(getenv('STX_CONF'), 'ELUT5_20151107_1.csv')</value>
 		</parameter>
 		<parameter name="update_frequency" default="4" valid="X gt 0" type="int">
 			<description>Update frequency of this module in seconds</description>
@@ -129,6 +141,7 @@
 		<link>https://www.dropbox.com/s/cba0uzn93c7bu68/FSWaccumulationTiming20130618.docx</link>
 		<parameter name="m_acc" default="byte([1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1])" valid="n_elements(X) eq 32" type="byte_array">
 			<description>32-bit mask selecting detectors to be included in the accumulation.</description>
+			<value>bytarr(32)+1b</value>
 		</parameter>
 		<parameter name="m_channel" default="bytarr(32)+1b" valid="n_elements(X) eq 32" type="byte_array">
 			<description>32-bit mask selecting energy channels to be used in count n_min.</description>
@@ -139,7 +152,6 @@
 		<parameter name="t_max" default="110L" valid="X gt 0" type="long">
 			<description>Maximum length of an accumulation time bin in units of 100ms.</description>
 			<unit>100 milliseconds</unit>
-			<!-- value>1L</value -->
 		</parameter>
 		<parameter name="t_min" default="0.1d" valid="X gt 0" type="double">
 			<!-- maybe move this parameter to global -->
@@ -202,7 +214,7 @@
 			<description>Update frequency of this module in seconds</description>
 			<unit>seconds</unit>
 		</parameter>
-		<parameter name="no_var" default="40ul" valid="X gt 0" type="ulong">
+		<parameter name="no_var" default="40L" valid="X gt 0" type="long">
 			<description>Number of 0.1 s accumulated intervals which the variance will be calculated over.</description>
 			<unit>10 milliseconds</unit>
 		</parameter>
@@ -253,9 +265,10 @@
 			<unit>seconds</unit>
 			<value>4</value>
 		</parameter>
-		<parameter name="reset_frequency_stx_fsw_ql_spectra" default="4" valid="X gt 0" type="int">
+		<parameter name="reset_frequency_stx_fsw_ql_spectra" default="32" valid="X gt 0" type="int">
 			<description>Reset frequency of this quicklook accumulator (every how many seconds is the buffer saved and reset). This parameter applies to counts and trigger accumulators alike.</description>
 			<unit>seconds</unit>
+			 <value>4</value>
 		</parameter>
 		<parameter name="reset_frequency_stx_fsw_ql_bkgd_monitor" default="32" valid="X gt 0" type="int">
 			<description>Reset frequency of this quicklook accumulator (every how many seconds is the buffer saved and reset). This parameter applies to counts and trigger accumulators alike.</description>
@@ -293,12 +306,20 @@
 			<description>Update frequency of this module in seconds</description>
 			<unit>seconds</unit>
 		</parameter>
-		<parameter name="default_background" default="[1UL,1,1,1,1]" valid="n_elements(X) ge 1" type="ulong_array">
+		<parameter name="default_background" default="[1.,1.,1.,1.,1.]" valid="total(X ge 0) eq 5" type="float_array">
 			<description>Default value for background (nql is the number of energy intervals in background accumulators)</description>
 		</parameter>
 		<parameter name="enable" default="1b" valid="ppl_xml_value_is_boolean(X)" type="byte">
 		<!-- this is program flow and should not be in here... -->
 			<description>1 if enable, 0 if disable the background determination</description>
+		</parameter>
+		<parameter name="trigger_duration" default="0.00001d" valid="X gt 0" type="double">
+			<!-- maybe move this parameter to global -->
+			<description>The trigger duration</description>
+			<unit>seconds</unit>
+		</parameter>
+		<parameter name="pixel_mask" default="bytarr(12)+1b" valid="ppl_xml_value_in_interval_test(total(X),[0,12])" type="byte_array"> 
+			<description>This pixel mask defines which pixels to sum in order to determine the background</description>
 		</parameter>
 	</section>
 	<section name="stx_fsw_module_flare_detection" alias="fd">
@@ -307,15 +328,15 @@
 			<description>Update frequency of this module in seconds</description>
 			<unit>seconds</unit>
 		</parameter>
-		<parameter name="nbl" default="[120.,24.]" valid="total(X gt 0) eq 2" type="float_array">
+		<parameter name="nbl" default="[1200.,60.]" valid="total(X gt 0) eq 2" type="float_array">
 			<description>Seconds for the median window of 2 time series.</description>
 			<unit>seconds</unit>
 		</parameter>
-		<parameter name="thermal_cfmin" default="[36,36]" valid="total(X gt 0) eq 2" type="int_array">
+		<parameter name="thermal_cfmin" default="[5,5]" valid="total(X gt 0) eq 2" type="int_array">
 			<description>Count threshold to turn on a flare for both time series in the thermal band.</description>
 			<unit>seconds</unit>
 		</parameter>
-		<parameter name="nonthermal_cfmin" default="[180,180]" valid="total(X gt 0) eq 2" type="int_array">
+		<parameter name="nonthermal_cfmin" default="[30,30]" valid="total(X gt 0) eq 2" type="int_array">
 			<description>Count threshold to turn on a flare for both time series in the nonthermal band.</description>
 			<unit>counts</unit>
 		</parameter>
@@ -357,11 +378,11 @@
 		<parameter name="l1" default="2*10L^5" valid="X gt 0" type="long">
 			<description>Lower live time accumulator threshold for changing from C0 to C1, i.e. RCR0 to RCR1 (viz, for inserting the attenuator.</description>
 		</parameter>
-		<parameter name="l2" default="1*10L^5" valid="X gt 0" type="long">
-			<description>Lower live time accumulator threshold for lowering RCR by increasing the effective detector area.</description>
+		<parameter name="l2" default="2*10L^5" valid="X gt 0" type="long">
+			<description>Lower live tme acculator threshold for change RCR by increasing the effective detector area.</description>
 		</parameter>
-		<parameter name="l3" default="2*10L^5" valid="X gt 0" type="long">
-			<description>Upper live time accumulator threshold for raising RCR by reducing the effective detector area.</description>
+		<parameter name="l3" default="1*10L^5" valid="X gt 0" type="long">
+			<description>Upper live time accumulator threshold for changing RCR by reducing the effective detector area.</description>
 		</parameter>
 		<parameter name="b0" default="2*10L^3" valid="X gt 0" type="long">
 			<description>Upper limit on Ab (from background detector) for removing attenuator (max counts in 4s in 1 BKGD pixel for RCR1 to RCR0)</description>
@@ -429,11 +450,13 @@
 		<description>Prepares the quicklook spectra for the telemetry format</description>
 		<parameter name="detector_mask" default="byte([1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1])" valid="n_elements(X) eq 32" type="byte_array">
 	    	<description> which detectors should be packed into telemetry</description>
+	    	<value>bytarr(32)+1b</value>
 		</parameter>
-		<parameter name="schema" default="1b" valid="X ge 0 and X lt 2" type="byte">
+		<parameter name="schema" default="0b" valid="X ge 0 and X lt 2" type="byte">
 			<description> 0: one detector each 32 seconds
 	                      1: all detectors at once, (for now) every 32 seconds
 	        </description>
+	        <value>1b</value>
 	    </parameter>
 	</section>
 	<section name="stx_fsw_module_tmtc" alias="tmtc">
@@ -453,7 +476,7 @@
 			<description>compressen parameter[s,k,m] for the quicklook background triggers</description>
 		</parameter>
 		
-		<parameter name="ql_calibration_spectrum_compression_counts" default="[0b,5b,3b]" valid="n_elements(X) eq 3 AND total(X) eq 8" type="byte_array">
+		<parameter name="ql_calibration_spectrum_compression_counts" default="[0b,4b,4b]" valid="n_elements(X) eq 3 AND total(X) eq 8" type="byte_array">
 			<description>compressen parameter[s,k,m] for the calibration spectrum data</description>
 		</parameter>
 		
@@ -504,42 +527,9 @@
 		<parameter name="sd_spectrogram_compression_triggers" default="[0b,5b,3b]" valid="n_elements(X) eq 3 AND total(X) eq 8" type="byte_array">
 			<description>compressen parameter[s,k,m] for the science data spectrogram triggers</description>
 		</parameter>
-		<parameter name="ql_calibration_spectrum_subspectra_mask" default="byte([1, 0, 0, 0, 0, 0, 0, 0])" valid="n_elements(X) eq 8 AND total(X) le 8" type="byte_array">
-			<description>Definition of subspectrum parameters: starting energy bin, energy bin width, number of spectral points.</description>
-		</parameter>
-		<parameter name="ql_calibration_spectrum_csdm" default="bytarr(32)+1b" valid="n_elements(X) eq 32 AND total(X) le 32" type="byte_array">
-			<description>Active detector mask</description>
-		</parameter>
-		<parameter name="ql_calibration_spectrum_cspm" default="bytarr(12)+1b" valid="n_elements(X) eq 12 AND total(X) le 12" type="byte_array">
-			<description>Active pixel mask</description>
-		</parameter>		
-		<parameter name="ql_calibration_spectrum_subspectrum_1" default="[0, 0, 1023]" valid="n_elements(X) eq 3" type="int_array">
-			<description>Definition of subspectrum parameters: starting energy bin, energy bin width (0-1023), number of spectral points (0-1023).</description>
-		</parameter>
-		<parameter name="ql_calibration_spectrum_subspectrum_2" default="[0, 0, 1023]" valid="n_elements(X) eq 3" type="int_array">
-			<description>Definition of subspectrum parameters: starting energy bin, energy bin width (0-1023), number of spectral points (0-1023).</description>
-		</parameter>
-		<parameter name="ql_calibration_spectrum_subspectrum_3" default="[0, 0, 1023]" valid="n_elements(X) eq 3" type="int_array">
-			<description>Definition of subspectrum parameters: starting energy bin, energy bin width (0-1023), number of spectral points (0-1023).</description>
-		</parameter>
-		<parameter name="ql_calibration_spectrum_subspectrum_4" default="[0, 0, 1023]" valid="n_elements(X) eq 3" type="int_array">
-			<description>Definition of subspectrum parameters: starting energy bin, energy bin width (0-1023), number of spectral points (0-1023).</description>
-		</parameter>
-		<parameter name="ql_calibration_spectrum_subspectrum_5" default="[0, 0, 1023]" valid="n_elements(X) eq 3" type="int_array">
-			<description>Definition of subspectrum parameters: starting energy bin, energy bin width (0-1023), number of spectral points (0-1023).</description>
-		</parameter>
-		<parameter name="ql_calibration_spectrum_subspectrum_6" default="[0, 0, 1023]" valid="n_elements(X) eq 3" type="int_array">
-			<description>Definition of subspectrum parameters: starting energy bin, energy bin width (0-1023), number of spectral points (0-1023).</description>
-		</parameter>
-		<parameter name="ql_calibration_spectrum_subspectrum_7" default="[0, 0, 1023]" valid="n_elements(X) eq 3" type="int_array">
-			<description>Definition of subspectrum parameters: starting energy bin, energy bin width (0-1023), number of spectral points (0-1023).</description>
-		</parameter>
-		<parameter name="ql_calibration_spectrum_subspectrum_8" default="[0, 0, 1023]" valid="n_elements(X) eq 3" type="int_array">
-			<description>Definition of subspectrum parameters: starting energy bin, energy bin width (0-1023), number of spectral points (0-1023).</description>
-		</parameter>				
-		
+	
 		<parameter name="calibration_subspectra" default="[[0,4,32], [128,4,32], [256,4,32], [384,4,32], [512,4,32], [640,4,32], [768,4,32], [896,4,32]]" valid="(size(X,/dim))[0] eq 3  AND (size(X,/dim))[1] le 8" type="int_array">
 			<description>a set of up to 8 subspectra [ad_channel_start, width, repeat] </description>
-		</parameter>
+		</parameter>		
 	</section>
 </configuration>

@@ -76,6 +76,7 @@ function stx_telemetry_read_ql_calibration_spectrum, solo_packet=solo_packet, tm
     for j = 0L, val-1 do begin
       sub[j] = tmr->read(size(fix(0), /type), bits=8, debug=debug, silent=silent)
     endfor
+    
     dynamic_spc.add, sub    
 
   endfor

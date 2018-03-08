@@ -46,8 +46,8 @@
 ;    28-Nov-2017 - ECMD (Graz), initial release
 ;
 ;-
-pro stx_degraded_detector_parameters, degrade_per, line_factor = line_factor, continuum_factor = continuum_factor, 
-  trap_length_h = trap_length_h, trap_length_e = trap_length_e, func_par = func_par, tail = tail
+pro stx_degraded_detector_parameters, degrade_per, line_factor = line_factor, continuum_factor = continuum_factor,  $
+    trap_length_h = trap_length_h, trap_length_e = trap_length_e, func_par = func_par, tail = tail
 
 
   line_factor = exp(-0.36*degrade_per)              ; line factor drops exponentially  from 1. at 0% to 0.7 at 100%
@@ -58,6 +58,5 @@ pro stx_degraded_detector_parameters, degrade_per, line_factor = line_factor, co
   tail = 1                                          ; the effects of hole tailing are important to include here
 
 
-  stop
 end
 

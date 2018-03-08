@@ -86,10 +86,11 @@ function prepare_packet_structure_ql_spectra_fsw, ql_spectra=ql_spectra, $
   packet.fine_time = fine_time
 
   ; s, kkk, mmm for spectrum
-  packet.compression_schema_spectrum = ishft(compression_param_s_sp, 6) or ishft(compression_param_k_sp, 3) or compression_param_m_sp
-
+  packet.compression_schema_spectrum = stx_km_compression_params_to_schema(compression_param_k_sp,compression_param_m_sp,compression_param_s_sp)
+  
   ; s, kkk, mmm for trigger accumulator
-  packet.compression_schema_trigger = ishft(compression_param_s_t, 6) or ishft(compression_param_k_t, 3) or compression_param_m_t
+  packet.compression_schema_trigger = stx_km_compression_params_to_schema(compression_param_k_t,compression_param_m_t,compression_param_s_t)
+  
   
   ; pixel mask gets converted to a number
   packet.pixel_mask=ql_spectra.pixel_mask[0]
@@ -107,9 +108,15 @@ function prepare_packet_structure_ql_spectra_fsw, ql_spectra=ql_spectra, $
   packet.dynamic_spectrum = ptr_new(bytarr(energy_bins, packet.number_of_structures))
   packet.dynamic_trigger_accumulator = ptr_new(bytarr(packet.number_of_structures))
   packet.dynamic_nbr_samples = ptr_new(intarr(packet.number_of_structures))
-
+  
+  
+  
   ;Loop through all time bins
   for time_bin = 0L, time_bins-1 do begin
+    
+    if ql_spectra.samples[time_bin].DELTA_TIME eq 92 AND ql_spectra.samples[time_bin].detector_index eq 5 then begin
+      print, 1
+    endif
                 
     ; compress spectra
     sub_spectra_compressed = stx_km_compress(ql_spectra.samples[time_bin].counts, $
@@ -123,7 +130,9 @@ function prepare_packet_structure_ql_spectra_fsw, ql_spectra=ql_spectra, $
     (*packet.dynamic_detector_index)[time_bin] = ql_spectra.samples[time_bin].detector_index
     (*packet.dynamic_spectrum)[*,time_bin] = reform(sub_spectra_compressed)
     (*packet.dynamic_trigger_accumulator)[time_bin] = reform(sub_trigger_compressed)
-    (*packet.dynamic_nbr_samples)[time_bin] = time_bin
+    ;fix nicky hochmuth ToDO check with Simon
+    ;(*packet.dynamic_nbr_samples)[time_bin] = time_bin
+    (*packet.dynamic_nbr_samples)[time_bin] = ql_spectra.samples[time_bin].DELTA_TIME / ql_spectra.integration_time
 
   endfor
 
@@ -187,7 +196,7 @@ pro stx_telemetry_prepare_structure_ql_spectra_write, solo_slices=solo_slices, $
   curr_packet_size = max_packet_size
 
   ; counter_samples (used to increase the SCET by integration_time*counter)
-  counter_samples = 0L
+  integration_time_offset = 0L
   
   ;Process ever sample with its trigger acumulator, detector index and delta_time
   for structure_idx = 0L, n_structures-1 do begin
@@ -226,8 +235,10 @@ pro stx_telemetry_prepare_structure_ql_spectra_write, solo_slices=solo_slices, $
         fitting_pakets = n_structures-structure_idx
       endelse
 
-      ; update the SCET in each new packet with integration_time*alread_processed_samples
-      (*solo_slices[-1].source_data).coarse_time += counter_samples*(*solo_slices[-1].source_data).integration_time
+      ; update the SCET in each new packet 
+      (*solo_slices[-1].source_data).coarse_time += (*source_data.dynamic_nbr_samples)[structure_idx]*((*solo_slices[-1].source_data).integration_time * 0.1) 
+      
+       integration_time_offset = (*source_data.dynamic_nbr_samples)[structure_idx]
       
       ; initialize dynamic arrays
       (*solo_slices[-1].source_data).dynamic_detector_index = ptr_new(bytarr(fitting_pakets)-1)
@@ -251,7 +262,7 @@ pro stx_telemetry_prepare_structure_ql_spectra_write, solo_slices=solo_slices, $
       
       ; add 9 (not 10?) bytes for TM Packet Data Header that is otherwise not accounted for
       solo_slices[-1].data_field_length += 9
-      
+     
     endif
 
     ; run the following lines of code when adding a new spectrum sample to an existing packet that has space left
@@ -267,7 +278,10 @@ pro stx_telemetry_prepare_structure_ql_spectra_write, solo_slices=solo_slices, $
       (*(*solo_slices[-1].source_data).dynamic_trigger_accumulator)[(structure_idx MOD max_fitting_paket)] = trigger_slice
       ;(*(*solo_slices[-1].source_data).dynamic_delta_time)[(structure_idx MOD max_fitting_paket)] = delta_time_slice
       ; 23.Feb.2017 - simon marcin: changed from delta time to nbr_samples (always relative to the actual paket header)
-      (*(*solo_slices[-1].source_data).dynamic_nbr_samples)[(structure_idx MOD max_fitting_paket)] = (*solo_slices[-1].source_data).number_of_structures
+      ;(*(*solo_slices[-1].source_data).dynamic_nbr_samples)[(structure_idx MOD max_fitting_paket)] = (*solo_slices[-1].source_data).number_of_structures
+      
+      (*(*solo_slices[-1].source_data).dynamic_nbr_samples)[(structure_idx mod max_fitting_paket)] = (*source_data.dynamic_nbr_samples)[structure_idx] - integration_time_offset
+
       
       ; adjust current packet size
       curr_packet_size += dynamic_struct_size
@@ -277,7 +291,7 @@ pro stx_telemetry_prepare_structure_ql_spectra_write, solo_slices=solo_slices, $
 
       ; adjust number of attached structures
       (*solo_slices[-1].source_data).number_of_structures++
-      counter_samples ++
+      
 
     endif
   endfor
@@ -304,13 +318,17 @@ pro stx_telemetry_prepare_structure_ql_spectra_read, solo_slices=solo_slices, $
   total_number_of_structures=0
 
   ; get compression params
-  compression_param_k_t = fix(ishft((*solo_slices[0].source_data).compression_schema_trigger,-3) and 7)
-  compression_param_m_t = fix((*solo_slices[0].source_data).compression_schema_trigger and 7)
-  compression_param_s_t = fix(ishft((*solo_slices[0].source_data).compression_schema_trigger,-6) and 3)
-  compression_param_k_sp = fix(ishft((*solo_slices[0].source_data).compression_schema_spectrum,-3) and 7)
-  compression_param_m_sp = fix((*solo_slices[0].source_data).compression_schema_spectrum and 7)
-  compression_param_s_sp = fix(ishft((*solo_slices[0].source_data).compression_schema_spectrum,-6) and 3)
-
+  
+  stx_km_compression_schema_to_params, (*solo_slices[0].source_data).compression_schema_trigger, k=compression_param_k_t, m=compression_param_m_t, s=compression_param_s_t
+  stx_km_compression_schema_to_params, (*solo_slices[0].source_data).compression_schema_spectrum, k=compression_param_k_sp, m=compression_param_m_sp, s=compression_param_s_sp
+ 
+  ; start_time as stx_time
+  stx_telemetry_util_time2scet,coarse_time=(*solo_slices[0].source_data).coarse_time, $
+    fine_time=(*solo_slices[0].source_data).fine_time, stx_time_obj=start_time, /reverse
+    
+  ; convert integration time from 1/10s to s
+  integration_time = (*solo_slices[0].source_data).integration_time/10.0  
+  
   ; reading the solo_sclice
   for solo_slice_idx = 0L, n_elements(solo_slices)-1 do begin
 
@@ -324,9 +342,18 @@ pro stx_telemetry_prepare_structure_ql_spectra_read, solo_slices=solo_slices, $
     slice_detector_index = byte((*(*solo_slices[solo_slice_idx].source_data).dynamic_detector_index))
     slice_nbr_samples = uint((*(*solo_slices[solo_slice_idx].source_data).dynamic_nbr_samples))
     
+    
+    stx_telemetry_util_time2scet,coarse_time=(*solo_slices[solo_slice_idx].source_data).coarse_time, $
+      fine_time=(*solo_slices[solo_slice_idx].source_data).fine_time, stx_time_obj=current_time, /reverse
+
+    time_diff = uint(stx_time_diff(current_time, start_time, /abs))
+    print, time_diff
+    time_offset = uint(time_diff / integration_time)
+    
+    
     ; extrapolate the relative number of samples
     ; ToDo: Handle missing packets (create a gap in the nbr_samples)
-    slice_nbr_samples += total_number_of_structures
+    slice_nbr_samples += time_offset
 
     ; append the slices
     if  solo_slice_idx eq 0 then begin
@@ -340,18 +367,18 @@ pro stx_telemetry_prepare_structure_ql_spectra_read, solo_slices=solo_slices, $
       detector_index = [detector_index, slice_detector_index]
       nbr_samples = [nbr_samples, slice_nbr_samples]
     endelse
-
+    
+  
+     
+    
     ; count total_number_of_structures
-    total_number_of_structures+=(*solo_slices[solo_slice_idx].source_data).number_of_structures
+    total_number_of_structures += (*solo_slices[solo_slice_idx].source_data).number_of_structures
 
   endfor
 
-  ; start_time as stx_time
-  stx_telemetry_util_time2scet,coarse_time=(*solo_slices[0].source_data).coarse_time, $
-    fine_time=(*solo_slices[0].source_data).fine_time, stx_time_obj=start_time, /reverse
+  
 
-  ; convert integration time from 1/10s to s
-  integration_time = (*solo_slices[0].source_data).integration_time/10.0
+
   
   ;create new stx_asw_ql_spectra object
   if(arg_present(asw_ql_spectra)) then begin

@@ -595,7 +595,7 @@ pro stx_flight_software_simulator_gui::plot, fsw=fsw, _extra=extra
       self.variance_plot_object = obj_new('stx_archive_buffer_plot')
       self.variance_plot_object.plot, start_time=reference_time, current_time=current_time, lc_total_counts=lc_total_counts, $
                                       variance=variance, archive_buffer=stx_fsw_m_archive_buffer_group, dimensions=[1260,250], $
-                                      position=[0.1,0.2,0.7,0.95], current_window=window_variance, /add_legend
+                                      position=[0.1,0.2,0.7,0.95], current_window=window_variance, /add_legend, /xstyle, /ystyle
     endif else begin
       self.variance_plot_object.append_data, start_time=reference_time, current_time=current_time, $
                                     lc_total_counts=lc_total_counts, $

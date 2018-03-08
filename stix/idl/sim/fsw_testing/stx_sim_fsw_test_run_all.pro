@@ -1,5 +1,5 @@
 pro stx_sim_fsw_test_run_all
-  version = 'v20170123' ;time2file(trim(ut_time(/to_local)), /seconds)
+  version = 'v20170328' ;time2file(trim(ut_time(/to_local)), /seconds)
   seed = 1337
   test_root = 'C:\Temp'
   t_l = 1.35d-6
@@ -28,9 +28,10 @@ pro stx_sim_fsw_test_run_all
   ; restore original setting
   setenv, 'STX_CONF=' + original_conf
   cd, original_dir
-
+;stop
+;return
   ; T1a - END ************************************************************************************************
-resume_here:
+;resume_here:
   ; T1b - BEGIN **********************************************************************************************
   sequence_name = 'D1b-2'
   test_name = 'T1b'
@@ -164,7 +165,7 @@ stop
   stx_sim_fsw_copy_test, copy_from, copy_to, concat_dir(test_root, version)
 
   ; T4 - END ************************************************************************************************
-  
+  ;resume_here:
   ; T5a - BEGIN **********************************************************************************************
   sequence_name = 'D3-2'
   test_name = 'T5a'
@@ -186,9 +187,11 @@ stop
   setenv, 'STX_CONF=' + original_conf
   cd, original_dir
   setenv, 'WRITE_CALIBRATION_SPECTRUM=false'
+stop
+return
 
   ; T5a - END ************************************************************************************************
-  
+  ;resume_here:
   ; T6a - BEGIN **********************************************************************************************
 
   copy_from = 'T1a'
@@ -206,7 +209,7 @@ stop
   stx_sim_fsw_copy_test, copy_from, copy_to, concat_dir(test_root, version)
 
   ; T6b - END ************************************************************************************************
-  
+  return
   ; T6c - BEGIN **********************************************************************************************
 
   copy_from = 'T1c'
@@ -215,7 +218,7 @@ stop
   stx_sim_fsw_copy_test, copy_from, copy_to, concat_dir(test_root, version)
 
   ; T6c - END ************************************************************************************************
-  ;resume_here:
+ resume_here:
   ; T9a - BEGIN **********************************************************************************************
   sequence_name = 'D5a-1'
   test_name = 'T9a'

@@ -84,10 +84,11 @@ function prepare_packet_structure_ql_light_curves_fsw, ql_lightcurve=ql_lightcur
   packet.integration_time = ql_lightcurve.TIME_AXIS.duration[0]*10
 
   ; s, kkk, mmm for light curves
-  packet.compression_schema_light_curves = ishft(compression_param_s_lc, 6) or ishft(compression_param_k_lc, 3) or compression_param_m_lc
+  packet.compression_schema_light_curves = stx_km_compression_params_to_schema(compression_param_k_lc,compression_param_m_lc,compression_param_s_lc)
+
 
   ; s, kkk, mmm for trigger accumulator
-  packet.compression_schema_trigger = ishft(compression_param_s_t, 6) or ishft(compression_param_k_t, 3) or compression_param_m_t
+  packet.compression_schema_trigger = stx_km_compression_params_to_schema(compression_param_k_t,compression_param_m_t,compression_param_s_t)
 
   ; the detector, pixel and energy_bin mask are converted to a number
   ; the first entry in the array will become the HSB in the number
@@ -100,7 +101,10 @@ function prepare_packet_structure_ql_light_curves_fsw, ql_lightcurve=ql_lightcur
   number_energy_bins=size(ql_lightcurve.ENERGY_AXIS.MEAN, /DIMENSIONS)
   stx_telemetry_util_encode_decode_structure, output=packet, energy_bin_mask=tmp_energy_bin_mask, $
     number_energy_bins=number_energy_bins, tag='energy_bin_mask'
-    
+ 
+
+  packet.DETECTOR_MASK = ql_lightcurve.DETECTOR_MASK[0]
+  packet.PIXEL_MASK = ql_lightcurve.PIXEL_MASK[0]
 
   ; number of structures (size of second dimension)
   packet.number_of_triggers = (size(ql_lightcurve.ACCUMULATED_COUNTS, /DIM))[1]
@@ -312,14 +316,10 @@ pro stx_telemetry_prepare_structure_ql_light_curves_read, solo_slices=solo_slice
 
   ; init counter for number of structures
   total_number_of_structures=0
-
+  
   ; get compression params
-  compression_param_k_t = fix(ishft((*solo_slices[0].source_data).compression_schema_trigger,-3) and 7)
-  compression_param_m_t = fix((*solo_slices[0].source_data).compression_schema_trigger and 7)
-  compression_param_s_t = fix(ishft((*solo_slices[0].source_data).compression_schema_trigger,-6) and 3)
-  compression_param_k_lc = fix(ishft((*solo_slices[0].source_data).compression_schema_light_curves,-3) and 7)
-  compression_param_m_lc = fix((*solo_slices[0].source_data).compression_schema_light_curves and 7)
-  compression_param_s_lc = fix(ishft((*solo_slices[0].source_data).compression_schema_light_curves,-6) and 3)
+  stx_km_compression_schema_to_params, (*solo_slices[0].source_data).compression_schema_trigger, k=compression_param_k_t, m=compression_param_m_t, s=compression_param_s_t
+  stx_km_compression_schema_to_params, (*solo_slices[0].source_data).compression_schema_light_curves, k=compression_param_k_lc, m=compression_param_m_lc, s=compression_param_s_lc
 
   ; get energy axis
   energy_axis=stx_construct_energy_axis(select=(where(energy_bin_mask eq 1)))

@@ -64,7 +64,13 @@ function stx_fsw_module_tmtc::_execute, in, configuration
   
   if (in.ql_spectra) then begin
     ql_spectra=fsw->getdata(output_target='stx_fsw_ql_spectra')
-    tmtc_writer->setdata, ql_spectra=ql_spectra
+    tmtc_writer->setdata, ql_spectra=ql_spectra, $
+      compression_param_s_sp = conf.ql_spectra_compression_counts[0], $
+      compression_param_k_sp = conf.ql_spectra_compression_counts[1], $
+      compression_param_m_sp = conf.ql_spectra_compression_counts[2], $
+      compression_param_s_t = conf.ql_spectra_compression_triggers[0], $
+      compression_param_k_t = conf.ql_spectra_compression_triggers[1], $
+      compression_param_m_t = conf.ql_spectra_compression_triggers[2]
   endif
 
   if (in.ql_flare_flag_location) then begin

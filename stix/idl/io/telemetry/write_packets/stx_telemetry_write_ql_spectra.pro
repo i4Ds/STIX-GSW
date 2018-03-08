@@ -21,7 +21,11 @@ pro stx_telemetry_write_ql_spectra, spectra_packet_structure, tmw=tmw, _extra=ex
 
   ; get packet_word_with information (lenght of fields)
   pkg_word_width = spectra_packet_structure.pkg_word_width
-
+  
+  if spectra_packet_structure.COARSE_TIME eq 84 then begin
+     print, spectra_packet_structure.COARSE_TIME
+  endif
+  
   ; extract tags of packet and word_width
   tags_packet = strlowcase(tag_names(spectra_packet_structure))
   tags_pkg_word_width = strlowcase(tag_names(pkg_word_width))

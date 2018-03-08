@@ -245,17 +245,21 @@ pro stx_telemetry_reader_gui::plot_data
         
         duration = ql_spec.integration_time
         
-        foreach time, times do begin
+        
+        
+        foreach time, times, t_idx do begin
+          
           
           detectors_samples = ql_spec.SAMPLES[where(ql_spec.SAMPLES.delta_time eq time)]
           
           current_time = stx_time_add(ql_spec.start_time,seconds=time) 
           
-          zero_detector_idx = where(total(detectors_samples.counts,1) eq 0, zero_detectors_cnt)
           
-          if zero_detectors_cnt ne n_elements(detectors_samples.DETECTOR_INDEX) then begin
-            if zero_detectors_cnt ne 0 then message, "Spectra with Zero counts for detector detected: "+strjoin(trim(fix(detectors_samples[zero_detector_idx].DETECTOR_INDEX)+1), " "), /cont
-          endif
+          ;zero_detector_idx = where(total(detectors_samples.counts,1) eq 0, zero_detectors_cnt)
+          
+          ;if zero_detectors_cnt ne n_elements(detectors_samples.DETECTOR_INDEX) then begin
+          ;  if zero_detectors_cnt ne 0 then message, "Spectra with Zero counts for detector detected: "+strjoin(trim(fix(detectors_samples[zero_detector_idx].DETECTOR_INDEX)+1), " "), /cont
+          ;endif
           
           spectra_plot = obj_new('stx_spectra_plot')
           spectra_plot.plot, detectors_samples.counts, detectors_samples.DETECTOR_INDEX, current_time=current_time, duration=duration, $

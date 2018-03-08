@@ -268,6 +268,10 @@ function prepare_packet_structure_ql_calibration_spectrum_fsw, ql_calibration_sp
   counter = 0UL
   
   ;Loop through all data samples
+  
+  total_count = 1UL
+  compress_count = 1UL
+  
   for subspectra_id = 0L, subspectra_definition_dimension-1 do begin
     
     ; get subspectrum parameters
@@ -292,8 +296,14 @@ function prepare_packet_structure_ql_calibration_spectrum_fsw, ql_calibration_sp
           from = e_start + e_step*energy_id
           to = from + e_step -1
           s_point = total(ql_calibration_spectrum.accumulated_counts[from:to,pixel_id,detector_id], /preserve_type  )
+          total_count += s_point
+          
           s_point = stx_km_compress(s_point,compression_param_k,compression_param_m,compression_param_s)
+          
+          compress_count += s_point
+          
           ((*packet.dynamic_spectral_points)[counter,energy_id]) = s_point
+         
         endfor
                 
         ; increase structure counter

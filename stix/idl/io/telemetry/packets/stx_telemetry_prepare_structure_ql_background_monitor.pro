@@ -64,9 +64,21 @@ function prepare_packet_structure_ql_background_monitor_write_fsw, ql_background
     compression_param_k_t,compression_param_m_t,compression_param_s_t)
 
   ; the energy_bin mask is converted to a number
-  packet.energy_bin_mask = stx_mask2bits(stx_energy_axis_to_mask(ql_background_monitor.energy_axis),mask_length=33)
-  number_energy_bins = n_elements(ql_background_monitor.energy_axis.LOW_FSW_IDX)
+  ; ToDo: Get mask out of lightcurve
+  tmp_energy_bin_mask = bytarr(33)
+  tmp_energy_bin_mask[[ql_background_monitor.energy_axis.low_fsw_idx]]=1b
+  tmp_energy_bin_mask[[32]]=1b
+  number_energy_bins=size(ql_background_monitor.energy_axis.mean, /DIMENSIONS)
+  stx_telemetry_util_encode_decode_structure, output=packet, energy_bin_mask=tmp_energy_bin_mask, $
+    number_energy_bins=number_energy_bins, tag='energy_bin_mask'
   packet.number_of_energies = number_energy_bins
+    
+  
+  ; the energy_bin mask is converted to a number
+  ;packet.energy_bin_mask = stx_mask2bits(stx_energy_axis_to_mask(ql_background_monitor.energy_axis),mask_length=33)
+  ;number_energy_bins = n_elements(ql_background_monitor.energy_axis.LOW_FSW_IDX)
+  
+
 
   ; number of structures
   packet.number_of_triggers = n_elements(ql_background_monitor.TIME_AXIS.duration)

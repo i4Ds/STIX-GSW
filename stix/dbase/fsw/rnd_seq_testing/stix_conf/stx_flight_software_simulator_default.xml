@@ -530,40 +530,8 @@
 			<description>Definition of subspectrum parameters: starting energy bin, energy bin width, number of spectral points.</description>
 			<value>byte([1, 1, 1, 0, 0, 0, 0, 0])</value>
 		</parameter>
-		<parameter name="ql_calibration_spectrum_csdm" default="bytarr(32)+1b" valid="n_elements(X) eq 32 AND total(X) le 32" type="byte_array">
-			<description>Active detector mask</description>
-			<!--value>byte([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1])</value-->
+		<parameter name="calibration_subspectra" default="[[0,4,32], [128,4,32], [256,4,32], [384,4,32], [512,4,32], [640,4,32], [768,4,32], [896,4,32]]" valid="(size(X,/dim))[0] eq 3  AND (size(X,/dim))[1] le 8" type="int_array">
+			<description>a set of up to 8 subspectra [ad_channel_start, width, repeat] </description>
 		</parameter>
-		<parameter name="ql_calibration_spectrum_cspm" default="bytarr(12)+1b" valid="n_elements(X) eq 12 AND total(X) le 12" type="byte_array">
-			<description>Active pixel mask</description>
-			<!--value>byte([1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1])</value-->
-		</parameter>		
-		<parameter name="ql_calibration_spectrum_subspectrum_1" default="[0, 0, 1023]" valid="n_elements(X) eq 3" type="int_array">
-			<description>Definition of subspectrum parameters: starting energy bin, energy bin width (0-1023), number of spectral points (0-1023).</description>
-			<value>[0, 0, 1023]</value>
-		</parameter>
-		<parameter name="ql_calibration_spectrum_subspectrum_2" default="[0, 0, 1023]" valid="n_elements(X) eq 3" type="int_array">
-			<description>Definition of subspectrum parameters: starting energy bin, energy bin width (0-1023), number of spectral points (0-1023).</description>
-			<value>[0, 7, 127]</value>
-		</parameter>
-		<parameter name="ql_calibration_spectrum_subspectrum_3" default="[0, 0, 1023]" valid="n_elements(X) eq 3" type="int_array">
-			<description>Definition of subspectrum parameters: starting energy bin, energy bin width (0-1023), number of spectral points (0-1023).</description>
-			<value>[13, 22, 4]</value>
-		</parameter>
-		<parameter name="ql_calibration_spectrum_subspectrum_4" default="[0, 0, 1023]" valid="n_elements(X) eq 3" type="int_array">
-			<description>Definition of subspectrum parameters: starting energy bin, energy bin width (0-1023), number of spectral points (0-1023).</description>
-		</parameter>
-		<parameter name="ql_calibration_spectrum_subspectrum_5" default="[0, 0, 1023]" valid="n_elements(X) eq 3" type="int_array">
-			<description>Definition of subspectrum parameters: starting energy bin, energy bin width (0-1023), number of spectral points (0-1023).</description>
-		</parameter>
-		<parameter name="ql_calibration_spectrum_subspectrum_6" default="[0, 0, 1023]" valid="n_elements(X) eq 3" type="int_array">
-			<description>Definition of subspectrum parameters: starting energy bin, energy bin width (0-1023), number of spectral points (0-1023).</description>
-		</parameter>
-		<parameter name="ql_calibration_spectrum_subspectrum_7" default="[0, 0, 1023]" valid="n_elements(X) eq 3" type="int_array">
-			<description>Definition of subspectrum parameters: starting energy bin, energy bin width (0-1023), number of spectral points (0-1023).</description>
-		</parameter>
-		<parameter name="ql_calibration_spectrum_subspectrum_8" default="[0, 0, 1023]" valid="n_elements(X) eq 3" type="int_array">
-			<description>Definition of subspectrum parameters: starting energy bin, energy bin width (0-1023), number of spectral points (0-1023).</description>
-		</parameter>		
 	</section>
 </configuration>
