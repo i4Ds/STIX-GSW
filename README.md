@@ -78,3 +78,6 @@ Make sure your username and password are actually correct and try again. If all 
 1. To the upper-right you see the gear symbol labelled "Settings". Click on it.
 1. In new dialog window, you should see the repository link in the box labelled "Remote repository paths". In our case it should be *https://github.com/i4Ds/STIX-GSW.git*. Please double click that entry and add your username between the "//" and "github", followed by an "at" sign, e.g. *https://your-user-name@github.com/i4Ds/STIX-GSW.git*.
 1. Save your changes and try again logging in. NB: You can provoke a login by clicking on *Fetch*
+
+### The STIX project folder does not show up in your IDL development environment ###
+If you cannot see the project folder named "stix" inside the IDL workbench, you may need to create the project manually yourself. Go to *File > New Project* and create a new project called "stix". Make sure you select *Create the new project in the workspace*.
