@@ -29,7 +29,6 @@
 ;
 ; :todo:
 ;    24-Apr-2013 - Nicky Hochmuth (FHNW), add auto flush for filemode and buffer-extension if the buffer is full
-
 ;-
 
 function stx_telemetry_writer::init, size=size, filename=filename
