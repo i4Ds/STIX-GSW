@@ -7,6 +7,7 @@ pro iut_test_runner_event, ev
   
   case uvalue of
     'resize'    : begin
+      if ~isa(status) then return
       Widget_Control, status.text,  SCR_XSize=ev.x, SCR_YSize=ev.y*0.3
       Widget_Control, status.table, SCR_XSize=ev.x, SCR_YSize=ev.y*0.7, COLUMN_WIDTHS=(ev.x-100) * [0.4,0.05,0.1,1]
       
