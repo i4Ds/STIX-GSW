@@ -1,5 +1,44 @@
-
-function stx_make_l0_header, header = header, filename=filename, obt_beg=obt_beg, obt_end=obt_end, $
+;+
+; :project:
+;       STIX
+;
+; :name:
+;       stx_make_l1_header
+;
+; :purpose:
+;       Creates l1 primary fits header
+;
+; :categories:
+;       telemetry, fits, io
+;
+; :keyword:
+;       header : in (opt), type="str"
+;           Optional the header to add to
+;
+;       filename : in, type="str"
+;           File name the fits file will be written to
+;
+;       obt_beg : in, type="double"
+;           Start OBT time of data in TM
+;
+;       obt_end : in, type="double"
+;           Start OBT time of data in TM
+;
+;       integration_time : in, type="int"
+;           Integration time for data in TM [0.1s]
+;
+; :returns:
+;       Fits header data as string array
+;
+; :examples:
+;       stx_make_l1_header(header=primary_header, filename=filename, obt_beg=obt_beg, obt_end=obt_end, $
+;       integration_time=integration_time, history='test')
+;
+; :history:
+;       02-May-2018 – SAM (TCD) init
+;
+;-
+function stx_make_l1_header, header = header, filename=filename, obt_beg=obt_beg, obt_end=obt_end, $
   integration_time = integration_time, history=history
 
   ;  fxhmake, header, /date, /init, /extend, errmsg = errmsg
@@ -31,6 +70,99 @@ function stx_make_l0_header, header = header, filename=filename, obt_beg=obt_beg
   return, header
 end
 
+function time_stamp
+  cur_time = anytim(!stime, /ccsds)
+  tstamp = strmid(cur_time, 0, 4)+strmid(cur_time, 5, 2)+strmid(cur_time, 8, 5)+strmid(cur_time, 14, 2)+strmid(cur_time, 17, 2)
+  return, tstamp
+end
+
+;+
+; :project:
+;       STIX
+;
+; :name:
+;       wrtie_to_fits
+;
+; :purpose:
+;       Writes  TM strucures to fits file
+;
+; :categories:
+;       telemetry, fits, io
+;
+; :keyword:
+;       filename : in, type="str"
+;           File name the fits file will be written to
+;
+;       control : in, type="structure"
+;           Control structure
+;
+;       data : in, type="structure"
+;           Data stucture
+;
+;       integration_time : in, type="int"
+;           Integration time for data in TM [0.1s]
+;
+;       obt_beg : in, type="double"
+;           Start OBT time of data in TM
+;
+; :returns:
+;       Status of writing fits files non-zero indicates error
+;
+; :examples:
+;       status = wrtie_to_fits(filename, control_struc, data_struc, integration_time, obt_beg)
+;
+; :history:
+;       02-May-2018 – SAM (TCD) init
+;
+;-
+function wrtie_to_fits, filename, control, data, integration_time, obt_beg
+  mwrfits, !NULL, filename, /create, status=stat0
+  mwrfits, control, filename, status=stat1
+  mwrfits, data, filename, data_header, status=stat2
+
+  primary_header = headfits(filename, exten=0)
+  control_header = headfits(filename, exten=1)
+  data_header = headfits(filename, exten=2)
+
+  fxaddpar, control_header, 'EXTNAME', 'Control', 'Extension name'
+  fxaddpar, data_header, 'EXTNAME', 'Data', 'Extension name'
+
+  primary_header = stx_make_l1_header(header=primary_header, filename=filename, obt_beg=obt_beg, obt_end=obt_end, $
+    integration_time=integration_time, history='test')
+
+  mwrfits, !NULL, filename, primary_header, /create, status=stat0
+  mwrfits, control,filename,control_header, status=stat1
+  mwrfits, data, filename, data_header, status=stat2
+  return, total([stat0, stat1, stat2])
+end
+
+;+
+; :project:
+;       STIX
+;
+; :name:
+;       stx_make_l1_ql_lightcurve_fits
+;
+; :purpose:
+;       Writes unpacked quick look lightcurve data to a fits file.
+;
+; :categories:
+;       telemetry, fits, io
+;
+; :params:
+;       tm_reader : in, type="stx_telemetry_reader"
+;           STIX Telemetry reader object
+;
+; :returns:
+;
+;
+; :examples:
+;       stx_make_l1_ql_lightcurve_fits(tm_reader)
+;
+; :history:
+;       02-May-2018 – SAM (TCD) init
+;
+;-
 function stx_make_l1_ql_lightcurve_fits, tm_reader
   tm_reader->getdata, asw_ql_lightcurve=processed_lc, solo=solo
 
@@ -60,30 +192,40 @@ function stx_make_l1_ql_lightcurve_fits, tm_reader
   data_struc.triggers = processed_lc[0].triggers
   data_struc.rate_control_regeime = processed_lc[0].RATE_CONTROL_REGIME
 
-  cur_time = anytim(!stime, /ccsds)
-  tstamp = strmid(cur_time, 0, 4)+strmid(cur_time, 5, 2)+strmid(cur_time, 8, 5)+strmid(cur_time, 14, 2)+strmid(cur_time, 17, 2)
+  tstamp = time_stamp()
 
   filename = 'solo_l1_stix-lightcurve_'+trim(string(obt_beg))+'_V'+trim(tstamp)+'.fits'
 
-  mwrfits, !NULL, filename, /create, status=stat0
-  mwrfits, control_struc, filename, status=stat1
-  mwrfits, data_struc, filename, data_header, status=stat2
-
-  primary_header = headfits(filename, exten=0)
-  control_header = headfits(filename, exten=1)
-  data_header = headfits(filename, exten=2)
-
-  fxaddpar, control_header, 'EXTNAME', 'Control', 'Extension name'
-  fxaddpar, data_header, 'EXTNAME', 'Data', 'Extension name'
-
-  primary_header = stx_make_l0_header(header=primary_header, filename=filename, obt_beg=obt_beg, obt_end=obt_end, $
-    integration_time=integration_time, history='test')
-
-  mwrfits, !NULL, filename, primary_header, /create, status=stat0
-  mwrfits, control_struc,filename,control_header, status=stat1
-  mwrfits, data_struc, filename, data_header, status=stat2
+  status = wrtie_to_fits(filename, control_struc, data_struc, integration_time, obt_beg)
 end
 
+;+
+; :project:
+;       STIX
+;
+; :name:
+;       stx_make_l1_ql_calibraion_spectra_fits
+;
+; :purpose:
+;       Writes unpacked quick look calibration spectra data to a fits file.
+;
+; :categories:
+;       telemetry, fits, io
+;
+; :params:
+;       tm_reader : in, type="stx_telemetry_reader"
+;           STIX Telemetry reader object
+;
+; :returns:
+;
+;
+; :examples:
+;       stx_make_l1_ql_calibraion_spectra_fits(tm_reader)
+;
+; :history:
+;       02-May-2018 – SAM (TCD) init
+;
+;-
 function stx_make_l1_ql_calibraion_spectra_fits, tm_reader
   tm_reader->getdata, asw_ql_calibration_spectrum=processed_calspec, solo=solo
 
@@ -116,30 +258,40 @@ function stx_make_l1_ql_calibraion_spectra_fits, tm_reader
     data_struc[i].number_of_spectral_points = all_sub_specta[i].NUMBER_OF_SPECTRAL_POINTS
   endfor
 
-  cur_time = anytim(!stime, /ccsds)
-  tstamp = strmid(cur_time, 0, 4)+strmid(cur_time, 5, 2)+strmid(cur_time, 8, 5)+strmid(cur_time, 14, 2)+strmid(cur_time, 17, 2)
+  tstamp = time_stamp()
 
   filename = 'solo_l1_stix-calibration-spectra'+trim(string(obt_beg))+'_V'+trim(tstamp)+'.fits'
 
-  mwrfits, !NULL, filename, /create, status=stat0
-  mwrfits, control_struc, filename, status=stat1
-  mwrfits, data_struc, filename, data_header, status=stat2
-
-  primary_header = headfits(filename, exten=0)
-  control_header = headfits(filename, exten=1)
-  data_header = headfits(filename, exten=2)
-
-  fxaddpar, control_header, 'EXTNAME', 'Control', 'Extension name'
-  fxaddpar, data_header, 'EXTNAME', 'Data', 'Extension name'
-
-  primary_header = stx_make_l0_header(header=primary_header, filename=filename, obt_beg=obt_beg, obt_end=obt_end, $
-    integration_time=unprocessed_calspec.DURATION, history='test')
-
-  mwrfits, !NULL, filename, primary_header, /create, status=stat0
-  mwrfits, control_struc,filename,control_header, status=stat1
-  mwrfits, data_struc, filename, data_header, status=stat2
+  status = wrtie_to_fits(filename, control_struc, data_struc, unprocessed_calspec.DURATION, obt_beg)
 end
 
+;+
+; :project:
+;       STIX
+;
+; :name:
+;       stx_make_l1_ql_variance_fits
+;
+; :purpose:
+;       Writes unpacked quick look variance data to a fits file.
+;
+; :categories:
+;       telemetry, fits, io
+;
+; :params:
+;       tm_reader : in, type="stx_telemetry_reader"
+;           STIX Telemetry reader object
+;
+; :returns:
+;
+;
+; :examples:
+;       stx_make_l1_ql_variance_fits(tm_reader)
+;
+; :history:
+;       02-May-2018 – SAM (TCD) init
+;
+;-
 function stx_make_l1_ql_variance_fits, tm_reader
   tm_reader->getdata, asw_ql_variance=processed_var, solo=solo
 
@@ -168,30 +320,40 @@ function stx_make_l1_ql_variance_fits, tm_reader
 
   data_struc.variance = processed_var[0].VARIANCE
 
-  cur_time = anytim(!stime, /ccsds)
-  tstamp = strmid(cur_time, 0, 4)+strmid(cur_time, 5, 2)+strmid(cur_time, 8, 5)+strmid(cur_time, 14, 2)+strmid(cur_time, 17, 2)
+  tstamp = time_stamp()
 
   filename = 'solo_l1_stix-variance_'+trim(string(obt_beg))+'_V'+trim(tstamp)+'.fits'
 
-  mwrfits, !NULL, filename, /create, status=stat0
-  mwrfits, control_struc, filename, status=stat1
-  mwrfits, data_struc, filename, data_header, status=stat2
-
-  primary_header = headfits(filename, exten=0)
-  control_header = headfits(filename, exten=1)
-  data_header = headfits(filename, exten=2)
-
-  fxaddpar, control_header, 'EXTNAME', 'Control', 'Extension name'
-  fxaddpar, data_header, 'EXTNAME', 'Data', 'Extension name'
-
-  primary_header = stx_make_l0_header(header=primary_header, filename=filename, obt_beg=obt_beg, obt_end=obt_end, $
-    integration_time=integration_time, history='test')
-
-  mwrfits, !NULL, filename, primary_header, /create, status=stat0
-  mwrfits, control_struc,filename,control_header, status=stat1
-  mwrfits, data_struc, filename, data_header, status=stat2
+  status = wrtie_to_fits(filename, control_struc, data_struc, integration_time, obt_beg)
 end
 
+;+
+; :project:
+;       STIX
+;
+; :name:
+;       stx_make_l1_ql_spectra_fits
+;
+; :purpose:
+;       Writes unpacked quick look spectra data to a fits file.
+;
+; :categories:
+;       telemetry, fits, io
+;
+; :params:
+;       tm_reader : in, type="stx_telemetry_reader"
+;           STIX Telemetry reader object
+;
+; :returns:
+;
+;
+; :examples:
+;       stx_make_l1_ql_spectra_fits(tm_reader)
+;
+; :history:
+;       02-May-2018 – SAM (TCD) init
+;
+;-
 function stx_make_l1_ql_spectra_fits, tm_reader
   tm_reader->getdata, stx_asw_ql_spectra=processed_spec, solo=solo
 
@@ -221,30 +383,40 @@ function stx_make_l1_ql_spectra_fits, tm_reader
   data_struc.triggers = processed_spec[0].TRIGGERS
   data_struc.spectrum = processed_spec[0].SPECTRUM
 
-  cur_time = anytim(!stime, /ccsds)
-  tstamp = strmid(cur_time, 0, 4)+strmid(cur_time, 5, 2)+strmid(cur_time, 8, 5)+strmid(cur_time, 14, 2)+strmid(cur_time, 17, 2)
+  tstamp = time_stamp()
 
   filename = 'solo_l1_stix-spectra_'+trim(string(obt_beg))+'_V'+tstamp+'.fits'
 
-  mwrfits, !NULL, filename, /create, status=stat0
-  mwrfits, control_struc, filename, status=stat1
-  mwrfits, data_struc, filename, data_header, status=stat2
-
-  primary_header = headfits(filename, exten=0)
-  control_header = headfits(filename, exten=1)
-  data_header = headfits(filename, exten=2)
-
-  fxaddpar, control_header, 'EXTNAME', 'Control', 'Extension name'
-  fxaddpar, data_header, 'EXTNAME', 'Data', 'Extension name'
-
-  primary_header = stx_make_l0_header(header=primary_header, filename=filename, obt_beg=obt_beg, obt_end=obt_end, $
-    integration_time=integration_time, history='test')
-
-  mwrfits, !NULL, filename, primary_header, /create, status=stat0
-  mwrfits, control_struc,filename,control_header, status=stat1
-  mwrfits, data_struc, filename, data_header, status=stat2
+  status = wrtie_to_fits(filename, control_struc, data_struc, integration_time, obt_beg)
 end
 
+;+
+; :project:
+;       STIX
+;
+; :name:
+;       stx_make_l1_ql_background_fits
+;
+; :purpose:
+;       Writes unpacked quick look background data to a fits file.
+;
+; :categories:
+;       telemetry, fits, io
+;
+; :params:
+;       tm_reader : in, type="stx_telemetry_reader"
+;           STIX Telemetry reader object
+;
+; :returns:
+;
+;
+; :examples:
+;       stx_make_l1_ql_background_fits(tm_reader)
+;
+; :history:
+;       02-May-2018 – SAM (TCD) init
+;
+;-
 function stx_make_l1_ql_background_fits, tm_reader
   tm_reader->getdata, asw_ql_background_monitor=processed_bg, solo=solo
 
@@ -272,30 +444,40 @@ function stx_make_l1_ql_background_fits, tm_reader
   data_struc.triggers = processed_bg[0].TRIGGERS
   data_struc.background = processed_bg[0].BACKGROUND
 
-  cur_time = anytim(!stime, /ccsds)
-  tstamp = strmid(cur_time, 0, 4)+strmid(cur_time, 5, 2)+strmid(cur_time, 8, 5)+strmid(cur_time, 14, 2)+strmid(cur_time, 17, 2)
+  tstamp = time_stamp()
 
   filename = 'solo_l1_stix-background_'+trim(string(obt_beg))+'_V'+tstamp+'.fits'
 
-  mwrfits, !NULL, filename, /create, status=stat0
-  mwrfits, control_struc, filename, status=stat1
-  mwrfits, data_struc, filename, data_header, status=stat2
-
-  primary_header = headfits(filename, exten=0)
-  control_header = headfits(filename, exten=1)
-  data_header = headfits(filename, exten=2)
-
-  fxaddpar, control_header, 'EXTNAME', 'Control', 'Extension name'
-  fxaddpar, data_header, 'EXTNAME', 'Data', 'Extension name'
-
-  primary_header = stx_make_l0_header(header=primary_header, filename=filename, obt_beg=obt_beg, obt_end=obt_end, $
-    integration_time=integration_time, history='test')
-
-  mwrfits, !NULL, filename, primary_header, /create, status=stat0
-  mwrfits, control_struc,filename,control_header, status=stat1
-  mwrfits, data_struc, filename, data_header, status=stat2
+  status = wrtie_to_fits(filename, control_struc, data_struc, integration_time, obt_beg)
 end
 
+;+
+; :project:
+;       STIX
+;
+; :name:
+;       stx_make_l1_ql_flareflag_location_fits
+;
+; :purpose:
+;       Writes unpacked quick look flare flag and location data to a fits file.
+;
+; :categories:
+;       telemetry, fits, io
+;
+; :params:
+;       tm_reader : in, type="stx_telemetry_reader"
+;           STIX Telemetry reader object
+;
+; :returns:
+;
+;
+; :examples:
+;       stx_make_l1_ql_flareflag_location_fits(tm_reader)
+;
+; :history:
+;       02-May-2018 – SAM (TCD) init
+;
+;-
 function stx_make_l1_ql_flareflag_location_fits, tm_reader
   tm_reader->getdata, asw_ql_flare_flag_location=processed_fl, solo=solo
 
@@ -319,28 +501,11 @@ function stx_make_l1_ql_flareflag_location_fits, tm_reader
   data_struc.loc_z = processed_fl[0].X_POS
   data_struc.loc_y = processed_fl[0].Y_POS
 
-  cur_time = anytim(!stime, /ccsds)
-  tstamp = strmid(cur_time, 0, 4)+strmid(cur_time, 5, 2)+strmid(cur_time, 8, 5)+strmid(cur_time, 14, 2)+strmid(cur_time, 17, 2)
+  tstamp = time_stamp()
 
-  filename = 'solo_l1_stix-flareflag_location_'+trim(string(obt_beg))+'_V'+tstamp+'.fits'
+  filename = 'solo_l1_stix-flare-flag-location_'+trim(string(obt_beg))+'_V'+tstamp+'.fits'
 
-  mwrfits, !NULL, filename, /create, status=stat0
-  mwrfits, control_struc, filename, status=stat1
-  mwrfits, data_struc, filename, data_header, status=stat2
-
-  primary_header = headfits(filename, exten=0)
-  control_header = headfits(filename, exten=1)
-  data_header = headfits(filename, exten=2)
-
-  fxaddpar, control_header, 'EXTNAME', 'Control', 'Extension name'
-  fxaddpar, data_header, 'EXTNAME', 'Data', 'Extension name'
-
-  primary_header = stx_make_l0_header(header=primary_header, filename=filename, obt_beg=obt_beg, obt_end=obt_end, $
-    integration_time=integration_time, history='test')
-
-  mwrfits, !NULL, filename, primary_header, /create, status=stat0
-  mwrfits, control_struc,filename,control_header, status=stat1
-  mwrfits, data_struc, filename, data_header, status=stat2
+  status = wrtie_to_fits(filename, control_struc, data_struc, integration_time, obt_beg)
 end
 
 ;+
