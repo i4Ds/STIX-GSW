@@ -22,8 +22,7 @@
 ;   stx_bkg_sim_demo, $
 ;    configuration_struct, $
 ;      background_sim, $
-;      recovered_from_telem, $
-;      og_str = og_str
+;      recovered_from_telem
 ;
 ; :Examples:
 ;   stx_bkg_sim_demo, continuum_factor=2.

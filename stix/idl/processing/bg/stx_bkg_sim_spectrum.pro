@@ -18,7 +18,7 @@
 ;    line_factor - scaling factor for radioactive line component, default 1.0
 ;    bkg_factor  - scaling factor for background component, default 1.0
 ;    hecht_par  - parameters for hecht tailing parameters, not used yet, 28-jun-2017
-;    doffset_gain - structure where doffset_gain.gain and doffset_gain.offset
+;    doffset_gain - structure where doffset_gain.gain and doffset_gain.offset_kev
 ;    are added to the gain and offset used to define the return edges, edg2
 ;    seed - seed for poisson deviates through poidev
 ;    _extra
@@ -28,6 +28,8 @@
 ; :History:
 ;   29-nov-2017, RAS
 ;   03-may-2018, RAS, rschwartz70@gmail.com  Minor refactoring
+;   04-may-2018, RAS, specify doffset_gain.offset_kev not .offset to emphasize how
+;    offset is being used here. This is the RHESSI software meaning of offset
 ;-
 function stx_bkg_sim_spectrum, edg2, $
   per_kev = per_kev, $
@@ -64,7 +66,8 @@ function stx_bkg_sim_spectrum, edg2, $
     ;doffset_gain is delta gain and delta offset from the values of edg2
     edg_gain = avg( width)
     
-    dedg1 = findgen( n_elements( edg1 ) ) * (edg_gain + doffset_gain.gain) + edg1[0] + doffset_gain.offset ;true edges of simulated spectrum
+    dedg1 = findgen( n_elements( edg1 ) ) * (edg_gain + doffset_gain.gain) + $
+      edg1[0] + doffset_gain.offset_kev ;true edges of simulated spectrum
     ssw_rebinner, out, edg1, dout, dedg1
     out = dout
   endif

@@ -5,16 +5,16 @@
 ; 29-nov-2017, RAS
 ; 3-may-2018, RAS, now it has the added demonstration of measuring the offset from two simulated daily
 ; calibration spectra. At the end three techniques demostrate the measurement of the new offset
-; 
+; 4-may-2018, RAS, Emphasize that the offset is energy in keV and channel edge 0
 ;-
 ;pro stx_det_cal_proc, dgain, doffset
   default, dgain, 0.0000 ;keV per bin
-  default, doffset, 2.3 ;keV
+  default, doffset_kev, 2.3 ;keV
   ;make default offset gain structure, this will be used differentially from the
   ;default offset and gain found in sp.e_axis without
-  dog_str  =  stx_offsetgain()
+  dog_str  =  {gain: 0.0, offset_kev: 0.0}
   dog_str.gain = dgain ;nominal is 0.1 so this is 1/2 of 1 percent
-  dog_str.offset = doffset
+  dog_str.offset_kev = doffset_kev
   ;Simulate the initial spectrum in the sp structure and the deviated one in dsp
   ;Uses the values of dog_str to generate the simulated deviated spectrum
   stx_bkg_sim_demo, spec=sp, dspec = dsp, ch_axis = ch_axis, doffset_gain = dog_str, $
