@@ -22,13 +22,14 @@
 ;
 ;
 ; :Author: richard.schwartz@nasa.gov, 21-jul-2016
+; 3-may-2018, RAS, corrected the iedg to be contiguous
 ;-
 function stx_bkg_ecal_spec_config
   ;  npoints: 0, $ number of spectral points
   ;    ngroup: 0, $  number of summed channel in spectral point
   ;    ichan_lo: 0} ;lowest channel in subspectrum
 
-  iedg = [ [ 19,50], [51, 100],[101,140], [160,179], [180,210], [211,240] ]
+  iedg = [ [ 19,50], [51, 100],[101,140], [141,180], [181,210], [211,240] ]
   nconfig = (size( /dim, iedg))[1]
   igroup = [ 4, 1, 4, 4, 1, 4]
 

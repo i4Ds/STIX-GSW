@@ -14,7 +14,7 @@
 ;      or actual, into a series of segments, where the channels may be grouped and the counts
 ;      are compressed (stx_km_compress) - See stx_cal_spec_config.pro
 ;    BACKGROUND_SIM - output, simulated background spectrum for a STIX detector/pixel, MC generated with
-;      Poisson statistics and can be shifted in energy by using gain_cf which is the offset/gain used to
+;      Poisson statistics and can be shifted in energy by using og_str which is the offset/gain used to
 ;      generate the simulation
 ;    RECOVERED_FROM_TELEM - the recovered spectrum after decompression and degrouping. The recovered spectrum is only
 ;      defined (non-zero) on the bins included within the subspectra
@@ -23,7 +23,7 @@
 ;    configuration_struct, $
 ;      background_sim, $
 ;      recovered_from_telem, $
-;      gain_cf = gain_cf
+;      og_str = og_str
 ;
 ; :Examples:
 ;   stx_bkg_sim_demo, continuum_factor=2.
@@ -37,7 +37,7 @@
 ;    recovered_from_telem
 ;
 ; :Keywords:
-;    gain_cf
+;    og_str
 ;    noplot
 ;    x4 - if set, then make spectrum on 4 channel groups, i.e. 1024 instead of 4096 adc channels
 ;    line_factor  - scaling factor for calibration line spectrum, default is 1.0, assumes value for 20 Bq for rad. dots
@@ -49,12 +49,13 @@
 ; :Author: richard.schwartz@nasa.gov, 22-jul-2016
 ; 28-jun-2017, added pass through parameters to control continuum and line separately
 ; 29-nov-2017, richard.schwartz@nasa.gov, added ethresh to avoid low energy issues
+; 03-may-2018, richard.schwartz@nasa.gov, reorganize the code
 ;-
 pro stx_bkg_sim_demo, $
   configuration_struct, $
   background_sim, $
   recovered_from_telem, $
-  gain_cf = gain_cf, $
+  doffset_gain = doffset_gain, $
   noplot = noplot, $
   x4 = x4, $
   line_factor = line_factor, $
@@ -62,46 +63,48 @@ pro stx_bkg_sim_demo, $
   hecht_par = hecht_par, $
   time_interval = time_interval, $
   spectrogram = spectrogram, $
+  dspectrogram = dspectrogram, $
+  first_data_channel = first_data_channel, $
   e_axis = e_axis, $
   edg2 = edg2,$
+  ch_axis = ch_axis, $
   ethresh = ethresh, $
+  poisson = poisson, $
   _extra = _extra
 
   default, noplot, 0
-  default, x4, 0
+  default, x4, 1
   default, telem, 0
   default, line_factor, 1.0
   default, continuum_factor, 1.0
   default, time_interval, ['1-jan-2019','2-jan-2019']
-  default, ethresh, 4.0 ; nothing below 4.0 keV
+  default, ethresh, 2.1 ; nothing below 4.0 keV
+  default, poisson, 1
 
 
 
   configuration_struct = stx_bkg_ecal_spec_config()
-  background_sim = stx_bkg_sim_spectrum( edg2, x4 = x4, /poisson, gain_cf = gain_cf, $
+  ;Monte-Carlo the background spectrum with the calibration lines for the initial gain and offset
+  background_sim = stx_bkg_sim_spectrum( edg2, x4 = x4, poisson = poisson,  $
     time_interval = time_interval, $
-    line_factor = line_factor, continuum_factor = continuum_factor, hecht_par = hecht_par, spectrogram = spectrogram_4096, _extra = _extra)
-
-  if x4 then begin
-    stx_bkg_sim_bld_subspectra, background_sim, edg2, configuration_struct
-
-    stx_bkg_sim_rcvr_subspectra, configuration_struct, recovered_from_telem
-    edg1 = get_edges( edg2, /edges_1 )
-    z = where( edg1 gt ethresh, nz)
-    edg1 = edg1[ z[0]:* ]
-    background_sim = background_sim[ z[0]:* ]
-    t_axis   = spectrogram_4096.t_axis
-    e_axis = stx_construct_energy_axis( energy = edg1, $
-      select = lindgen( n_elements( edg1 ) ) )
-    data = reform( background_sim, n_elements( background_sim ), 1 )
-    livetime = reform( data*0.0+1., n_elements(data), 1 )
-    sp = stx_spectrogram( data, t_axis, e_axis, livetime )
-    spectrogram = rep_tag_value( sp, double(sp.data),'data')
-
-  endif
-  if ~noplot then begin
-    plot, background_sim
-    if x4 then oplot, recovered_from_telem, psy=6
-  endif
+    line_factor = line_factor, continuum_factor = continuum_factor, hecht_par = hecht_par, $
+    spectrogram = back_str, ch_axis = ch_axis, _extra = _extra)
+   ;Monte-Carlo the background spectrum with the calibration lines for the deviated gain and offset 
+  dbackground_sim = stx_bkg_sim_spectrum( edg2, x4 = x4, poisson = poisson,  $
+    time_interval = time_interval, $
+    doffset_gain = doffset_gain, $
+    line_factor = line_factor, continuum_factor = continuum_factor, hecht_par = hecht_par, $
+    spectrogram = dback_str, ch_axis = ch_axis, _extra = _extra)
+  ;take the simulated spectrum compressed by summing over 4 channels to have an effective 1024 0.4 keV channels
   
+  if x4 then begin
+    ;simulate the telemetry compression and decompression and generate the final simulated spectra
+    ;in the back_str structure and the deviated one in dback_str
+    stx_cal_spec_telem, back_str, configuration_struct, spectrogram
+    stx_cal_spec_telem, dback_str, configuration_struct, dspectrogram
+  endif else begin
+    spectrogram = spectrogram_4096
+    dspectrogram = dspectrogram_4096
+  endelse
+
 end
