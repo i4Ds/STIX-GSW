@@ -84,7 +84,8 @@ function stx_fsw_module_coarse_flare_locator::_execute, in, configuration
     cfl_bk_factor = cfl_bk_factor, $
     normalisation_factor = normalisation_factor, $
     tab_dat = (self.lut_data)["cfl_lut"], $
-    sky_y = (self.lut_data)["sky_y"])
+    sky_y = (self.lut_data)["sky_y"], $
+    sky_x = (self.lut_data)["sky_x"] )
     
     ;if(min(cfl_coords) ge 0) then stop
     
