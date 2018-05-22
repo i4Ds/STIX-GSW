@@ -185,6 +185,13 @@ function stx_line_plot::_plot, x_data, y_data, $
   return, plot_objects
 end
 
+
+function stx_line_plot::plot_objects 
+  plot_objects = self->stx_base_plot::_get_plot_list_ptr()
+  return, plot_objects
+end
+
+
 pro stx_line_plot::delete
   plot_objects_ptr = self->stx_base_plot::_get_plot_list_ptr()
   for p_idx=0L, n_elements(*plot_objects_ptr)-1 do begin

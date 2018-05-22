@@ -175,7 +175,7 @@ pro stx_telemetry_reader_gui::plot_data
         
         ;ql_lightcurve.time_axis = stx_construct_time_axis(indgen(n_elements(ql_lightcurve.time_axis.duration)+1)*4)
         
-        a = lc_plot.create_stx_plot(ql_lightcurve, /lightcurve, /add_legend, title="Lightcurve Plot")
+        a = lc_plot.create_stx_plot(ql_lightcurve, /lightcurve, /add_legend, title="Lightcurve Plot", ylog=0)
         self.plots->add, lc_plot
         break
       end

@@ -48,13 +48,14 @@ function prepare_packet_structure_ql_flare_flag_location_fsw, ql_flare_location=
 
   packet.coarse_time = coarse_time
   packet.fine_time = fine_time
-  packet.integration_time = ql_flare_location.TIME_AXIS.duration[0]
+  packet.integration_time = ql_flare_location.TIME_AXIS.duration[0] * 10
 
   ; number of samples
-  packet.number_of_samples = n_elements(ql_flare_location.X_POS)
+  packet.number_of_samples = max([n_elements(ql_flare_location.X_POS),n_elements(ql_flare_flag.FLARE_FLAG)])
   
   ; if flare_flag has another duration than location we skip flags in between
-  skip_factor = fix(n_elements(ql_flare_flag.FLARE_FLAG) / n_elements(ql_flare_location.X_POS))
+  skip_factor_ff = n_elements(ql_flare_flag.FLARE_FLAG) / double(packet.number_of_samples)
+  skip_factor_fl = n_elements(ql_flare_location.X_POS) / double(packet.number_of_samples)
 
   ; initialize pointer and prepare arrays for flare details
   packet.dynamic_flare_flag = ptr_new(bytarr(packet.number_of_samples))
@@ -65,11 +66,17 @@ function prepare_packet_structure_ql_flare_flag_location_fsw, ql_flare_location=
   for sample_id = 0L, packet.number_of_samples-1 do begin
 
     ; get flare_flag value
-    sub_flare_flag = ql_flare_flag.flare_flag[sample_id*skip_factor]
+    
+    ff_idx = floor(sample_id*skip_factor_ff)
+    fl_idx = floor(sample_id*skip_factor_fl)
+    
+    print, "FF: ", ff_idx, " FL: ", fl_idx
+    
+    sub_flare_flag = ql_flare_flag.flare_flag[ff_idx]
 
     ; get flare_location_z
-    sub_flare_location_z = ql_flare_location.X_POS[sample_id]
-    sub_flare_location_y = ql_flare_location.Y_POS[sample_id]
+    sub_flare_location_z = ql_flare_location.X_POS[fl_idx]
+    sub_flare_location_y = ql_flare_location.Y_POS[fl_idx]
 
     ; attach subs to packet
     (*packet.dynamic_flare_flag)[sample_id] = reform(sub_flare_flag)

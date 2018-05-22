@@ -79,6 +79,7 @@ pro stx_fsw_ql_d1__test::test_light_curves_c_data
     lc_plot = obj_new('stx_plot')
     p = lc_plot.create_stx_plot(lc_plot_data, /lightcurve, /add_legend, title="Lightcurve Plot", ylog=0)
     self.plots->add, lc_plot
+    if total(self.xrange) ne 0 then (lc_plot.plot_object()).XRANGE = self.xrange
   endif
   
   
@@ -167,6 +168,8 @@ pro stx_fsw_ql_d1__test::test_variance_c_data
     var_plot = stx_line_plot()
     a = var_plot._plot(stx_time_diff(variance.time_axis.time_start[0], variance.time_axis.time_start, /abs), variance.variance, names=["variance"], /add_legend, ylog=0)
     self.plots->add, var_plot
+    
+    if total(self.xrange) ne 0 then (*a).XRANGE = self.xrange
   endif
   
   assert_true, n_elements(t_axis.duration) ge 25, "to less time bins"
@@ -234,6 +237,9 @@ pro stx_fsw_ql_d1__test::test_background_monitor_c_data
     lc_plot = obj_new('stx_plot')
     p = lc_plot.create_stx_plot(lc_plot_data, /background, /add_legend, title="background monitor plot", ylog=0)
     self.plots->add, lc_plot
+    
+    if total(self.xrange) ne 0 then (lc_plot.plot_object()).XRANGE = self.xrange
+    
   endif
   
   assert_true, n_elements(t_axis.duration) ge 3, "to less time bins"
@@ -508,16 +514,18 @@ pro stx_fsw_QL_D1__test::beforeclass
   
   self.conf = confManager
   ;fsw-simulator: ql_tmtc.bin
-  ;AX: D1-2_AX_20180313_1700.bin
-  self.tmtc_reader = stx_telemetry_reader(filename = concat_dir(path, "D1-2_AX_20180313_1700.bin"), /scan_mode, /merge_mode)
+  ;AX: D1-2_AX_20180321_1400.bin
+  self.tmtc_reader = stx_telemetry_reader(filename = concat_dir(path, "D1-2_AX_20180321_1400.bin"), /scan_mode, /merge_mode)
   self.tmtc_reader->getdata, statistics = statistics
   self.statistics = statistics
+  self.xrange = [220,400]
+  
   
   self.ql_acc = ptr_new(stx_fsw_ql_accumulator_table2struct(concat_dir(path, "stix_conf\qlook_accumulators.csv")))
   
   self.exepted_range = 0.05
   self.plots = list()
-  self.show_plot = 1
+  self.show_plot = 0
   s = stx_sim_read_scenario(scenario_file=concat_dir(path, "D1-2\D1-2.csv"),out_bkg_str=sc)
   
   self.spikes = ptr_new(sc[where(sc.DURATION lt 1)])
@@ -564,6 +572,7 @@ pro stx_fsw_QL_D1__test__define
     tmtc_reader : obj_new(), $
     statistics : list(), $
     exepted_range: 0.0d, $
+    xrange: [0d,0d], $
     plots : list(), $
     spikes : ptr_new(), $
     show_plot : 0b, $

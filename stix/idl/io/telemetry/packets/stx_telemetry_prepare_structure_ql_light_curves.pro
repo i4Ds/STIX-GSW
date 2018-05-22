@@ -56,9 +56,12 @@
 ;    19-Sep-2016 - Simon Marcin (FHNW), removed pixel mask workaround
 ;-
 function prepare_packet_structure_ql_light_curves_fsw, ql_lightcurve=ql_lightcurve, $
-  compression_param_k_lc=compression_param_k_lc, compression_param_m_lc=compression_param_m_lc, $
-  compression_param_s_lc=compression_param_s_lc, compression_param_k_t=compression_param_k_t, $
-  compression_param_m_t=compression_param_m_t, compression_param_s_t=compression_param_s_t, $
+  compression_param_k_lc=compression_param_k_lc, $
+  compression_param_m_lc=compression_param_m_lc, $
+  compression_param_s_lc=compression_param_s_lc, $
+  compression_param_k_t=compression_param_k_t, $
+  compression_param_m_t=compression_param_m_t, $
+  compression_param_s_t=compression_param_s_t, $
   number_energy_bins=number_energy_bins, _extra=extra
 
   ; type checking
@@ -94,12 +97,16 @@ function prepare_packet_structure_ql_light_curves_fsw, ql_lightcurve=ql_lightcur
   ; the first entry in the array will become the HSB in the number
   stx_telemetry_util_encode_decode_structure, output=packet, detector_mask=ql_lightcurve.detector_mask, tag='detector_mask'
   stx_telemetry_util_encode_decode_structure, output=packet, pixel_mask=ql_lightcurve.pixel_mask, tag='pixel_mask'
-  ; ToDo: Get mask out of lightcurve
+  
+  ;Get mask out of lightcurve
+  ; the energy_bin mask is converted to a number
   tmp_energy_bin_mask = BYTARR(33)
   tmp_energy_bin_mask[[ql_lightcurve.ENERGY_AXIS.LOW_FSW_IDX]]=1b
-  tmp_energy_bin_mask[[32]]=1b
-  number_energy_bins=size(ql_lightcurve.ENERGY_AXIS.MEAN, /DIMENSIONS)
-  stx_telemetry_util_encode_decode_structure, output=packet, energy_bin_mask=tmp_energy_bin_mask, $
+  tmp_energy_bin_mask[32] = ql_lightcurve.ENERGY_AXIS.HIGH_FSW_IDX[-1] eq 31
+  number_energy_bins=byte(total(tmp_energy_bin_mask)-1)
+  
+  
+  stx_telemetry_util_encode_decode_structure, output=packet, energy_bin_mask=reverse(tmp_energy_bin_mask), $
     number_energy_bins=number_energy_bins, tag='energy_bin_mask'
  
 
@@ -322,7 +329,7 @@ pro stx_telemetry_prepare_structure_ql_light_curves_read, solo_slices=solo_slice
   stx_km_compression_schema_to_params, (*solo_slices[0].source_data).compression_schema_light_curves, k=compression_param_k_lc, m=compression_param_m_lc, s=compression_param_s_lc
 
   ; get energy axis
-  energy_axis=stx_construct_energy_axis(select=(where(energy_bin_mask eq 1)))
+  energy_axis=stx_construct_energy_axis(select=(where(reverse(energy_bin_mask) eq 1)))
 
   ; reading the solo_sclices and update the STX_ASW_QL_LIGHTCURVE packet
   for solo_slice_idx = 0L, (size(solo_slices, /DIM))[0]-1 do begin

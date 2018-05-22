@@ -32,9 +32,12 @@
 ;    19-Sep-2016 - Simon Marcin (FHNW), added read functionality and implemented fsw-writer
 ;-
 function prepare_packet_structure_ql_background_monitor_write_fsw, ql_background_monitor=ql_background_monitor, $
-  compression_param_k_bg=compression_param_k_bg, compression_param_m_bg=compression_param_m_bg, $
-  compression_param_s_bg=compression_param_s_bg, compression_param_k_t=compression_param_k_t, $
-  compression_param_m_t=compression_param_m_t, compression_param_s_t=compression_param_s_t, $
+  compression_param_k_bg=compression_param_k_bg, $
+  compression_param_m_bg=compression_param_m_bg, $
+  compression_param_s_bg=compression_param_s_bg, $
+  compression_param_k_t=compression_param_k_t, $
+  compression_param_m_t=compression_param_m_t, $
+  compression_param_s_t=compression_param_s_t, $
   number_energy_bins=number_energy_bins, _extra=extra
 
   ; type checking
@@ -65,11 +68,13 @@ function prepare_packet_structure_ql_background_monitor_write_fsw, ql_background
 
   ; the energy_bin mask is converted to a number
   ; ToDo: Get mask out of lightcurve
-  tmp_energy_bin_mask = bytarr(33)
-  tmp_energy_bin_mask[[ql_background_monitor.energy_axis.low_fsw_idx]]=1b
-  tmp_energy_bin_mask[[32]]=1b
-  number_energy_bins=size(ql_background_monitor.energy_axis.mean, /DIMENSIONS)
-  stx_telemetry_util_encode_decode_structure, output=packet, energy_bin_mask=tmp_energy_bin_mask, $
+  tmp_energy_bin_mask = BYTARR(33)
+  tmp_energy_bin_mask[[ql_background_monitor.ENERGY_AXIS.LOW_FSW_IDX]]=1b
+  tmp_energy_bin_mask[32] = ql_background_monitor.ENERGY_AXIS.HIGH_FSW_IDX[-1] eq 31
+  number_energy_bins=byte(total(tmp_energy_bin_mask)-1)
+  
+  
+  stx_telemetry_util_encode_decode_structure, output=packet, energy_bin_mask=reverse(tmp_energy_bin_mask), $
     number_energy_bins=number_energy_bins, tag='energy_bin_mask'
   packet.number_of_energies = number_energy_bins
     
@@ -259,7 +264,7 @@ pro stx_telemetry_prepare_structure_ql_background_monitor_read, solo_slices=solo
   stx_km_compression_schema_to_params, (*solo_slices[0].source_data).compression_schema_background, k=compression_param_k_bg, m=compression_param_m_bg, s=compression_param_s_bg
   
   ; get energy axis
-  energy_axis=stx_construct_energy_axis(select=(where(energy_bin_mask eq 1)))
+  energy_axis=stx_construct_energy_axis(select=(where(reverse(energy_bin_mask) eq 1)))
   
   ; reading the solo_sclices and update the STX_ASW_QL_BACKGROUND_MONITOR packet
   for solo_slice_idx = 0L, (size(solo_slices, /DIM))[0]-1 do begin

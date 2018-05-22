@@ -58,9 +58,12 @@
 ;    11-Oct-2016 - Simon Marcin (FHNW), changed writer & reader to use stx_fsw_m_ql_spectra
 ;-
 function prepare_packet_structure_ql_spectra_fsw, ql_spectra=ql_spectra, $
-  compression_param_k_sp=compression_param_k_sp, compression_param_m_sp=compression_param_m_sp, $
-  compression_param_s_sp=compression_param_s_sp, compression_param_k_t=compression_param_k_t, $
-  compression_param_m_t=compression_param_m_t, compression_param_s_t=compression_param_s_t, $
+  compression_param_k_sp=compression_param_k_sp, $
+  compression_param_m_sp=compression_param_m_sp, $
+  compression_param_s_sp=compression_param_s_sp, $
+  compression_param_k_t=compression_param_k_t, $
+  compression_param_m_t=compression_param_m_t, $
+  compression_param_s_t=compression_param_s_t, $
   _extra=extra
 
   ; type checking

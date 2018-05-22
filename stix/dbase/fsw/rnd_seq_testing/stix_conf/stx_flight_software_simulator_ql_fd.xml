@@ -2,20 +2,7 @@
 <?xml-stylesheet type="text/css" href="ppl_config.css" ?>
 <!-- 
 <header>
-<history>
-	<change date="11-Oct-2016" author="Laszlo I. Etesi" affiliation="FHNW">
-		<log>New default configuration with initial parameters</log>
-	</change>
-	<change date="14-Oct-2016" author="Laszlo I. Etesi" affiliation="FHNW">
-		<log>Changed location of temperature and energy ad to sc channel LUTs</log>
-	</change>
-	<change date="23-Jan-2016" author="Laszlo I. Etesi" affiliation="FHNW">
-		<log>Fixed archive buffer active detectors</log>
-	</change>
-	<change date="13-Feb-2017" author="Laszlo I. Etesi" affiliation="FHNW">
-		<log>Updated RCR parameters</log>
-	</change>
-</history>
+
 </header> 
 -->
 <configuration application="stx_flight_software_simulator" type="system">
@@ -43,8 +30,7 @@
 		<parameter name="tq" default="0.005d" valid="X ge 0" type="double">
 			<description>Time interval that separates to events.</description>
 			<unit>seconds</unit>
-			<value>1.5258789062500000d-5</value>
-			<!--value>0d</value-->
+			<value>0d</value>
 		</parameter>
 		<parameter name="ts" default="0d" valid="X ge 0" type="double">
 			<description>Time interval for software gate. Assuming a constant time the software is busy upon processing a calibration event.</description>
@@ -178,7 +164,7 @@
 		<parameter name="energy_band" default="0" valid="X ge 0" type="int">
 			<description>QL band index which will be used</description>
 		</parameter>
-		<parameter name="cfl_lut" default="concat_dir(getenv('STX_CFL'), 'stx_fsw_cfl_skyvec_table.txt')" valid="file_exist(X)" type="string">
+		<parameter name="cfl_lut" default="concat_dir(getenv('STX_CFL'), 'stx_fsw_cfl_int_skyvec_table.txt')" valid="file_exist(X)" type="string">
 			<description>Coarse flare locator lookup table used for calculating coarse positions of a flare.</description>
 		</parameter>
 		<parameter name="lower_limit_counts" default="2L^15l" valid="X gt 0" type="long">
@@ -219,9 +205,6 @@
 			<description>Number of 0.1 s accumulated intervals which the variance will be calculated over.</description>
 			<unit>10 milliseconds</unit>
 		</parameter>
-		<parameter name="bit16" default="1b" valid="X ge 0" type="byte">
-			<description>limit variance accumulators to 16bit</description>
-		</parameter>
 	</section>
 	<section name="stx_fsw_module_detector_monitor" alias="dm">
 		<description>This module monitors the detector health and flags noisy or faulty detectors.</description>
@@ -257,7 +240,7 @@
 	<section name="stx_fsw_module_quicklook_accumulation" alias="qla">
 		<description>This module accumulates quicklook data.</description>
 		<link>https://www.dropbox.com/s/36euy58cy7et9c1/AccumulatorList.xlsx</link>
-		<parameter name="accumulator_definition_file" default="concat_dir(getenv('STX_CONF'), 'qlook_accumulators_masks.csv')" valid="file_exist(X)" type="string">
+		<parameter name="accumulator_definition_file" default="concat_dir(getenv('STX_CONF'), 'qlook_accumulators.csv')" valid="file_exist(X)" type="string">
 			<description>Path to the accumulator configuration file (CSV).</description>
 		</parameter>
 		<parameter name="update_frequency" default="4" valid="X gt 0" type="int">
@@ -272,7 +255,6 @@
 		<parameter name="reset_frequency_stx_fsw_ql_spectra" default="32" valid="X gt 0" type="int">
 			<description>Reset frequency of this quicklook accumulator (every how many seconds is the buffer saved and reset). This parameter applies to counts and trigger accumulators alike.</description>
 			<unit>seconds</unit>
-			 <value>4</value>
 		</parameter>
 		<parameter name="reset_frequency_stx_fsw_ql_bkgd_monitor" default="32" valid="X gt 0" type="int">
 			<description>Reset frequency of this quicklook accumulator (every how many seconds is the buffer saved and reset). This parameter applies to counts and trigger accumulators alike.</description>
@@ -325,22 +307,21 @@
 		<parameter name="pixel_mask" default="bytarr(12)+1b" valid="ppl_xml_value_in_interval_test(total(X),[0,12])" type="byte_array"> 
 			<description>This pixel mask defines which pixels to sum in order to determine the background</description>
 		</parameter>
-	</section>
-	<section name="stx_fsw_module_flare_detection" alias="fd">
+	</section><section name="stx_fsw_module_flare_detection" alias="fd">
 		<description>Generates a flag for each accumulation bin whether a flare is in progress or not, incl. a flare intensity.</description>
 		<parameter name="update_frequency" default="4" valid="X gt 0" type="int">
 			<description>Update frequency of this module in seconds</description>
 			<unit>seconds</unit>
 		</parameter>
-		<parameter name="nbl" default="[1200.,60.]" valid="total(X gt 0) eq 2" type="float_array">
+		<parameter name="nbl" default="[120.,24.]" valid="total(X gt 0) eq 2" type="float_array">
 			<description>Seconds for the median window of 2 time series.</description>
 			<unit>seconds</unit>
 		</parameter>
-		<parameter name="thermal_cfmin" default="[5,5]" valid="total(X gt 0) eq 2" type="int_array">
+		<parameter name="thermal_cfmin" default="[36,36]" valid="total(X gt 0) eq 2" type="int_array">
 			<description>Count threshold to turn on a flare for both time series in the thermal band.</description>
 			<unit>seconds</unit>
 		</parameter>
-		<parameter name="nonthermal_cfmin" default="[30,30]" valid="total(X gt 0) eq 2" type="int_array">
+		<parameter name="nonthermal_cfmin" default="[180,180]" valid="total(X gt 0) eq 2" type="int_array">
 			<description>Count threshold to turn on a flare for both time series in the nonthermal band.</description>
 			<unit>counts</unit>
 		</parameter>
@@ -382,10 +363,10 @@
 		<parameter name="l1" default="2*10L^5" valid="X gt 0" type="long">
 			<description>Lower live time accumulator threshold for changing from C0 to C1, i.e. RCR0 to RCR1 (viz, for inserting the attenuator.</description>
 		</parameter>
-		<parameter name="l2" default="2*10L^5" valid="X gt 0" type="long">
+		<parameter name="l2" default="1*10L^5" valid="X gt 0" type="long">
 			<description>Lower live tme acculator threshold for change RCR by increasing the effective detector area.</description>
 		</parameter>
-		<parameter name="l3" default="1*10L^5" valid="X gt 0" type="long">
+		<parameter name="l3" default="2*10L^5" valid="X gt 0" type="long">
 			<description>Upper live time accumulator threshold for changing RCR by reducing the effective detector area.</description>
 		</parameter>
 		<parameter name="b0" default="2*10L^3" valid="X gt 0" type="long">
@@ -531,9 +512,12 @@
 		<parameter name="sd_spectrogram_compression_triggers" default="[0b,5b,3b]" valid="n_elements(X) eq 3 AND total(X) eq 8" type="byte_array">
 			<description>compressen parameter[s,k,m] for the science data spectrogram triggers</description>
 		</parameter>
-	
+		<parameter name="ql_calibration_spectrum_subspectra_mask" default="byte([1, 0, 0, 0, 0, 0, 0, 0])" valid="n_elements(X) eq 8 AND total(X) le 8" type="byte_array">
+			<description>Definition of subspectrum parameters: starting energy bin, energy bin width, number of spectral points.</description>
+			<value>byte([1, 1, 1, 0, 0, 0, 0, 0])</value>
+		</parameter>
 		<parameter name="calibration_subspectra" default="[[0,4,32], [128,4,32], [256,4,32], [384,4,32], [512,4,32], [640,4,32], [768,4,32], [896,4,32]]" valid="(size(X,/dim))[0] eq 3  AND (size(X,/dim))[1] le 8" type="int_array">
 			<description>a set of up to 8 subspectra [ad_channel_start, width, repeat] </description>
-		</parameter>		
+		</parameter>
 	</section>
 </configuration>

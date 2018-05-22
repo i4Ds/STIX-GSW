@@ -60,8 +60,10 @@
 ;    27-May-2015 - Laszlo I. Etesi (FHNW), initial release
 ;-
 function prepare_packet_structure_ql_calibration_spectrum_sim, calibration_spectrum=calibration_spectrum, $
-  qt=qt, average_temperature=average_temperature, compression_param_k=compression_param_k, $
-  compression_param_m=compression_param_m, compression_param_s=compression_param_s, $
+  qt=qt, average_temperature=average_temperature, $
+  compression_param_k=compression_param_k, $
+  compression_param_m=compression_param_m, $
+  compression_param_s=compression_param_s, $
   subspectra_definition=subspectra_definition, pixel_mask=pixel_mask, detector_mask=detector_mask, _extra=extra
 
   ; type checking

@@ -1533,6 +1533,10 @@ pro stx_flight_software_simulator::setproperty
 
 end
 
+function stx_flight_software_simulator::getconfigmanager
+  return, *((*self.internal_state).configuration_manager)
+end  
+
 function stx_flight_software_simulator::getdata, input_data=input_data, output_target=output_target, solo_packets=solo_packets, _extra=extra
   ; detect level of this call on stack
   help, /traceback, out=tb
@@ -1798,6 +1802,8 @@ function stx_flight_software_simulator::_flare_selection
 
   return, flare_times
 end
+
+
 
 pro stx_flight_software_simulator__define
   void = { stx_flight_software_simulator, $

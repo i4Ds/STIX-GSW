@@ -83,16 +83,17 @@ function stx_fsw_module_tmtc::_execute, in, configuration
     tmtc_writer->setdata, ql_calibration_spectrum=stx_fsw_m_calibration_spectrum, solo_packets= solo_packets, $
       compression_param_s = conf.ql_calibration_spectrum_compression_counts[0], $
       compression_param_k = conf.ql_calibration_spectrum_compression_counts[1], $
-      compression_param_m = conf.ql_calibration_spectrum_compression_counts[2], subspectra_definition=conf.calibration_subspectra
+      compression_param_m = conf.ql_calibration_spectrum_compression_counts[2], $
+      subspectra_definition=conf.calibration_subspectra
   endif
 
   if (in.ql_light_curves) then begin
     fsw->getproperty, stx_fsw_m_lightcurve=ql_lightcurve, /COMPLETE, /comb
 
     tmtc_writer->setdata, ql_lightcurve=ql_lightcurve, solo_packets=solo_packets, $
-      compression_param_s_acc = conf.ql_light_curves_compression_counts[0], $
-      compression_param_k_acc = conf.ql_light_curves_compression_counts[1], $
-      compression_param_m_acc = conf.ql_light_curves_compression_counts[2], $
+      compression_param_s_lc = conf.ql_light_curves_compression_counts[0], $
+      compression_param_k_lc = conf.ql_light_curves_compression_counts[1], $
+      compression_param_m_lc = conf.ql_light_curves_compression_counts[2], $
       compression_param_s_t = conf.ql_light_curves_compression_triggers[0], $
       compression_param_k_t = conf.ql_light_curves_compression_triggers[1], $
       compression_param_m_t = conf.ql_light_curves_compression_triggers[2]

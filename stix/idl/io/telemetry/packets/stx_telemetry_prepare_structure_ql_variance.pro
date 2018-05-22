@@ -45,8 +45,10 @@
 ;    08-Dec-2015 - Simon Marcin (FHNW), initial release
 ;-
 function prepare_packet_structure_ql_variance_fsw, ql_variance=ql_variance, $
-  compression_param_k=compression_param_k, compression_param_m=compression_param_m, $
-  compression_param_s=compression_param_s, _extra=extra
+  compression_param_k=compression_param_k, $
+  compression_param_m=compression_param_m, $
+  compression_param_s=compression_param_s, $
+  _extra=extra
 
   ; type checking
   ppl_require, in=ql_variance, type='stx_fsw_m_variance'

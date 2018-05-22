@@ -26,7 +26,7 @@ pro stx_km_compression_schema_to_params, schema, k=k, m=m, s=s
     
   k = fix(ishft(schema,-3) and 7)
   m = fix(schema and 7)
-  s = fix(ishft(schema,-6) and 3)
+  s = fix(ishft(schema,-6) and 1)
   
 end
 
