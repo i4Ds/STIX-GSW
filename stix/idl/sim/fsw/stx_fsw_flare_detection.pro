@@ -159,8 +159,8 @@ function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_c
       ;if the attenuator is in place
 
       ;todo: check for past rate_control_states 
-      if rate_control_state[t] gt 0 then begin
-      ;if rate_control_state gt 0 then begin
+      ;if rate_control_state[t] gt 0 then begin
+      if rate_control_state gt 0 then begin
         flare_in_progress[t,*] = 1 
         fip[*] = 1
         
