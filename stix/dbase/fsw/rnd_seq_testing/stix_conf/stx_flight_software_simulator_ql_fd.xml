@@ -57,7 +57,6 @@
 		<link>https://www.dropbox.com/s/7l1vn8uhs8grixy/FSWenergyCalibration20130625.docx</link>
 		<parameter name="temperature_correction_table_file" default="concat_dir(getenv('STX_DET'), 'stx_temperature_correction.csv')" valid="file_exist(X)" type="string">
 			<description>The file path to the temperature correction table</description>
-			<value>concat_dir(getenv('STX_CONF'), 'TemperatureCorrection_TLUT0_20150708_1.csv')</value>
 		</parameter>
 		<parameter name="update_frequency" default="4" valid="X gt 0" type="int">
 			<description>Update frequency of this module in seconds</description>
@@ -69,7 +68,6 @@
 		<link>https://www.dropbox.com/s/7l1vn8uhs8grixy/FSWenergyCalibration20130625.docx</link>
 		<parameter name="science_channel_conversion_table_file" default="concat_dir(getenv('STX_DET'), 'ad_energy_table.csv')" valid="file_exist(X)" type="string">
 			<description>The file path to the A/D [4096] to science channel [32] conversion table.</description>
-			<value>concat_dir(getenv('STX_CONF'), 'ELUT5_20151107_1.csv')</value>
 		</parameter>
 		<parameter name="update_frequency" default="4" valid="X gt 0" type="int">
 			<description>Update frequency of this module in seconds</description>
@@ -128,7 +126,6 @@
 		<link>https://www.dropbox.com/s/cba0uzn93c7bu68/FSWaccumulationTiming20130618.docx</link>
 		<parameter name="m_acc" default="byte([1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1])" valid="n_elements(X) eq 32" type="byte_array">
 			<description>32-bit mask selecting detectors to be included in the accumulation.</description>
-			<value>bytarr(32)+1b</value>
 		</parameter>
 		<parameter name="m_channel" default="bytarr(32)+1b" valid="n_elements(X) eq 32" type="byte_array">
 			<description>32-bit mask selecting energy channels to be used in count n_min.</description>
@@ -176,13 +173,13 @@
 		<parameter name="bkg_weigths" default="[0,1,0,0,0]" valid="total(X ge 0) eq 5" type="int_array">
 			<description>Weights on the background determinations.</description>
 		</parameter>
-		<parameter name="out_of_range_factor" default="2." valid="X gt 0" type="float">
+		<parameter name="out_of_range_factor" default="800" valid="X gt 0" type="int">
 			<description>Parameter used to determine if flare is out of range by comparing the counts in the 4 quadrants.</description>
 		</parameter>
-		<parameter name="tot_bk_factor" default="0.1*30" valid="ppl_xml_value_in_interval_test(X,[0.01,0.8]*30)" type="float">
+		<parameter name="tot_bk_factor" default="10" valid="ppl_xml_value_in_interval_test(X,[1,80])" type="int">
 			<description>Factor for comparing background counts to total CFL counts to determine if background level is too high.</description>
 		</parameter>
-		<parameter name="quad_bk_factor" default="30." valid="ppl_xml_value_in_interval_test(X,[0,500])" type="float">
+		<parameter name="quad_bk_factor" default="30" valid="ppl_xml_value_in_interval_test(X,[0,500])" type="int">
 			<description>Factor for subtracting background counts from counts in each quadrant.</description>
 		</parameter>
 		<parameter name="cfl_bk_factor" default="1" valid="ppl_xml_value_in_interval_test(X,[0,30])" type="int">
@@ -191,9 +188,18 @@
         <parameter name="use_last_n_intervals" default="1" valid="X gt 0" type="int">
 			<description>The number of background intervals to average.</description>
 		</parameter>
-        <parameter name="normalisation_factor" default="[0.25,0.25,0.25,0.25,1.] " valid="total(X ge 0) eq 5" type="float_array">
+        <parameter name="normalisation_factor" default="[1,32,32] " valid="total(X ge 0) eq 3" type="int_array">
 			<description>Factor to normalise quadrant counts and toal flux estiamate</description>
 		</parameter>
+	    <parameter name="no_interpolation" default="1" valid="X ge 0" type="int">
+	        <description>Do not use parabolic interpoliation step</description>
+	    </parameter>
+	    <parameter name="crop" default="0" valid="X ge 0" type="int">
+	        <description>crop outer rows and colomns from table</description>
+	    </parameter>
+	    <parameter name="floating_point" default="0" valid="X ge 0" type="int">
+	        <description>used floating point arithmatic</description>
+    	</parameter>
 	</section>
 	<section name="stx_fsw_module_variance_calculation" alias="vc">
 		<description>Calculates count variance using data from quicklook accumulators.</description>
@@ -240,7 +246,7 @@
 	<section name="stx_fsw_module_quicklook_accumulation" alias="qla">
 		<description>This module accumulates quicklook data.</description>
 		<link>https://www.dropbox.com/s/36euy58cy7et9c1/AccumulatorList.xlsx</link>
-		<parameter name="accumulator_definition_file" default="concat_dir(getenv('STX_CONF'), 'qlook_accumulators.csv')" valid="file_exist(X)" type="string">
+		<parameter name="accumulator_definition_file" default="concat_dir(getenv('STX_CONF'), 'qlook_accumulators_fd.csv')" valid="file_exist(X)" type="string">
 			<description>Path to the accumulator configuration file (CSV).</description>
 		</parameter>
 		<parameter name="update_frequency" default="4" valid="X gt 0" type="int">
@@ -285,6 +291,7 @@
 			<unit>seconds</unit>
 		</parameter>
 	</section>
+	
 	<section name="stx_fsw_module_background_determination" alias="bgd">
 		<description>This module calculates the background monitor output.</description>
 		<link>https://www.dropbox.com/s/v6n0xwunjsz6rv9/FWSbackgroundDetermination20130626.docx</link>
@@ -292,22 +299,16 @@
 			<description>Update frequency of this module in seconds</description>
 			<unit>seconds</unit>
 		</parameter>
-		<parameter name="default_background" default="[1.,1.,1.,1.,1.]" valid="total(X ge 0) eq 5" type="float_array">
+		<parameter name="default_background" default="[1UL,1,1,1,1]" valid="n_elements(X) ge 1" type="ulong_array">
 			<description>Default value for background (nql is the number of energy intervals in background accumulators)</description>
 		</parameter>
 		<parameter name="enable" default="1b" valid="ppl_xml_value_is_boolean(X)" type="byte">
 		<!-- this is program flow and should not be in here... -->
 			<description>1 if enable, 0 if disable the background determination</description>
 		</parameter>
-		<parameter name="trigger_duration" default="0.00001d" valid="X gt 0" type="double">
-			<!-- maybe move this parameter to global -->
-			<description>The trigger duration</description>
-			<unit>seconds</unit>
-		</parameter>
-		<parameter name="pixel_mask" default="bytarr(12)+1b" valid="ppl_xml_value_in_interval_test(total(X),[0,12])" type="byte_array"> 
-			<description>This pixel mask defines which pixels to sum in order to determine the background</description>
-		</parameter>
-	</section><section name="stx_fsw_module_flare_detection" alias="fd">
+	</section>
+	
+	<section name="stx_fsw_module_flare_detection" alias="fd">
 		<description>Generates a flag for each accumulation bin whether a flare is in progress or not, incl. a flare intensity.</description>
 		<parameter name="update_frequency" default="4" valid="X gt 0" type="int">
 			<description>Update frequency of this module in seconds</description>

@@ -945,10 +945,7 @@ function stx_flight_software_simulator::_execute_stx_fsw_module_flare_detection,
   
   ; set time axis
   flare_flag.time_axis = self->_create_single_time_axis_entry(update_frequency=update_frequency)
-  
     
-  
-  
   self->_write_data, product_type='stx_fsw_m_flare_flag', val=flare_flag
   ;self->_write_data, product_type='flare_detection_context', val=flare_detection.context
 
@@ -966,11 +963,14 @@ function stx_flight_software_simulator::_execute_stx_fsw_module_coarse_flare_loc
 
   ; get last background
   background = self->_read_data(product_type='stx_fsw_m_background', most_n_recent=no_backgrounds)
-
+  
+  flare_flag = self->_read_data(product_type='stx_fsw_m_flare_flag', /most_n_recent)
+  
   cfl_in = { $
     background    :   background, $
     ql_cfl1_acc   :   ql_flare_location_accumulator_1, $
-    ql_cfl2_acc   :   ql_flare_location_accumulator_2 $
+    ql_cfl2_acc   :   ql_flare_location_accumulator_2, $
+    flare_flag    :   flare_flag.flare_flag[0] $
   }
 
   success = (self.modules)[module]->execute(cfl_in, coarse_flare_location, self.history, ((*self.internal_state).configuration_manager))
@@ -980,6 +980,10 @@ function stx_flight_software_simulator::_execute_stx_fsw_module_coarse_flare_loc
   coarse_flare_location.time_axis = self->_create_single_time_axis_entry(update_frequency=self->get(/cfl_update_frequency))
 
   self->_write_data, product_type='stx_fsw_m_coarse_flare_location', val=coarse_flare_location
+  
+  ;update the flare_flag due to modification within the cfl module
+  flare_flag.flare_flag[0]=coarse_flare_location.flare_flag 
+  self->_write_data, product_type='stx_fsw_m_flare_flag', val=flare_flag,DO_INSERT=0,DO_UPDATE=1
 
   return, coarse_flare_location
 end

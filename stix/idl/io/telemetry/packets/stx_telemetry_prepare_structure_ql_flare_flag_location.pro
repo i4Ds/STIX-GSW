@@ -59,8 +59,8 @@ function prepare_packet_structure_ql_flare_flag_location_fsw, ql_flare_location=
 
   ; initialize pointer and prepare arrays for flare details
   packet.dynamic_flare_flag = ptr_new(bytarr(packet.number_of_samples))
-  packet.dynamic_flare_location_z = ptr_new(bytarr(packet.number_of_samples))
-  packet.dynamic_flare_location_y = ptr_new(bytarr(packet.number_of_samples))
+  packet.dynamic_flare_location_z = ptr_new(intarr(packet.number_of_samples))
+  packet.dynamic_flare_location_y = ptr_new(intarr(packet.number_of_samples))
 
   ;Loop through all data samples
   for sample_id = 0L, packet.number_of_samples-1 do begin
@@ -179,8 +179,8 @@ pro stx_telemetry_prepare_structure_ql_flare_flag_location_write, solo_slices=so
 
       ; initialize dynamic arrays
       (*solo_slices[-1].source_data).dynamic_flare_flag = ptr_new(bytarr(fitting_pakets)-1)
-      (*solo_slices[-1].source_data).dynamic_flare_location_z = ptr_new(bytarr(fitting_pakets)-1)
-      (*solo_slices[-1].source_data).dynamic_flare_location_y = ptr_new(bytarr(fitting_pakets)-1)
+      (*solo_slices[-1].source_data).dynamic_flare_location_z = ptr_new(intarr(fitting_pakets)-1)
+      (*solo_slices[-1].source_data).dynamic_flare_location_y = ptr_new(intarr(fitting_pakets)-1)
 
       ; initialize number_of_structures
       (*solo_slices[-1].source_data).number_of_samples = 0

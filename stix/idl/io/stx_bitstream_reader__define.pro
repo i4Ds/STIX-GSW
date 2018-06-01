@@ -172,7 +172,7 @@ function stx_bitstream_reader::read, dtype, bits=bits, debug=debug, silent=silen
   if bits eq 8 and self.bitptr eq 0 and self.byteptr lt self.buffersize then begin
     if(~peek) then begin
       self.byteptr += 1
-      return, (*self.buffer)[self.byteptr-1]
+      return, self->toSign((*self.buffer)[self.byteptr-1], bits, dtype)  
     endif
     return, (*self.buffer)[self.byteptr]
   endif
@@ -230,7 +230,14 @@ function stx_bitstream_reader::read, dtype, bits=bits, debug=debug, silent=silen
     message, '[DEBUG] Data returned: ' + trim(fix(shifted_data, type=dtype)), /continue, /informational
   endif
   
-  return, fix(shifted_data, type=dtype)
+  return, self->toSign(fix(shifted_data, type=dtype), bits, dtype)  
+end
+
+function stx_bitstream_reader::toSign, val, bits, dtype
+  if dtype eq 2 AND bits lt 16 then begin
+    if val gt 2L^bits/2 then return, (-2L^bits)+val else return, val
+  endif else return, val
+ 
 end
 
 function stx_bitstream_reader::getPosition

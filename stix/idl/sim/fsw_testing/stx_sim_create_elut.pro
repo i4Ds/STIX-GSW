@@ -1,10 +1,10 @@
 pro stx_sim_create_elut, og_filename=og_filename, eb_filename=eb_filename, directory = directory
 
-  default, directory , getenv('STX_DET')
-  default, og_filename, 'offset_gain_table.csv'
-  default, eb_filename, 'EnergyBinning20150615.csv'
-  og = stx_offset_gain_reader(og_filename, directory=directory, /reset)
-  eb = stx_science_energy_channels(basefile=eb_filename,/reset)
+  ;default, directory , getenv('STX_DET')
+  ;default, og_filename, 'offset_gain_table.csv'
+  ;default, eb_filename, 'EnergyBinning20150615.csv'
+  ;og = stx_offset_gain_reader(og_filename, directory=directory, /reset)
+  ;eb = stx_science_energy_channels(basefile=eb_filename,/reset)
   
   get_lun,lun
   openw, lun, "TC_237_7.tc"
@@ -61,8 +61,8 @@ pro stx_sim_create_elut, og_filename=og_filename, eb_filename=eb_filename, direc
  
   
   
-  og = stx_offset_gain_reader(/reset)
-  eb = stx_science_energy_channels(/reset)
+  ;og = stx_offset_gain_reader(/reset)
+  ;eb = stx_science_energy_channels(/reset)
 
 
 

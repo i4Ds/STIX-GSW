@@ -42,6 +42,7 @@ function stx_fsw_module_coarse_flare_locator::_execute, in, configuration
   cfl_acc_summed = in.ql_cfl1_acc
   cfl_acc_cfl = in.ql_cfl2_acc
   background = in.background.background
+  flare_flag = in.flare_flag
 
   conf = *configuration->get(module=self.module)
 
@@ -75,7 +76,7 @@ function stx_fsw_module_coarse_flare_locator::_execute, in, configuration
   ;background correction
   total_background = total(bk_weights*bk_counts)
 
-  cfl_coords = stx_fsw_ql_flare_locator(cfl_counts, quad_counts, total_background, $
+  cfl_res = stx_fsw_ql_flare_locator(cfl_counts, quad_counts, total_background, flare_flag=flare_flag, $
     lower_limit_counts = lower_limit_counts, $
     upper_limit_counts = upper_limit_counts, $
     out_of_range_factor = out_of_range_factor, $
@@ -89,7 +90,7 @@ function stx_fsw_module_coarse_flare_locator::_execute, in, configuration
     
     ;if(min(cfl_coords) ge 0) then stop
     
-    return, stx_fsw_m_coarse_flare_locator(x_pos=cfl_coords[0], y_pos=cfl_coords[1])
+    return, stx_fsw_m_coarse_flare_locator(x_pos=cfl_res.pos[0], y_pos=cfl_res.pos[1],FLARE_FLAG=cfl_res.flare_flag )
 end
 
 pro stx_fsw_module_coarse_flare_locator::update_io_data, conf

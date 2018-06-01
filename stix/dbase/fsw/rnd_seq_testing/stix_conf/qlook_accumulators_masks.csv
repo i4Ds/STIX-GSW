@@ -12,19 +12,19 @@ The lightcurve bins are found in  stix\dbase\detector\EnergyBinning20150615.xls,
 last modified: 2-March-2016  rschwartz70@gmail.com,,,,,,,,
 ;;;;;;; End Comments,,,,,,,,
 accumulator,channel_bin,det_index_list,pixel_index_list,dt,sum_det,sum_pix,livetime,exclude_bad_detectors
-lightcurve,"""0-6-11-16-22-32""",FOURIER,ALL,4,1,1,0,1
-lightcurve_lt,,FOURIER,,4,1,,1,1
-spectra,ALL,ALL,ALL,4,0,1,0,0
+lightcurve,"""0-5-6-7-8-11-16-22-32""","""1,2,20""","""0,1,10""",4,1,1,0,1
+lightcurve_lt,,ALL,,4,1,,1,1
+spectra,ALL,"""1,2,20""","""0,1,10""",4,0,1,0,0
 spectra_lt,,ALL,,4,0,,1,0
-bkgd_monitor,"""0-6-11-16-22-32""",10,BIG8,4,1,0,0,0
-bkgd_monitor_lt,,10,,4,1,,1,1
-variance,"""9-15""",FOURIER,ALL,0.1,1,1,0,1
-variance_lt,,FOURIER,,0.1,1,,1,1
+bkgd_monitor,"""0-5-6-7-8-11-16-22-32""",10,BIG8,4,1,0,0,0
+bkgd_monitor_lt,,"""10,16""",,4,1,,1,1
+variance,"""0-32""","""1,2,20""","""0,1,10""",0.1,1,1,0,1
+variance_lt,,ALL,,0.1,1,,1,1
 flare_detection,"""2-9-15-20""",FOURIER,ALL,4,1,1,0,1
 flare_detection_lt,,FOURIER,,4,1,,1,1
 flare_location_1,"""2-9-15""",FOURIER,CORNERS,4,1,0,0,1
 flare_location_1_lt,,FOURIER,,4,1,,1,1
-flare_location_2,"""2-9-15""",9,ALL,4,1,,0,0
+flare_location_2,"""2-9-15""",9,BIG8,4,1,,0,0
 flare_location_2_lt,,9,,4,1,,1,0
 detector_anomaly,"""1-31""",ALL,ALL,4,0,1,0,1
 detector_anomaly_lt,,ALL,ALL,4,0,,1,1

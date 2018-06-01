@@ -153,6 +153,7 @@
 		<parameter name="t_max" default="110L" valid="X gt 0" type="long">
 			<description>Maximum length of an accumulation time bin in units of 100ms.</description>
 			<unit>100 milliseconds</unit>
+			<value>1L</value>
 		</parameter>
 		<parameter name="t_min" default="0.1d" valid="X gt 0" type="double">
 			<!-- maybe move this parameter to global -->

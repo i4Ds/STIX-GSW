@@ -58,12 +58,15 @@
 ;  sky_y:                  in, optional, type = "float", default=""
 ;                          1D array of CFL sky vector sky Y sampling in arcminutes
 ;                          from STIX optical axis.
+;                          
+;  flare_flag:             in, required, type = "byte", default="0"
+;                          the cfl sets 2 bits in the flare flag for error checking and cancelation detection
 ;
 ;
 ;
 ;
 ;  :returns:
-;   pos:         2 element array giving the [x,y] position of the peak in arcminutes
+;   {pos, flare_flag}:         giving the [x,y] position of the peak in arcminutes and the modified flare_flag
 ;
 ;  :examples:
 ;  location = stx_fsw_ql_flare_locator(  cfl_counts, quad_counts, total_background )
@@ -96,10 +99,16 @@
 ;                             max quadrant_counts as a proxy for total flux included in observation vector
 ;                             stx_cfl_fsw_skyvec_table with cfl and quardrants normalised together used
 ;                             if the dot products have several pixels at the maxiumum value the average value is selected
+;   10-01-2018 - ECMD (Graz), all calculations now perfomed using integer arithmetic
+;                             normalisation no longer computed on board but contained in sky vector table
+;                             normalisation factor
+;                             small pixel counts resdistrubited between nearest large pixels
+;   01-06-2018 - NH (fhnw),   add flar flag as in/out keyword
 ;
 ;-
 function stx_fsw_ql_flare_locator, $
   cfl_counts_in, quad_counts, total_background, $
+  flare_flag = flare_flag, $
   lower_limit_counts = lower_limit_counts, $
   upper_limit_counts = upper_limit_counts, $
   out_of_range_factor = out_of_range_factor, $
@@ -109,45 +118,74 @@ function stx_fsw_ql_flare_locator, $
   normalisation_factor = normalisation_factor, $
   tab_data = tab_data, $
   sky_x = sky_x, $
-  sky_y = sky_y
+  sky_y = sky_y, $
+  crop = crop, $
+  no_interpolation = no_interpolation, $
+  floating_point = floating_point
 
   ;set the defaults for the configuration parameters if they are not passed in
   ;should match the values given in FSWcoarseFlareLocator.docx
-  default, lower_limit_counts, 2.^15.
-  default, upper_limit_counts, 2.^19.
-  default, out_of_range_factor, 2.0
-  default, tot_bk_factor, 0.1
-  default, quad_bk_factor, 30.
-  default, cfl_bk_factor, 1.
-  default, normalisation_factor, [0.25,0.25,0.25,0.25,1.]
+  default, lower_limit_counts, 2L^15L
+  default, upper_limit_counts, 2L^19L
+  default, out_of_range_factor, 2
+  default, tot_bk_factor, 10
+  default, quad_bk_factor, 30
+  default, cfl_bk_factor, 1
+  default, normalisation_factor, [1l,32L,32L]
+  default, no_interpolation, 1
+  default, floating_point, 0
+  default, crop, 0
+
   ;if no table is passed then load the default
   if ~isa(tab_data) || ~isa(sky_x) || ~isa(sky_y) then begin
-    tab_data = stx_cfl_read_skyvec(loc_file( 'stx_fsw_cfl_skyvec_table.txt', path = getenv('STX_CFL') ), sky_x = sky_x, sky_y = sky_y)
-  endif
 
+    tab_filename = floating_point ? 'stx_fsw_cfl_flt_skyvec_table.txt': 'stx_fsw_cfl_int_skyvec_table.txt'
+
+    tab_data = stx_cfl_read_skyvec(loc_file( tab_filename, path = getenv('STX_CFL'), integer = ~floating_point ), sky_x = sky_x, sky_y = sky_y)
+
+  endif
 
   ;check all elements in reference table correspond to positions an equal distance apart as algorithm can only handle
   ;a constant sampling step size in x and y
-  x = sky_x[1:n_elements(sky_x)-1] - sky_x[0:n_elements(sky_x)-2]
-  y = sky_y[1:n_elements(sky_y)-1] - sky_y[0:n_elements(sky_y)-2]
-  step_changex = where(x ne x[0])
-  step_changey = where(y ne y[0])
+  x_diff = sky_x[1:n_elements(sky_x)-1] - sky_x[0:n_elements(sky_x)-2]
+  y_diff = sky_y[1:n_elements(sky_y)-1] - sky_y[0:n_elements(sky_y)-2]
+  step_changex = where(x_diff ne x_diff[0])
+  step_changey = where(y_diff ne y_diff[0])
 
-  if step_changex[0] eq -1 then stepx = x[0] else begin
+  if step_changex[0] eq -1 then stepx = x_diff[0] else begin
     message, 'non-constant step size in skymap x-direction'
     return, -1
   endelse
 
-  if step_changey[0] eq -1 then stepy = y[0] else begin
+  if step_changey[0] eq -1 then stepy = y_diff[0] else begin
     message,'non-constant step size in skymap y-direction'
     return, -1
   endelse
 
-  ; get tabulated sky vector array by taking the inner 65 x 65 elements of the sky vector reference table
-  ; and format it to an array of the form [4225,12] so the dot products can be easily calculated
-  tab_data_3d     = reform( tab_data, [67, 67, 12] )
-  fsw_tab_data_3d = tab_data_3d[ 1:65, 1:65, * ]
-  fsw_tab_data    = reform( fsw_tab_data_3d, [(65*65), 12] )
+  n_res = n_elements(sky_x)
+
+  if keyword_set(crop) then begin
+    ; get tabulated sky vector array by taking the inner 65 x 65 elements of the sky vector reference table
+    ; and format it to an array of the form [(n_res*n_res),12] so the dot products can be easily calculated
+    tab_data_3d     = reform( tab_data, [n_res , n_res, 12] )
+    fsw_tab_data_3d = tab_data_3d[ 1:n_res-2, 1:n_res-2, * ]
+    fsw_tab_data    = reform( fsw_tab_data_3d, [((n_res-2)*(n_res-2)), 12] )
+    n_res  -= 2
+
+  endif else fsw_tab_data = tab_data
+
+  default_location =  [0,0]
+
+
+  if keyword_set(floating_point)  then begin
+
+    cfl_counts_in    = float(cfl_counts_in)
+    quad_counts      = float(quad_counts)
+    total_background = float(total_background)
+
+  endif
+
+  total_background /= (32/8)
 
   ; get the maximum quadrant value for each point and add this vector to the lut array
   quad_max = max(fsw_tab_data[*,8:11], dim = 2)
@@ -159,75 +197,108 @@ function stx_fsw_ql_flare_locator, $
   quadrant_r = quad_counts[2]
   quadrant_s = quad_counts[3]
 
-  ;determine if algorithm should proceed based on the quadrant counts
-  ;test whether count rate is too high or low for an accurate position estimate
-  if quadrant_p + quadrant_q + quadrant_r + quadrant_s lt lower_limit_counts then begin
-    print, 'Aborting due to low flux - No Flare Location'
-    return, [!values.f_nan,!values.f_nan]
-  endif
-
-  if quadrant_p + quadrant_q + quadrant_r + quadrant_s gt upper_limit_counts then begin
-    print, 'Aborting due to high flux - No Flare Location'
-    return, [!values.f_nan,!values.f_nan]
-  endif
-
-  ;determine whether the flare location is out of range and if so specify direction
-  out_of_range = ''
-  pos = fltarr(2)
-  ;if flare is too far in a given direction it is given a value just outside the range used
-  if (quadrant_p gt out_of_range_factor*quadrant_q) and (quadrant_r GT out_of_range_factor*quadrant_s) then $
-    out_of_range += 'negative-x ' & pos[0] += min(sky_x)
-  if (quadrant_p gt out_of_range_factor*quadrant_r) and (quadrant_q GT out_of_range_factor*quadrant_s) then $
-    out_of_range += 'negative-y ' & pos[1] += min(sky_y)
-  if (quadrant_q gt out_of_range_factor*quadrant_p) and (quadrant_s GT out_of_range_factor*quadrant_r) then $
-    out_of_range += 'positive-x ' &  pos[0] += max(sky_x)
-  if (quadrant_r gt out_of_range_factor*quadrant_p) and (quadrant_s GT out_of_range_factor*quadrant_q) then $
-    out_of_range += 'positive-y ' & pos[1] += max(sky_y)
-
-  if strlen(out_of_range) gt 0 then begin
-    print, 'Flare out of range in ' + out_of_range + 'direction.'
-    return, pos
-  endif
-
-  small_pixel_contribution = cfl_counts_in[8:11]/2
-  cfl_counts = cfl_counts_in[0:7] + [small_pixel_contribution,small_pixel_contribution]
-  ;cfl_counts =cfl_counts_in[0:7]
 
   ;if counts are too low compared to the background no location will be found
-  if total_background gt tot_bk_factor*total(cfl_counts) then begin
+  if 100*total_background gt tot_bk_factor*(quadrant_p + quadrant_q + quadrant_r + quadrant_s) then begin
     print, 'Aborting due to high background - No Flare Location'
-    return, [!values.f_nan,!values.f_nan]
+    new_flare_flag = flare_flag
+    return, {pos : default_location, flare_flag : new_flare_flag}
   endif
-
 
   ;subtract background from observed counts
   quadrant_p -= quad_bk_factor*total_background
   quadrant_q -= quad_bk_factor*total_background
   quadrant_r -= quad_bk_factor*total_background
   quadrant_s -= quad_bk_factor*total_background
-  ; cfl_counts -= cfl_bk_factor*total_background
+
+  ;determine if algorithm should proceed based on the quadrant counts
+  ;test whether count rate is too high or low for an accurate position estimate
+  if quadrant_p + quadrant_q + quadrant_r + quadrant_s lt lower_limit_counts then begin
+    print, 'Aborting due to low flux - No Flare Location'
+    new_flare_flag = flare_flag
+    return, {pos : default_location, flare_flag : new_flare_flag}
+  endif
+
+  if quadrant_p + quadrant_q + quadrant_r + quadrant_s gt upper_limit_counts then begin
+    print, 'Aborting due to high flux - No Flare Location'
+    new_flare_flag = flare_flag
+    return, {pos : default_location, flare_flag : new_flare_flag}
+  endif
+
+  ;determine whether the flare location is out of range and if so specify direction
+  out_of_range = ''
+  pos =  keyword_set(floating_point) ? fltarr(2) : intarr(2)
+
+  ;if flare is too far in a given direction it is given a value just outside the range used
+  if (10*quadrant_p gt out_of_range_factor*quadrant_q) and (10*quadrant_r GT out_of_range_factor*quadrant_s) then begin
+    out_of_range += 'negative-x '
+    pos[0] =  min(sky_x)
+  endif
+
+  if (10*quadrant_p gt out_of_range_factor*quadrant_r) and (10*quadrant_q GT out_of_range_factor*quadrant_s) then begin
+    out_of_range += 'negative-y '
+    pos[1]  =  min(sky_y)
+  endif
+
+  if (10*quadrant_q gt out_of_range_factor*quadrant_p) and (10*quadrant_s GT out_of_range_factor*quadrant_r) then begin
+    out_of_range += 'positive-x '
+    pos[0] = max(sky_x)
+  endif
+  if (10*quadrant_r gt out_of_range_factor*quadrant_p) and (10*quadrant_s GT out_of_range_factor*quadrant_q) then begin
+    out_of_range += 'positive-y '
+    pos[1]  =  max(sky_y)
+  endif
+
+  if strlen(out_of_range) gt 0 then begin
+    print, 'Flare out of range in ' + out_of_range + 'direction.'
+    new_flare_flag = flare_flag
+    return, {pos : posn, flare_flag : new_flare_flag}
+  endif
+
+  small_pixel_contribution = cfl_counts_in[8:11]/2
+  cfl_counts = cfl_counts_in[0:7] + [small_pixel_contribution,small_pixel_contribution]
+  
+  cfl_counts -= cfl_bk_factor*total_background
 
   ;reform vector of quadrant counts
   quadrant_counts = [quadrant_p, quadrant_q, quadrant_r, quadrant_s]
 
   ;create vector of counts normalised by total cfl and quadrant counts
-  counts_vector = [cfl_counts, quadrant_counts*normalisation_factor[0:3], normalisation_factor[4]*max(quadrant_counts)]
-  ;  counts_vector /=  sqrt( total( counts_vector^2. ) )
+  counts_vector = [cfl_counts/normalisation_factor[0], quadrant_counts/normalisation_factor[1], max(quadrant_counts)/normalisation_factor[2]]
 
   ;find maximum location by calculating set of dot products between the reference table and the data
   dot_products = fsw_tab_data#counts_vector
 
-  dot_products = reform(dot_products, 65, 65) ; change dot_products to 65 x 65 matrix
+  dot_products = reform(dot_products, n_res, n_res) ; change dot_products to 65 x 65 matrix
 
   aa = where(dot_products eq max(dot_products), na) ; find maximum of dot_products
-  if na gt 1 then maxi = aa[round(na/2.)] else maxi = aa ; if more than one pixel at maxiumum take average
-  jm = maxi mod 65 ;find where maximum is in x
-  km = maxi/65 ;find where maximum is in y
+  if na gt 1 then maxi = aa[round(na/2)] else maxi = aa ; if more than one pixel at maxiumum take average
+  jm = maxi mod n_res ;find where maximum is in x
+  km = maxi/n_res ;find where maximum is in y
 
-  x = stepx*(jm - 32) ;convert to position in x
-  y = stepy*(km - 32) ;convert to position in y
+  x0 = stepx*(jm - (n_res-1)/2) ;convert to position in x
+  y0 = stepy*(km - (n_res-1)/2) ;convert to position in y
 
-  print, x,y
-  return, [x,y]
+  d00 = dot_products[jm, km]
+  dp0 = dot_products[jm + 1 < (n_res-1)/2, km]
+  dm0 = dot_products[jm - 1 >  0, km]
+  d0p = dot_products[jm, km + 1 < (n_res-1)/2]
+  d0m = dot_products[jm, km - 1 > 0 ]
+
+  if (2*d00 eq dm0 + dp0) or (2*d00 eq d0m + d0p) $
+    or (jm eq 0) or (jm eq n_res) or (km eq 0) or (km eq n_res) or keyword_set(no_interpolation) then begin
+    x = x0
+    y = y0
+  endif else begin
+
+    x = x0 + (stepx/2)*(dp0 - dm0)/(2*D00 - dm0 - dp0)
+    y = y0 + (stepy/2)*(d0p - d0m)/(2*D00 - d0m - d0p)
+  endelse
+
+  print, "CFL(x,y):", x, y 
+  
+  new_flare_flag = flare_flag
+  return, {pos : [x,y], flare_flag : new_flare_flag}
+
 end
 

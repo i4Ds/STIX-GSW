@@ -1,10 +1,11 @@
-pro stx_sim_create_cfl_lut, cfl_lut_filename=cfl_lut_filename, directory = directory
+pro stx_sim_create_cfl_lut, cfl_lut_filename=cfl_lut_filename, directory = directory, cfl_lut_filenamepath=cfl_lut_filenamepath
 
   default, directory , getenv('STX_CFL')
   default, cfl_lut_filename, 'stx_fsw_cfl_skyvec_table.txt'
-
+  default, cfl_lut_filenamepath, loc_file( cfl_lut_filename, path = directory )
   
-  tab_data = stx_cfl_read_skyvec(loc_file( cfl_lut_filename, path = directory ), sky_x = sky_x, sky_y = sky_y)
+  
+  tab_data = stx_cfl_read_skyvec(cfl_lut_filenamepath, sky_x = sky_x, sky_y = sky_y)
   
   get_lun,lun
   openw, lun, "TC_237_7_16.tc"

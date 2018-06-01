@@ -89,13 +89,12 @@ return
   stop
   return
 
-  ; QL_FD - END ************************************************************************************************
- 
+  ; D1_2 - END ************************************************************************************************
   resume_here:
-  ; QL_CFL - BEGIN **********************************************************************************************
-  sequence_name = 'stx_scenario_cfl_short_test'
-  test_name = 'AX_QL_TEST_CFL'
-  configuration_file = 'stx_flight_software_simulator_ql_fd.xml'
+  ; QL_FD - BEGIN **********************************************************************************************
+  sequence_name = 'AB'
+  test_name = 'AX_SD_TEST_AB'
+  configuration_file = 'stx_flight_software_simulator_d1_2.xml'
 
   stx_sim_fsw_prep, test_name, sequence_name, configuration_file=configuration_file, seed=seed, test_root=test_root, $
     version=version, original_dir=original_dir, original_conf=original_conf, dss=dss, fsw=fsw
@@ -116,6 +115,58 @@ return
   save, fsw, filename="fsw.sav"
   confManager = fsw->getconfigmanager()
   save, confManager, filename="fsw_conf.sav"
+
+  tmtc_data = {$
+    QL_LIGHT_CURVES : 1,$
+    sd_xray_0: 1 ,$
+    rel_flare_time : [0d,total(lightcurve.TIME_AXIS.duration)]$
+  }
+
+  print, fsw->getdata(output_target="stx_fsw_tmtc", filename='ql_tmtc.bin', _extra=tmtc_data)
+
+  setenv, 'STX_CONF=' + original_conf
+  cd, original_dir
+  stop
+  return
+
+
+  ; QL_FD - END ************************************************************************************************
+ 
+  ;resume_here:
+  ; QL_CFL - BEGIN **********************************************************************************************
+  sequence_name = 'stx_scenario_cfl_short_test'
+  test_name = 'AX_QL_TEST_CFL'
+  configuration_file = 'stx_flight_software_simulator_ql_fd.xml'
+  OFFSET_GAIN_TABLE=-1
+    
+  
+  
+  
+  stx_sim_fsw_prep, test_name, sequence_name, configuration_file=configuration_file, seed=seed, test_root=test_root, $
+    version=version, original_dir=original_dir, original_conf=original_conf, dss=dss, fsw=fsw,OFFSET_GAIN_TABLE=OFFSET_GAIN_TABLE 
+
+  stx_sim_create_elut, OG_FILENAME=OFFSET_GAIN_TABLE, directory=concat_dir(getenv('STX_FSW'), concat_dir('rnd_seq_testing', 'stix_conf'))
+  
+  
+  ;generate the DSS events for hardware testing
+  ;tb = dss->getdata(output_target='scenario_length', scenario=sequence_name) / 4L  + 1
+  ;eventlist = dss->getdata(output_target='stx_sim_detector_eventlist', time_bins=[0L,long(tb)], scenario=sequence_name, rate_control_regime=0, t_l=t_l, t_r=t_r, t_ig=t_ig)
+  ;stx_sim_dss_events_writer, sequence_name + '.dssevs', eventlist.detector_events, constant=1850
+
+
+  stx_sim_fsw_run, dss, fsw, test_name, sequence_name, t_l=t_l, t_r=t_r, t_ig=t_ig
+
+  fsw->getproperty, stx_fsw_ql_lightcurve=lightcurve, /complete, /combine
+  stx_plot, lightcurve, plot=plot
+    
+
+  save, dss, fsw, filename=test_name + '_dss-fsw.sav'
+  save, fsw, filename="fsw.sav"
+  confManager = fsw->getconfigmanager()
+  save, confManager, filename="fsw_conf.sav"
+
+  skyFile = fsw->get(/cfl_cfl_lut)
+  stx_sim_create_cfl_lut, CFL_LUT_FILENAMEPATH=skyFile
 
   tmtc_data = {$
     QL_LIGHT_CURVES : 1,$
