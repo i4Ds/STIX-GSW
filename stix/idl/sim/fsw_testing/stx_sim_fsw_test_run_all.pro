@@ -97,7 +97,9 @@ return
   configuration_file = 'stx_flight_software_simulator_d1_2.xml'
 
   stx_sim_fsw_prep, test_name, sequence_name, configuration_file=configuration_file, seed=seed, test_root=test_root, $
-    version=version, original_dir=original_dir, original_conf=original_conf, dss=dss, fsw=fsw
+    version=version, original_dir=original_dir, original_conf=original_conf, dss=dss, fsw=fsw,OFFSET_GAIN_TABLE=OFFSET_GAIN_TABLE
+
+  stx_sim_create_elut, OG_FILENAME=OFFSET_GAIN_TABLE, directory=concat_dir(getenv('STX_FSW'), concat_dir('rnd_seq_testing', 'stix_conf'))
 
 
   ;generate the DSS events for hardware testing
@@ -111,10 +113,14 @@ return
   fsw->getproperty, stx_fsw_ql_lightcurve=lightcurve, /complete, /combine
   stx_plot, lightcurve, plot=plot
 
+
   save, dss, fsw, filename=test_name + '_dss-fsw.sav'
   save, fsw, filename="fsw.sav"
   confManager = fsw->getconfigmanager()
   save, confManager, filename="fsw_conf.sav"
+
+  skyFile = fsw->get(/cfl_cfl_lut)
+  stx_sim_create_cfl_lut, CFL_LUT_FILENAMEPATH=skyFile
 
   tmtc_data = {$
     QL_LIGHT_CURVES : 1,$
