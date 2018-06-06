@@ -966,11 +966,16 @@ function stx_flight_software_simulator::_execute_stx_fsw_module_coarse_flare_loc
   
   flare_flag = self->_read_data(product_type='stx_fsw_m_flare_flag', /most_n_recent)
   
+  previous_location_str = self->_read_data(product_type='stx_fsw_m_coarse_flare_location', /most_n_recent)
+
+ previous_location  = exist(previous_location_str) ? [previous_location_str.x_pos[0],previous_location_str.y_pos[0]] : [0,0]
+
   cfl_in = { $
-    background    :   background, $
-    ql_cfl1_acc   :   ql_flare_location_accumulator_1, $
-    ql_cfl2_acc   :   ql_flare_location_accumulator_2, $
-    flare_flag    :   flare_flag.flare_flag[0] $
+    background        :   background, $
+    ql_cfl1_acc       :   ql_flare_location_accumulator_1, $
+    ql_cfl2_acc       :   ql_flare_location_accumulator_2, $
+    flare_flag        :   flare_flag.flare_flag[0], $
+    previous_location :   previous_location $
   }
 
   success = (self.modules)[module]->execute(cfl_in, coarse_flare_location, self.history, ((*self.internal_state).configuration_manager))

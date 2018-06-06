@@ -58,7 +58,7 @@
 ;  sky_y:                  in, optional, type = "float", default=""
 ;                          1D array of CFL sky vector sky Y sampling in arcminutes
 ;                          from STIX optical axis.
-;                          
+;
 ;  flare_flag:             in, required, type = "byte", default="0"
 ;                          the cfl sets 2 bits in the flare flag for error checking and cancelation detection
 ;
@@ -109,6 +109,10 @@
 function stx_fsw_ql_flare_locator, $
   cfl_counts_in, quad_counts, total_background, $
   flare_flag = flare_flag, $
+  location_status_index = location_status_index, $
+  shadow_flags = shadow_flags, $
+  shadow_limit = shadow_limit, $
+  previous_location =previous_location, $
   lower_limit_counts = lower_limit_counts, $
   upper_limit_counts = upper_limit_counts, $
   out_of_range_factor = out_of_range_factor, $
@@ -135,6 +139,12 @@ function stx_fsw_ql_flare_locator, $
   default, no_interpolation, 1
   default, floating_point, 0
   default, crop, 0
+  default, shadow_flags, [0,0]
+  default, previous_location, [0,0]
+  default, shadow_limit, [26]
+
+  location_status_index = 2B
+  default_location =  [0,0]
 
   ;if no table is passed then load the default
   if ~isa(tab_data) || ~isa(sky_x) || ~isa(sky_y) then begin
@@ -174,7 +184,7 @@ function stx_fsw_ql_flare_locator, $
 
   endif else fsw_tab_data = tab_data
 
-  default_location =  [0,0]
+
 
 
   if keyword_set(floating_point)  then begin
@@ -201,8 +211,10 @@ function stx_fsw_ql_flare_locator, $
   ;if counts are too low compared to the background no location will be found
   if 100*total_background gt tot_bk_factor*(quadrant_p + quadrant_q + quadrant_r + quadrant_s) then begin
     print, 'Aborting due to high background - No Flare Location'
-    new_flare_flag = flare_flag
-    return, {pos : default_location, flare_flag : new_flare_flag}
+    location_status_index = 0B
+    shadow_flags = [0,0]
+    new_flare_flag = flare_flag + ishft(location_status_index, 5)
+    return, {pos : default_location, flare_flag : new_flare_flag, shadow_flags:shadow_flags}
   endif
 
   ;subtract background from observed counts
@@ -215,14 +227,17 @@ function stx_fsw_ql_flare_locator, $
   ;test whether count rate is too high or low for an accurate position estimate
   if quadrant_p + quadrant_q + quadrant_r + quadrant_s lt lower_limit_counts then begin
     print, 'Aborting due to low flux - No Flare Location'
-    new_flare_flag = flare_flag
-    return, {pos : default_location, flare_flag : new_flare_flag}
+    location_status_index = 0b
+    shadow_flags = [0,0]
+    new_flare_flag = flare_flag + ishft(location_status_index, 5)
+    return, {pos : default_location, flare_flag : new_flare_flag, shadow_flags:shadow_flags}
   endif
 
   if quadrant_p + quadrant_q + quadrant_r + quadrant_s gt upper_limit_counts then begin
     print, 'Aborting due to high flux - No Flare Location'
-    new_flare_flag = flare_flag
-    return, {pos : default_location, flare_flag : new_flare_flag}
+    location_status_index = 1b
+    new_flare_flag = flare_flag + ishft(location_status_index, 5)
+    return, {pos : previous_location, flare_flag : new_flare_flag, shadow_flags:shadow_flags}
   endif
 
   ;determine whether the flare location is out of range and if so specify direction
@@ -251,13 +266,13 @@ function stx_fsw_ql_flare_locator, $
 
   if strlen(out_of_range) gt 0 then begin
     print, 'Flare out of range in ' + out_of_range + 'direction.'
-    new_flare_flag = flare_flag
-    return, {pos : posn, flare_flag : new_flare_flag}
+    new_flare_flag = flare_flag + ishft(location_status_index, 5)
+    return, {pos : pos, flare_flag : new_flare_flag, shadow_flags:shadow_flags}
   endif
 
   small_pixel_contribution = cfl_counts_in[8:11]/2
   cfl_counts = cfl_counts_in[0:7] + [small_pixel_contribution,small_pixel_contribution]
-  
+
   cfl_counts -= cfl_bk_factor*total_background
 
   ;reform vector of quadrant counts
@@ -291,14 +306,24 @@ function stx_fsw_ql_flare_locator, $
     y = y0
   endif else begin
 
-    x = x0 + (stepx/2)*(dp0 - dm0)/(2*D00 - dm0 - dp0)
-    y = y0 + (stepy/2)*(d0p - d0m)/(2*D00 - d0m - d0p)
+    x = x0 + (stepx/2)*(dp0 - dm0)/(2*d00 - dm0 - dp0)
+    y = y0 + (stepy/2)*(d0p - d0m)/(2*d00 - d0m - d0p)
   endelse
 
-  print, "CFL(x,y):", x, y 
-  
-  new_flare_flag = flare_flag
-  return, {pos : [x,y], flare_flag : new_flare_flag}
+  if array_equal([x,y], previous_location) then location_status_index = 1b
 
+  fx = abs(jm - (n_res-1)/2) gt shadow_limit ? 1 : 0
+  if abs(jm - (n_res-1)/2) eq shadow_limit then fx = shadow_flags[0]
+  if jm lt (n_res-1)/2 then fx = -fx
+
+  fy = abs(km - (n_res-1)/2) gt shadow_limit ? 1 : 0
+  if abs(km - (n_res-1)/2) eq shadow_limit then fy = shadow_flags[1]
+  if km lt (n_res-1)/2 then fy = -fy
+
+  shadow_flags = [fx,fy]
+  print, "CFL(x,y):", x, y
+
+  new_flare_flag = flare_flag + ishft(location_status_index, 5)
+  return, {pos : [x,y], flare_flag : new_flare_flag, shadow_flags:shadow_flags}
 end
 

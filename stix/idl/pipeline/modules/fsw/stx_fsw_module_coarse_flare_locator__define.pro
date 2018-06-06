@@ -43,6 +43,7 @@ function stx_fsw_module_coarse_flare_locator::_execute, in, configuration
   cfl_acc_cfl = in.ql_cfl2_acc
   background = in.background.background
   flare_flag = in.flare_flag
+  previous_location =in.previous_location
 
   conf = *configuration->get(module=self.module)
 
@@ -79,6 +80,7 @@ function stx_fsw_module_coarse_flare_locator::_execute, in, configuration
   cfl_res = stx_fsw_ql_flare_locator(cfl_counts, quad_counts, total_background, flare_flag=flare_flag, $
     lower_limit_counts = lower_limit_counts, $
     upper_limit_counts = upper_limit_counts, $
+    previous_location = previous_location, $
     out_of_range_factor = out_of_range_factor, $
     tot_bk_factor = tot_bk_factor, $
     quad_bk_factor = quad_bk_factor, $

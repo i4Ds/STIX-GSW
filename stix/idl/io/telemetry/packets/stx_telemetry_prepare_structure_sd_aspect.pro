@@ -220,13 +220,12 @@ pro stx_telemetry_prepare_structure_sd_aspect_read, stx_fsw_m_aspect=stx_fsw_m_a
   ;create new stx_asw_ql_aspect object
   if(arg_present(stx_fsw_m_aspect)) then begin
     
-    stx_fsw_m_aspect = stx_fsw_m_aspect($
-      summing = (*solo_slices[0].source_data).SUMMING, $
-      time_axis = time_axis, $
-      cha1 = CHA1->toarray(),$
-      cha2 = CHA2->toarray(),$
-      chb1 = CHB1->toarray(),$
-      chb2 = CHB2->toarray())
+    stx_fsw_m_aspect = { summing : (*solo_slices[0].source_data).SUMMING, $
+                                        time_axis : time_axis, $
+                                        cha1 : CHA1->toarray(),$
+                                        cha2 : CHA2->toarray(),$
+                                        chb1 : CHB1->toarray(),$
+                                        chb2 : CHB2->toarray()}
     
   endif
 
