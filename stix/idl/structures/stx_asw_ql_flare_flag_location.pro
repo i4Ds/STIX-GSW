@@ -10,6 +10,7 @@
 ;
 ; :history:
 ;     14-Sep-2016 - Simon Marcin (FHNW), initial release
+;     06-Jun-2018 - Nicky Hochmuth (FHNW), set x/ypos to signed int
 ;
 ;-
 function stx_asw_ql_flare_flag_location, n_time_bins
