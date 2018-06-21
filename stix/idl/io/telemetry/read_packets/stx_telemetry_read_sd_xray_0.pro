@@ -14,6 +14,7 @@
 ;
 ; :history:
 ;    28-Sep-2016 - Simon Marcin (FHNW), initial release
+;    01-May-2017 - Laszlo I. Etesi (FHNW), updated in accordance with the ICD
 ;-
 
 function stx_telemetry_read_sd_xray_0, solo_packet=solo_packet, tmr=tmr, _extra=extra
@@ -55,32 +56,32 @@ function stx_telemetry_read_sd_xray_0, solo_packet=solo_packet, tmr=tmr, _extra=
     ; process dynamic science dataslices
     for j = 0L, sub.number_science_data_samples-1 do begin
       
-      ; continuation_bit: read 2 bits
-      val = tmr->read(1, bits=2, debug=debug, silent=silent)
-      (*sub.dynamic_continuation_bits)[j] = val
-      continuation_bit = val
+      ; pixel_id: read 4 bits
+      val = tmr->read(1, bits=4, debug=debug, silent=silent)
+      (*sub.dynamic_pixel_id)[j] = val
       
       ; detector_id: read 5 bits
       val = tmr->read(1, bits=5, debug=debug, silent=silent)
       (*sub.dynamic_detector_id)[j] = val
       
-      ; pixel_id: read 4 bits
-      val = tmr->read(1, bits=4, debug=debug, silent=silent)
-      (*sub.dynamic_pixel_id)[j] = val
-      
       ; energy_id: read 5 bits
       val = tmr->read(1, bits=5, debug=debug, silent=silent)
       (*sub.dynamic_energy_id)[j] = val
       
+      ; continuation_bit: read 2 bits
+      val = tmr->read(1, bits=2, debug=debug, silent=silent)
+      (*sub.dynamic_continuation_bits)[j] = val
+      continuation_bit = val
+      
       ; handle dynamic size of counts
       if (continuation_bit eq 0) then continue
-      dynamic_bits = 8
+      if (continuation_bit eq 1) then dynamic_bits = 8
       if (continuation_bit eq 2) then dynamic_bits = 16
+      if (continuation_bit gt 2) then stop
       
       ; continuation_bit: read dynamic bits
       val = tmr->read(12, bits=dynamic_bits, debug=debug, silent=silent)
       (*sub.dynamic_counts)[j] = val
-      
     endfor
     
     ; add subheader to list

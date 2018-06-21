@@ -1,6 +1,7 @@
 ;+
 ; :description:
 ;   This function creates an uninitialized stx_telemetry_packet_structure_sd_x-rayx structure.
+;   NB: The current structure is only valid for SSID=20,21,22,23
 ;
 ; :categories:
 ;    flight software, structure definition, telemetry, xray
@@ -14,6 +15,7 @@
 ; :history:
 ;     22-Mar-2016, Simon Marcin (FHNW), initial release
 ;     21-Sep-2016, Simon Marcin (FHNW), added compression schmeas
+;     01-May-2018, Laszlo I. Etesi (FHNW), updated structure in accordance with ICD
 ;
 ;-
 function stx_telemetry_packet_structure_sd_xray_header, packet_word_width=packet_word_width
@@ -26,11 +28,14 @@ function stx_telemetry_packet_structure_sd_xray_header, packet_word_width=packet
     header_service_type              : 8, $
     header_service_subtype           : 8, $
     ssid                             : 8, $
+    reference_tc_packet_id           : 16, $
+    reference_tc_packet_sequence     : 16, $
+    unique_request_number            : 32, $
     compression_schema_acc           : 8, $        ; +1 spare bit
     compression_schema_t             : 8, $        ; +1 spare bit
-    ;measurement_time_step           : 48, $
-    coarse_time                      : 32, $       ; split of measurement_time_step
-    fine_time                        : 16, $       ; split of measurement_time_step
+    ;measurement_time_stamp          : 48, $
+    coarse_time                      : 32, $       ; split of measurement_time_stamp
+    fine_time                        : 16, $       ; split of measurement_time_stamp
     number_time_samples              : 16, $
     dynamic_subheaders               : 0UL, $ ; dynamic, will be filled during execution with
     pkg_total_bytes_fixed            : long(0) $
@@ -58,13 +63,16 @@ function stx_telemetry_packet_structure_sd_xray_header, packet_word_width=packet
     header_data_field_length         : uint(0),   $
     header_service_type              : uint(21),  $     ; fixed
     header_service_subtype           : uint(6),   $     ; fixed
-    ssid                             : uint(10),  $     ; fixed
-    compression_schema_acc           : uint(0), $       ; +1 spare bit
-    compression_schema_t             : uint(0), $       ; +1 spare bit
-    ;    measurement_time_step            : ulong64(0) $    ;
-    coarse_time                      : ulong(0), $      ; split of measurement_time_step
-    fine_time                        : long(0), $       ; split of measurement_time_step
-    number_time_samples              : uint(0), $       ; defines N
+    ssid                             : uint(0),   $
+    reference_tc_packet_id           : uint(0),   $
+    reference_tc_packet_sequence     : uint(0),   $
+    unique_request_number            : uint(0),   $
+    compression_schema_acc           : uint(0),   $     ; +1 spare bit
+    compression_schema_t             : uint(0),   $     ; +1 spare bit
+    ;    measurement_time_stamp      : ulong64(0) $     ;
+    coarse_time                      : ulong(0),  $     ; split of measurement_time_stamp
+    fine_time                        : long(0),   $     ; split of measurement_time_stamp
+    number_time_samples              : uint(0),   $     ; defines N
     dynamic_subheaders               : ptr_new(), $     
     pkg_word_width                   : packet_word_width $
   }
