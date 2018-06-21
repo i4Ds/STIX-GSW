@@ -13,6 +13,7 @@
 ;
 ; :history:
 ;     19-Dez-2016, Simon Marcin (FHNW), initial release
+;    19-Jun-2018 - Nicky Hochmuth (FHNW) align with ICD
 ;
 ;-
 function stx_telemetry_packet_structure_ql_flare_list, packet_word_width=packet_word_width
@@ -25,19 +26,18 @@ function stx_telemetry_packet_structure_ql_flare_list, packet_word_width=packet_
     header_service_type              : 8, $
     header_service_subtype           : 8, $
     ssid                             : 8, $
-    pointer_start                    : 48, $
-    pointer_end                      : 48, $
-    number_of_flares                 : 8, $
+    pointer_start                    : 32, $
+    pointer_end                      : 32, $
+    number_of_flares                 : 16, $
     dynamic_start_coarse             : 0UL, $ 
-    dynamic_start_fine               : 0UL, $ 
     dynamic_end_coarse               : 0UL, $ 
-    dynamic_end_fine                 : 0UL, $ 
     dynamic_high_flag                : 0UL, $ 
-    dynamic_nbr_packets              : 0UL, $ 
-    dynamic_spare                    : 0UL, $ 
-    dynamic_processed                : 0UL, $ 
-    dynamic_compression              : 0UL, $ 
-    dynamic_transmitted              : 0UL, $ 
+    dynamic_tm_volume                : 0UL, $
+    dynamic_avg_cfl_z                : 0UL, $
+    dynamic_avg_cfl_y                : 0UL, $
+    dynamic_processing_status        : 0UL, $
+        
+     
     pkg_total_bytes_fixed            : long(0) $
   } ; 160 bits fixed = 20 bytes
 
@@ -63,20 +63,17 @@ function stx_telemetry_packet_structure_ql_flare_list, packet_word_width=packet_
     header_data_field_length         : uint(0),   $
     header_service_type              : uint(21),  $     ; fixed
     header_service_subtype           : uint(6),   $     ; fixed
-    ssid                             : uint(40),  $     ; fixed
+    ssid                             : uint(43),  $     ; fixed
     pointer_start                    : ulong64(0), $
     pointer_end                      : ulong64(0), $
     number_of_flares                 : uint(0), $
     dynamic_start_coarse             : ptr_new(), $
-    dynamic_start_fine               : ptr_new(), $
     dynamic_end_coarse               : ptr_new(), $
-    dynamic_end_fine                 : ptr_new(), $
     dynamic_high_flag                : ptr_new(), $
-    dynamic_nbr_packets              : ptr_new(), $
-    dynamic_spare                    : ptr_new(), $
-    dynamic_processed                : ptr_new(), $
-    dynamic_compression              : ptr_new(), $
-    dynamic_transmitted              : ptr_new(), $
+    dynamic_tm_volume                : ptr_new(), $
+    dynamic_avg_cfl_z                : ptr_new(), $
+    dynamic_avg_cfl_y                : ptr_new(), $
+    dynamic_processing_status        : ptr_new(), $
     pkg_word_width                   : packet_word_width $
   }
 

@@ -297,6 +297,15 @@ pro stx_telemetry_reader_gui::plot_data
         break
       end
       
+      'stx_tmtc_ql_flare_list' : begin
+        self.telemetry_reader->getdata, asw_ql_flare_list=asw_ql_flare_list_blocks
+        asw_ql_flare_list = asw_ql_flare_list_blocks[data_idx]
+
+        print, asw_ql_flare_list
+
+        break
+      end
+      
       'stx_tmtc_sd_xray_0': begin
 
         if ~isa(asw) then asw = obj_new('stx_analysis_software')

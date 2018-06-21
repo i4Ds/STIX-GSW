@@ -22,47 +22,40 @@ pro stx_telemetry_write_ql_flare_list, packet, tmw=tmw, _extra=extra
     stx_telemerty_util_write_header, packet=packet, tmw=tmw
 
   ; process all dyamic fields
-  for struct_idx = 0L, packet.number_of_flares-1 do begin
+  if packet.number_of_flares gt 0 then for struct_idx = 0L, packet.number_of_flares-1 do begin
 
     ;write dynamic_start_coarse data
     data = (*packet.dynamic_start_coarse)[struct_idx]
     tmw->write, data, bits=32, debug=debug, silent=silent
 
-    ;write dynamic_start_fine data
-    data = (*packet.dynamic_start_fine)[struct_idx]
-    tmw->write, data, bits=16, debug=debug, silent=silent
     
     ;write dynamic_end_coarse data
     data = (*packet.dynamic_end_coarse)[struct_idx]
     tmw->write, data, bits=32, debug=debug, silent=silent
     
-    ;write dynamic_end_fine data
-    data = (*packet.dynamic_end_fine)[struct_idx]
-    tmw->write, data, bits=16, debug=debug, silent=silent
     
     ;write dynamic_high_flag data
     data = (*packet.dynamic_high_flag)[struct_idx]
     tmw->write, data, bits=8, debug=debug, silent=silent
     
-    ;write dynamic_nbr_packets data
-    data = (*packet.dynamic_nbr_packets)[struct_idx]
+    ;write dynamic_tm_volume
+    data = (*packet.dynamic_tm_volume)[struct_idx]
+    tmw->write, data, bits=32, debug=debug, silent=silent
+    
+    ;write dynamic_avg_cfl_z data
+    data = (*packet.dynamic_avg_cfl_z)[struct_idx]
     tmw->write, data, bits=8, debug=debug, silent=silent
     
-    ;write dynamic_spare data
-    data = (*packet.dynamic_spare)[struct_idx]
-    tmw->write, data, bits=4, debug=debug, silent=silent
+    ;write dynamic_avg_cfl_y
+    data = (*packet.dynamic_avg_cfl_y)[struct_idx]
+    tmw->write, data, bits=8, debug=debug, silent=silent
     
-    ;write dynamic_processed data
-    data = (*packet.dynamic_processed)[struct_idx]
-    tmw->write, data, bits=1, debug=debug, silent=silent
+   
     
-    ;write dynamic_compression data
-    data = (*packet.dynamic_compression)[struct_idx]
-    tmw->write, data, bits=2, debug=debug, silent=silent
-    
-    ;write dynamic_transmitted data
-    data = (*packet.dynamic_transmitted)[struct_idx]
-    tmw->write, data, bits=1, debug=debug, silent=silent
+    ;write dynamic_processing_status data
+    data = (*packet.dynamic_processing_status)[struct_idx]
+    tmw->write, data, bits=8, debug=debug, silent=silent
+   
   endfor
 
 end

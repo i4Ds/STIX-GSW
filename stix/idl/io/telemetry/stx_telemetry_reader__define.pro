@@ -527,7 +527,13 @@ function stx_telemetry_reader::read_packet_structure_source_packet_header, scan_
   ; fail on incorrect id
   ; TODO choose the fail action
   if(candidate_id eq -1) then begin
-    message, 'No suitable STIX telemetry packet found.', /info
+    message, 'No suitable STIX telemetry packet found. packet_category: ' $ 
+      + trim(solo_packet.packet_category) + ", pid: " $
+      + trim(solo_packet.pid) + ", service_type: " $
+      + trim(solo_packet.service_type) + ", service_subtype: " $
+      + trim(solo_packet.service_subtype) + ", sid_ssid: " $
+      + trim(fix(sid_ssid)) $
+      , /info
     return, !NULL
   endif
   
