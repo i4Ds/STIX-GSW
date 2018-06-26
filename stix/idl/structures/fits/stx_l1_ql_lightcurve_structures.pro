@@ -31,10 +31,10 @@
 function stx_l1_ql_lightcurve_structures, n_times
 
   control = { $
-    integration_time : 0
-    detector_mask : bytarr(32), $
+    integration_time : 0, $
+    detector_mask : bytarr(33), $
     pixel_mask : bytarr(16), $
-    energy_bin_mask : bytarr(32), $
+    energy_bin_mask : bytarr(33), $
     compression_scheme_counts : intarr(3),$
     compression_scheme_triggers : intarr(3)}
 
