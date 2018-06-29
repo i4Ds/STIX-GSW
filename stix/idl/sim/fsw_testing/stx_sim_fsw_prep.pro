@@ -18,7 +18,7 @@ pro stx_sim_fsw_prep, test_name, sequence_name, configuration_file=configuration
   original_conf = getenv('STX_CONF')
   
   ; make sure we use the correct offset-gain table
-  if offset_gain_table ne -1 then offset_table = stx_offset_gain_reader(offset_gain_table, directory=concat_dir(getenv('STX_FSW'), concat_dir('rnd_seq_testing', 'stix_conf')), /RESET)
+  if offset_gain_table ne "" then offset_table = stx_offset_gain_reader(offset_gain_table, directory=concat_dir(getenv('STX_FSW'), concat_dir('rnd_seq_testing', 'stix_conf')), /RESET)
 
   ; change default STIX configuration folder
   setenv, 'STX_CONF=' + concat_dir(getenv('STX_FSW'), concat_dir('rnd_seq_testing', 'stix_conf'))

@@ -154,7 +154,7 @@
 	<section name="stx_fsw_module_coarse_flare_locator" alias="cfl">
 		<description>This is the coarse flare locator module.</description>
 		<link>https://www.dropbox.com/s/ygg7xaqkv3f2lsa/FSWcoarseFlareLocator20131009.docx</link>
-		<parameter name="update_frequency" default="4" valid="X gt 0" type="int">
+		<parameter name="update_frequency" default="8" valid="X gt 0" type="int">
 			<description>Update frequency of this module in seconds</description>
 			<unit>seconds</unit>
 		</parameter>
@@ -274,11 +274,11 @@
 			<description>Reset frequency of this quicklook accumulator (every how many seconds is the buffer saved and reset). This parameter applies to counts and trigger accumulators alike.</description>
 			<unit>seconds</unit>
 		</parameter>
-		<parameter name="reset_frequency_stx_fsw_ql_flare_location_1" default="4" valid="X gt 0" type="int">
+		<parameter name="reset_frequency_stx_fsw_ql_flare_location_1" default="8" valid="X gt 0" type="int">
 			<description>Reset frequency of this quicklook accumulator (every how many seconds is the buffer saved and reset). This parameter applies to counts and trigger accumulators alike.</description>
 			<unit>seconds</unit>
 		</parameter>
-		<parameter name="reset_frequency_stx_fsw_ql_flare_location_2" default="4" valid="X gt 0" type="int">
+		<parameter name="reset_frequency_stx_fsw_ql_flare_location_2" default="8" valid="X gt 0" type="int">
 			<description>Reset frequency of this quicklook accumulator (every how many seconds is the buffer saved and reset). This parameter applies to counts and trigger accumulators alike.</description>
 			<unit>seconds</unit>
 		</parameter>
@@ -360,21 +360,25 @@
 		</parameter>
 		<parameter name="l0" default="2*10L^3" valid="X gt 0" type="long">
 			<description>Upper live time accumulator threshold for changing from C1 to C0, i.e. RCR1 to RCR0 (viz, for removing attenuator).</description>
+			<value>350L</value>
 		</parameter>
 		<parameter name="l1" default="2*10L^5" valid="X gt 0" type="long">
-			<description>Lower live time accumulator threshold for changing from C0 to C1, i.e. RCR0 to RCR1 (viz, for inserting the attenuator.</description>
-		</parameter>
-		<parameter name="l2" default="1*10L^5" valid="X gt 0" type="long">
+			<description>Lower live time accumulator threshold for changing from C0 to C1, i.e. RCR0 to RCR1 (viz, for inserting the attenuator.)</description>
+			<value>700L</value>
+		</parameter>	
+		<parameter name="l2" default="2*10L^5" valid="X gt 0" type="long">
 			<description>Lower live tme acculator threshold for change RCR by increasing the effective detector area.</description>
+			<value>1050L</value>
 		</parameter>
-		<parameter name="l3" default="2*10L^5" valid="X gt 0" type="long">
+		<parameter name="l3" default="1*10L^5" valid="X gt 0" type="long">
 			<description>Upper live time accumulator threshold for changing RCR by reducing the effective detector area.</description>
+			<value>1400L</value>
 		</parameter>
 		<parameter name="b0" default="2*10L^3" valid="X gt 0" type="long">
 			<description>Upper limit on Ab (from background detector) for removing attenuator (max counts in 4s in 1 BKGD pixel for RCR1 to RCR0)</description>
 		</parameter>
-		<parameter name="rcr_tbl_filename" default="concat_dir( getenv('STX_CONF'), 'rcr_states.csv' )" valid="file_exist(X)" type="string">
-			<description>This is a file path to the rcr configuration lookup table</description>
+		<parameter name="rcr_tbl_filename" default="concat_dir( getenv('STX_CONF'), 'rcr_states.csv')" valid="file_exist(X)" type="string">
+			<description>This is a file path to the rcr configuration lookup table.</description>
 		</parameter>
 	</section>
 	<section name="stx_fsw_module_triggerlist_to_livetime" alias="t2l">

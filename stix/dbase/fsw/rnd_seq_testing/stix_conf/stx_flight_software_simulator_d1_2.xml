@@ -179,7 +179,7 @@
 		<parameter name="energy_band" default="0" valid="X ge 0" type="int">
 			<description>QL band index which will be used</description>
 		</parameter>
-		<parameter name="cfl_lut" default="concat_dir(getenv('STX_CFL'), 'stx_fsw_cfl_skyvec_table.txt')" valid="file_exist(X)" type="string">
+		<parameter name="cfl_lut" default="concat_dir(getenv('STX_CFL'), 'stx_fsw_cfl_int_skyvec_table.txt')" valid="file_exist(X)" type="string">
 			<description>Coarse flare locator lookup table used for calculating coarse positions of a flare.</description>
 		</parameter>
 		<parameter name="lower_limit_counts" default="2L^15l" valid="X gt 0" type="long">
@@ -191,13 +191,13 @@
 		<parameter name="bkg_weigths" default="[0,1,0,0,0]" valid="total(X ge 0) eq 5" type="int_array">
 			<description>Weights on the background determinations.</description>
 		</parameter>
-		<parameter name="out_of_range_factor" default="2." valid="X gt 0" type="float">
+		<parameter name="out_of_range_factor" default="800" valid="X gt 0" type="int">
 			<description>Parameter used to determine if flare is out of range by comparing the counts in the 4 quadrants.</description>
 		</parameter>
-		<parameter name="tot_bk_factor" default="0.1*30" valid="ppl_xml_value_in_interval_test(X,[0.01,0.8]*30)" type="float">
+		<parameter name="tot_bk_factor" default="10" valid="ppl_xml_value_in_interval_test(X,[1,80])" type="int">
 			<description>Factor for comparing background counts to total CFL counts to determine if background level is too high.</description>
 		</parameter>
-		<parameter name="quad_bk_factor" default="30." valid="ppl_xml_value_in_interval_test(X,[0,500])" type="float">
+		<parameter name="quad_bk_factor" default="30" valid="ppl_xml_value_in_interval_test(X,[0,500])" type="int">
 			<description>Factor for subtracting background counts from counts in each quadrant.</description>
 		</parameter>
 		<parameter name="cfl_bk_factor" default="1" valid="ppl_xml_value_in_interval_test(X,[0,30])" type="int">
@@ -206,10 +206,19 @@
         <parameter name="use_last_n_intervals" default="1" valid="X gt 0" type="int">
 			<description>The number of background intervals to average.</description>
 		</parameter>
-        <parameter name="normalisation_factor" default="[0.25,0.25,0.25,0.25,1.] " valid="total(X ge 0) eq 5" type="float_array">
+        <parameter name="normalisation_factor" default="[1,32,32] " valid="total(X ge 0) eq 3" type="int_array">
 			<description>Factor to normalise quadrant counts and toal flux estiamate</description>
 		</parameter>
-	</section>
+	    <parameter name="no_interpolation" default="1" valid="X ge 0" type="int">
+	        <description>Do not use parabolic interpoliation step</description>
+	    </parameter>
+	    <parameter name="crop" default="0" valid="X ge 0" type="int">
+	        <description>crop outer rows and colomns from table</description>
+	    </parameter>
+	    <parameter name="floating_point" default="0" valid="X ge 0" type="int">
+	        <description>used floating point arithmatic</description>
+	    </parameter>
+	</section>    
 	<section name="stx_fsw_module_variance_calculation" alias="vc">
 		<description>Calculates count variance using data from quicklook accumulators.</description>
 		<parameter name="update_frequency" default="4" valid="X gt 0" type="int">
@@ -333,35 +342,35 @@
 			<description>Update frequency of this module in seconds</description>
 			<unit>seconds</unit>
 		</parameter>
-		<parameter name="nbl" default="[1200.,60.]" valid="total(X gt 0) eq 2" type="float_array">
+		<parameter name="nbl" default="[120.,24.]" valid="total(X gt 0) eq 2" type="float_array">
 			<description>Seconds for the median window of 2 time series.</description>
 			<unit>seconds</unit>
 		</parameter>
-		<parameter name="thermal_cfmin" default="[5,5]" valid="total(X gt 0) eq 2" type="int_array">
+		<parameter name="thermal_cfmin" default="[36,36]" valid="total(X gt 0) eq 2" type="int_array">
 			<description>Count threshold to turn on a flare for both time series in the thermal band.</description>
 			<unit>seconds</unit>
 		</parameter>
-		<parameter name="nonthermal_cfmin" default="[30,30]" valid="total(X gt 0) eq 2" type="int_array">
+		<parameter name="nonthermal_cfmin" default="[180,180]" valid="total(X gt 0) eq 2" type="int_array">
 			<description>Count threshold to turn on a flare for both time series in the nonthermal band.</description>
 			<unit>counts</unit>
 		</parameter>
-		<parameter name="thermal_kdk" default="[0.2,0.2]" valid="total(X gt 0) eq 2" type="float_array">
+		<parameter name="thermal_kdk" default="[1.,1.]" valid="total(X gt 0) eq 2" type="float_array">
 			<description>Relative kdk factor for both time series for the thermal band.</description>
 			<unit>counts</unit>
 		</parameter>
-		<parameter name="nonthermal_kdk" default="[0.2,0.2]" valid="total(X gt 0) eq 2" type="float_array">
+		<parameter name="nonthermal_kdk" default="[1.,1]" valid="total(X gt 0) eq 2" type="float_array">
 			<description>Relative kdk factor for both time series for the nonthermal band.</description>
 		</parameter>
-		 <parameter name="thermal_krel_rise" default="[1.5,1.5]" valid="total(X gt 0) eq 2" type="float_array">
+		 <parameter name="thermal_krel_rise" default="[1.,1]" valid="total(X gt 0) eq 2" type="float_array">
 			<description>Relative krel factor for both time series for the thermal band.</description>
 		</parameter>
-		<parameter name="nonthermal_krel_rise" default="[1.,1]" valid="total(X gt 0) eq 2" type="float_array">
+		<parameter name="nonthermal_krel_rise" default="[1.,1.]" valid="total(X gt 0) eq 2" type="float_array">
 			<description>relative krel factor for both time series for the nonthermal band.</description>
 		</parameter>
-		<parameter name="thermal_krel_decay" default="[0.5,0.5]" valid="total(X gt 0) eq 2" type="float_array">
+		<parameter name="thermal_krel_decay" default="[1.,1.]" valid="total(X gt 0) eq 2" type="float_array">
 			<description>Relative krel factor for both time series for the thermal band.</description>
 		</parameter>
-		<parameter name="nonthermal_krel_decay" default="[0.5,0.5]" valid="total(X gt 0) eq 2" type="float_array">
+		<parameter name="nonthermal_krel_decay" default="[1.,1.]" valid="total(X gt 0) eq 2" type="float_array">
 			<description>relative krel factor for both time series for the nonthermal band.</description>
 		</parameter>
 		<parameter name="kb" default="30." valid="X gt 0" type="float">

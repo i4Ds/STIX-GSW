@@ -16,6 +16,85 @@
 ;-
 
 
+function stx_fsw_cfl_short__test::init, _extra=extra
+
+  self.sequence_name = 'stx_scenario_cfl_short_test'
+  self.test_name = 'AX_QL_TEST_CFL'
+  self.configuration_file = 'stx_flight_software_simulator_ql_fd.xml'
+  self.offset_gain_table = "" ;use default
+  self.delay = 20 / 4 
+
+  return, self->stx_fsw__test::init(_extra=extra)
+end
+
+
+pro stx_fsw_cfl_short__test::beforeclass
+
+  self->stx_fsw__test::beforeclass
+  self.exepted_range = 0.05
+  
+  self.show_plot = 1
+  
+  
+  if self.show_plot then begin
+    self.fsw->getproperty, stx_fsw_ql_lightcurve=lightcurve, /complete, /combine
+    stx_plot, lightcurve, plot=plot
+    self.plots->add, plot
+  endif
+  
+  lc =  total(lightcurve.accumulated_counts,1)
+  start = min(where(lc gt 100))
+  peak = max(lc[start:start+3], peak_idx)
+  self.t_shift_sim = start+peak_idx
+
+  if ~file_exist('ax_tmtc.bin') then begin
+    tmtc_data = {$
+      QL_LIGHT_CURVES : 1,$
+      ql_flare_flag_location: 1 $
+    }
+
+    print, self.fsw->getdata(output_target="stx_fsw_tmtc", filename='ax_tmtc.bin', _extra=tmtc_data)
+  end
+
+
+  self.tmtc_reader = stx_telemetry_reader(filename = "ax_tmtc.bin", /scan_mode, /merge_mode)
+  self.tmtc_reader->getdata, statistics = statistics
+  self.statistics = statistics
+
+
+
+
+
+
+  self.tmtc_reader->getdata, asw_ql_lightcurve=ql_lightcurves,  solo_packet=solo_packets
+  ql_lightcurve = ql_lightcurves[0]
+
+  default, directory , getenv('STX_DET')
+  default, og_filename, 'offset_gain_table.csv'
+  default, eb_filename, 'EnergyBinning20150615.csv'
+
+  stx_sim_create_elut, og_filename=og_filename, eb_filename=eb_filename, directory = directory
+  
+  stx_sim_create_ql_tc, self.conf
+  
+  skyFile = self.fsw->get(/cfl_cfl_lut)
+  stx_sim_create_cfl_lut, CFL_LUT_FILENAMEPATH=skyFile
+  
+  get_lun,lun
+  openw, lun, "test_custom.tcl"
+  printf, lun, 'syslog "running custom script for CFL test"'
+  printf, lun, 'source [file join [file dirname [info script]] "TC_237_7_16_SkyTab.tcl"]'
+  free_lun, lun
+  
+  lc =  total(ql_lightcurve.counts,1)
+  start = min(where(lc gt 100))
+  peak = max(lc[start:start+3], peak_idx)
+  self.t_shift = start+peak_idx
+
+
+end
+
+
 function stx_fsw_cfl_short__test::_estimate_scenario_locations
 
   x0 =40.
@@ -100,7 +179,7 @@ pro stx_fsw_cfl_short__test::test_number_intervals
 
   self.fsw->getproperty, stx_fsw_m_coarse_flare_location=coarse_flare_location, /complete, /combine
   self.fsw->getproperty, stx_fsw_m_flare_flag=flare_flag_str, /complete, /combine
-  self->_number_intervals, coarse_flare_location.x_pos, coarse_flare_location.y_pos, flare_flag_str.flare_flag
+  self->_number_intervals, coarse_flare_location.x_pos, coarse_flare_location.y_pos, flare_flag_str.flare_flag, self.t_shift_sim
 end
 
 
@@ -119,7 +198,7 @@ y=y[idxs]
 
 flare_flag = ffl_tm.flare_flag[self.t_shift:-1]
 
-self->_number_intervals, x, y, flare_flag
+self->_number_intervals, x, y, flare_flag, self.t_shift
 
 end
 
@@ -128,16 +207,26 @@ end
 ;   This module tests if we have the right number of time intervals where we have a coarse flare location
 ;-
 
-pro stx_fsw_cfl_short__test::_number_intervals, x, y, flare_flag
+pro stx_fsw_cfl_short__test::_number_intervals, x, y, flare_flag, t_shift
   inf = 0
   right_number = 1
+ 
+  true_cfl = self->_estimate_scenario_locations()
+  t_bins = n_elements(true_cfl[*,0])
 
-  cfl = dblarr(n_elements(x), 2)
-
-
-  cfl[*, 0] = x
+  cfl = dblarr(t_bins, 2)
+  
+  idx_spots = t_shift+self.delay + ((indgen(t_bins)+1)*2)
+  
+  x = x[idx_spots]
+  y = y[idx_spots]
+  
+  cfl[*, 0] = x 
   cfl[*, 1] = y
-
+  
+  flare_flag = flare_flag[idx_spots]
+  
+  
   is_a_number = finite(cfl)
 
 
@@ -153,7 +242,7 @@ pro stx_fsw_cfl_short__test::_number_intervals, x, y, flare_flag
   endif else begin
     ; separate intervals where the location of the source is known (we can have successive sources)
 
-    true_cfl = self->_estimate_scenario_locations()
+    
     x_true = true_cfl[*,0]
 
     n_true_locs= n_elements(x_true)
@@ -176,7 +265,7 @@ end
 pro stx_fsw_cfl_short__test::test_value_location
 
   self.fsw->getproperty, stx_fsw_m_coarse_flare_location=coarse_flare_location, /complete, /combine
-  self->_value_location, coarse_flare_location.x_pos, coarse_flare_location.y_pos
+  self->_value_location, coarse_flare_location.x_pos, coarse_flare_location.y_pos, self.t_shift_sim, "SIM"
   
 end
 
@@ -186,11 +275,11 @@ end
 ;-
 pro stx_fsw_cfl_short__test::test_value_location_tm
 
-   self.tmtc_reader->getdata, asw_ql_flare_flag_location=ffl_tm, solo_packet=solo_packets
+  self.tmtc_reader->getdata, asw_ql_flare_flag_location=ffl_tm, solo_packet=solo_packets
   ffl_tm = ffl_tm[0]
   
-  x = ffl_tm.x_pos[self.t_shift:-1]
-  y = ffl_tm.y_pos[self.t_shift:-1]
+  x = ffl_tm.x_pos
+  y = ffl_tm.y_pos
   
   tc = (self.conf->get(/cfl_update_frequency)).update_frequency / (self.conf->get(/fd_update_frequency)).update_frequency  
   idxs = indgen(N_ELEMENTS(x)/tc)*tc
@@ -198,7 +287,7 @@ pro stx_fsw_cfl_short__test::test_value_location_tm
   x=x[idxs]
   y=y[idxs]
   
-  self->_value_location, x, y
+  self->_value_location, x, y, self.t_shift, "AX"
 
 end
 
@@ -206,14 +295,21 @@ end
 ; :description:
 ;   This module tests the values of the location if not infinite and will be true only if the location is right (with precision of 2 arcmin) 
 ;-
-pro stx_fsw_cfl_short__test::_value_location, x, y
+pro stx_fsw_cfl_short__test::_value_location, x, y, t_shift, title
   inf = 0
   value = 1
   
- 
-  cfl = dblarr(n_elements(x), 2)
+  true_cfl = self->_estimate_scenario_locations()
+  t_bins = n_elements(true_cfl[*,0])
 
-  cfl[*, 0] = x
+  cfl = dblarr(t_bins, 2)
+  
+  idx_spots = t_shift+self.delay + ((indgen(t_bins)+1)*2)
+  
+  x = x[idx_spots]
+  y = y[idx_spots]
+  
+  cfl[*, 0] = x 
   cfl[*, 1] = y
 
 
@@ -225,8 +321,7 @@ pro stx_fsw_cfl_short__test::_value_location, x, y
     mess = 'CFL TEST FAILURE: all values of CFL are not finite numbers'
   endif else begin
 
-    true_cfl = self->_estimate_scenario_locations()
-
+   
     x_true = true_cfl[*,0]
     y_true = true_cfl[*,1]
 
@@ -247,7 +342,7 @@ pro stx_fsw_cfl_short__test::_value_location, x, y
    sy1 = ssize1 * sin( points )
    sx1 = ssize1 * cos( points )
 
-   p = plot(x_true, y_true, symbol ='*', line = ' ', xrange = [-66,66], yrange =[-66,66], dimensions = [600,600])
+   p = plot(x_true, y_true, symbol ='*', line = ' ', xrange = [-66,66], yrange =[-66,66], dimensions = [600,600], title=title)
    p = plot(sxp, syp, /over)
    p = plot(sx1, sy1, /over)
    p = plot(x,y, symbol ='D', line = ' ', /over, sym_thick = 2, rgb_table = 3, vert_colors = findgen(24)/34.*255)
@@ -257,7 +352,7 @@ pro stx_fsw_cfl_short__test::_value_location, x, y
     difference =  sqrt((x-x_true)^2 + (y-y_true)^2)
     loc_too_far = where(difference gt 5.0, count_too_far)
 
-    if count_too_far ne 0. then begin
+    if count_too_far gt 3 then begin
       value = 0
       mess = 'CFL TEST FAILURE: values of CFL are not close enough to expected values: '
       print, mess +string(10B) +'CFL value for is ',cfl[loc_too_far,*], ' instead of', true_cfl[loc_too_far,*]
@@ -277,7 +372,7 @@ end
 pro stx_fsw_cfl_short__test::test_value_location2
   
   self.fsw->getproperty, stx_fsw_m_coarse_flare_location=coarse_flare_location, /complete, /combine
-  self->_value_location2, coarse_flare_location.x_pos, coarse_flare_location.y_pos
+  self->_value_location2, coarse_flare_location.x_pos, coarse_flare_location.y_pos, self.t_shift_sim
    
 end
 
@@ -286,8 +381,8 @@ pro stx_fsw_cfl_short__test::test_value_location2_tm
   self.tmtc_reader->getdata, asw_ql_flare_flag_location=ffl_tm, solo_packet=solo_packets
   ffl_tm = ffl_tm[0]
   
-  x = ffl_tm.x_pos[self.t_shift:-1]
-  y = ffl_tm.y_pos[self.t_shift:-1]
+  x = ffl_tm.x_pos
+  y = ffl_tm.y_pos
   
   tc = (self.conf->get(/cfl_update_frequency)).update_frequency / (self.conf->get(/fd_update_frequency)).update_frequency  
   idxs = indgen(N_ELEMENTS(x)/tc)*tc
@@ -295,7 +390,7 @@ pro stx_fsw_cfl_short__test::test_value_location2_tm
   x=x[idxs]
   y=y[idxs]
   
-  self->_value_location2, x, y 
+  self->_value_location2, x, y , self.t_shift
 
 end
 
@@ -304,13 +399,21 @@ end
 ; :description:
 ;   This module tests the values of the location if not infinite and will be true only if the location is right (with precision of 4 arcmin) 
 ;-
-pro stx_fsw_cfl_short__test::_value_location2, x, y
+pro stx_fsw_cfl_short__test::_value_location2, x, y, t_shift
   inf = 0
   value = 1
    
-  cfl = dblarr(n_elements(x), 2)
- 
-  cfl[*, 0] = x
+  true_cfl = self->_estimate_scenario_locations()
+  t_bins = n_elements(true_cfl[*,0])
+
+  cfl = dblarr(t_bins, 2)
+  
+  idx_spots = t_shift+self.delay + ((indgen(t_bins)+1)*2)
+  
+  x = x[idx_spots]
+  y = y[idx_spots]
+  
+  cfl[*, 0] = x 
   cfl[*, 1] = y
 
 
@@ -322,15 +425,13 @@ pro stx_fsw_cfl_short__test::_value_location2, x, y
     mess = 'CFL TEST FAILURE: all values of CFL are not finite numbers'
   endif else begin
 
-    true_cfl = self->_estimate_scenario_locations()
-
     x_true = true_cfl[*,0]
     y_true = true_cfl[*,1]
 
     difference =  sqrt(( x - x_true )^2 + ( y - y_true )^2)
     loc_too_far = where(difference gt 5.0, count_too_far)
 
-    if count_too_far ne 0. then begin
+    if count_too_far gt 3 then begin
       value = 0
       mess = 'CFL TEST FAILURE: values of CFL are not close enough to expected values at peak of the flare: '
       print, mess +string(10B) +'CFL value for is ',cfl[loc_too_far,*], ' instead of ', true_cfl[loc_too_far,*]
@@ -421,36 +522,6 @@ end
 
 
 
-pro stx_fsw_cfl_short__test::beforeclass
-
-  path = "D:\Temp\v20170123\AX_QL_TEST_CFL"
-
-  restore, filename=concat_dir(path, "fsw_conf.sav"), /verb
-
-  self.conf = confManager
-
-
-  restore, filename=concat_dir(path, "fsw.sav"), /verb
-  self.fsw    = fsw
-
-  self.tmtc_reader = stx_telemetry_reader(filename = concat_dir(path, "ql_tmtc.bin"), /scan_mode, /merge_mode)
-  self.tmtc_reader->getdata, statistics = statistics
-  self.statistics = statistics
-
-
-  self.exepted_range = 0.05
-  self.plots = list()
-  self.show_plot = 0
-
-  self.tmtc_reader->getdata, asw_ql_lightcurve=ql_lightcurves,  solo_packet=solo_packets
-  ql_lightcurve = ql_lightcurves[0]
-
-
-  self.t_shift = min(where(total(ql_lightcurve.counts,1) gt 0))
-
-end
-
-
 ;+
 ; cleanup at object destroy
 ;-
@@ -459,21 +530,6 @@ pro stx_fsw_cfl_short__test::afterclass
   destroy, self.tmtc_reader
 end
 
-;+
-; cleanup after each test case
-;-
-pro stx_fsw_cfl_short__test::after
-
-
-end
-
-;+
-; init before each test case
-;-
-pro stx_fsw_cfl_short__test::before
-
-
-end
 
 
 pro stx_fsw_cfl_short__test__define
@@ -481,13 +537,7 @@ pro stx_fsw_cfl_short__test__define
 
   void = { $
     stx_fsw_cfl_short__test, $
-    fsw    : obj_new(), $
-    conf : obj_new(), $
-    tmtc_reader : obj_new(), $
-    statistics : list(), $
-    exepted_range: 0.0d, $
-    plots : list(), $
-    t_shift : 0L, $
-    show_plot : 0b, $
-    inherits iut_test }
+    delay : 0, $
+  inherits stx_fsw__test }
+    
 end

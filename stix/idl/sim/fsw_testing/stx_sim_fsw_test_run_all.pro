@@ -181,6 +181,46 @@ return
   return
 
   ; QL_FD - END ************************************************************************************************ 
+
+  
+  ;resume_here:
+ ; QL_RCR begin ************************************************************************************************
+  sequence_name = 'D5a-1'
+  test_name = 'AX_QL_TEST_RCR'
+  configuration_file = 'stx_flight_software_simulator_ql_rcr.xml'
+
+  stx_sim_fsw_prep, test_name, sequence_name, configuration_file=configuration_file, seed=seed, test_root=test_root,$
+    version=version, original_dir=original_dir, original_conf=original_conf, dss=dss, fsw=fsw
+
+  ;generate the DSS events for hardware testing
+  tb = dss->getdata(output_target='scenario_length', scenario=sequence_name) / 4L  + 1
+  eventlist = dss->getdata(output_target='stx_sim_detector_eventlist', time_bins=[0L,long(tb)], scenario=sequence_name, rate_control_regime=0, t_l=t_l, t_r=t_r, t_ig=t_ig)
+  stx_sim_dss_events_writer, test_name + '.dssevs', eventlist.detector_events, constant=1850
+
+
+  stx_sim_fsw_run, dss, fsw, test_name, sequence_name, t_l=t_l, t_r=t_r, t_ig=t_ig
+
+  fsw->getproperty, stx_fsw_ql_lightcurve=lightcurve, /complete, /combine
+  stx_plot, lightcurve, plot=plot
+
+   save, dss, fsw, filename=test_name + '_dss-fsw.sav'
+  save, fsw, filename="fsw.sav"
+  confManager = fsw->getconfigmanager()
+  save, confManager, filename="fsw_conf.sav"
+  
+  tmtc_data = {$
+    QL_LIGHT_CURVES : 1 $
+  }
+
+  print, fsw->getdata(output_target="stx_fsw_tmtc", filename='ql_tmtc.bin', _extra=tmtc_data)
+
+  ; restore original setting
+  setenv, 'STX_CONF=' + original_conf
+  cd, original_dir
+  stop
+  
+  ; QL_RCR END ************************************************************************************************
+
   
 ;
 ;resume_here:
@@ -370,7 +410,7 @@ stop
   test_name = 'T5a'
   configuration_file = 'default'
   
-  setenv, 'WRITE_CALIBRATION_SPECTRUM=true'
+  setenv, 'WRITE_CALIBRATION_SPECTRUM=false'
 
   stx_sim_fsw_prep, test_name, sequence_name, configuration_file=configuration_file, seed=seed, test_root=test_root,$
     version=version, original_dir=original_dir, original_conf=original_conf, dss=dss, fsw=fsw

@@ -2,7 +2,8 @@ pro stx_sim_fsw_run, dss, fsw, test_name, sequence_name, t_l=t_l, t_r=t_r, t_ig=
   no_time_bins = long(dss->getdata(scenario_name=sequence_name, output_target='scenario_length') / 4d)
 
   for time_bin = 0L, no_time_bins - 1 do begin
-     
+    
+      
     ds_result_data = dss->getdata(output_target='stx_ds_result_data', time_bin=time_bin, scenario=sequence_name, rate_control_regime=0, t_l=t_l, t_r=t_r, t_ig=t_ig, pileup_type='last')
     
     if(ds_result_data eq !NULL) then begin

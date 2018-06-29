@@ -7,7 +7,7 @@ pro stx_sim_create_elut, og_filename=og_filename, eb_filename=eb_filename, direc
   ;eb = stx_science_energy_channels(basefile=eb_filename,/reset)
   
   get_lun,lun
-  openw, lun, "TC_237_7.tc"
+  openw, lun, "TC_237_7_ELUT.tcl"
   energy_axis = stx_construct_energy_axis();
     
   n_p = 12L
