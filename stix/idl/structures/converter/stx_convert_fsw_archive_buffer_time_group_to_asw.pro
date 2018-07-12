@@ -27,8 +27,25 @@ function stx_convert_fsw_archive_buffer_time_group_to_asw, archive_buffer_block,
     endfor
   endfor
 
-  return, { pixel_data : all_raw_pixel_data->toarray(), $
-            triggers   : triggers->toarray(), $
+  
+  
+  pd = all_raw_pixel_data->toarray()
+  td = triggers->toarray()
+  
+  if (size(td, /dim))[0] eq 1 and N_ELEMENTS(time_axis.duration) eq 2 then begin
+    ;TODO: NH remove hack for archive buffers with obly one collumns from real TMTC
+    ;td = reform(td)
+    td = [td,td]
+    pd_dum = pd
+    pd_dum.time_range.value.time += 100
+    pd=[pd,pd_dum]
+     
+  endif
+  
+  
+
+  return, { pixel_data : pd, $
+            triggers   : td, $
             spec       : spec, $
             time_axis  : time_axis }
       

@@ -332,6 +332,8 @@ pro stx_telemetry_reader_gui::plot_data
 
         self.plots->add, ab_plot
         asw->set, module="global", max_reprocess_level = max([2,asw->get(/max_reprocess_level)])
+        
+        
         break
       end
       

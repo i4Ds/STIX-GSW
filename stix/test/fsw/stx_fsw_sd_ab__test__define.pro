@@ -13,6 +13,18 @@
 ;   
 ;-
 
+function stx_fsw_sd_ab__test::init, _extra=extra
+  
+  res = self->stx_fsw__test::init(_extra=extra)
+  
+  self.sequence_name = 'AB'
+  self.test_name = 'AX_SD_TEST_AB'
+  self.configuration_file = 'stx_flight_software_simulator_d1_2.xml'
+  self.offset_gain_table = "offset_gain_table.csv"
+  setenv, 'WRITE_CALIBRATION_SPECTRUM=false'
+
+  return, res
+end
 
 pro stx_fsw_sd_ab__test::test_ab_a_avaialable
 
@@ -108,22 +120,69 @@ end
 
 
 pro stx_fsw_sd_ab__test::beforeclass
-
-  path = "D:\Temp\v20170123\AX_SD_TEST_AB\" 
   
-  restore, filename=concat_dir(path, "fsw_conf.sav"), /verb
+  self->stx_fsw__test::beforeclass
   
-  self.conf = confManager
-  ;fsw-simulator: ql_tmtc.bin
-  ;AX: D1-2_AX_20180323_1330.bin
-  self.tmtc_reader = stx_telemetry_reader(filename = concat_dir(path, "ql_tmtc.bin"), /scan_mode, /merge_mode)
-  self.tmtc_reader->getdata, statistics = statistics
-  self.statistics = statistics
-  self.exepted_range = 0.30
+  self.exepted_range = 0.05
   self.plots = list()
   self.show_plot = 1
-  v = stx_offset_gain_reader("offset_gain_table.csv", directory = concat_dir(path, "stix_conf\") , /reset)
+ 
+    
+  self.fsw->getproperty, stx_fsw_ql_lightcurve=lightcurve, /complete, /combine
+  
+  ;lc =  total(lightcurve.accumulated_counts,1)
+  ;start = min(where(lc gt 100))
+  ;peak = max(lc[start:start+3], peak_idx)
+  ;self.t_shift_sim = start+peak_idx
+  
+  self.t_shift_sim = 0
+  
+  stx_plot, lightcurve, plot=plot
+  self.plots->add, plot
+  
+  if ~file_exist('ax_tmtc.bin') then begin
+    tmtc_data = {$
+      QL_LIGHT_CURVES : 1,$
+      sd_xray_0: 1 ,$
+      rel_flare_time : [0d,total(lightcurve.TIME_AXIS.duration)]$
+    }
+
+    print, self.fsw->getdata(output_target="stx_fsw_tmtc", filename='ax_tmtc.bin', _extra=tmtc_data)
+  end
+  
+  
+  self.tmtc_reader = stx_telemetry_reader(filename = "ax_tmtc.bin", /scan_mode, /merge_mode)
+  self.tmtc_reader->getdata, statistics = statistics
+  self.statistics = statistics
+
+
+  self.tmtc_reader->getdata, asw_ql_lightcurve=ql_lightcurves,  solo_packet=solo_packets
+  ql_lightcurve = ql_lightcurves[0]
+  
+  
+  default, directory , getenv('STX_DET')
+  default, og_filename, 'offset_gain_table.csv'
+  default, eb_filename, 'EnergyBinning20150615.csv'
+  
+  stx_sim_create_elut, og_filename=og_filename, eb_filename=eb_filename, directory = directory
+  
+  stx_sim_create_ql_tc, self.conf
+  
+  stx_sim_create_fpp_tc, self.conf
+  
+  get_lun,lun
+  openw, lun, "test_custom.tcl"
+  printf, lun, 'syslog "running custom script for SD-AB test"'
+  printf, lun, 'source [file join [file dirname [info script]] "TC_237_13_FPP.tcl"]'
+  free_lun, lun
+  
    
+  ;lc =  total(ql_lightcurve.counts,1)
+  ;start = min(where(lc gt 100))
+  ;peak = max(lc[start:start+3], peak_idx)
+  ;self.t_shift = start+peak_idx
+  self.t_shift = min(where(total(ql_lightcurve.counts,1) ge 0))
+
 end
 
 
@@ -159,14 +218,8 @@ pro stx_fsw_sd_ab__test__define
   compile_opt idl2, hidden
 
   define = { stx_fsw_sd_ab__test, $
-    conf : obj_new(), $
-    tmtc_reader : obj_new(), $
-    spec : ptr_new(), $
-    trig : ptr_new(), $
-    statistics : list(), $
-    exepted_range: 0.0d, $
-    plots : list(), $
-    show_plot : 0b, $
-    inherits iut_test }
+      trig : ptr_new(), $
+      spec : ptr_new(), $
+      inherits stx_fsw__test }
 end
 

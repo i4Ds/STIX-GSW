@@ -44,7 +44,7 @@ function prepare_packet_structure_sd_xray_0_write_fsw, L0_ARCHIVE_BUFFER=L0_ARCH
   science_data = list()
 
   ; fill in the header data
-  packet.ssid = 10
+  packet.ssid = 20
   packet.compression_schema_acc = ishft(compression_param_s_acc, 6) or ishft(compression_param_k_acc, 3) or compression_param_m_acc
   packet.compression_schema_t = ishft(compression_param_s_acc, 6) or ishft(compression_param_k_acc, 3) or compression_param_m_acc
   packet.number_time_samples = (size(L0_ARCHIVE_BUFFER))[1]

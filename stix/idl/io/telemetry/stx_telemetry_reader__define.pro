@@ -533,7 +533,7 @@ function stx_telemetry_reader::read_packet_structure_source_packet_header, scan_
       + trim(solo_packet.service_type) + ", service_subtype: " $
       + trim(solo_packet.service_subtype) + ", sid_ssid: " $
       + trim(fix(sid_ssid)) $
-      , /info
+      , /CONTINUE
     return, !NULL
   endif
   

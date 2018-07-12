@@ -8,8 +8,8 @@ pro stx_sim_create_cfl_lut, cfl_lut_filename=cfl_lut_filename, directory = direc
   tab_data = stx_cfl_read_skyvec(cfl_lut_filenamepath, sky_x = sky_x, sky_y = sky_y)
   
   get_lun,lun
-  openw, lun, "TC_237_7_16.tc"
-
+  openw, lun, "TC_237_7_16_SkyTab.tcl"
+  printf,lun, ""
 
 
   foreach x, sky_x, x_idx do begin
@@ -18,7 +18,7 @@ pro stx_sim_create_cfl_lut, cfl_lut_filename=cfl_lut_filename, directory = direc
       x = x - 64
       y = y - 64
       
-      cmd = 'execTC "ZIX37703 {PIX00301 1} {PIX00302 '+trim(x_idx)+'} {PIX00303 '+trim(y_idx)+'} {PIX00304 0} {PIX00305 11}'
+      cmd = 'execTC "ZIX37716 {PIX00301 1} {PIX00302 '+trim(x_idx)+'} {PIX00303 '+trim(y_idx)+'} {PIX00304 0} {PIX00305 12}'
       
       foreach p, tab_data[x_idx*y_idx,*], p_idx do begin
         cmd +=  ' {PIX00306 '+trim(p)+'}'
