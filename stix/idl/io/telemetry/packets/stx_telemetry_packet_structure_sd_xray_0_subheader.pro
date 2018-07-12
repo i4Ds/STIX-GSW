@@ -50,7 +50,7 @@ function stx_telemetry_packet_structure_sd_xray_0_subheader, packet_word_width=p
     dynamic_continuation_bits        : 0UL, $ ; dynamic, will be filled during execution with M*2 bits
     dynamic_counts                   : 0UL, $ ; dynamic, will be filled during execution with M*(0 to 2) bits   
     pkg_total_bytes_fixed            : long(0) $
-  } ; 584 bits fixed = 73 bytes
+  } ; 616 bits fixed = 77 bytes
 
   tags = strlowcase(tag_names(packet_word_width))
 
