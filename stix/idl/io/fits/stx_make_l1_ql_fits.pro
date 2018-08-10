@@ -163,7 +163,7 @@ end
 ;       02-May-2018 – SAM (TCD) init
 ;
 ;-
-function stx_make_l1_ql_lightcurve_fits, tm_reader
+function stx_make_l1_ql_lightcurve_fits, tm_reader, base_directory
   tm_reader->getdata, asw_ql_lightcurve=processed_lc, solo=solo
 
   unprocessed_lc = *solo['stx_tmtc_ql_light_curves',0,0].source_data
@@ -195,8 +195,13 @@ function stx_make_l1_ql_lightcurve_fits, tm_reader
   tstamp = time_stamp()
 
   filename = 'solo_l1_stix-lightcurve_'+trim(string(obt_beg))+'_V'+trim(tstamp)+'.fits'
+  path = concat_dir(base_directory, 'lightcurve')
+  if ~FILE_TEST(path, /DIRECTORY) then begin
+    file_mkdir, path
+  endif
+  fullpath = concat_dir(path, filename)
 
-  status = wrtie_to_fits(filename, control_struc, data_struc, integration_time, obt_beg)
+  status = wrtie_to_fits(fullpath, control_struc, data_struc, integration_time, obt_beg)
 end
 
 ;+
@@ -226,7 +231,7 @@ end
 ;       02-May-2018 – SAM (TCD) init
 ;
 ;-
-function stx_make_l1_ql_calibraion_spectra_fits, tm_reader
+function stx_make_l1_ql_calibraion_spectra_fits, tm_reader, base_directory
   tm_reader->getdata, asw_ql_calibration_spectrum=processed_calspec, solo=solo
 
   unprocessed_calspec = *solo['stx_tmtc_ql_calibration_spectrum',0,0].source_data
@@ -261,8 +266,13 @@ function stx_make_l1_ql_calibraion_spectra_fits, tm_reader
   tstamp = time_stamp()
 
   filename = 'solo_l1_stix-calibration-spectra'+trim(string(obt_beg))+'_V'+trim(tstamp)+'.fits'
+  path = concat_dir(base_directory, 'variance')
+  if ~FILE_TEST(path, /DIRECTORY) then begin
+    file_mkdir, path
+  endif
+  fullpath = concat_dir(path, filename)
 
-  status = wrtie_to_fits(filename, control_struc, data_struc, unprocessed_calspec.DURATION, obt_beg)
+  status = wrtie_to_fits(fullpath, control_struc, data_struc, unprocessed_calspec.DURATION, obt_beg)
 end
 
 ;+
@@ -292,7 +302,7 @@ end
 ;       02-May-2018 – SAM (TCD) init
 ;
 ;-
-function stx_make_l1_ql_variance_fits, tm_reader
+function stx_make_l1_ql_variance_fits, tm_reader, base_directory
   tm_reader->getdata, asw_ql_variance=processed_var, solo=solo
 
   unprocessed_var = *solo['stx_tmtc_ql_variance',0,0].source_data
@@ -323,8 +333,13 @@ function stx_make_l1_ql_variance_fits, tm_reader
   tstamp = time_stamp()
 
   filename = 'solo_l1_stix-variance_'+trim(string(obt_beg))+'_V'+trim(tstamp)+'.fits'
-
-  status = wrtie_to_fits(filename, control_struc, data_struc, integration_time, obt_beg)
+  path = concat_dir(base_directory, 'spectra')
+  if ~FILE_TEST(path, /DIRECTORY) then begin
+    file_mkdir, path
+  endif
+  fullpath = concat_dir(path, filename)
+  
+  status = wrtie_to_fits(fullpath, control_struc, data_struc, integration_time, obt_beg)
 end
 
 ;+
@@ -354,7 +369,7 @@ end
 ;       02-May-2018 – SAM (TCD) init
 ;
 ;-
-function stx_make_l1_ql_spectra_fits, tm_reader
+function stx_make_l1_ql_spectra_fits, tm_reader, base_directory
   tm_reader->getdata, stx_asw_ql_spectra=processed_spec, solo=solo
 
   unprocessed_spec = *solo['stx_tmtc_ql_spectra',0,0].source_data
@@ -386,8 +401,13 @@ function stx_make_l1_ql_spectra_fits, tm_reader
   tstamp = time_stamp()
 
   filename = 'solo_l1_stix-spectra_'+trim(string(obt_beg))+'_V'+tstamp+'.fits'
-
-  status = wrtie_to_fits(filename, control_struc, data_struc, integration_time, obt_beg)
+  path = concat_dir(base_directory, 'spectra')
+  if ~FILE_TEST(path, /DIRECTORY) then begin
+    file_mkdir, path  
+  endif
+  fullpath = concat_dir(path, filename)
+  
+  status = wrtie_to_fits(fullpath, control_struc, data_struc, integration_time, obt_beg)
 end
 
 ;+
@@ -417,7 +437,7 @@ end
 ;       02-May-2018 – SAM (TCD) init
 ;
 ;-
-function stx_make_l1_ql_background_fits, tm_reader
+function stx_make_l1_ql_background_fits, tm_reader, base_directory
   tm_reader->getdata, asw_ql_background_monitor=processed_bg, solo=solo
 
   unprocessed_bg = *solo['stx_tmtc_ql_background_monitor',0,0].source_data
@@ -447,8 +467,13 @@ function stx_make_l1_ql_background_fits, tm_reader
   tstamp = time_stamp()
 
   filename = 'solo_l1_stix-background_'+trim(string(obt_beg))+'_V'+tstamp+'.fits'
-
-  status = wrtie_to_fits(filename, control_struc, data_struc, integration_time, obt_beg)
+  path = concat_dir(base_directory, 'background')
+  if ~FILE_TEST(path, /DIRECTORY) then begin
+    file_mkdir, path
+  endif
+  fullpath = concat_dir(path, filename)
+  
+  status = wrtie_to_fits(fullpath, control_struc, data_struc, integration_time, obt_beg)
 end
 
 ;+
@@ -478,7 +503,7 @@ end
 ;       02-May-2018 – SAM (TCD) init
 ;
 ;-
-function stx_make_l1_ql_flareflag_location_fits, tm_reader
+function stx_make_l1_ql_flareflag_location_fits, tm_reader, base_directory
   tm_reader->getdata, asw_ql_flare_flag_location=processed_fl, solo=solo
 
   unprocessed_fl = *solo['stx_tmtc_ql_flare_flag_location',0,0].source_data
@@ -504,7 +529,12 @@ function stx_make_l1_ql_flareflag_location_fits, tm_reader
   tstamp = time_stamp()
 
   filename = 'solo_l1_stix-flare-flag-location_'+trim(string(obt_beg))+'_V'+tstamp+'.fits'
-
+  path = concat_dir(base_directory, 'flareflag')
+  if ~FILE_TEST(path, /DIRECTORY) then begin
+    file_mkdir, path
+  endif
+  fullpath = concat_dir(path, filename)
+  
   status = wrtie_to_fits(filename, control_struc, data_struc, integration_time, obt_beg)
 end
 
@@ -535,18 +565,19 @@ end
 ;       02-May-2018 – SAM (TCD) init
 ;
 ;-
-pro stx_make_l1_ql_fits, scenario_name=scenario_name
+pro stx_make_l1_ql_fits, scenario_name=scenario_name, base_directory
   default, scenario_name, 'stx_scenario_2'
+  default, base_directory, concat_dir(concat_dir(getenv("SSW_STIX"), 'data'), 'quicklook') ; SSW_STIX/data/quicklook
 
   tm_reader = stx_telemetry_reader(filename=scenario_name + '/tmtc.bin')
 
   tm_reader.getdata, solo_packets=solo_packets
 
-  if solo_packets.haskey('stx_tmtc_ql_light_curves') then ql_lc = stx_make_l1_ql_lightcurve_fits(tm_reader)
-  if solo_packets.haskey('stx_tmtc_ql_calibration_spectrum') then ql_cal_spectra = stx_make_l1_ql_calibraion_spectra_fits(tm_reader)
-  if solo_packets.haskey('stx_tmtc_ql_variance') then ql_variance = stx_make_l1_ql_variance_fits(tm_reader)
-  if solo_packets.haskey('stx_tmtc_ql_spectra') then ql_spectra = stx_make_l1_ql_spectra_fits(tm_reader)
-  if solo_packets.haskey('stx_tmtc_ql_background_monitor') then ql_background = stx_make_l1_ql_background_fits(tm_reader)
-  if solo_packets.haskey('stx_tmtc_ql_flare_flag_location') then ql_flarelist = stx_make_l1_ql_flareflag_location_fits(tm_reader)
+  if solo_packets.haskey('stx_tmtc_ql_light_curves') then ql_lc = stx_make_l1_ql_lightcurve_fits(tm_reader, base_directory)
+  if solo_packets.haskey('stx_tmtc_ql_calibration_spectrum') then ql_cal_spectra = stx_make_l1_ql_calibraion_spectra_fits(tm_reader, base_directory)
+  if solo_packets.haskey('stx_tmtc_ql_variance') then ql_variance = stx_make_l1_ql_variance_fits(tm_reader, base_directory)
+  if solo_packets.haskey('stx_tmtc_ql_spectra') then ql_spectra = stx_make_l1_ql_spectra_fits(tm_reader, base_directory)
+  if solo_packets.haskey('stx_tmtc_ql_background_monitor') then ql_background = stx_make_l1_ql_background_fits(tm_reader, base_directory)
+  if solo_packets.haskey('stx_tmtc_ql_flare_flag_location') then ql_flarelist = stx_make_l1_ql_flareflag_location_fits(tm_reader, base_directory)
 
 end
