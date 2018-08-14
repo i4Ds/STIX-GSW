@@ -2,7 +2,7 @@
 .metadata
 
 # ignore personal startup files
-startup_stix_sswidl*
+startup_stix_ssw*
 stix_personal_startup*
 dev/.project
 iunit/.project
