@@ -70,9 +70,10 @@ function stx_make_l1_header, header = header, filename=filename, obt_beg=obt_beg
   return, header
 end
 
-function time_stamp
-  cur_time = anytim(!stime, /ccsds)
-  tstamp = strmid(cur_time, 0, 4)+strmid(cur_time, 5, 2)+strmid(cur_time, 8, 5)+strmid(cur_time, 14, 2)+strmid(cur_time, 17, 2)
+function time_stamp, time 
+  default, time, !stime
+  time = anytim(time, /ccsds)
+  tstamp = strmid(time, 0, 4)+strmid(time, 5, 2)+strmid(time, 8, 5)+strmid(time, 14, 2)+strmid(time, 17, 2)
   return, tstamp
 end
 
@@ -118,7 +119,7 @@ end
 function wrtie_to_fits, filename, control, data, integration_time, obt_beg
   mwrfits, !NULL, filename, /create, status=stat0
   mwrfits, control, filename, status=stat1
-  mwrfits, data, filename, data_header, status=stat2
+  mwrfits, data, filename, status=stat2
 
   primary_header = headfits(filename, exten=0)
   control_header = headfits(filename, exten=1)
@@ -184,7 +185,7 @@ function stx_make_l1_ql_lightcurve_fits, tm_reader, base_directory
   control_struc.integration_time = integration_time
   control_struc.detector_mask = processed_lc[0].detector_mask
   control_struc.pixel_mask = processed_lc[0].pixel_mask
-  control_struc.energy_bin_mask = stx_mask2bits(unprocessed_lc.ENERGY_BIN_MASK, /reverse, mask_length=33)
+  control_struc.energy_bin_mask = stx_mask2bits(unprocessed_lc.ENERGY_BIN_MASK, /reverse, mask_length=32)
   control_struc.compression_scheme_counts = [lc_k, lc_m, lc_s]
   control_struc.compression_scheme_triggers = [tr_k, tr_m, tr_s]
 
@@ -266,7 +267,7 @@ function stx_make_l1_ql_calibraion_spectra_fits, tm_reader, base_directory
   tstamp = time_stamp()
 
   filename = 'solo_l1_stix-calibration-spectra'+trim(string(obt_beg))+'_V'+trim(tstamp)+'.fits'
-  path = concat_dir(base_directory, 'variance')
+  path = concat_dir(base_directory, 'calibration_spectra')
   if ~FILE_TEST(path, /DIRECTORY) then begin
     file_mkdir, path
   endif
@@ -324,7 +325,7 @@ function stx_make_l1_ql_variance_fits, tm_reader, base_directory
   control_struc.integration_time = integration_time
   control_struc.samples_per_variance = processed_var[0].SAMPLES_PER_VARIANCE
   control_struc.detector_mask = processed_var[0].DETECTOR_MASK
-  control_struc.energy_mask = stx_mask2bits(unprocessed_var.ENERGY_MASK, /reverse, mask_length=32)
+  control_struc.energy_bin_mask = stx_mask2bits(unprocessed_var.ENERGY_MASK, /reverse, mask_length=32)
   control_struc.pixel_mask = processed_var[0].PIXEL_MASK
   control_struc.compression_scheme_variance = [var_k, var_m, var_s]
 
@@ -333,7 +334,7 @@ function stx_make_l1_ql_variance_fits, tm_reader, base_directory
   tstamp = time_stamp()
 
   filename = 'solo_l1_stix-variance_'+trim(string(obt_beg))+'_V'+trim(tstamp)+'.fits'
-  path = concat_dir(base_directory, 'spectra')
+  path = concat_dir(base_directory, 'variance')
   if ~FILE_TEST(path, /DIRECTORY) then begin
     file_mkdir, path
   endif
@@ -535,7 +536,7 @@ function stx_make_l1_ql_flareflag_location_fits, tm_reader, base_directory
   endif
   fullpath = concat_dir(path, filename)
   
-  status = wrtie_to_fits(filename, control_struc, data_struc, integration_time, obt_beg)
+  status = wrtie_to_fits(fullpath, control_struc, data_struc, integration_time, obt_beg)
 end
 
 ;+
@@ -567,7 +568,7 @@ end
 ;-
 pro stx_make_l1_ql_fits, scenario_name=scenario_name, base_directory
   default, scenario_name, 'stx_scenario_2'
-  default, base_directory, concat_dir(concat_dir(getenv("SSW_STIX"), 'data'), 'quicklook') ; SSW_STIX/data/quicklook
+  default, base_directory, concat_dir(concat_dir(concat_dir(getenv("SSW_STIX"), 'data'), 'l1'), 'quicklook'); SSW_STIX/data/l1/quicklook/
 
   tm_reader = stx_telemetry_reader(filename=scenario_name + '/tmtc.bin')
 

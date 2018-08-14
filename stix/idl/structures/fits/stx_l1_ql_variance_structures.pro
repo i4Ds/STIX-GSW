@@ -34,7 +34,7 @@ function stx_l1_ql_variance_structures, n_variances
     integration_time : 0.0, $
     detector_mask : bytarr(32), $
     pixel_mask : bytarr(16), $
-    energy_mask : bytarr(32), $
+    energy_bin_mask : bytarr(32), $
     compression_scheme_variance : intarr(3), $
     samples_per_variance: 0 $
   }
