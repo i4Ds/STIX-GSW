@@ -1,3 +1,5 @@
+stix/data
+
 # ignore the IDL UI metadata fpga
 .metadata
 
