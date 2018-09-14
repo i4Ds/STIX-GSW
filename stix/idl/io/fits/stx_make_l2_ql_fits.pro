@@ -121,10 +121,12 @@ function stx_make_l2_ql_lightcurve_fits, fits_path, base_directory
   energy_structure = {CHANNEL: 0L, E_MIN: 0.0, E_MAX: 0.0}
   energy_info = REPLICATE(energy_structure, n_energies)
   energy_info.E_MIN = energies.low
-  energy_info.E_MAX = energies.low
+  energy_info.E_MAX = energies.high
   energy_info.CHANNEL = lindgen(n_elements(energies.low))
   
-  rate_structure = {COUNTS: lonarr(n_energies), TRIGGERS: 0L, RATE_CONTROL_REGEIME: 0b, CHANNEL: lonarr(n_energies), TIME: 0.0d, TIMEDEL: 0.0}
+  rate_structure = {COUNTS: lonarr(n_energies), TRIGGERS: 0L, RATE_CONTROL_REGEIME: 0b, $
+                    CHANNEL: lonarr(n_energies), TIME: 0.0d, TIMEDEL: 0.0, LIVETIME: 1, ERROR: lonarr(n_energies)}
+                    
   rate_structure.CHANNEL = lonarr(n_energies)
   rate_structure.TIMEDEL = control.INTEGRATION_TIME
   
@@ -133,6 +135,7 @@ function stx_make_l2_ql_lightcurve_fits, fits_path, base_directory
   rate_info.TRIGGERS = data.TRIGGERS
   rate_info.RATE_CONTROL_REGEIME = data.RATE_CONTROL_REGEIME
   rate_info.TIME = relative_times
+  rate_info.ERROR = long(data.counts^0.5)
   
   obt_beg = float(sxpar(primary_header, 'OBT-BEG'))
   
@@ -143,30 +146,19 @@ function stx_make_l2_ql_lightcurve_fits, fits_path, base_directory
   endif
   fullpath = concat_dir(path, filename)
   
+  date_obs = anytim(obt_beg, /ccsds)
+  
+  primary_header = stx_make_l2_header(header=primary_header, filename=filename, date_obs=date_obs, $
+    history='test')
+  
   mwrfits, !NULL, fullpath, primary_header, /create, status=stat0
   mwrfits, rate_info, fullpath, status=stat1
   mwrfits, energy_info, fullpath, status=stat2
   mwrfits, control, fullpath, control_header, status=stat3
   
-  primary_header = headfits(fullpath, exten=0)
-  rate_header = headfits(fullpath, exten=1)
-  energy_header = headfits(fullpath, exten=2)
-  control_header = headfits(fullpath, exten=3)
-
-  fxaddpar, rate_header, 'EXTNAME', 'RATE', 'Extension name'
-  fxaddpar, energy_header, 'EXTNAME', 'ENEBAND', 'Extension name'
-  fxaddpar, control_header, 'EXTNAME', 'Control', 'Extension name'
-  
-  date_obs = anytim(obt_beg, /ccsds)
-
-  primary_header = stx_make_l2_header(header=primary_header, filename=filename, date_obs=date_obs, $
-    history='test')
-
-  mwrfits, !NULL, filename, primary_header, /create, status=stat0
-  mwrfits, rate_info,filename, rate_header, status=stat1
-  mwrfits, energy_info, filename, energy_header, status=stat2
-  mwrfits, control, filename, control_header, status=stat3
-  return, total([stat0, stat1, stat2, stat3])
+  fxhmodify, fullpath, 'EXTNAME', 'RATE', EXTENSION=1
+  fxhmodify, fullpath, 'EXTNAME', 'ENEBAND', EXTENSION=2
+  fxhmodify, fullpath, 'EXTNAME', 'CONTROL', EXTENSION=3
   
 end
 
@@ -212,17 +204,19 @@ function stx_make_l2_ql_background_fits, fits_path, base_directory
   energy_structure = {CHANNEL: 0L, E_MIN: 0.0, E_MAX: 0.0}
   energy_info = REPLICATE(energy_structure, n_energies)
   energy_info.E_MIN = energies.low
-  energy_info.E_MAX = energies.low
+  energy_info.E_MAX = energies.high
   energy_info.CHANNEL = lindgen(n_elements(energies.low))
 
-  rate_structure = {COUNTS: lonarr(n_energies), TRIGGERS: 0L, CHANNEL: lonarr(n_energies), TIME: 0.0d, TIMEDEL: 0.0}
+  rate_structure = {BACKGROUND: lonarr(n_energies), TRIGGERS: 0L, CHANNEL: lonarr(n_energies), TIME: 0.0d, $
+                    TIMEDEL: 0.0, LIVETIME: 1, ERROR: lonarr(n_energies)}
   rate_structure.CHANNEL = lonarr(n_energies)
   rate_structure.TIMEDEL = control.INTEGRATION_TIME
 
   rate_info = REPLICATE(rate_structure, n_times)
-  rate_info.COUNTS = data.BACKGROUND
+  rate_info.BACKGROUND = data.BACKGROUND
   rate_info.TRIGGERS = data.TRIGGERS
   rate_info.TIME = relative_times
+  rate_info.ERROR = long(data.BACKGROUND^0.5)
 
   obt_beg = float(sxpar(primary_header, 'OBT-BEG'))
 
@@ -233,30 +227,19 @@ function stx_make_l2_ql_background_fits, fits_path, base_directory
   endif
   fullpath = concat_dir(path, filename)
 
-  mwrfits, !NULL, fullpath, primary_header, /create, status=stat0
-  mwrfits, rate_info, fullpath, status=stat1
-  mwrfits, energy_info, fullpath, status=stat2
-  mwrfits, control, fullpath, control_header, status=stat3
-
-  primary_header = headfits(fullpath, exten=0)
-  rate_header = headfits(fullpath, exten=1)
-  energy_header = headfits(fullpath, exten=2)
-  control_header = headfits(fullpath, exten=3)
-
-  fxaddpar, rate_header, 'EXTNAME', 'RATE', 'Extension name'
-  fxaddpar, energy_header, 'EXTNAME', 'ENEBAND', 'Extension name'
-  fxaddpar, control_header, 'EXTNAME', 'Control', 'Extension name'
-
   date_obs = anytim(obt_beg, /ccsds)
 
   primary_header = stx_make_l2_header(header=primary_header, filename=filename, date_obs=date_obs, $
     history='test')
 
-  mwrfits, !NULL, filename, primary_header, /create, status=stat0
-  mwrfits, rate_info,filename, rate_header, status=stat1
-  mwrfits, energy_info, filename, energy_header, status=stat2
-  mwrfits, control, filename, control_header, status=stat3
-  return, total([stat0, stat1, stat2, stat3])
+  mwrfits, !NULL, fullpath, primary_header, /create, status=stat0
+  mwrfits, rate_info, fullpath, status=stat1
+  mwrfits, energy_info, fullpath, status=stat2
+  mwrfits, control, fullpath, control_header, status=stat3
+  
+  fxhmodify, fullpath, 'EXTNAME', 'RATE', EXTENSION=1
+  fxhmodify, fullpath, 'EXTNAME', 'ENEBAND', EXTENSION=2
+  fxhmodify, fullpath, 'EXTNAME', 'CONTROL', EXTENSION=3
 
 end
 
@@ -302,15 +285,16 @@ function stx_make_l2_ql_variance_fits, fits_path, base_directory
   energy_structure = {CHANNEL: 0L, E_MIN: 0.0, E_MAX: 0.0}
   energy_info = REPLICATE(energy_structure, n_energies)
   energy_info.E_MIN = energies.low
-  energy_info.E_MAX = energies.low
+  energy_info.E_MAX = energies.high
   energy_info.CHANNEL = lindgen(n_elements(energies.low))
 
-  rate_structure = {COUNTS: 0, TRIGGERS: 0L, CHANNEL: lonarr(n_energies), TIME: 0.0d, TIMEDEL: 0.0}
+  rate_structure = {VARIANCE: 0L, TRIGGERS: 0L, CHANNEL: lonarr(n_energies), TIME: 0.0d, TIMEDEL: 0.0, $
+                    LIVETIME: 1, ERROR: 0L}
   rate_structure.CHANNEL = lonarr(n_energies)
   rate_structure.TIMEDEL = control.INTEGRATION_TIME
 
   rate_info = REPLICATE(rate_structure, n_times)
-  rate_info.COUNTS = data.VARIANCE
+  rate_info.VARIANCE = data.VARIANCE
   rate_info.TIME = relative_times
 
   obt_beg = float(sxpar(primary_header, 'OBT-BEG'))
@@ -322,30 +306,19 @@ function stx_make_l2_ql_variance_fits, fits_path, base_directory
   endif
   fullpath = concat_dir(path, filename)
 
-  mwrfits, !NULL, fullpath, primary_header, /create, status=stat0
-  mwrfits, rate_info, fullpath, status=stat1
-  mwrfits, energy_info, fullpath, status=stat2
-  mwrfits, control, fullpath, control_header, status=stat3
-
-  primary_header = headfits(fullpath, exten=0)
-  rate_header = headfits(fullpath, exten=1)
-  energy_header = headfits(fullpath, exten=2)
-  control_header = headfits(fullpath, exten=3)
-
-  fxaddpar, rate_header, 'EXTNAME', 'RATE', 'Extension name'
-  fxaddpar, energy_header, 'EXTNAME', 'ENEBAND', 'Extension name'
-  fxaddpar, control_header, 'EXTNAME', 'Control', 'Extension name'
-
   date_obs = anytim(obt_beg, /ccsds)
 
   primary_header = stx_make_l2_header(header=primary_header, filename=filename, date_obs=date_obs, $
     history='test')
 
-  mwrfits, !NULL, filename, primary_header, /create, status=stat0
-  mwrfits, rate_info,filename, rate_header, status=stat1
-  mwrfits, energy_info, filename, energy_header, status=stat2
-  mwrfits, control, filename, control_header, status=stat3
-  return, total([stat0, stat1, stat2, stat3])
+  mwrfits, !NULL, fullpath, primary_header, /create, status=stat0
+  mwrfits, rate_info, fullpath, status=stat1
+  mwrfits, energy_info, fullpath, status=stat2
+  mwrfits, control, fullpath, control_header, status=stat3
+
+  fxhmodify, fullpath, 'EXTNAME', 'RATE', EXTENSION=1
+  fxhmodify, fullpath, 'EXTNAME', 'ENEBAND', EXTENSION=2
+  fxhmodify, fullpath, 'EXTNAME', 'CONTROL', EXTENSION=3
 
 end
 
@@ -392,7 +365,7 @@ function stx_make_l2_ql_spectra_fits, fits_path, base_directory
   energy_structure = {CHANNEL: 0L, E_MIN: 0.0, E_MAX: 0.0}
   energy_info = REPLICATE(energy_structure, 32)
   energy_info.E_MIN = energies.low
-  energy_info.E_MAX = energies.low
+  energy_info.E_MAX = energies.high
   energy_info.CHANNEL = lindgen(n_elements(energies.low))
 
   rate_structure = {COUNTS: lonarr(32, 32), TRIGGERS: 0L, CHANNEL: lonarr(n_energies), DETECTOR_MASK: bytarr(32), TIME: 0.0d, TIMEDEL: 0.0}
@@ -413,30 +386,19 @@ function stx_make_l2_ql_spectra_fits, fits_path, base_directory
   endif
   fullpath = concat_dir(path, filename)
 
-  mwrfits, !NULL, fullpath, primary_header, /create, status=stat0
-  mwrfits, rate_info, fullpath, status=stat1
-  mwrfits, energy_info, fullpath, status=stat2
-  mwrfits, control, fullpath, control_header, status=stat3
-
-  primary_header = headfits(fullpath, exten=0)
-  rate_header = headfits(fullpath, exten=1)
-  energy_header = headfits(fullpath, exten=2)
-  control_header = headfits(fullpath, exten=3)
-
-  fxaddpar, rate_header, 'EXTNAME', 'RATE', 'Extension name'
-  fxaddpar, energy_header, 'EXTNAME', 'ENEBAND', 'Extension name'
-  fxaddpar, control_header, 'EXTNAME', 'Control', 'Extension name'
-
   date_obs = anytim(obt_beg, /ccsds)
 
   primary_header = stx_make_l2_header(header=primary_header, filename=filename, date_obs=date_obs, $
     history='test')
 
-  mwrfits, !NULL, filename, primary_header, /create, status=stat0
-  mwrfits, rate_info,filename, rate_header, status=stat1
-  mwrfits, energy_info, filename, energy_header, status=stat2
-  mwrfits, control, filename, control_header, status=stat3
-  return, total([stat0, stat1, stat2, stat3])
+  mwrfits, !NULL, fullpath, primary_header, /create, status=stat0
+  mwrfits, rate_info, fullpath, status=stat1
+  mwrfits, energy_info, fullpath, status=stat2
+  mwrfits, control, fullpath, control_header, status=stat3
+
+  fxhmodify, fullpath, 'EXTNAME', 'RATE', EXTENSION=1
+  fxhmodify, fullpath, 'EXTNAME', 'ENEBAND', EXTENSION=2
+  fxhmodify, fullpath, 'EXTNAME', 'CONTROL', EXTENSION=3
 
 end
 
