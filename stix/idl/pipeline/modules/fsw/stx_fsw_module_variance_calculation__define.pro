@@ -38,6 +38,7 @@ function stx_fsw_module_variance_calculation::_execute, in, configuration
   conf = *configuration->get(module=self.module)
   
   no_var = conf.no_var
+  bit16 = tag_exist(conf, bit16) ? conf.bit16 : 0 
   
   return, stx_fsw_m_variance(variance=stx_fsw_ql_variance_calc(in.ql_data, no_var=no_var))
   

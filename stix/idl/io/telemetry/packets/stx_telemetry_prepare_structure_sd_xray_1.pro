@@ -52,8 +52,8 @@ function prepare_packet_structure_sd_xray_1_write_fsw, $
   science_data = list()
 
   ; fill in the header data
-  packet.ssid = 11 
-  if keyword_set(lvl_2) then packet.ssid = 12 
+  packet.ssid = 21 
+  if keyword_set(lvl_2) then packet.ssid = 22 
   packet.compression_schema_acc = ishft(compression_param_s_acc, 6) or ishft(compression_param_k_acc, 3) or compression_param_m_acc
   packet.compression_schema_t = ishft(compression_param_s_t, 6) or ishft(compression_param_k_t, 3) or compression_param_m_t
   packet.number_time_samples = (size(input))[1]

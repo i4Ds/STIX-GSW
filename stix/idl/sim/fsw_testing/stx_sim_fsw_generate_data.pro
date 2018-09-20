@@ -150,7 +150,9 @@ pro stx_sim_fsw_generate_data, fsw, eventlist, filtered_eventlist, trigger_event
   filtered_counts_eventlist_counter = n_elements(filtered_eventlist.detector_events)
 
   fsw->process, filtered_eventlist, trigger_eventlist, finalize_processing=finalize_processing
-
+  
+  
+  return 
   ; calculate max integration time for "one time bin" criterion
   dt_integration = ceil(filtered_eventlist.detector_events[-1].relative_time) - floor(filtered_eventlist.detector_events[0].relative_time)
 

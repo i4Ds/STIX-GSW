@@ -126,7 +126,25 @@
 ; 4-oct-2016, RAS added range checking, ABS_RANGE, RANGE_ERR,
 ; 8-dec-2016, RAS, fixed computation for single negative numbers, "changed to ge 1 from gt 1 ras, 8-dec-2016"
 ; 13-mar-2017, RAS, added type_err for non-integer input
-; 21-mar-2017, NH, added K M S undefined warning. All KMS values should be definded in some configuration files and nor rely on defaults  
+; 21-mar-2017, NH, added K M S undefined warning. 
+; All KMS values should be defined in some configuration files and not rely on defaults  
+; 1-feb-2018, RAS, fixed KV computation.
+;     Previous, failed on low side of Input values
+;     Input = 2LL^indgen(31)
+;     IDL> print, stx_km_compress( input[0:30], 5,3, 0) - stx_km_compress( input-1, 5, 3, 0)
+;     1   1   1   1   1   1   1   1   1   1   1 249 249 249 249 249 249 249 249 249 
+;     249 249 249 249 249 249 249 249 249 249 249
+;     IDL> print, stx_km_compress( input[0:30]+1, 5,3, 0) - stx_km_compress( input, 5, 3, 0)
+;     1   1   1   1   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
+;     0   0   0   0   0   0   0   0   0   0   0
+;     Current, fixed!
+;     IDL> print, stx_km_compress( input[0:30], 5,3, 0) - stx_km_compress( input-1, 5, 3, 0)
+;      1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   
+;      1   1   1   1   1   1   1   1   1   1   1   1
+;      IDL> print, stx_km_compress( input[0:30]+1, 5,3, 0) - stx_km_compress( input, 5, 3, 0)
+;      1   1   1   1   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
+;      0   0   0   0   0   0   0   0   0   0   0   0
+;
 ;-
 function stx_km_compress, data, k, m, s, abs_range = abs_range, range_err = range_err,  type_err=type_err, error = error
 
@@ -177,7 +195,10 @@ function stx_km_compress, data, k, m, s, abs_range = abs_range, range_err = rang
     return, out
   endif
   if nz ge 1 then begin
-    kv = (fix( alog(adata[z]>1) / alog(2) + 0.001 - m ) > 0)
+    ;kv = (fix( alog(adata[z]>1) / alog(2) + 0.001 - m ) > 0)
+    ;Replaced below because roundoff correction failed just below values of 2LL^N
+    ;Changed by RAS, 1-feb-2018
+    kv = (fix( alog(adata[z]>1.0d0) / alog(2.0d0) - m ) > 0)
     mv = ( adata[z] / 2LL^kv ) and ( 2^(m) -1 )
     out[z] =  byte( ishft( kv+1, m ) or mv )
   endif

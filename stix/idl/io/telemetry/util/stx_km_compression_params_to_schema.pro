@@ -18,6 +18,13 @@
 ; :HISTORY:
 ;    10-Oct-2015 - Nicky Hochmuth (FHNW), initial release
 ;-
-function stx_km_compression_params_to_schema, k, m, s
+function stx_km_compression_params_to_schema, k, m, s, config=config
+  
+  if keyword_set(config) then begin
+    default, k, config[1]
+    default, m, config[2]
+    default, s, config[0]
+  endif
+
   return, ishft(s, 6) or ishft(k, 3) or m
 end

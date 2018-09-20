@@ -1,4 +1,6 @@
-pro stx_sim_fsw_prep, test_name, sequence_name, configuration_file=configuration_file, seed=seed, test_root=test_root, version=version, original_dir=original_dir, original_conf=original_conf, dss=dss, fsw=fsw
+pro stx_sim_fsw_prep, test_name, sequence_name, configuration_file=configuration_file, seed=seed, test_root=test_root, version=version, original_dir=original_dir, original_conf=original_conf, dss=dss, fsw=fsw, offset_gain_table=offset_gain_table
+  default, offset_gain_table, "offset_gain_table.csv"
+  
   ; create test root
   mk_dir, test_root
 
@@ -16,7 +18,7 @@ pro stx_sim_fsw_prep, test_name, sequence_name, configuration_file=configuration
   original_conf = getenv('STX_CONF')
   
   ; make sure we use the correct offset-gain table
-  offset_table = stx_offset_gain_reader('offset_gain_table.csv', directory=concat_dir(getenv('STX_FSW'), concat_dir('rnd_seq_testing', 'stix_conf')))
+  if offset_gain_table ne "" then offset_table = stx_offset_gain_reader(offset_gain_table, directory=concat_dir(getenv('STX_FSW'), concat_dir('rnd_seq_testing', 'stix_conf')), /RESET)
 
   ; change default STIX configuration folder
   setenv, 'STX_CONF=' + concat_dir(getenv('STX_FSW'), concat_dir('rnd_seq_testing', 'stix_conf'))

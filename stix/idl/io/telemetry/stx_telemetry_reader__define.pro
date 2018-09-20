@@ -29,8 +29,9 @@
 ;    25-Jan-2017 - Laszlo I. Etesi (FHNW), added a workaround that allows reading calibration specra with incorrect sequencing flag (lines 81/82)
 ;-
 
-function stx_telemetry_reader::init, stream=stream, filename=filename, buffersize=buffersize, scan_mode=scan_mode
+function stx_telemetry_reader::init, stream=stream, filename=filename, buffersize=buffersize, scan_mode=scan_mode, merge_mode = merge_mode
   default, scan_mode, 0
+  default, merge_mode, 0
 
     self.all_solo_packets   = HASH()
     self.stats_packets      = HASH()
@@ -38,6 +39,7 @@ function stx_telemetry_reader::init, stream=stream, filename=filename, buffersiz
     self.solo_start         = HASH()
     self.statistics         = HASH()
     self.start_times        = HASH()
+    self.merge_mode         = merge_mode
 
     status = self->stx_bitstream_reader::init(stream=stream, filename=filename, buffersize=buffersize)
     
@@ -78,8 +80,8 @@ pro stx_telemetry_reader::update_statistics, solo_packet=solo_packet, type=type
   endif
 
   ; create a new list entry if we have a new packet_sequence or a standalone packet
-  if(seq_flag eq 3 or seq_flag eq 1 or (type eq 'stx_tmtc_ql_calibration_spectrum')) then begin
   ;if(seq_flag eq 3 or seq_flag eq 1 or (type eq 'stx_tmtc_ql_calibration_spectrum')) then begin
+  if (self.merge_mode eq 0b AND (seq_flag eq 3 or seq_flag eq 1)) OR (self.merge_mode eq 1b AND n_elements((self.stats_packets)[type]) eq 0) then begin
     ; create new entry
     ((self.stats_packets)[type]).add, 1
     stx_telemetry_util_time2scet, coarse_time=solo_packet.coarse_time, fine_time=solo_packet.fine_time, $
@@ -113,8 +115,10 @@ pro stx_telemetry_reader::add_solo,solo_packet=solo_packet,type=type
   
   ; create a new list entry if we have a new packet_sequence or a standalone packet
   seq_flag = solo_packet.segmentation_grouping_flags
-  if(seq_flag eq 3 or seq_flag eq 1 or (type eq 'stx_tmtc_ql_calibration_spectrum')) then begin
   ;if(seq_flag eq 3 or seq_flag eq 1 or (type eq 'stx_tmtc_ql_calibration_spectrum')) then begin
+  ;if(seq_flag eq 3 or seq_flag eq 1)then begin
+  if (self.merge_mode eq 0b AND (seq_flag eq 3 or seq_flag eq 1)) OR (self.merge_mode eq 1b AND n_elements((self.all_solo_packets)[type]) eq 0) then begin
+  
     ; create new entry
     (self.all_solo_packets)[type].add, list(solo_packet)
   endif else begin
@@ -523,7 +527,13 @@ function stx_telemetry_reader::read_packet_structure_source_packet_header, scan_
   ; fail on incorrect id
   ; TODO choose the fail action
   if(candidate_id eq -1) then begin
-    message, 'No suitable STIX telemetry packet found.', /info
+    message, 'No suitable STIX telemetry packet found. packet_category: ' $ 
+      + trim(solo_packet.packet_category) + ", pid: " $
+      + trim(solo_packet.pid) + ", service_type: " $
+      + trim(solo_packet.service_type) + ", service_subtype: " $
+      + trim(solo_packet.service_subtype) + ", sid_ssid: " $
+      + trim(fix(sid_ssid)) $
+      , /CONTINUE
     return, !NULL
   endif
   
@@ -760,5 +770,6 @@ pro stx_telemetry_reader__define
     solo_start         : HASH(), $
     statistics         : HASH(), $
     start_times        : HASH(), $
+    merge_mode         : 0b, $
     inherits stx_bitstream_reader }
 end

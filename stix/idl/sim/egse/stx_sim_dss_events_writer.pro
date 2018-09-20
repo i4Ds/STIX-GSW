@@ -104,7 +104,7 @@ pro stx_sim_dss_events_writer,  filename, detector_events, constant=constant, de
  ;         print,i,n_events-1
  ;         print,event_time[i],current_time
 
-          message, 'simultaneous or unsorted events', /inf
+          ;message, 'simultaneous or unsorted events', /inf
         endif
         waiting_time[i]=ulong64(time_diference-0.5d)
         current_time+=(waiting_time[i]+ulong64(1))*time_step

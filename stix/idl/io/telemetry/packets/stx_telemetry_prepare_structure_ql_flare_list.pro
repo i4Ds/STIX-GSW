@@ -9,7 +9,7 @@
 ;   Packet data field length - 1            variable
 ;   Service Type                            21                                      Science data transfer
 ;   Service Subtype                         3                                       Science data report
-;   SSID                                    33
+;   SSID                                    43
 ;   > ...
 ;
 ; :categories:
@@ -21,6 +21,7 @@
 ;
 ; :history:
 ;    19-Dec-2016 - Simon Marcin (FHNW), initial release
+;    19-Jun-2018 - Nicky Hochmuth (FHNW) align with ICD
 ;-
 function prepare_packet_structure_ql_flare_list_fsw, ql_flare_list=ql_flare_list, _extra=extra
 
@@ -32,39 +33,41 @@ function prepare_packet_structure_ql_flare_list_fsw, ql_flare_list=ql_flare_list
 
   ; fill in the data
   packet.pointer_start = ql_flare_list.pointer_start
-  packet.pointer_end = ql_flare_list.pointer_start
-  packet.number_of_flares = n_elements(ql_flare_list.start_times)
-
-  ; initialize pointer and prepare arrays for variance
-  packet.dynamic_start_coarse  = ptr_new(lon64arr(packet.number_of_flares))
-  packet.dynamic_start_fine    = ptr_new(uintarr(packet.number_of_flares))
-  packet.dynamic_end_coarse    = ptr_new(lon64arr(packet.number_of_flares))
-  packet.dynamic_end_fine      = ptr_new(uintarr(packet.number_of_flares))
-  packet.dynamic_high_flag     = ptr_new(bytarr(packet.number_of_flares))
-  packet.dynamic_nbr_packets   = ptr_new(bytarr(packet.number_of_flares))
-  packet.dynamic_spare         = ptr_new(bytarr(packet.number_of_flares))
-  packet.dynamic_processed     = ptr_new(bytarr(packet.number_of_flares))
-  packet.dynamic_compression   = ptr_new(bytarr(packet.number_of_flares))
-  packet.dynamic_transmitted   = ptr_new(bytarr(packet.number_of_flares))
-
-  ; attach values
-  for i=0L,packet.number_of_flares-1 do begin
-    stx_telemetry_util_time2scet, coarse_time=coarse_time, fine_time=fine_time, $
-      stx_time_obj=ql_flare_list.start_times[i]
-    (*packet.dynamic_start_coarse)[i] = coarse_time
-    (*packet.dynamic_start_fine)[i] = fine_time
-
-    stx_telemetry_util_time2scet, coarse_time=coarse_time, fine_time=fine_time, $
-      stx_time_obj=ql_flare_list.end_times[i]
-    (*packet.dynamic_end_coarse)[i] = coarse_time
-    (*packet.dynamic_end_fine)[i] = fine_time   
-  endfor
+  packet.pointer_end = ql_flare_list.pointer_end
+  packet.number_of_flares = ql_flare_list.number_flares
   
-  (*packet.dynamic_high_flag) = ql_flare_list.HIGH_FLAG
-  (*packet.dynamic_nbr_packets) = ql_flare_list.NBR_PACKETS
-  (*packet.dynamic_processed) = ql_flare_list.PROCESSED
-  (*packet.dynamic_compression) = ql_flare_list.COMPRESSION
-  (*packet.dynamic_transmitted) = ql_flare_list.TRANSMITTED
+  hasFlares = packet.number_of_flares gt 0
+  
+  ; initialize pointer and prepare arrays for data
+  
+  packet.dynamic_start_coarse             = ptr_new(hasFlares ? lon64arr(packet.number_of_flares) : 0)
+  packet.dynamic_end_coarse               = ptr_new(hasFlares ? lon64arr(packet.number_of_flares) : 0)
+  packet.dynamic_high_flag                = ptr_new(hasFlares ? uintarr(packet.number_of_flares) : 0)
+  packet.dynamic_tm_volume                = ptr_new(hasFlares ? lon64arr(packet.number_of_flares) : 0)
+  packet.dynamic_avg_cfl_z                = ptr_new(hasFlares ? intarr(packet.number_of_flares) : 0)
+  packet.dynamic_avg_cfl_y                = ptr_new(hasFlares ? intarr(packet.number_of_flares) : 0)
+  packet.dynamic_processing_status        = ptr_new(hasFlares ? bytarr(packet.number_of_flares) : 0)
+
+  
+  
+  if hasFlares then begin
+    ; attach values
+    for i=0L,packet.number_of_flares-1 do begin
+      stx_telemetry_util_time2scet, coarse_time=coarse_time, fine_time=fine_time, $
+        stx_time_obj=ql_flare_list.start_coarse[i]
+      (*packet.dynamic_start_coarse)[i] = coarse_time
+      
+      stx_telemetry_util_time2scet, coarse_time=coarse_time, fine_time=fine_time, $
+        stx_time_obj=ql_flare_list.end_coarse[i]
+      (*packet.dynamic_end_coarse)[i] = coarse_time
+    endfor
+    
+    (*packet.dynamic_high_flag) = ql_flare_list.HIGH_FLAG
+    (*packet.dynamic_tm_volume) = ql_flare_list.tm_volume
+    (*packet.dynamic_avg_cfl_z) = ql_flare_list.avg_cfl_z
+    (*packet.dynamic_avg_cfl_y) = ql_flare_list.avg_cfl_y
+    (*packet.dynamic_processing_status) = ql_flare_list.processing_status
+  endif
 
   return, packet
 end
@@ -81,10 +84,13 @@ pro stx_telemetry_prepare_structure_ql_flare_list_write, ql_flare_list=ql_flare_
 
   ; generate variance intermediate TM packet
   source_data = prepare_packet_structure_ql_flare_list_fsw(ql_flare_list=ql_flare_list, _extra=extra)
-
+  
+  stx_telemetry_util_time2scet, coarse_time=coarse_time, fine_time=fine_time, stx_time_obj=stx_construct_time()
+  
+  
   ; set the sc time of the solo_header packet
-  solo_source_packet_header.coarse_time = (*source_data.dynamic_start_coarse)[0]
-  solo_source_packet_header.fine_time = (*source_data.dynamic_start_fine)[0]
+  solo_source_packet_header.coarse_time = coarse_time
+  solo_source_packet_header.fine_time = fine_time
 
   ; copy all header information to solo packet
   ; TODO: Refactor to util function
@@ -104,126 +110,127 @@ pro stx_telemetry_prepare_structure_ql_flare_list_write, ql_flare_list=ql_flare_
   n_structures = source_data.number_of_flares
 
   ; size of dynamic part (bits)
-  dynamic_struct_size = 15*8
+  dynamic_struct_size = 16*8
 
   ; max fitting samples per paket
   max_fitting_paket = UINT((max_packet_size - (source_data.pkg_word_width.pkg_total_bytes_fixed*8))/dynamic_struct_size)
 
   ; set curr_packet_size = max_packet_size in order to create a new packet
   curr_packet_size = max_packet_size
+     
 
-  ;Process ever sample with its trigger acumulator, detector index and delta_time
-  for structure_idx = 0L, n_structures-1 do begin
-
-    ; check if we have an overflow; if so -> start a new packet
-    ; test for E octets (light curves/energy binning) + 1 octet trigger + 1 octet rcr values
-    if(curr_packet_size + dynamic_struct_size gt max_packet_size) then begin
-      ; copy the 'SolO' packet
-      solo_slice = solo_source_packet_header
-
-      ; add 'SolO' slice to 'SolO' array
-      if(isvalid(solo_slices)) then solo_slices = [solo_slices, solo_slice] $
-      else solo_slices = solo_slice
-
-      ; set the sequence count
-      solo_slices[-1].source_sequence_count = n_elements(solo_slices) - 1
-
-      ; initialize the current packet size to the fixed packet length
-      curr_packet_size = source_data.pkg_word_width.pkg_total_bytes_fixed
-    endif
-
-    ; run the following lines of code if we started a new 'SolO' packet
-    if(solo_slices[-1].source_data eq ptr_new()) then begin
-      ; copy the source data (prepare this 'partial' packet)
-      partial_source_data = ptr_new(source_data)
-
-      ; add general pakete information to 'SolO' slice
-      solo_slices[-1].source_data = partial_source_data
-
-      ; calculate the amount of fitting pakets
-      if((n_structures-structure_idx)*dynamic_struct_size gt max_packet_size-curr_packet_size) then begin
-        ; use all available space if more information than space are available
-        fitting_pakets = max_fitting_paket
-      endif else begin
-        ; just use the needed space for the last few pakets
-        fitting_pakets = n_structures-structure_idx
-      endelse
-
-      ; initialize dynamic arrays
-      (*solo_slices[-1].source_data).dynamic_start_coarse  = ptr_new(lon64arr(fitting_pakets)-1)
-      (*solo_slices[-1].source_data).dynamic_start_fine    = ptr_new(uintarr(fitting_pakets))
-      (*solo_slices[-1].source_data).dynamic_end_coarse    = ptr_new(lon64arr(fitting_pakets))
-      (*solo_slices[-1].source_data).dynamic_end_fine      = ptr_new(uintarr(fitting_pakets))
-      (*solo_slices[-1].source_data).dynamic_high_flag     = ptr_new(bytarr(fitting_pakets))
-      (*solo_slices[-1].source_data).dynamic_nbr_packets   = ptr_new(bytarr(fitting_pakets))
-      (*solo_slices[-1].source_data).dynamic_spare         = ptr_new(bytarr(fitting_pakets))
-      (*solo_slices[-1].source_data).dynamic_processed     = ptr_new(bytarr(fitting_pakets))
-      (*solo_slices[-1].source_data).dynamic_compression   = ptr_new(bytarr(fitting_pakets))
-      (*solo_slices[-1].source_data).dynamic_transmitted   = ptr_new(bytarr(fitting_pakets))
-
-      ; initialize number_of_structures
-      (*solo_slices[-1].source_data).number_of_flares = 0
-
-      ; update all packet data field lengths
-      solo_slices[-1].pkg_word_width.source_data = (*solo_slices[-1].source_data).pkg_word_width.pkg_total_bytes_fixed * 8
-      solo_slices[-1].data_field_length = (*solo_slices[-1].source_data).pkg_word_width.pkg_total_bytes_fixed
-      (*solo_slices[-1].source_data).header_data_field_length = solo_slices[-1].data_field_length
+    ;Process ever sample with its trigger acumulator, detector index and delta_time
+    for structure_idx = 0L, n_structures-1 do begin
+ 
       
-      ; add 9 (not 10?) bytes for TM Packet Data Header that is otherwise not accounted for
-      solo_slices[-1].data_field_length += 9
-
-    endif
-
-    ; run the following lines of code when adding a new variance sample to an existing packet that has space left
-    if((*(*solo_slices[-1].source_data).dynamic_start_coarse)[(structure_idx MOD max_fitting_paket)] eq -1) then begin
-      ; copy the slices to new pointers
-      slice_start_coarse  =  reform((*source_data.dynamic_start_coarse)[structure_idx]) 
-      slice_start_fine    =  reform((*source_data.dynamic_start_fine )[structure_idx])
-      slice_end_coarse    =  reform((*source_data.dynamic_end_coarse )[structure_idx])
-      slice_end_fine      =  reform((*source_data.dynamic_end_fine   )[structure_idx])
-      slice_high_flag     =  reform((*source_data.dynamic_high_flag  )[structure_idx])
-      slice_nbr_packets   =  reform((*source_data.dynamic_nbr_packets)[structure_idx])
-      slice_spare         =  reform((*source_data.dynamic_spare      )[structure_idx])
-      slice_processed     =  reform((*source_data.dynamic_processed  )[structure_idx])
-      slice_compression   =  reform((*source_data.dynamic_compression)[structure_idx])
-      slice_transmitted   =  reform((*source_data.dynamic_transmitted)[structure_idx])
-
-      ; attach slices to paket
-     (*(*solo_slices[-1].source_data).dynamic_start_coarse)[(structure_idx MOD max_fitting_paket)] = slice_start_coarse
-     (*(*solo_slices[-1].source_data).dynamic_start_fine  )[(structure_idx MOD max_fitting_paket)] = slice_start_fine  
-     (*(*solo_slices[-1].source_data).dynamic_end_coarse  )[(structure_idx MOD max_fitting_paket)] = slice_end_coarse  
-     (*(*solo_slices[-1].source_data).dynamic_end_fine    )[(structure_idx MOD max_fitting_paket)] = slice_end_fine    
-     (*(*solo_slices[-1].source_data).dynamic_high_flag   )[(structure_idx MOD max_fitting_paket)] = slice_high_flag   
-     (*(*solo_slices[-1].source_data).dynamic_nbr_packets )[(structure_idx MOD max_fitting_paket)] = slice_nbr_packets 
-     (*(*solo_slices[-1].source_data).dynamic_spare       )[(structure_idx MOD max_fitting_paket)] = slice_spare       
-     (*(*solo_slices[-1].source_data).dynamic_processed   )[(structure_idx MOD max_fitting_paket)] = slice_processed   
-     (*(*solo_slices[-1].source_data).dynamic_compression )[(structure_idx MOD max_fitting_paket)] = slice_compression 
-     (*(*solo_slices[-1].source_data).dynamic_transmitted )[(structure_idx MOD max_fitting_paket)] = slice_transmitted 
-
-      ; adjust current packet size
-      curr_packet_size += dynamic_struct_size
-      solo_slices[-1].pkg_word_width.source_data += dynamic_struct_size
-      (*solo_slices[-1].source_data).header_data_field_length += dynamic_struct_size/8
-      solo_slices[-1].data_field_length += dynamic_struct_size/8
-
-      ; increase dynamic lenght
-      (*solo_slices[-1].source_data).pkg_word_width.dynamic_start_coarse += 32
-      (*solo_slices[-1].source_data).pkg_word_width.dynamic_start_fine   += 16
-      (*solo_slices[-1].source_data).pkg_word_width.dynamic_end_coarse   += 32
-      (*solo_slices[-1].source_data).pkg_word_width.dynamic_end_fine     += 16
-      (*solo_slices[-1].source_data).pkg_word_width.dynamic_high_flag    += 8
-      (*solo_slices[-1].source_data).pkg_word_width.dynamic_nbr_packets  += 8
-      (*solo_slices[-1].source_data).pkg_word_width.dynamic_spare        += 4
-      (*solo_slices[-1].source_data).pkg_word_width.dynamic_processed    += 1
-      (*solo_slices[-1].source_data).pkg_word_width.dynamic_compression  += 2
-      (*solo_slices[-1].source_data).pkg_word_width.dynamic_transmitted  += 1
-
-      ; adjust number of attached structures
-      (*solo_slices[-1].source_data).number_of_flares++
-
-    endif
-  endfor
-
+      ; check if we have an overflow; if so -> start a new packet
+      if(curr_packet_size + dynamic_struct_size gt max_packet_size) then begin
+        ; copy the 'SolO' packet
+        solo_slice = solo_source_packet_header
+  
+        ; add 'SolO' slice to 'SolO' array
+        if(isvalid(solo_slices)) then solo_slices = [solo_slices, solo_slice] $
+        else solo_slices = solo_slice
+  
+        ; set the sequence count
+        solo_slices[-1].source_sequence_count = n_elements(solo_slices) - 1
+  
+        ; initialize the current packet size to the fixed packet length
+        curr_packet_size = source_data.pkg_word_width.pkg_total_bytes_fixed
+      endif
+  
+      ; run the following lines of code if we started a new 'SolO' packet
+      if(solo_slices[-1].source_data eq ptr_new()) then begin
+        ; copy the source data (prepare this 'partial' packet)
+        partial_source_data = ptr_new(source_data)
+  
+        ; add general pakete information to 'SolO' slice
+        solo_slices[-1].source_data = partial_source_data
+  
+        ; calculate the amount of fitting pakets
+        if((n_structures-structure_idx)*dynamic_struct_size gt max_packet_size-curr_packet_size) then begin
+          ; use all available space if more information than space are available
+          fitting_pakets = max_fitting_paket + 1
+        endif else begin
+          ; just use the needed space for the last few pakets
+          fitting_pakets = n_structures-structure_idx
+        endelse
+      
+      
+        if fitting_pakets gt 0 then begin
+          ; initialize dynamic arrays  
+          (*solo_slices[-1].source_data).dynamic_start_coarse       = ptr_new(lon64arr(fitting_pakets)-1)
+          (*solo_slices[-1].source_data).dynamic_end_coarse         = ptr_new(lon64arr(fitting_pakets))
+          (*solo_slices[-1].source_data).dynamic_high_flag          = ptr_new(uintarr(fitting_pakets))
+          (*solo_slices[-1].source_data).dynamic_tm_volume          = ptr_new(lon64arr(fitting_pakets))
+          (*solo_slices[-1].source_data).dynamic_avg_cfl_z          = ptr_new(intarr(fitting_pakets))
+          (*solo_slices[-1].source_data).dynamic_avg_cfl_y          = ptr_new(intarr(fitting_pakets))
+          (*solo_slices[-1].source_data).dynamic_processing_status  = ptr_new(bytarr(fitting_pakets))
+        endif
+        
+  
+        ; initialize number_of_structures
+        (*solo_slices[-1].source_data).number_of_flares = 0
+  
+        ; update all packet data field lengths
+        solo_slices[-1].pkg_word_width.source_data = (*solo_slices[-1].source_data).pkg_word_width.pkg_total_bytes_fixed * 8
+        solo_slices[-1].data_field_length = (*solo_slices[-1].source_data).pkg_word_width.pkg_total_bytes_fixed
+        (*solo_slices[-1].source_data).header_data_field_length = solo_slices[-1].data_field_length
+        
+        ; add 9 (not 10?) bytes for TM Packet Data Header that is otherwise not accounted for
+        solo_slices[-1].data_field_length += 9
+        
+        if n_structures eq 0 then break; 
+  
+      endif
+      
+     
+      
+      write_pos = (structure_idx MOD (max_fitting_paket + 1))
+      
+      ;print, write_pos
+      
+      ; run the following lines of code when adding a new flare list sample to an existing packet that has space left
+      if((*(*solo_slices[-1].source_data).dynamic_start_coarse)[write_pos] eq -1) then begin
+        ; copy the slices to new pointers
+        slice_start_coarse  =  reform((*source_data.dynamic_start_coarse)[structure_idx]) 
+        slice_end_coarse    =  reform((*source_data.dynamic_end_coarse )[structure_idx])
+        slice_high_flag     =  reform((*source_data.dynamic_high_flag  )[structure_idx])
+        slice_tm_volume     =  reform((*source_data.dynamic_tm_volume)[structure_idx])
+        slice_avg_cfl_z     =  reform((*source_data.dynamic_avg_cfl_z)[structure_idx])
+        slice_avg_cfl_y     =  reform((*source_data.dynamic_avg_cfl_y)[structure_idx])
+        slice_processing_status   =  reform((*source_data.dynamic_processing_status)[structure_idx])
+     
+        ; attach slices to paket
+       (*(*solo_slices[-1].source_data).dynamic_start_coarse)[write_pos] = slice_start_coarse
+       (*(*solo_slices[-1].source_data).dynamic_end_coarse  )[write_pos] = slice_end_coarse  
+       (*(*solo_slices[-1].source_data).dynamic_high_flag   )[write_pos] = slice_high_flag   
+       (*(*solo_slices[-1].source_data).dynamic_tm_volume   )[write_pos] = slice_tm_volume 
+       (*(*solo_slices[-1].source_data).dynamic_avg_cfl_z   )[write_pos] = slice_avg_cfl_z   
+       (*(*solo_slices[-1].source_data).dynamic_avg_cfl_y   )[write_pos] = slice_avg_cfl_y   
+       (*(*solo_slices[-1].source_data).dynamic_processing_status )[write_pos] = slice_processing_status
+       
+        ; adjust current packet size
+        curr_packet_size += dynamic_struct_size
+        solo_slices[-1].pkg_word_width.source_data += dynamic_struct_size
+        (*solo_slices[-1].source_data).header_data_field_length += dynamic_struct_size/8
+        solo_slices[-1].data_field_length += dynamic_struct_size/8
+  
+        ; increase dynamic lenght
+        (*solo_slices[-1].source_data).pkg_word_width.dynamic_start_coarse  += 32
+        (*solo_slices[-1].source_data).pkg_word_width.dynamic_end_coarse    += 32
+        (*solo_slices[-1].source_data).pkg_word_width.dynamic_high_flag     += 8
+        (*solo_slices[-1].source_data).pkg_word_width.dynamic_tm_volume     += 32
+        (*solo_slices[-1].source_data).pkg_word_width.dynamic_avg_cfl_z     += 8
+        (*solo_slices[-1].source_data).pkg_word_width.dynamic_avg_cfl_y     += 8
+        (*solo_slices[-1].source_data).pkg_word_width.dynamic_processing_status  += 8
+  
+        ; adjust number of attached structures
+        (*solo_slices[-1].source_data).number_of_flares++
+        
+      endif
+    endfor
+  
   ; update segementation flag
   if(n_elements(solo_slices) eq 1) then solo_slices[0].SEGMENTATION_GROUPING_FLAGS = 3
   if(n_elements(solo_slices) gt 1) then begin
@@ -247,47 +254,50 @@ pro stx_telemetry_prepare_structure_ql_flare_list_read, asw_ql_flare_list=asw_ql
     ; count total_number_of_structures
     total_number_of_structures+=(*solo_slices[solo_slice_idx].source_data).number_of_flares
     
+    if (*solo_slices[solo_slice_idx].source_data).number_of_flares eq 0 then continue
+    
     ;convert time
     slice_start_times=replicate(stx_time(),(*solo_slices[solo_slice_idx].source_data).number_of_flares)
     slice_end_times=replicate(stx_time(),(*solo_slices[solo_slice_idx].source_data).number_of_flares)
+    
     for i=0L,(*solo_slices[solo_slice_idx].source_data).number_of_flares-1 do begin
       coarse_time=(*(*solo_slices[solo_slice_idx].source_data).dynamic_start_coarse)[i]
-      fine_time=(*(*solo_slices[solo_slice_idx].source_data).dynamic_start_fine)[i]
-      stx_telemetry_util_time2scet, coarse_time=coarse_time, fine_time=fine_time, $
+      stx_telemetry_util_time2scet, coarse_time=coarse_time, fine_time=0, $
         stx_time_obj=stx_time_obj, /reverse
       slice_start_times[i]=stx_time_obj
       
       coarse_time=(*(*solo_slices[solo_slice_idx].source_data).dynamic_end_coarse)[i]
-      fine_time=(*(*solo_slices[solo_slice_idx].source_data).dynamic_end_fine)[i]
-      stx_telemetry_util_time2scet, coarse_time=coarse_time, fine_time=fine_time, $
+      
+      stx_telemetry_util_time2scet, coarse_time=coarse_time, fine_time=0, $
         stx_time_obj=stx_time_obj, /reverse
       slice_end_times[i]=stx_time_obj
     endfor
 
     ; init slices
     slice_high_flag = (*(*solo_slices[solo_slice_idx].source_data).dynamic_high_flag)
-    slice_nbr_packets = (*(*solo_slices[solo_slice_idx].source_data).dynamic_nbr_packets)
-    slice_processed = (*(*solo_slices[solo_slice_idx].source_data).dynamic_processed)
-    slice_compression = (*(*solo_slices[solo_slice_idx].source_data).dynamic_compression)
-    slice_transmitted = (*(*solo_slices[solo_slice_idx].source_data).dynamic_transmitted)
+    slice_tm_volume = (*(*solo_slices[solo_slice_idx].source_data).dynamic_tm_volume)
+    slice_avg_cfl_z = (*(*solo_slices[solo_slice_idx].source_data).dynamic_avg_cfl_z)
+    slice_avg_cfl_y = (*(*solo_slices[solo_slice_idx].source_data).dynamic_avg_cfl_y)
+    slice_processing_status = (*(*solo_slices[solo_slice_idx].source_data).dynamic_processing_status)
 
     ; append the slices to the final arrays
     if  solo_slice_idx eq 0 then begin
       start_times  = slice_start_times 
       end_times    = slice_end_times  
-      high_flag    = slice_high_flag  
-      nbr_packets  = slice_nbr_packets
-      processed    = slice_processed  
-      compression  = slice_compression
-      transmitted  = slice_transmitted
+      high_flag    = slice_high_flag
+      tm_volume    = slice_tm_volume
+      avg_cfl_z    = slice_avg_cfl_z
+      avg_cfl_y    = slice_avg_cfl_y
+      processing_status = slice_processing_status
+
     endif else begin
       start_times  = [start_times ,slice_start_times ]
       end_times    = [end_times   ,slice_end_times   ]
       high_flag    = [high_flag   ,slice_high_flag   ]
-      nbr_packets  = [nbr_packets ,slice_nbr_packets ]
-      processed    = [processed   ,slice_processed   ]
-      compression  = [compression ,slice_compression ]
-      transmitted  = [transmitted ,slice_transmitted ]
+      tm_volume    = [tm_volume ,slice_tm_volume ]
+      avg_cfl_z    = [avg_cfl_z ,slice_avg_cfl_z ]
+      avg_cfl_y    = [avg_cfl_y ,slice_avg_cfl_y ]
+      processing_status  = [processing_status ,slice_processing_status ]
     endelse
 
   endfor
@@ -297,17 +307,17 @@ pro stx_telemetry_prepare_structure_ql_flare_list_read, asw_ql_flare_list=asw_ql
     asw_ql_flare_list=stx_asw_ql_flare_list(number_flares=total_number_of_structures)
     asw_ql_flare_list.pointer_start=pointer_start
     asw_ql_flare_list.pointer_end=pointer_end
-    asw_ql_flare_list.start_times = start_times
-    asw_ql_flare_list.end_times   = end_times  
-    asw_ql_flare_list.high_flag   = high_flag  
-    asw_ql_flare_list.nbr_packets = nbr_packets
-    asw_ql_flare_list.processed   = processed  
-    asw_ql_flare_list.compression = compression
-    asw_ql_flare_list.transmitted = transmitted
+    if total_number_of_structures GT 0 then begin
+      asw_ql_flare_list.start_coarse = start_times
+      asw_ql_flare_list.end_coarse   = end_times  
+      asw_ql_flare_list.high_flag   = high_flag  
+      asw_ql_flare_list.tm_volume   = tm_volume  
+      asw_ql_flare_list.avg_cfl_z = avg_cfl_z
+      asw_ql_flare_list.avg_cfl_y   = avg_cfl_y  
+      asw_ql_flare_list.processing_status = processing_status
+    endif
   endif
-
 end
-
 
 
 pro stx_telemetry_prepare_structure_ql_flare_list, ql_flare_list=ql_flare_list, $

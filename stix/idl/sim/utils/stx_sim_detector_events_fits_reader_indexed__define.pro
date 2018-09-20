@@ -38,7 +38,7 @@
 ;-
 
 function stx_sim_detector_events_fits_reader_indexed::init, directory, cachesize=cachesize
-  default, cachesize, 5
+  default, cachesize, 1
 
   if ~dir_exist(directory) then begin
     message, directory + " does not exist", /continue
