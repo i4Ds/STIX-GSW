@@ -19,9 +19,12 @@ function stx_telemetry_packet_structure_sd_spectrogram_subheader, packet_word_wi
   packet_word_width = { $
     type                             : 'stx_tmtc_word_width', $
     packet                           : 'stx_tmtc_sd_spectrogram', $
-    pixel_set_index                  : 8, $
-    spare                            : 7, $
-    energy_bin_mask                  : 33, $       ; Defines M
+    pixel_mask                       : 16, $
+    detector_mask                    : 32, $
+    rcr                              : 8, $
+    energy_low                       : 6, $       ; number e bin Defines M (first bit  spare)
+    energy_high                      : 5, $       ; number e bin Defines M
+    energy_unit                      : 5, $       ; number e bin Defines M
     number_samples                   : 16, $       ; Defines N
     ; Start of science data sample
     dynamic_delta_time               : 0UL, $ 
@@ -48,9 +51,12 @@ function stx_telemetry_packet_structure_sd_spectrogram_subheader, packet_word_wi
 
   packet = { $
     type                             : 'stx_tmtc_sd_spectrogram', $
-    pixel_set_index                  : byte(0), $
-    spare                            : byte(0), $
-    energy_bin_mask                  : ulong64(0), $    ; Defines M
+    pixel_mask                       : uint(0), $
+    detector_mask                    : ulong64(0), $
+    rcr                              : byte(0), $
+    energy_low                       : byte(0), $       ; number e bin Defines M (first bit  spare)
+    energy_high                      : byte(0), $       ; number e bin Defines M
+    energy_unit                      : byte(0), $       ; number e bin Defines M
     number_samples                   : uint(0), $       ; Defines N
     ; Start of science data sample
     dynamic_delta_time               : ptr_new(), $ 

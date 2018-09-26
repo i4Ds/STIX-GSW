@@ -64,18 +64,24 @@ function prepare_packet_structure_sd_spectrogram_write_fsw, $
     sub_packet = stx_telemetry_packet_structure_sd_spectrogram_subheader()
 
     ; fill in the subheader data
-    sub_packet.pixel_set_index = 0
-    message, 'INFO: no pixelset lookup table yet.', /INFO
+    sub_packet.pixel_mask = stx_mask2bits(L1_SPC_COMBINED_ARCHIVE_BUFFER_GROUPED[0].pixel_mask)
     sub_packet.number_samples = (size(L1_SPC_COMBINED_ARCHIVE_BUFFER_GROUPED))[1]
-    ;sub_packet.detector_mask=stx_mask2bits(L1_SPC_COMBINED_ARCHIVE_BUFFER_GROUPED[0].detector_mask,mask_length=32)
-    energy_bin_mask=bytarr(33)
-    energy_bin_mask[*]= 1b
-    sub_packet.energy_bin_mask=stx_mask2bits(energy_bin_mask,mask_length=33)
+    sub_packet.detector_mask=stx_mask2bits(L1_SPC_COMBINED_ARCHIVE_BUFFER_GROUPED[0].detector_mask,mask_length=32)
+    
+    ;only full spectra at the moment
+ 
+    sub_packet.energy_low = 0
+    sub_packet.energy_high = 31
+    sub_packet.energy_unit = 0
+    sub_packet.rcr = L1_SPC_COMBINED_ARCHIVE_BUFFER_GROUPED[0].rcr
+   
+
+  
     message, 'INFO: no energy_bin_mask out of stx_fsw_spc_data_time_group yet.', /INFO
     sub_packet.closing_time_offset = fix(round(stx_time_diff(L1_SPC_COMBINED_ARCHIVE_BUFFER_GROUPED[-1].END_TIME, start_time)*10))
     
     ; get number of energy bins
-    loop_E = fix(total(energy_bin_mask)-1)
+    loop_E =  max([1,((sub_packet.energy_high + 1) - sub_packet.energy_low) / (sub_packet.energy_unit + 1)]);
 
     ; initialize pointer and prepare arrays for dynamic content
     sub_packet.dynamic_delta_time = ptr_new(uintarr(sub_packet.number_samples))
@@ -155,7 +161,7 @@ pro stx_telemetry_prepare_structure_sd_spectrogram_write, $
   foreach subpacket, (*source_data.dynamic_subheaders) do begin
 
     ; get dynamic params
-    loop_E = fix(total(stx_mask2bits(subpacket.energy_bin_mask,mask_length=33, /reverse)))-1
+    loop_E =  max([1,((subpacket.energy_high + 1) - subpacket.energy_low) / (subpacket.energy_unit + 1)]);
 
     ; define dynamic size
     dynamic_size = (3+loop_E)*8
@@ -300,12 +306,8 @@ pro stx_telemetry_prepare_structure_sd_spectrogram_read, fsw_spc_data_time_group
   fsw_spc_data_time_group = list()
 
   ; get compression params
-  compression_param_k_acc = fix(ishft((*solo_slices[0].source_data).compression_schema_acc,-3) and 7)
-  compression_param_m_acc = fix((*solo_slices[0].source_data).compression_schema_acc and 7)
-  compression_param_s_acc = fix(ishft((*solo_slices[0].source_data).compression_schema_acc,-6) and 3)
-  compression_param_k_t = fix(ishft((*solo_slices[0].source_data).compression_schema_t,-3) and 7)
-  compression_param_m_t = fix((*solo_slices[0].source_data).compression_schema_t and 7)
-  compression_param_s_t = fix(ishft((*solo_slices[0].source_data).compression_schema_t,-6) and 3)
+  stx_km_compression_schema_to_params, (*solo_slices[0].source_data).compression_schema_acc, k=compression_param_k_acc, m=compression_param_m_acc, s=compression_param_s_acc
+  stx_km_compression_schema_to_params, (*solo_slices[0].source_data).compression_schema_t, k=compression_param_k_t, m=compression_param_m_t, s=compression_param_s_t
 
   ; start time as stx_time
   stx_telemetry_util_time2scet,coarse_time=(*solo_slices[0].source_data).coarse_time, $
@@ -313,34 +315,23 @@ pro stx_telemetry_prepare_structure_sd_spectrogram_read, fsw_spc_data_time_group
   
   ; use starting time and duration as unique identifier per time bin
   not_first = 0
-  energy_bin_mask_nbr = -1LL
-  pixel_set_index = -1
-
-  ; ToDo: Implement (and get) pixel set lookup table
-  message, 'INFO: There is no pixel set lookup table yet. Default pixel_mask applied.', /INFO
 
   interval_entry = stx_fsw_spc_data()
-
+  
+  
   ; loop through all solo_slices
   foreach solo_packet, solo_slices do begin
 
     ; loop through all subheaders
     foreach subheader, (*(*solo_packet.source_data).dynamic_subheaders) do begin
 
-        ; set starting_time and duration to defined unique time bin values
-        energy_bin_mask_nbr = subheader.energy_bin_mask
-        pixel_set_index = subheader.pixel_set_index
-
-        ; convert numbers to masks
-        energy_bin_mask=stx_mask2bits(energy_bin_mask_nbr,mask_length=33, /reverse)
-        loop_E = fix(total(energy_bin_mask))-1
-        energy_index = WHERE(energy_bin_mask eq 1)
-
-        ; ToDo: Implement (and get) pixel set lookup table
-        pixel_mask=bytarr(12)
-        pixel_mask[*]=1b
-
-
+        loop_E =  max([1,((subheader.energy_high + 1) - subheader.energy_low) / (subheader.energy_unit + 1)]);
+        pixel_mask = subheader.pixel_mask
+        detector_mask = subheader.detector_mask
+        rcr = subheader.rcr
+        
+        energy_bin_mask = BYTARR(33)
+        
       ; create a new list entry for each time bin
       for time_idx=0L, subheader.number_samples -1 do begin
 
@@ -352,7 +343,8 @@ pro stx_telemetry_prepare_structure_sd_spectrogram_read, fsw_spc_data_time_group
             start_time      : start_time, $
             end_time        : end_time, $
             pixel_mask      : pixel_mask, $
-            ;detector_mask   : detector_mask, $
+            detector_mask   : detector_mask, $
+            rcr             : rcr, $
             energy_bin_mask : energy_bin_mask, $
             trigger         : trigger $
           }
@@ -377,11 +369,16 @@ pro stx_telemetry_prepare_structure_sd_spectrogram_read, fsw_spc_data_time_group
 
         ; create interval array
         interval_column = replicate(interval_entry, loop_E)
-    
+        
+        
+        
         ; loop through all energies
-        for i=0L,   loop_E-1 do begin
-          interval_column[i].energy_science_channel_range[0] = energy_index[i]
-          interval_column[i].energy_science_channel_range[1] = energy_index[i+1]
+        for i=0, loop_E-1  do begin
+          interval_column[i].energy_science_channel_range[0] = subheader.energy_low + (i * (subheader.energy_unit+1))
+          interval_column[i].energy_science_channel_range[1] = min([32,subheader.energy_low + ((i + 1) * (subheader.energy_unit+1))])
+          energy_bin_mask[interval_column[i].energy_science_channel_range[0]] = 1
+          energy_bin_mask[interval_column[i].energy_science_channel_range[1]] = 1
+          
           interval_column[i].counts = stx_km_decompress((*subheader.dynamic_counts)[i,time_idx], $
             compression_param_k_acc, compression_param_m_acc, compression_param_s_acc)
           interval_column[i].relative_time_range = relative_time
@@ -401,7 +398,8 @@ pro stx_telemetry_prepare_structure_sd_spectrogram_read, fsw_spc_data_time_group
     start_time      : start_time, $
     end_time        : end_time, $
     pixel_mask      : pixel_mask, $
-    ;detector_mask   : detector_mask, $
+    detector_mask   : detector_mask, $
+    rcr             : rcr, $
     energy_bin_mask : energy_bin_mask, $
     trigger         : trigger $
   }

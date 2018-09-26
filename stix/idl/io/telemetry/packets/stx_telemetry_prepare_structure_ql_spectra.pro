@@ -321,7 +321,6 @@ pro stx_telemetry_prepare_structure_ql_spectra_read, solo_slices=solo_slices, $
   total_number_of_structures=0
 
   ; get compression params
-  
   stx_km_compression_schema_to_params, (*solo_slices[0].source_data).compression_schema_trigger, k=compression_param_k_t, m=compression_param_m_t, s=compression_param_s_t
   stx_km_compression_schema_to_params, (*solo_slices[0].source_data).compression_schema_spectrum, k=compression_param_k_sp, m=compression_param_m_sp, s=compression_param_s_sp
  

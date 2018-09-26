@@ -1,5 +1,7 @@
 function stx_fsw_get_timex_axis_from_archive_buffer, stx_fsw_archive_buffer, start_time = start_time, $
-  time_edges_out = time_edges_out 
+  time_edges_out = time_edges_out, add_timebin_dummy=add_timebin_dummy
+  
+  default, add_timebin_dummy, 1
   
   default, start_time, stx_time()
   
@@ -8,9 +10,9 @@ function stx_fsw_get_timex_axis_from_archive_buffer, stx_fsw_archive_buffer, sta
   time_edges = reform(time_edges, 2L * N_ELEMENTS(stx_fsw_archive_buffer))
   time_edges = time_edges[uniq(time_edges,sort(time_edges))]
   
-  if N_ELEMENTS(time_edges) eq 1 then begin
+  if add_timebin_dummy then begin
     ;dummy end bin for real TMTC
-    time_edges = [time_edges, time_edges+0.1, time_edges+0.2]
+    time_edges = [time_edges, time_edges[-1]+0.1, time_edges[-1]+0.2]
   endif
 
 

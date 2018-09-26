@@ -328,7 +328,7 @@ pro stx_telemetry_reader_gui::plot_data
           total_counts : total(total(total(asw_data.spec,1),1),1) $
         }
 
-        ab_plot.plot, start_time=asw_data.time_axis.time_start[0], current_time= asw_data.time_axis.time_start[-1], archive_buffer=ab_plot_data, /add_legend, /histogram
+        ;ab_plot.plot, start_time=asw_data.time_axis.time_start[0], current_time= asw_data.time_axis.time_start[-1], archive_buffer=ab_plot_data, /add_legend, /histogram
 
         self.plots->add, ab_plot
         asw->set, module="global", max_reprocess_level = max([2,asw->get(/max_reprocess_level)])
@@ -380,22 +380,47 @@ pro stx_telemetry_reader_gui::plot_data
       
       'stx_tmtc_sd_spectrogram': begin
         self.telemetry_reader->getdata, fsw_spc_data_time_group=fsw_spc_data_time_group
-        fsw_spc = (fsw_spc_data_time_group[data_idx])->toarray()
         
-        spectrogram = { $
-          type          : "stx_fsw_sd_spectrogram", $
-          counts        : fsw_spc.intervals.counts, $
-          trigger       : fsw_spc.trigger, $
-          time_axis     : stx_construct_time_axis([fsw_spc.start_time,fsw_spc[-1].end_time]) , $
-          energy_axis   : stx_construct_energy_axis(select=where(fsw_spc[0].energy_bin_mask)), $
-          pixel_mask    : fsw_spc.pixel_mask $
-        }
+        fsw_spc_data = fsw_spc_data_time_group[data_idx];
         
-        srmfilename = filepath("stx_spectrum_srm_"+trim(data_idx)+".fits",root_dir=self.scenario_name) 
-        specfilename = filepath("stx_spectrum_"+trim(data_idx)+".fits",root_dir=self.scenario_name) 
+        n_time_bins = N_ELEMENTS(fsw_spc_data)
         
-        ospex_obj =   stx_fsw_sd_spectrogram2ospex(spectrogram , /fits, specfilename=specfilename, srmfilename=srmfilename  )
-        self.plots->add, ospex_obj
+        boxStart = 0
+
+        
+        
+        while boxStart lt n_time_bins do begin
+          n_energies = n_elements(fsw_spc_data[boxStart].INTERVALS)
+          boxEnd = boxStart
+          while boxEnd lt n_time_bins-1 && n_elements(fsw_spc_data[boxEnd+1].INTERVALS) eq n_energies do boxEnd++
+          
+          print, "found spectrogramm box ", boxStart, boxEnd, n_energies 
+          
+          
+          fsw_spc = fsw_spc_data[boxStart:boxEnd]->toarray()
+
+          spectrogram = { $
+            type          : "stx_fsw_sd_spectrogram", $
+            counts        : fsw_spc.intervals.counts, $
+            trigger       : fsw_spc.trigger, $
+            time_axis     : stx_construct_time_axis([fsw_spc.start_time,fsw_spc[-1].end_time]) , $
+            energy_axis   : stx_construct_energy_axis(select=where(fsw_spc[0].energy_bin_mask)), $
+            pixel_mask    : fsw_spc.pixel_mask $
+          }
+
+          srmfilename = filepath("stx_spectrum_srm_"+trim(data_idx)+"_box_"+trim(boxStart)+".fits",root_dir=self.scenario_name)
+          specfilename = filepath("stx_spectrum_"+trim(data_idx)+"_box_"+trim(boxStart)+".fits",root_dir=self.scenario_name)
+
+          ospex_obj =   stx_fsw_sd_spectrogram2ospex(spectrogram , /fits, specfilename=specfilename, srmfilename=srmfilename  )
+          self.plots->add, ospex_obj
+          
+          
+          boxStart=boxEnd+1
+        endwhile
+        
+        
+       
+        
         break
       end
      
@@ -419,6 +444,17 @@ pro stx_telemetry_reader_gui::plot_data
         self.telemetry_reader->getdata, solo_packets = solo_packets, asw_hc_regular_maxi = asw_hc_regular_maxi_packets
 
         hk_maxi ->add, asw_hc_regular_maxi_packets[data_idx]
+
+        break
+      end
+      
+      'stx_tmtc_hc_trace' : begin
+        self.telemetry_reader->getdata, solo_packets = solo_packets, asw_hc_trace = asw_hc_trace_packets
+
+        hc_trace =  asw_hc_trace_packets[data_idx]
+        
+        print, hc_trace.tracetext
+        
 
         break
       end

@@ -159,13 +159,13 @@ pro stx_gr_detector::_update_data
           
    endforeach
    
-   if n_data ge 4 then begin
+   if n_data ge 5 then begin
       tplot =  self->getbyname("tplot")
       self->_getPlotData, data[0:3], x=x,y=y
       tplot->setProperty, datax=x, datay=y
    end 
    
-   if n_data gt 4 && n_data le 12 then begin
+   if n_data gt 5 && n_data le 12 then begin
       foreach name, bottom_elements do begin
           gr = self->getbyname(name)
           gr.hide = 0

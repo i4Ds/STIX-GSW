@@ -21,6 +21,7 @@ function stx_fsw_vis_image, n_detectors=n_detectors
   return, { type                          : 'stx_fsw_vis_image', $
             relative_time_range           : dblarr(2), $ ; relative start and end time of integration in seconds
             energy_science_channel_range  : bytarr(2), $ ; [0,31]
+            total_flux                    : ulong64(0), $
             vis                           : replicate(stx_fsw_visibility(), n_detectors) $ ; one visibiliy per detector
           }
 end

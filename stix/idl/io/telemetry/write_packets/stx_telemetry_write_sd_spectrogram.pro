@@ -30,7 +30,7 @@ pro stx_telemetry_write_sd_spectrogram, xray_packet_structure, tmw=tmw, _extra=e
       exclude=exclude
 
     ; get number of energy bins
-    loop_E = fix(total(stx_mask2bits(packet.energy_bin_mask,mask_length=33, /reverse)))-1
+    loop_E =  max([1,((packet.energy_high + 1) - packet.energy_low) / (packet.energy_unit + 1)]);
     
     ; process the dynamic part of the subheader
     for data_idx = 0L, packet.NUMBER_SAMPLES-1 do begin
