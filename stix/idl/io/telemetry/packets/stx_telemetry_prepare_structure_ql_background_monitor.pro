@@ -85,6 +85,13 @@ function prepare_packet_structure_ql_background_monitor_write_fsw, ql_background
   
 
 
+
+  ; the energy_bin mask is converted to a number
+  ;packet.energy_bin_mask = stx_mask2bits(stx_energy_axis_to_mask(ql_background_monitor.energy_axis),mask_length=33)
+  ;number_energy_bins = n_elements(ql_background_monitor.energy_axis.LOW_FSW_IDX)
+
+
+
   ; number of structures
   packet.number_of_triggers = n_elements(ql_background_monitor.TIME_AXIS.duration)
   packet.dynamic_nbr_of_data_points = n_elements(ql_background_monitor.TIME_AXIS.duration)

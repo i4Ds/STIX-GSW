@@ -970,6 +970,12 @@ function stx_flight_software_simulator::_execute_stx_fsw_module_coarse_flare_loc
 
  previous_location  = exist(previous_location_str) ? [previous_location_str.x_pos[0],previous_location_str.y_pos[0]] : [0,0]
 
+  flare_flag = self->_read_data(product_type='stx_fsw_m_flare_flag', /most_n_recent)
+
+  previous_location_str = self->_read_data(product_type='stx_fsw_m_coarse_flare_location', /most_n_recent)
+
+ previous_location  = exist(previous_location_str) ? [previous_location_str.x_pos[0],previous_location_str.y_pos[0]] : [0,0]
+
   cfl_in = { $
     background        :   background, $
     ql_cfl1_acc       :   ql_flare_location_accumulator_1, $
@@ -988,6 +994,10 @@ function stx_flight_software_simulator::_execute_stx_fsw_module_coarse_flare_loc
   
   ;update the flare_flag due to modification within the cfl module
   flare_flag.flare_flag[0]=coarse_flare_location.flare_flag 
+  self->_write_data, product_type='stx_fsw_m_flare_flag', val=flare_flag,DO_INSERT=0,DO_UPDATE=1
+
+  ;update the flare_flag due to modification within the cfl module
+  flare_flag.flare_flag[0]=coarse_flare_location.flare_flag
   self->_write_data, product_type='stx_fsw_m_flare_flag', val=flare_flag,DO_INSERT=0,DO_UPDATE=1
 
   return, coarse_flare_location
