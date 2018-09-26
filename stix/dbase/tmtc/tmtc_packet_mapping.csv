@@ -20,3 +20,4 @@ pid,packet_category,service_type,service_subtype,sid,ssid,stx_tmtc_structure
 91,12,21,6,0,12,stx_tmtc_sd_xray_2
 91,12,21,6,0,13,stx_tmtc_sd_xray_3
 91,12,21,6,0,14,stx_tmtc_sd_spectrogram
+91,12,21,6,0,25,stx_tmtc_hc_trace
