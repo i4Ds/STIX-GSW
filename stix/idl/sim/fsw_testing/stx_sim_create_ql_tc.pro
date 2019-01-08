@@ -120,6 +120,10 @@ pm[*(sp_a.PIXEL_INDEX_LIST)]=1
  
 ;[SP] number of QL integrations
 cmd += ' {PIX00549 ' + trim(fix(qla.RESET_FREQUENCY_STX_FSW_QL_SPECTRA / global.BASE_FREQUENCY)) + '}' 
+
+;todo make dynamicly
+cmd += ' {PIX00919 10 }' 
+
 ;[SP] TM generation enabled flag
 cmd += ' {PIX00550 Enabled }' 
 ;[SP] pixel mask

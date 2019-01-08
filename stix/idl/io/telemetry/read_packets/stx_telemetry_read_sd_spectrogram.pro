@@ -66,7 +66,11 @@ function stx_telemetry_read_sd_spectrogram, solo_packet=solo_packet, tmr=tmr, _e
       ; dynamic_trigger: read 8 bits
       val = tmr->read(1, bits=8, debug=debug, silent=silent)
       (*sub.dynamic_trigger)[idx_T] = val
-
+      
+      ;read and ignore the number of energy bins loop_E is allready defindes by the energy binning
+      val = tmr->read(1, bits=8, debug=debug, silent=silent)
+      print, "loop_E: ", loop_E, " repeater_loop_e: ", val 
+      
       ; counts: read 8 bits each
       for idx_E = 0, loop_E -1 do begin
           val = tmr->read(1, bits=8, debug=debug, silent=silent)

@@ -287,7 +287,11 @@ function stx_fsw_ql_flare_locator, $
   dot_products = reform(dot_products, n_res, n_res) ; change dot_products to 65 x 65 matrix
 
   aa = where(dot_products eq max(dot_products), na) ; find maximum of dot_products
-  if na gt 1 then maxi = aa[round(na/2)] else maxi = aa ; if more than one pixel at maxiumum take average
+  if na gt 1 then begin
+    maxi = aa[round(na/2)] 
+  endif else begin
+    maxi = aa ; if more than one pixel at maxiumum take average
+  endelse
   jm = maxi mod n_res ;find where maximum is in x
   km = maxi/n_res ;find where maximum is in y
 

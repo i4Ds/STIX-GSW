@@ -1326,6 +1326,7 @@ pro stx_flight_software_simulator::getproperty, $
   stx_sim_calibrated_detector_eventlist=stx_sim_calibrated_detector_eventlist, $
   archive_buffer_leftovers=archive_buffer_leftovers, $
   triggerlist_leftovers=triggerlist_leftovers, $
+  active_detectors=active_detectors, $
   ;archive_buffer_total_counts=archive_buffer_total_counts, $
   ;flare_detection_context=flare_detection_context, $
   ;stx_fsw_m_noisy_detectors=stx_fsw_m_noisy_detectors, $
@@ -1345,6 +1346,7 @@ pro stx_flight_software_simulator::getproperty, $
   if(arg_present(reference_time)) then reference_time = (*self.internal_state).reference_time
   if(arg_present(relative_time)) then relative_time = (*self.internal_state).relative_time
   if(arg_present(time_bin_width)) then time_bin_width = (*self.internal_state).time_bin_width
+  if(arg_present(active_detectors)) then active_detectors = self->_pack_result("active_detectors")
 
   if(arg_present(stx_fsw_ql_lightcurve)) then stx_fsw_ql_lightcurve = self->_read_data(product_type='stx_fsw_ql_lightcurve', most_n_recent=most_n_recent, combine=combine, complete=complete, ignore_tags=ignore_tags)
   if(arg_present(stx_fsw_ql_lt_lightcurve)) then stx_fsw_ql_lt_lightcurve = self->_read_data(product_type='stx_fsw_ql_lightcurve_lt', most_n_recent=most_n_recent, combine=combine, complete=complete, ignore_tags=ignore_tags)
@@ -1767,9 +1769,6 @@ function stx_flight_software_simulator::_ivs, flare_ab, start_time=start_time, e
   ;outplot, replicate(start_time.value,2) , [1.8,1.9]
   ;outplot, replicate(end_time.value,2) , [1.8,1.9]
 
-  ;TODO N.H. remove later just for testing purposes
-  ;rcr_flare.rcr[14:20] = 1
-  ;rcr_flare.rcr[21:-1] = 2
 
   ivs_in = {archive_buffer        : flare_ab ,$
     start_time            : reference_time, $
