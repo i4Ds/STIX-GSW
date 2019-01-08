@@ -37,7 +37,7 @@ function stx_plotter::plot
         }
     endif
     
-    plot_obj = obj_new('utplot', xdata, ydata)
+    plot_obj = obj_new('utplot', xdata, ydata) ;trim
     plot_obj->set, dim1_ids=string(energy.e_min) + ' - ' + string(energy.e_max), $
         data_unit = plot_info.data_unit, id=plot_info.id
     

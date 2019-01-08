@@ -3,10 +3,10 @@
 ;       STIX
 ;
 ; :name:
-;       stx_l1_ql_background_structures
+;       stx_l05_ql_background_structures
 ;
 ; :purpose:
-;       Makes structures to store quick look l1 backgound TM and serialise to fits
+;       Makes structures to store quick look l05 backgound TM and serialise to fits
 ;
 ; :categories:
 ;       structures, telemetry
@@ -22,7 +22,7 @@
 ;    A dictionary containing the control and data structures
 ;
 ; :examples:
-;    structures = stx_l1_ql_background_structures(5, 10)
+;    structures = stx_l05_ql_background_structures(5, 10)
 ;    control_struc = structures.control
 ;    data_struc = structures.data
 ;
@@ -31,7 +31,7 @@
 ;
 ;-
 
-function stx_l1_ql_background_structures, n_energies, n_samples
+function stx_l05_ql_background_structures, n_energies, n_samples
 
   control_struc = { $
     integration_time : 0, $

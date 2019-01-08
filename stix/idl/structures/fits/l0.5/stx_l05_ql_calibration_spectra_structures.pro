@@ -3,7 +3,7 @@
 ;       STIX
 ;
 ; :name:
-;       stx_l1_ql_calibration_spectra_structures
+;       stx_l05_ql_calibration_spectra_structures
 ;
 ; :purpose:
 ;       Makes structures to store quick look l1 calbibration spectra TM and serialise to fits
@@ -19,7 +19,7 @@
 ;    A dictionary containing the control and data structures
 ;
 ; :examples:
-;    structures = stx_l1_ql_calibration_spectra_structures(32)
+;    structures = stx_l05_ql_calibration_spectra_structures(32)
 ;    control_struc = structures.control
 ;    data_struc = structures.data
 ;
@@ -28,7 +28,7 @@
 ;
 ;-
 
-function stx_l1_ql_calibration_spectra_structures, n_spec
+function stx_l05_ql_calibration_spectra_structures, n_spec
 
   control = { $
     detector_mask : bytarr(32), $

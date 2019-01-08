@@ -24,7 +24,7 @@
 ; :History: written 10-oct-2017
 
 ;-
-function stx_map2pixelabcd, source_map
+function stx_map2pixelabcd, source_map, svm=svm
 
   subc_str = stx_construct_subcollimator()
   svis = stx_construct_visibility( subc_str )
@@ -63,12 +63,12 @@ function stx_map2pixelabcd, source_map
   ;scale ptheta by ratio
   tptheta = total( ptheta, 1)
   ;normalize to 1
-  ptheta /= rebin( reform(  tptheta, 1, 30), 4, 30 )
+  ;ptheta /= rebin( reform(  tptheta, 1, 30), 4, 30 )
   ;scale to ratio
-  ptheta *= rebin( reform( ratio, 1, 30), 4, 30 )
+;  ptheta *= rebin( reform( ratio, 1, 30), 4, 30 )
   
-  max_p   = max( total( ptheta,1 ))
-  base    = (max_p - ratio)/4
-  ptheta  += rebin( reform( base, 1, 30), 4, 30)
+;  max_p   = max( total( ptheta,1 ))
+;  base    = (max_p - ratio)/4
+;  ptheta  += rebin( reform( base, 1, 30), 4, 30)
   return, ptheta
 end

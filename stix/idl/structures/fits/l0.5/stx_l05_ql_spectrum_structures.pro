@@ -3,7 +3,7 @@
 ;       STIX
 ;
 ; :name:
-;       stx_l1_ql_spectrum_structures
+;       stx_l05_ql_spectrum_structures
 ;
 ; :purpose:
 ;       Makes structures to store quick look l1 spectra TM and serialise to fits
@@ -19,7 +19,7 @@
 ;    A dictionary containing the control and data structures
 ;
 ; :examples:
-;    structures = stx_l1_ql_spectrum_structures(10)
+;    structures = stx_l05_ql_spectrum_structures(10)
 ;    control_struc = structures.control
 ;    data_struc = structures.data
 ;
@@ -28,7 +28,7 @@
 ;
 ;-
 
-function stx_l1_ql_spectrum_structures, n_samples
+function stx_l05_ql_spectrum_structures, n_samples
 
   control_struc = { $
     pixel_mask : bytarr(16), $

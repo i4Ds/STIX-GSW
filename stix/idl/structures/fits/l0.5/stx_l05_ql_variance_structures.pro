@@ -3,7 +3,7 @@
 ;       STIX
 ;
 ; :name:
-;       stx_l1_ql_variance_structures
+;       stx_l05_ql_variance_structures
 ;
 ; :purpose:
 ;       Makes structures to store quick look l1 variance TM and serialise to fits
@@ -19,7 +19,7 @@
 ;    A dictionary containing the control and data structures
 ;
 ; :examples:
-;    structures = stx_l1_ql_variance_structures(10)
+;    structures = stx_l05_ql_variance_structures(10)
 ;    control_struc = structures.control
 ;    data_struc = structures.data
 ;
@@ -28,7 +28,7 @@
 ;
 ;-
 
-function stx_l1_ql_variance_structures, n_variances
+function stx_l05_ql_variance_structures, n_variances
 
   control_struc = { $
     integration_time : 0.0, $
