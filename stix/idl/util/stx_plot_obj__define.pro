@@ -1,22 +1,48 @@
-function stx_plotter::init
+;+
+; :project:
+;       STIX
+;
+; :name:
+;      stx_plot_obj
+;
+; :purpose:
+;       Object supporting reading and plotting of SITX fits files
+;
+; :categories:
+;       pltotting, fits, io
+;
+; :keyword:
+;
+; :returns:
+;       Fits header data as string array
+;
+; :examples:
+;       
+;
+; :history:
+;       06-Dec-2018 – SAM (TCD) init
+;
+;-
+
+function stx_plot_obj::init
     compile_opt idl2
     
     return, 1
 end
 
-function stx_plotter::set_data, data
+function stx_plot_obj::set_data, data
     compile_opt idl2
     
     self.stx_data = ptr_new(data)
 end
 
-function stx_plotter::get_data
+function stx_plot_obj::get_data
     compile_opt idl2
 
     return, *self.stx_data
 end
 
-function stx_plotter::plot
+function stx_plot_obj::plot
     data = self->get_data()
 
     obs = data['count']
@@ -26,24 +52,35 @@ function stx_plotter::plot
     if have_tag(obs, 'background') then begin
         ydata = transpose(obs.background)
         plot_info = { $
-                id: 'Ql Background', $
-                data_unit: 'Counts' $ 
-            }
+            id: 'Ql Background', $
+            data_unit: 'Counts', $
+            plot_type: 'utplot' $
+        }
     endif else if have_tag(obs, 'counts') then begin
         ydata = transpose(obs.counts)
         plot_info = { $
             id: 'Ql Lightcurve', $
-            data_unit: 'Counts' $
+            data_unit: 'Counts', $
+            plot_type: 'utplot' $
         }
-    endif
+    endif else if have_tag(obs, 'variance') then begin
+        ydata = obs.variance
+        plot_info = { $
+            id: 'QL Variance', $
+            data_unit: 'Counts', $
+            plot_type: 'utplot' $
+        }
+    endif ;else if have_tag()
+    ;
+    ;endif
     
     plot_obj = obj_new('utplot', xdata, ydata) ;trim
-    plot_obj->set, dim1_ids=string(energy.e_min) + ' - ' + string(energy.e_max), $
+    plot_obj->set, dim1_ids=trim(energy.e_min) + ' - ' + trim(energy.e_max), $
         data_unit = plot_info.data_unit, id=plot_info.id
     
     ; Check if we have an plotman object if we do add panel if not create store
     if is_class(self.plotman_obj, 'PLOTMAN',/quiet) then begin
-        self.plotman_obj->new_panel, desc, /replace, input=plot_obj, $
+        self.plotman_obj->new_panel, desc=plot_info.id, /replace, input=plot_obj, $
             plot_type='utplot', _extra=extra
     endif else begin
         plot_obj->plotman, plotman_obj=plotman_obj
@@ -52,7 +89,7 @@ function stx_plotter::plot
         
 end
 
-function stx_plotter::read, filepath
+function stx_plot_obj::read, filepath
     reader_obj = fitsread(filename=filepath)
 
     obs_data = reader_obj->getdata(extension='rate')
@@ -62,10 +99,10 @@ function stx_plotter::read, filepath
                                        'energy', energy_data)) 
 end
 
-pro stx_plotter__define
+pro stx_plot_obj__define
     compile_opt idl2
 
-    define = {stx_plotter, $
+    define = {stx_plot_obj, $
         stx_data: ptr_new(), $
         plotman_obj: obj_new() $
     }

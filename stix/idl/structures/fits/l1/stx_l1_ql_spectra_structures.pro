@@ -3,7 +3,7 @@
 ;       STIX
 ;
 ; :name:
-;       stx_l05_ql_spectrum_structures
+;       stx_l1_ql_spectrum_structures
 ;
 ; :purpose:
 ;       Makes structures to store quick look l1 spectra TM and serialise to fits
@@ -27,22 +27,17 @@
 ;       02-May-2018 – SAM (TCD) init
 ;
 ;-
+function stx_l1_ql_spectra_structures, n_energies, n_times
 
-function stx_l05_ql_spectrum_structures, n_samples
+    energy = {CHANNEL: 0L, E_MIN: 0.0, E_MAX: 0.0}
 
-  control_struc = { $
-    pixel_mask : bytarr(16), $
-    integration_time : 0, $
-    compression_scheme_spec : intarr(3), $
-    compression_scheme_trigger : intarr(3) $
-  }
+    energies = replicate(energy, n_energies)
+    
+    count = {COUNTS: lonarr(32, 32), TRIGGERS: 0L, CHANNEL: lonarr(n_energies), $
+        DETECTOR_MASK: bytarr(32), TIME: 0.0d, TIMEDEL: 0.0}
 
-  data_struc = { $
-    detector_mask : bytarr(32), $
-    triggers : lonarr(32), $
-    spectrum : lonarr(32, 32) $
-  }
-
-  return, DICTIONARY('control', control_struc, 'data', replicate(data_struc, n_samples))
+    counts = replicate(count, n_times) 
+    
+    return, DICTIONARY('energy', energies, 'count', counts)
 
 end

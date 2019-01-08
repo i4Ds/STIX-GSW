@@ -3,10 +3,10 @@
 ;       STIX
 ;
 ; :name:
-;       stx_make_l2_header
+;       stx_make_l1_header
 ;
 ; :purpose:
-;       Creates l2 primary fits header
+;       Creates l1 primary fits header
 ;
 ; :categories:
 ;       telemetry, fits, io
@@ -38,7 +38,7 @@
 ;       02-May-2018 – SAM (TCD) init
 ;
 ;-
-function stx_make_l2_header, header = header, filename=filename, date_obs=date_obs, $
+function stx_make_l1_header, header = header, filename=filename, date_obs=date_obs, $
   history=history
 
   ;  fxhmake, header, /date, /init, /extend, errmsg = errmsg
@@ -145,7 +145,7 @@ function stx_make_l1_ql_lightcurve_fits, fits_path, base_directory
   
   date_obs = anytim(obt_beg, /ccsds)
   
-  primary_header = stx_make_l2_header(header=primary_header, filename=filename, date_obs=date_obs, $
+  primary_header = stx_make_l1_header(header=primary_header, filename=filename, date_obs=date_obs, $
     history='test')
   
   mwrfits, !NULL, fullpath, primary_header, /create, status=stat0
@@ -224,7 +224,7 @@ function stx_make_l1_ql_background_fits, fits_path, base_directory
 
   date_obs = anytim(obt_beg, /ccsds)
 
-  primary_header = stx_make_l2_header(header=primary_header, filename=filename, date_obs=date_obs, $
+  primary_header = stx_make_l1_header(header=primary_header, filename=filename, date_obs=date_obs, $
     history='test')
 
   mwrfits, !NULL, fullpath, primary_header, /create, status=stat0
@@ -301,7 +301,7 @@ function stx_make_l1_ql_variance_fits, fits_path, base_directory
 
   date_obs = anytim(obt_beg, /ccsds)
 
-  primary_header = stx_make_l2_header(header=primary_header, filename=filename, date_obs=date_obs, $
+  primary_header = stx_make_l1_header(header=primary_header, filename=filename, date_obs=date_obs, $
     history='test')
 
   mwrfits, !NULL, fullpath, primary_header, /create, status=stat0
@@ -321,10 +321,10 @@ end
 ;       STIX
 ;
 ; :name:
-;       stx_make_l2_ql_spectra_fits
+;       stx_make_l1_ql_spectra_fits
 ;
 ; :purpose:
-;       Takes l1 quick look spectra adds phyical axes and writes to a l2 fits file.
+;       Takes l0.5 quick look spectra adds phyical axes and writes to a l1 fits file.
 ;
 ; :categories:
 ;       telemetry, fits, io
@@ -337,13 +337,13 @@ end
 ;
 ;
 ; :examples:
-;       stx_make_l2_ql_spectra_fits(l1fitspath, 'data')
+;       stx_make_l1_ql_spectra_fits(l1fitspath, 'data')
 ;
 ; :history:
 ;       02-May-2018 – SAM (TCD) init
 ;
 ;-
-function stx_make_l2_ql_spectra_fits, fits_path, base_directory
+function stx_make_l1_ql_spectra_fits, fits_path, base_directory
   !null = mrdfits(fits_path, 0, primary_header)
   control = mrdfits(fits_path, 1, control_header)
   data = mrdfits(fits_path, 2, data_header)
@@ -355,17 +355,16 @@ function stx_make_l2_ql_spectra_fits, fits_path, base_directory
   ; ENERGY_BIN_MASK by definition doesnt contain last closing energy
   energies = stx_construct_energy_axis()
 
-  energy_structure = {CHANNEL: 0L, E_MIN: 0.0, E_MAX: 0.0}
-  energy_info = REPLICATE(energy_structure, 32)
+  structures = stx_l1_ql_spectra_structures(n_energies, n_times)
+
+  energy_info = structures['energy']
   energy_info.E_MIN = energies.low
   energy_info.E_MAX = energies.high
   energy_info.CHANNEL = lindgen(n_elements(energies.low))
 
-  rate_structure = {COUNTS: lonarr(32, 32), TRIGGERS: 0L, CHANNEL: lonarr(n_energies), DETECTOR_MASK: bytarr(32), TIME: 0.0d, TIMEDEL: 0.0}
-  rate_structure.CHANNEL = lonarr(n_energies)
-  rate_structure.TIMEDEL = control.INTEGRATION_TIME
-
-  rate_info = REPLICATE(rate_structure, n_times)
+  rate_info = structures['count']
+  rate_info.CHANNEL = lonarr(n_energies)
+  rate_info.TIMEDEL = control.INTEGRATION_TIME
   rate_info.COUNTS = data.SPECTRUM
   rate_info.DETECTOR_MASK = data.DETECTOR_MASK
   rate_info.TIME = relative_times
@@ -381,7 +380,7 @@ function stx_make_l2_ql_spectra_fits, fits_path, base_directory
 
   date_obs = anytim(obt_beg, /ccsds)
 
-  primary_header = stx_make_l2_header(header=primary_header, filename=filename, date_obs=date_obs, $
+  primary_header = stx_make_l1_header(header=primary_header, filename=filename, date_obs=date_obs, $
     history='test')
 
   mwrfits, !NULL, fullpath, primary_header, /create, status=stat0
@@ -400,7 +399,7 @@ end
 ;       STIX
 ;
 ; :name:
-;       stx_make_l2_ql_calibration_sepctra_fits
+;       stx_make_l1_ql_calibration_sepctra_fits
 ;
 ; :purpose:
 ;       Takes l1 quick look calibration spectra adds phyical axes and writes to a l2 fits file.
@@ -416,13 +415,13 @@ end
 ;
 ;
 ; :examples:
-;       stx_make_l2_ql_calibration_spectra_fits(l1fitspath, 'data')
+;       stx_make_l1_ql_calibration_spectra_fits(l1fitspath, 'data')
 ;
 ; :history:
 ;       02-May-2018 – SAM (TCD) init
 ;
 ;-
-function stx_make_l2_ql_calibration_spectra_fits, fits_path, base_directory
+function stx_make_l1_ql_calibration_spectra_fits, fits_path, base_directory
   !null = mrdfits(fits_path, 0, primary_header)
   control = mrdfits(fits_path, 1, control_header)
   data = mrdfits(fits_path, 2, data_header)
@@ -457,7 +456,7 @@ end
 ;       02-May-2018 – SAM (TCD) init
 ;
 ;-
-function stx_make_l2_ql_flareflag_location_fits, fits_path, base_directory
+function stx_make_l1_ql_flareflag_location_fits, fits_path, base_directory
   !null = mrdfits(fits_path, 0, primary_header)
   control = mrdfits(fits_path, 1, control_header)
   data = mrdfits(fits_path, 2, data_header)
@@ -467,28 +466,26 @@ function stx_make_l2_ql_flareflag_location_fits, fits_path, base_directory
 end
 
 pro stx_make_l1_ql_fits, base_directory
-  default, base_directory, concat_dir(concat_dir(concat_dir(getenv("SSW_STIX"), 'data'), 'l2'), 'quicklook')
-  l1_directory = concat_dir(concat_dir(concat_dir(getenv("SSW_STIX"), 'data'), 'l1'), 'quicklook')
+  default, base_directory, concat_dir(concat_dir(concat_dir(getenv("SSW_STIX"), 'data'), 'l1'), 'quicklook')
+  l05_directory = concat_dir(concat_dir(concat_dir(getenv("SSW_STIX"), 'data'), 'l0.5'), 'quicklook')
   
-  quicklook_types = FILE_SEARCH(l1_directory, '*', /TEST_DIRECTORY)
+  quicklook_types = FILE_SEARCH(l05_directory, '*', /TEST_DIRECTORY)
   foreach quicklook, quicklook_types do begin
     quicklook_files = FILE_SEARCH(quicklook, '*.fits')
     foreach ql_file, quicklook_files do begin
       if STRMATCH(ql_file, '*lightcurve*') then begin
-        ;res = stx_make_l1_ql_lightcurve_fits(ql_file, base_directory)
+        res = stx_make_l1_ql_lightcurve_fits(ql_file, base_directory)
       endif else if STRMATCH(ql_file, '*background*') then begin
-        ;res = stx_make_l1_ql_background_fits(ql_file, base_directory)
+        res = stx_make_l1_ql_background_fits(ql_file, base_directory)
       endif else if STRMATCH(ql_file, '*variance*') then begin
-        ;res = stx_make_l1_ql_variance_fits(ql_file, base_directory)
+        res = stx_make_l1_ql_variance_fits(ql_file, base_directory)
       endif else if STRMATCH(ql_file, '*spectra*') && ~STRMATCH(ql_file, '*_spectra*') then begin
         res = stx_make_l1_ql_spectra_fits(ql_file, base_directory)
       endif else if STRMATCH(ql_file, '*calibration_spectra*') then begin
-        ;res = stx_make_l1_ql_calibration_spectra_fits(ql_file, base_directory)
+        res = stx_make_l1_ql_calibration_spectra_fits(ql_file, base_directory)
       endif else if STRMATCH(ql_file, '*flareflag*') then begin
-        ;res = stx_make_l1_ql_flareflag_location_fits(ql_file, base_directory)
+        res = stx_make_l1_ql_flareflag_location_fits(ql_file, base_directory)
       endif
     endforeach
   endforeach
-
-  
 end

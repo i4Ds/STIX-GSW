@@ -243,7 +243,7 @@ function stx_make_l05_ql_calibraion_spectra_fits, tm_reader, base_directory
   obt_end = obt_beg + unprocessed_calspec.DURATION
 
   ; TODO allways 8 sub sepectra or use sub_spectra_mask
-  strucures = stx_l1_ql_calibration_spectra_structures(8)
+  strucures = stx_l05_ql_calibration_spectra_structures(8)
   control_struc = strucures.control
   data_struc  = strucures.data
 
@@ -386,7 +386,7 @@ function stx_make_l05_ql_spectra_fits, tm_reader, base_directory
   stx_km_compression_schema_to_params, unprocessed_spec.COMPRESSION_SCHEMA_TRIGGER, k=tr_k, m=tr_m, s=tr_s
 
   ; TODO Why is the number of spectra in processed and unproccesed different?
-  structures = stx_l05_ql_spectrum_structures((size(processed_spec[0].spectrum, /dim))[-1])
+  structures = stx_l05_ql_spectra_structures((size(processed_spec[0].spectrum, /dim))[-1])
   control_struc = structures.control
   data_struc = structures.data
 
@@ -516,7 +516,7 @@ function stx_make_l05_ql_flareflag_location_fits, tm_reader, base_directory
   obt_beg = stx_time2any(obt_beg)
   obt_end = obt_beg + integration_time
 
-  structures = stx_l1_ql_flare_flag_location(unprocessed_fl.NUMBER_OF_SAMPLES)
+  structures = stx_l05_ql_flare_flag_location(unprocessed_fl.NUMBER_OF_SAMPLES)
   control_struc = structures.control
   data_struc = structures.data
 
