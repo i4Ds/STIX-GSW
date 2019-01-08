@@ -35,7 +35,9 @@ pro stx_sim_fsw_prep, test_name, sequence_name, configuration_file=configuration
   dss->set, /stop_on_error
   dss->set, math_error_level=0
   dss->set, ds_seed=seed
-  result = dss->getdata(scenario_file=concat_dir(getenv('STX_FSW'), concat_dir('rnd_seq_testing', sequence_name + '.csv')), seed=seed)
+  fname = concat_dir(getenv('STX_FSW'), concat_dir('rnd_seq_testing', sequence_name + '.csv'))
+  
+  result = dss->getdata(scenario_file = fname, seed=seed)
 
   ; copy sequence definition over
   file_copy, concat_dir(getenv('STX_FSW'), concat_dir('rnd_seq_testing', sequence_name + '.csv')), sequence_name, /overwrite

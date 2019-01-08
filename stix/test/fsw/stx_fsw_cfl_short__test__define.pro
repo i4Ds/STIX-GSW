@@ -84,6 +84,8 @@ pro stx_fsw_cfl_short__test::beforeclass
   openw, lun, "test_custom.tcl"
   printf, lun, 'syslog "running custom script for CFL test"'
   printf, lun, 'source [file join [file dirname [info script]] "TC_237_7_16_SkyTab.tcl"]'
+  printf, lun, 'TURN OFF RCR'
+  printf, lun, 'execTC "ZIX37010  {PIX00401 Disabled}  {PIX00402 4095} {PIX00403 8191} {PIX00404 7951} {PIX00405 4351} {PIX00406 6671} {PIX00407 5391} {PIX00408 4271} {PIX00409 4191} {PIX00410 6159} {PIX00411 5135} {PIX00412 4623} {PIX00413 4367} {PIX00414 4239} {PIX00415 4175} {PIX00416 4143} {PIX00417 4127} {PIX00418 4111} {PIX00419 4106} {PIX00420 4101} {PIX00421 4104} {PIX00422 4100} {PIX00423 4098} {PIX00424 4097} {PIX00425 8191} {PIX00426 2031} {PIX00427 1487} {PIX00428 1487} {PIX00429 1487} {PIX00430 1487} {PIX00431 1487} {PIX00432 1487} {PIX00433 65535} {PIX00434 350} {PIX00435 700} {PIX00436 1050} {PIX00437 1400} {PIX00438 2000} {PIX00439 0} {PIX00440 1} {PIX00441 2} {PIX00442 3} {PIX00443 4} {PIX00444 5} {PIX00445 6} {PIX00446 7}"'
   free_lun, lun
   
   lc =  total(ql_lightcurve.counts,1)
@@ -342,10 +344,18 @@ pro stx_fsw_cfl_short__test::_value_location, x, y, t_shift, title
    sy1 = ssize1 * sin( points )
    sx1 = ssize1 * cos( points )
 
-   p = plot(x_true, y_true, symbol ='*', line = ' ', xrange = [-66,66], yrange =[-66,66], dimensions = [600,600], title=title)
-   p = plot(sxp, syp, /over)
-   p = plot(sx1, sy1, /over)
-   p = plot(x,y, symbol ='D', line = ' ', /over, sym_thick = 2, rgb_table = 3, vert_colors = findgen(24)/34.*255)
+   p = plot(x_true, y_true, symbol ='*', line = '-', xrange = [-66,66], yrange =[-66,66], dimensions = [600,600], title=title)
+   p = plot(sxp, syp, /over, line = ':')
+   p = plot(sx1, sy1, /over, line = ':')
+   p = plot(x,y, symbol ='D', line = '-', /over, sym_thick = 2, rgb_table = 3, vert_colors = findgen(24)/34.*255)
+   
+   p1 = plot(indgen(t_bins), x_true, symbol ='*', line = '-', COLOR="b", title=title, NAME="X-True", dimensions = [1200,600])
+   p2 = plot(indgen(t_bins), y_true, symbol ='*', line = '-', COLOR="r", NAME="Y-True", /over )
+   p3 = plot(indgen(t_bins)*1.5, x, symbol ='*', line = ':', COLOR="b", NAME="X", /over)
+   p4 = plot(indgen(t_bins)*1.5, y, symbol ='*', line = ':', COLOR="r", NAME="Y", /over )
+   
+   leg = LEGEND(TARGET=[p1,p2,p3,p4], /AUTO_TEXT_COLOR)
+   
 
  endif
     

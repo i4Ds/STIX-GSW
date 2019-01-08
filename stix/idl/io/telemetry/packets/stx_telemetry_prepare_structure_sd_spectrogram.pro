@@ -60,56 +60,56 @@ function prepare_packet_structure_sd_spectrogram_write_fsw, $
 
   ; there is no outer loop as we only have one subpack/subheader
 
-    ; create a subheader packet
-    sub_packet = stx_telemetry_packet_structure_sd_spectrogram_subheader()
+  ; create a subheader packet
+  sub_packet = stx_telemetry_packet_structure_sd_spectrogram_subheader()
 
-    ; fill in the subheader data
-    sub_packet.pixel_mask = stx_mask2bits(L1_SPC_COMBINED_ARCHIVE_BUFFER_GROUPED[0].pixel_mask)
-    sub_packet.number_samples = (size(L1_SPC_COMBINED_ARCHIVE_BUFFER_GROUPED))[1]
-    sub_packet.detector_mask=stx_mask2bits(L1_SPC_COMBINED_ARCHIVE_BUFFER_GROUPED[0].detector_mask,mask_length=32)
-    
-    ;only full spectra at the moment
- 
-    sub_packet.energy_low = 0
-    sub_packet.energy_high = 31
-    sub_packet.energy_unit = 0
-    sub_packet.rcr = L1_SPC_COMBINED_ARCHIVE_BUFFER_GROUPED[0].rcr
-   
+  ; fill in the subheader data
+  sub_packet.pixel_mask = stx_mask2bits(L1_SPC_COMBINED_ARCHIVE_BUFFER_GROUPED[0].pixel_mask)
+  sub_packet.number_samples = (size(L1_SPC_COMBINED_ARCHIVE_BUFFER_GROUPED))[1]
+  sub_packet.detector_mask=stx_mask2bits(L1_SPC_COMBINED_ARCHIVE_BUFFER_GROUPED[0].detector_mask,mask_length=32)
 
-  
-    message, 'INFO: no energy_bin_mask out of stx_fsw_spc_data_time_group yet.', /INFO
-    sub_packet.closing_time_offset = fix(round(stx_time_diff(L1_SPC_COMBINED_ARCHIVE_BUFFER_GROUPED[-1].END_TIME, start_time)*10))
-    
-    ; get number of energy bins
-    loop_E =  max([1,((sub_packet.energy_high + 1) - sub_packet.energy_low) / (sub_packet.energy_unit + 1)]);
+  ;only full spectra at the moment
 
-    ; initialize pointer and prepare arrays for dynamic content
-    sub_packet.dynamic_delta_time = ptr_new(uintarr(sub_packet.number_samples))
-    sub_packet.dynamic_trigger = ptr_new(uintarr(sub_packet.number_samples))
-    sub_packet.dynamic_counts = ptr_new(uintarr(loop_E,sub_packet.number_samples))
-    
-    ; fill dynamic part
-    time_idx = 0L
-    foreach time_bin, L1_SPC_COMBINED_ARCHIVE_BUFFER_GROUPED do begin
-      
-      time_delta = stx_time_diff(time_bin.START_TIME, start_time)*10
-      (*sub_packet.dynamic_delta_time)[time_idx] = fix(round(time_delta))
-      
-      (*sub_packet.dynamic_trigger)[time_idx] = stx_km_compress(total(time_bin.trigger,/PRESERVE),$
-        compression_param_k_t, compression_param_m_t, compression_param_s_t)
-      
-      for idx_E=0L, loop_E-1 do begin
-        (*sub_packet.dynamic_counts)[idx_E,time_idx]=stx_km_compress(time_bin.intervals[idx_E].counts,$
-          compression_param_k_acc, compression_param_m_acc, compression_param_s_acc)        
-      endfor
-      
-      ; increment time_idx
-      time_idx ++
-      
-    endforeach
-    
-    ; add science data
-    science_data.add, sub_packet
+  sub_packet.energy_low = 0
+  sub_packet.energy_high = 31
+  sub_packet.energy_unit = 0
+  sub_packet.rcr = L1_SPC_COMBINED_ARCHIVE_BUFFER_GROUPED[0].rcr
+
+
+
+  message, 'INFO: no energy_bin_mask out of stx_fsw_spc_data_time_group yet.', /INFO
+  sub_packet.closing_time_offset = fix(round(stx_time_diff(L1_SPC_COMBINED_ARCHIVE_BUFFER_GROUPED[-1].END_TIME, start_time)*10))
+
+  ; get number of energy bins
+  loop_E =  max([1,((sub_packet.energy_high + 1) - sub_packet.energy_low) / (sub_packet.energy_unit + 1)]);
+
+  ; initialize pointer and prepare arrays for dynamic content
+  sub_packet.dynamic_delta_time = ptr_new(uintarr(sub_packet.number_samples))
+  sub_packet.dynamic_trigger = ptr_new(uintarr(sub_packet.number_samples))
+  sub_packet.dynamic_counts = ptr_new(uintarr(loop_E,sub_packet.number_samples))
+
+  ; fill dynamic part
+  time_idx = 0L
+  foreach time_bin, L1_SPC_COMBINED_ARCHIVE_BUFFER_GROUPED do begin
+
+    time_delta = stx_time_diff(time_bin.START_TIME, start_time)*10
+    (*sub_packet.dynamic_delta_time)[time_idx] = fix(round(time_delta))
+
+    (*sub_packet.dynamic_trigger)[time_idx] = stx_km_compress(total(ulong64(time_bin.trigger),/PRESERVE),$
+      compression_param_k_t, compression_param_m_t, compression_param_s_t)
+
+    for idx_E=0L, loop_E-1 do begin
+      (*sub_packet.dynamic_counts)[idx_E,time_idx]=stx_km_compress(time_bin.intervals[idx_E].counts,$
+        compression_param_k_acc, compression_param_m_acc, compression_param_s_acc)
+    endfor
+
+    ; increment time_idx
+    time_idx ++
+
+  endforeach
+
+  ; add science data
+  science_data.add, sub_packet
 
   ;assign science_data to packet
   packet.dynamic_subheaders = ptr_new(science_data)
@@ -210,7 +210,7 @@ pro stx_telemetry_prepare_structure_sd_spectrogram_write, $
         ; update all packet data field lengths
         solo_slices[-1].pkg_word_width.source_data = source_data.pkg_word_width.pkg_total_bytes_fixed * 8
         solo_slices[-1].data_field_length = source_data.pkg_word_width.pkg_total_bytes_fixed
-        
+
         ; add 9 (not 10?) bytes for TM Packet Data Header that is otherwise not accounted for
         solo_slices[-1].data_field_length += 9
 
@@ -269,7 +269,7 @@ pro stx_telemetry_prepare_structure_sd_spectrogram_write, $
           new_subpacket.closing_time_offset = subpacket.closing_time_offset
         endif else begin
           ; closing time offset in case we have to split this run
-          new_subpacket.closing_time_offset = (*subpacket.dynamic_delta_time)[time_idx]      
+          new_subpacket.closing_time_offset = (*subpacket.dynamic_delta_time)[time_idx]
         endelse
 
         ; add created subheader to packet list
@@ -312,26 +312,26 @@ pro stx_telemetry_prepare_structure_sd_spectrogram_read, fsw_spc_data_time_group
   ; start time as stx_time
   stx_telemetry_util_time2scet,coarse_time=(*solo_slices[0].source_data).coarse_time, $
     fine_time=(*solo_slices[0].source_data).fine_time, stx_time_obj=t0, /reverse
-  
+
   ; use starting time and duration as unique identifier per time bin
   not_first = 0
 
   interval_entry = stx_fsw_spc_data()
-  
-  
+
+
   ; loop through all solo_slices
   foreach solo_packet, solo_slices do begin
 
     ; loop through all subheaders
     foreach subheader, (*(*solo_packet.source_data).dynamic_subheaders) do begin
 
-        loop_E =  max([1,((subheader.energy_high + 1) - subheader.energy_low) / (subheader.energy_unit + 1)]);
-        pixel_mask = subheader.pixel_mask
-        detector_mask = subheader.detector_mask
-        rcr = subheader.rcr
-        
-        energy_bin_mask = BYTARR(33)
-        
+      loop_E =  max([1,((subheader.energy_high + 1) - subheader.energy_low) / (subheader.energy_unit + 1)]);
+      pixel_mask = subheader.pixel_mask
+      detector_mask = subheader.detector_mask
+      rcr = subheader.rcr
+
+      energy_bin_mask = BYTARR(33)
+
       ; create a new list entry for each time bin
       for time_idx=0L, subheader.number_samples -1 do begin
 
@@ -362,23 +362,23 @@ pro stx_telemetry_prepare_structure_sd_spectrogram_read, fsw_spc_data_time_group
           end_time = stx_time_add(t0, seconds=(*subheader.dynamic_delta_time)[time_idx+1]/10.0d)
         endelse
         relative_time[1] = stx_telemetry_util_relative_time(end_time)
-        
+
         ; decompress trigger information
         trigger = stx_km_decompress((*subheader.dynamic_trigger)[time_idx], $
           compression_param_k_t, compression_param_m_t, compression_param_s_t)
 
         ; create interval array
         interval_column = replicate(interval_entry, loop_E)
-        
-        
-        
+
+
+
         ; loop through all energies
         for i=0, loop_E-1  do begin
           interval_column[i].energy_science_channel_range[0] = subheader.energy_low + (i * (subheader.energy_unit+1))
           interval_column[i].energy_science_channel_range[1] = min([32,subheader.energy_low + ((i + 1) * (subheader.energy_unit+1))])
           energy_bin_mask[interval_column[i].energy_science_channel_range[0]] = 1
           energy_bin_mask[interval_column[i].energy_science_channel_range[1]] = 1
-          
+
           interval_column[i].counts = stx_km_decompress((*subheader.dynamic_counts)[i,time_idx], $
             compression_param_k_acc, compression_param_m_acc, compression_param_s_acc)
           interval_column[i].relative_time_range = relative_time

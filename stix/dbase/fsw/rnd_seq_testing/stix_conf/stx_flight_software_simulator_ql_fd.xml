@@ -173,7 +173,7 @@
 		<parameter name="bkg_weigths" default="[0,1,0,0,0]" valid="total(X ge 0) eq 5" type="int_array">
 			<description>Weights on the background determinations.</description>
 		</parameter>
-		<parameter name="out_of_range_factor" default="800" valid="X gt 0" type="int">
+		<parameter name="out_of_range_factor" default="255" valid="X gt 0" type="int">
 			<description>Parameter used to determine if flare is out of range by comparing the counts in the 4 quadrants.</description>
 		</parameter>
 		<parameter name="tot_bk_factor" default="10" valid="ppl_xml_value_in_interval_test(X,[1,80])" type="int">
