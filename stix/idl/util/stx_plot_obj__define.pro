@@ -49,6 +49,8 @@ function stx_plot_obj::plot
     energy = data['energy']
     
     xdata = obs.time
+    
+    ; Should probably either split on fileanme or tag, tags alone are not unique, lc and specta
     if have_tag(obs, 'background') then begin
         ydata = transpose(obs.background)
         plot_info = { $
@@ -56,13 +58,28 @@ function stx_plot_obj::plot
             data_unit: 'Counts', $
             plot_type: 'utplot' $
         }
-    endif else if have_tag(obs, 'counts') then begin
-        ydata = transpose(obs.counts)
-        plot_info = { $
-            id: 'Ql Lightcurve', $
-            data_unit: 'Counts', $
-            plot_type: 'utplot' $
-        }
+    endif else if have_tag(obs, 'counts') then begin 
+        n_dimms = size(obs.counts, /n_d)
+        ; 2d lightcurve
+        if n_dimms eq 2 then begin
+            ydata = transpose(obs.counts)
+            plot_info = { $
+                id: 'Ql Lightcurve', $
+                data_unit: 'Counts', $
+                plot_type: 'utplot' $
+            }
+        ; 3d spectrogram
+        endif else if n_dimms eq 3 then begin
+            ydata = transpose(obs.counts)
+            
+            ;TODO Currently summing over detectors need to plot each and give option to sum 
+            ydata = total(ydata, 2)
+            plot_info = { $
+                id: 'Ql Spectra', $
+                data_unit: 'Energy', $
+                plot_type: 'specplot' $
+            }
+        endif
     endif else if have_tag(obs, 'variance') then begin
         ydata = obs.variance
         plot_info = { $
@@ -70,13 +87,13 @@ function stx_plot_obj::plot
             data_unit: 'Counts', $
             plot_type: 'utplot' $
         }
-    endif ;else if have_tag()
-    ;
-    ;endif
+    endif
     
-    plot_obj = obj_new('utplot', xdata, ydata) ;trim
-    plot_obj->set, dim1_ids=trim(energy.e_min) + ' - ' + trim(energy.e_max), $
-        data_unit = plot_info.data_unit, id=plot_info.id
+    edge_products, reform([energy.e_min, energy.e_max], 2, n_elements(energy.e_min)), mean=mean_energy 
+    
+    plot_obj = obj_new(plot_info.plot_type, xdata, ydata) ;trim
+    plot_obj->set, dim1_ids=trim(energy.e_min) + ' - ' + trim(energy.e_max) + 'keV', $
+        data_unit = plot_info.data_unit, id=plot_info.id, dim1_vals=mean_energy
     
     ; Check if we have an plotman object if we do add panel if not create store
     if is_class(self.plotman_obj, 'PLOTMAN',/quiet) then begin
