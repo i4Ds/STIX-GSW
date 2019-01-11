@@ -47,7 +47,7 @@
 			<description>This is a file path to the flare intensity lookup table.</description>
 		</parameter>
 	</section>
-	<section name="stx_fsw_module_quicklook_accumulation" alias="qla">
+		<section name="stx_fsw_module_quicklook_accumulation" alias="qla">
 		<description>This module accumulates quicklook data.</description>
 		<link>https://www.dropbox.com/s/36euy58cy7et9c1/AccumulatorList.xlsx</link>
 		<parameter name="reset_frequency_stx_fsw_ql_spectra" default="32" valid="X gt 0" type="int">
@@ -55,5 +55,5 @@
 			<unit>seconds</unit>
 			<value>4</value>
 		</parameter>
-	</section>
+			</section>
 </configuration>

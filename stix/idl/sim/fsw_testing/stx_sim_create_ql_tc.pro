@@ -16,9 +16,8 @@ pro stx_sim_create_ql_tc, conf
   
   qld = stx_fsw_ql_accumulator_table2struct(qla.ACCUMULATOR_DEFINITION_FILE)
 
-   printf, lun, 'syslog "set ql params: tc(237,9)"'
-
-
+  printf, lun, 'source D:\\Tools\\scripts\\procedures.tcl'
+  printf, lun, 'syslog "set ql params: tc(237,9)"'
 
   cmd = 'execTC "ZIX37009 '
   
@@ -151,8 +150,7 @@ cmd += ' {PIX00557 ' + trim(dmo.NBAD < 15) + '}'
 cmd += ' {PIX00558 ' + trim(dmo.KBAD < 15) + '}' 
 ;[DF] RBAD parameter
 cmd += ' {PIX00559 ' + trim(dmo.RBAD < 15) + '}' 
-;[DF] NREP parameter
-;todo n.h. MBAD = NREP?
+;[DF] NREP parameter = MBAD
 cmd += ' {PIX00560 ' + trim(dmo.MBAD < 15) + '}' 
 
 
@@ -275,11 +273,11 @@ cmd += ' {PIX00605 ' + trim(CFL.quad_bk_factor) + '}'
 ;[FL] K-triple prime variable
 cmd += ' {PIX00606 ' + trim(CFL.cfl_bk_factor) + '}' 
 ;[FL] K0 variable
-cmd += ' {PIX00607 ' + trim(CFL.normalisation_factor[0]) + '}' 
+cmd += ' {PIX00607 ' + trim(ceil(CFL.normalisation_factor[0])) + '}' 
 ;[FL] K1 variable
-cmd += ' {PIX00608 ' + trim(CFL.normalisation_factor[1]) + '}' 
+cmd += ' {PIX00608 ' + trim(ceil(CFL.normalisation_factor[1])) + '}' 
 ;[FL] K2 variable
-cmd += ' {PIX00609 ' + trim(CFL.normalisation_factor[2]) + '}' 
+cmd += ' {PIX00609 ' + trim(ceil(CFL.normalisation_factor[2])) + '}' 
 
 tab_data = stx_cfl_read_skyvec(cfl.CFL_LUT, sky_x = sky_x, sky_y = sky_y)
 

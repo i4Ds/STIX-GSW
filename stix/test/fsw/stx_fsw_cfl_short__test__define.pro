@@ -20,7 +20,7 @@ function stx_fsw_cfl_short__test::init, _extra=extra
 
   self.sequence_name = 'stx_scenario_cfl_short_test'
   self.test_name = 'AX_QL_TEST_CFL'
-  self.configuration_file = 'stx_flight_software_simulator_ql_fd.xml'
+  self.configuration_file = 'stx_flight_software_simulator_default.xml'
   self.offset_gain_table = "" ;use default
   self.delay = 20 / 4 
 

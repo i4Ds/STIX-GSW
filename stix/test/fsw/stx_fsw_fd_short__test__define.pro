@@ -30,6 +30,17 @@
 ;-
 
 
+
+function stx_fsw_fd_short__test::init, _extra=extra
+
+  self.sequence_name = 'stx_scenario_flare_detection_short_test'
+  self.test_name = 'AX_QL_TEST_FD'
+  self.configuration_file = 'stx_flight_software_simulator_ql_fd.xml'
+  setenv, 'WRITE_CALIBRATION_SPECTRUM=false'
+
+  return, self->stx_fsw__test::init(_extra=extra)
+end
+
 ;+
 ;
 ; :description:
@@ -610,35 +621,130 @@ end
 
 pro stx_fsw_fd_short__test::beforeclass
 
-  path = "D:\Temp\v20170123\AX_QL_TEST_FD\"
-
-  restore, filename=concat_dir(path, "fsw_conf.sav"), /verb
-
-  self.conf = confManager
-  
-  
-  restore, filename=concat_dir(path, "fsw.sav"), /verb
-  self.fsw    = fsw
-  
-  ;fsw-simulator: ql_tmtc.bin
-  ;AX: D1-2_AX_20180321_1400.bin
-  self.tmtc_reader = stx_telemetry_reader(filename = concat_dir(path, "ql_tmtc.bin"), /scan_mode, /merge_mode)
-  self.tmtc_reader->getdata, statistics = statistics
-  self.statistics = statistics
-
+  self->stx_fsw__test::beforeclass
 
   self.exepted_range = 0.05
   self.plots = list()
-  self.show_plot = 0
+  self.show_plot = 1
+
+
+  self.fsw->getproperty, stx_fsw_ql_lightcurve=lightcurve, /complete, /combine
+
+  lc =  total(lightcurve.accumulated_counts,1)
+  start = min(where(lc gt 100))
+  self.t_shift_sim = start
   
+  
+  if self.show_plot then begin
+    lc_plot = obj_new('stx_plot')
+   
+    a = lc_plot.create_stx_plot(stx_construct_lightcurve(from=lightcurve), /lightcurve, /add_legend, title="Sim Lightcurve Plot", ylog=1)
+   
+    self.plots->add, lc_plot
+  endif
+
+  if ~file_exist('ax_tmtc.bin') then begin
+    tmtc_data = {$
+      QL_LIGHT_CURVES : 1, $
+      QL_FLARE_FLAG_LOCATION : 1 $
+    }
+
+    print, self.fsw->getdata(output_target="stx_fsw_tmtc", filename='ax_tmtc.bin', _extra=tmtc_data)
+  end
+
+
+  self.tmtc_reader = stx_telemetry_reader(filename = "ax_tmtc.bin", /scan_mode, /merge_mode)
+  self.tmtc_reader->getdata, statistics = statistics
+  self.statistics = statistics
+
   self.tmtc_reader->getdata, asw_ql_lightcurve=ql_lightcurves,  solo_packet=solo_packets
-  ql_lightcurve = ql_lightcurves[0]
+  ql_lightcurve = stx_construct_lightcurve(from=ql_lightcurves[0])
   
-  
+  if self.show_plot then begin
+    lc_plot2 = obj_new('stx_plot')
     
-  self.t_shift = min(where(total(ql_lightcurve.counts,1) gt 0))
-  
-  v = stx_offset_gain_reader("offset_gain_table.csv", directory = concat_dir(path, "stix_conf\") , /reset)
+   
+    
+    a = lc_plot2.create_stx_plot(ql_lightcurve, /lightcurve, /add_legend, title="AX Lightcurve Plot", ylog=1)
+   
+    self.plots->add, lc_plot2
+    
+    
+    self.tmtc_reader->getdata, fsw_m_coarse_flare_locator=flare_locator_blocks, fsw_m_flare_flag=flare_flag_blocks, solo_packets=sp
+
+    coarse_flare_location = flare_locator_blocks[0]
+    flare_flag = flare_flag_blocks[0]
+    
+    rate_control = { $
+      type      : "rcr" , $
+      rcr       : ql_lightcurves[0].RATE_CONTROL_REGIME, $
+      time_axis : ql_lightcurve.time_axis $
+    }
+    
+    state_plot_object = obj_new('stx_state_plot')
+
+
+    current_time = isa(flare_flag) ? flare_flag.time_axis.time_start[-1] : rate_control.time_axis.time_start[-1]
+    state_plot_start_time = isa(flare_flag) ? flare_flag.time_axis.time_start[0] : rate_control.time_axis.time_start[0]
+
+    state_plot_object.plot, flare_flag=flare_flag, rate_control=rate_control, current_time=current_time, $
+      start_time=state_plot_start_time, coarse_flare_location=coarse_flare_location, dimensions=[1260,350], /add_legend, current_window = window()
+
+    self.plots->add, state_plot_object
+    
+  endif
+
+
+  stx_sim_create_rcr_tc, self.conf
+
+  default, directory , getenv('STX_DET')
+  default, og_filename, 'offset_gain_table.csv'
+  default, eb_filename, 'EnergyBinning20150615.csv'
+
+  stx_sim_create_elut, og_filename=og_filename, eb_filename=eb_filename, directory = directory
+
+  stx_sim_create_ql_tc, self.conf
+
+  get_lun,lun
+  openw, lun, "test_custom.tcl"
+  printf, lun, 'syslog "running custom script for CFL test"'
+  printf, lun, 'source [file join [file dirname [info script]] "TC_237_10_RCR.tcl"]'
+  free_lun, lun
+
+
+  lc =  total(ql_lightcurve.DATA,1)
+  start = min(where(lc gt 100))
+  self.t_shift = start
+
+
+;  path = "D:\Temp\v20170123\AX_QL_TEST_FD\"
+;
+;  restore, filename=concat_dir(path, "fsw_conf.sav"), /verb
+;
+;  self.conf = confManager
+;  
+;  
+;  restore, filename=concat_dir(path, "fsw.sav"), /verb
+;  self.fsw    = fsw
+;  
+;  ;fsw-simulator: ql_tmtc.bin
+;  ;AX: D1-2_AX_20180321_1400.bin
+;  self.tmtc_reader = stx_telemetry_reader(filename = concat_dir(path, "ql_tmtc.bin"), /scan_mode, /merge_mode)
+;  self.tmtc_reader->getdata, statistics = statistics
+;  self.statistics = statistics
+;
+;
+;  self.exepted_range = 0.05
+;  self.plots = list()
+;  self.show_plot = 0
+;  
+;  self.tmtc_reader->getdata, asw_ql_lightcurve=ql_lightcurves,  solo_packet=solo_packets
+;  ql_lightcurve = ql_lightcurves[0]
+; 
+;    
+;  self.t_shift = min(where(total(ql_lightcurve.counts,1) gt 0))
+;  
+;  v = stx_offset_gain_reader("offset_gain_table.csv", directory = concat_dir(path, "stix_conf\") , /reset)
 
 end
 
@@ -651,35 +757,11 @@ pro stx_fsw_fd_short__test::afterclass
   destroy, self.tmtc_reader
 end
 
-;+
-; cleanup after each test case
-;-
-pro stx_fsw_fd_short__test::after
-
-
-end
-
-;+
-; init before each test case
-;-
-pro stx_fsw_fd_short__test::before
-
-
-end
-
 
 pro stx_fsw_fd_short__test__define
   compile_opt idl2, hidden
 
   void = { $
     stx_fsw_fd_short__test, $
-    fsw    : obj_new(), $
-    conf : obj_new(), $
-    tmtc_reader : obj_new(), $
-    statistics : list(), $
-    exepted_range: 0.0d, $
-    plots : list(), $
-    t_shift : 0L, $
-    show_plot : 0b, $
-    inherits iut_test }
+   inherits stx_fsw__test }
 end
