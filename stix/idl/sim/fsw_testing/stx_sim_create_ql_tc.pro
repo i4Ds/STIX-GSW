@@ -148,8 +148,8 @@ cmd += ' {PIX00556 ' + trim(stx_mask2bits(em)) + '}'
 cmd += ' {PIX00557 ' + trim(dmo.NBAD < 15) + '}' 
 ;[DF] KBAD parameter
 cmd += ' {PIX00558 ' + trim(dmo.KBAD < 15) + '}' 
-;[DF] RBAD parameter
-cmd += ' {PIX00559 ' + trim(dmo.RBAD < 15) + '}' 
+;[DF] CBAD parameter
+cmd += ' {PIX00559 ' + trim(dmo.RBAD < 2L^16) + '}' 
 ;[DF] NREP parameter = MBAD
 cmd += ' {PIX00560 ' + trim(dmo.MBAD < 15) + '}' 
 

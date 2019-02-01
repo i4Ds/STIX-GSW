@@ -625,7 +625,6 @@ pro stx_fsw_fd_short__test::beforeclass
 
   self.exepted_range = 0.05
   self.plots = list()
-  self.show_plot = 1
 
 
   self.fsw->getproperty, stx_fsw_ql_lightcurve=lightcurve, /complete, /combine
