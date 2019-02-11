@@ -33,8 +33,10 @@
 ; :history:
 ;   06-May-2014 - Laszlo I. Etesi, removed option to input anything else than long
 ;   30-Mar-2015 - Laszlo I. Etesi, added code to allow for non-contiguous energy ranges
-;   08-Feb-2016 - ECMS (Graz), thermal_krel and nonthermal_krel parameters replaced with thermal_krel_rise, nonthermal_krel_rise, 
+;   08-Feb-2016 - ECMD (Graz), thermal_krel and nonthermal_krel parameters replaced with thermal_krel_rise, nonthermal_krel_rise,
 ;                              thermal_krel_decay and nonthermal_krel_decay
+;   08-Feb-2019 - ECMD (Graz), updated input parameters to match ICD
+;                              input counts are no longer summed over detectors
 ;-
 function stx_fsw_module_flare_detection::_execute, in, configuration
   compile_opt hidden
@@ -44,14 +46,10 @@ function stx_fsw_module_flare_detection::_execute, in, configuration
   self->update_io_data, conf
 
   nbl = conf.nbl
-  thermal_cfmin = conf.thermal_cfmin
-  nonthermal_cfmin = conf.nonthermal_cfmin
-  thermal_kdk = conf.thermal_kdk
-  nonthermal_kdk = conf.nonthermal_kdk
-  thermal_krel_rise = conf.thermal_krel_rise 
-  nonthermal_krel_rise = conf.nonthermal_krel_rise 
-  thermal_krel_decay = conf.thermal_krel_decay 
-  nonthermal_krel_decay = conf.nonthermal_krel_decay 
+  cfmin = conf.cfmin
+  kdk = conf.kdk
+  krel_rise = conf.krel_rise
+  krel_decay = conf.krel_decay
   kb = conf.kb
 
   context = isa(in.context,/array) ? in.context : !NULL
@@ -59,8 +57,9 @@ function stx_fsw_module_flare_detection::_execute, in, configuration
   ; extracting the ql counts for easier selection below
   ql_counts = reform(in.ql_counts.accumulated_counts)
 
+  sz = size(ql_counts)
   ; failover, only accepting two or three entries in ql_counts
-  if(n_elements(ql_counts) lt 2 || n_elements(ql_counts) gt 3) then message, 'stx_fsw_ql_flare_detection.accumulated_counts must have 2 or 3 elements.'
+  if( sz[1] lt 2 || sz[1] gt 3) then message, 'stx_fsw_ql_flare_detection.accumulated_counts must have 2 or 3 elements.'
 
   ; due to the current framework setup, an energy axis in the QL definition file
   ; cannot have discontinuities (e.g. two energy ranges 6-12 and 25-50).
@@ -70,17 +69,13 @@ function stx_fsw_module_flare_detection::_execute, in, configuration
   ; passed in to the flare detection
 
   ; generate time profile
-  flare_flag = stx_fsw_flare_detection(transpose([ql_counts[0],ql_counts[-1]]), in.background, in.rcr $
+  flare_flag = stx_fsw_flare_detection(reform(transpose([ql_counts[0,*],ql_counts[-1,*]]),1, sz[2], 2), in.background, in.rcr $
     , nbl = nbl $
     , kb = kb $
-    , thermal_kdk = thermal_kdk $
-    , nonthermal_kdk = nonthermal_kdk $
-    , thermal_krel_rise = thermal_krel_rise $
-    , nonthermal_krel_rise = nonthermal_krel_rise $
-    , thermal_krel_decay = thermal_krel_decay $
-    , nonthermal_krel_decay = nonthermal_krel_decay $
-    , thermal_cfmin = thermal_cfmin $
-    , nonthermal_cfmin = nonthermal_cfmin $
+    , kdk = kdk $
+    , krel_rise = krel_rise $
+    , krel_decay = krel_decay $
+    , cfmin = cfmin $
     , context = context $
     , flare_intensity_lut = (self.lut_data)["flare_intensity_lut"] $
     , int_time = in.int_time $
@@ -97,7 +92,7 @@ pro stx_fsw_module_flare_detection::update_io_data, conf
     ;read the flare intensity LUT
     flare_intensity_lut = read_csv(exist(conf.flare_intensity_lut_file) ? conf.flare_intensity_lut_file : loc_file( 'stx_fsw_flare_intensity.csv', path = getenv('STX_CONF') ), n_table_header=1)
 
-    (self.lut_data)["flare_intensity_lut"] = [[flare_intensity_lut.field1],[flare_intensity_lut.field2],[flare_intensity_lut.field3],[flare_intensity_lut.field4]]
+    (self.lut_data)["flare_intensity_lut"] = [[flare_intensity_lut.field1],[flare_intensity_lut.field2],[flare_intensity_lut.field3]]
   end
 end
 

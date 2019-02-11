@@ -174,13 +174,13 @@ pro stx_fsw_fd_short__test::test_flag_end
   flare_flag = flare_flag_str.flare_flag
   flare_flag[75:125] = 0
   ff_positive = flare_flag <1
-tol = 4
+tol = 3
 
   status = 1 + ff_positive - shift([ff_positive,0],1)
   end_sim = where(status eq 0)
 
   num_flags = 4
-  end_pred = [38,58,132,157]
+  end_pred = [36,58,133,159]
 
   agree = where(end_sim le end_pred+tol and end_sim ge end_pred-tol,count)
 
@@ -216,7 +216,7 @@ pro stx_fsw_fd_short__test::test_flag_end_tm
   end_sim = where(status eq 0)
 
   num_flags = 4
-  end_pred = [38,58,132,157] + self.t_shift
+  end_pred = [36,58,133,159] + self.t_shift
 
   agree = where(end_sim le end_pred+tol and end_sim ge end_pred-tol,count)
 
@@ -281,9 +281,9 @@ pro stx_fsw_fd_short__test::test_flag_positve
 
   pos_pred = bytarr(n_elements(pos_sim))
 
-  st_pred = [31.,44.,130,150]
+  st_pred = [31.,44.,130,149]
 
-  dur_pred = [7,14,3,8]
+  dur_pred = [6,15,3,10]
 
   for i=0, n_elements(st_pred)-1 do pos_pred[st_pred[i]] = replicate(1b, dur_pred[i])
 
@@ -293,8 +293,8 @@ pro stx_fsw_fd_short__test::test_flag_positve
 
   mess = 'Flag positive test failure: ' +$
     string(13B) + 'Fraction of matching bins is: ' + string(frac_match,format='(F0.2)') +$
-    string(13B) + 'Expected flag array:' + strjoin(trim(fix(pos_pred)),",") +$
-    string(13B) + 'but found flag array: ' + strjoin(trim(fix(pos_sim)),",")
+    string(13B) + 'Expected flag array:  ' + string(13B) + strjoin(trim(fix(pos_pred)),",") + $
+    string(13B) + 'but found flag array: ' + string(13B) + strjoin(trim(fix(pos_sim )),",")
 
   assert_true,  frac_match ge  0.95, mess
 end
@@ -320,9 +320,12 @@ pro stx_fsw_fd_short__test::test_flag_positve_tm
 
   pos_pred = bytarr(n_elements(pos_sim))
 
-  st_pred = [31.,44.,130,150]+self.t_shift
 
-  dur_pred = [7,14,3,8]
+  st_pred = [31.,44.,130,149]+self.t_shift
+
+  dur_pred = [6,15,3,10]
+
+
 
   for i=0, n_elements(st_pred)-1 do pos_pred[st_pred[i]] = replicate(1b, dur_pred[i])
 
@@ -356,7 +359,8 @@ pro stx_fsw_fd_short__test::test_thermal_long
 
   self.fsw->getproperty, stx_fsw_m_flare_flag=flare_flag_str, /complete, /combine
   flare_flag = (flare_flag_str.flare_flag)[mins:maxs]
-  therm_lon_base_sim = (flare_flag and 3B)
+  therm_lon_base_sim = ishft(flare_flag,-5)
+
 
   expect = 31 - mins
 
@@ -366,8 +370,8 @@ pro stx_fsw_fd_short__test::test_thermal_long
 
   mess = 'Flare magnitude index thermal long baseline - ' +$
     string(13B) + ' minimum start test failure: ' +$
-    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect)),",") +$
-    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found)),",")
+    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect + mins)),",") +$
+    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found + mins)),",")
 
 
   assert_true, count, mess
@@ -391,7 +395,7 @@ pro stx_fsw_fd_short__test::test_thermal_long_tm
   self.tmtc_reader->getdata, asw_ql_flare_flag_location=ffl_tm, solo_packet=solo_packets
   flare_flag = (ffl_tm[0].flare_flag)[mins:maxs]
   
-  therm_lon_base_sim = (flare_flag and 3B)
+  therm_lon_base_sim = ishft(flare_flag,-5)
   
   ;TODO n.h. add self.t_shift ?
   expect = 31 - mins
@@ -402,8 +406,8 @@ pro stx_fsw_fd_short__test::test_thermal_long_tm
 
   mess = 'Flare magnitude index thermal long baseline - ' +$
     string(13B) + ' minimum start test failure: ' +$
-    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect)),",") +$
-    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found)),",")
+    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect + mins)),",") +$
+    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found + mins)),",")
 
 
   assert_true, count, mess
@@ -428,7 +432,7 @@ pro stx_fsw_fd_short__test::test_thermal_short
 
   self.fsw->getproperty, stx_fsw_m_flare_flag=flare_flag_str, /complete, /combine
   flare_flag = (flare_flag_str.flare_flag)[mins:maxs]
-  therm_short_base =(ishft(flare_flag,-2)and 3B)
+  therm_short_base = ishft(flare_flag,-5)
 
   expect = 130 - mins
 
@@ -438,8 +442,8 @@ pro stx_fsw_fd_short__test::test_thermal_short
 
   mess = 'Flare magnitude index thermal short baseline - ' +$
     string(13B) + ' minimum start test failure: ' +$
-    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect)),",") +$
-    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found)),",")
+    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect + mins)),",") +$
+    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found + mins)),",")
 
   assert_true, count, mess
 end
@@ -463,7 +467,7 @@ pro stx_fsw_fd_short__test::test_thermal_short_tm
   flare_flag = (ffl_tm[0].flare_flag)[mins:maxs]
 
   
-  therm_short_base =(ishft(flare_flag,-2)and 3B)
+  therm_short_base = ishft(flare_flag,-5)
   
   ;TODO n.h. add self.t_shift ?
   expect = 130 - mins
@@ -474,8 +478,8 @@ pro stx_fsw_fd_short__test::test_thermal_short_tm
 
   mess = 'Flare magnitude index thermal short baseline - ' +$
     string(13B) + ' minimum start test failure: ' +$
-    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect)),",") +$
-    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found)),",")
+    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect + mins)),",") +$
+    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found + mins)),",")
 
   assert_true, count, mess
 end
@@ -499,7 +503,7 @@ pro stx_fsw_fd_short__test::test_nonthermal_long
   self.fsw->getproperty, stx_fsw_m_flare_flag=flare_flag_str, /complete, /combine
   flare_flag = (flare_flag_str.flare_flag)[mins:maxs]
   
-  nontherm_long_base_sim =(ishft(flare_flag,-4)and 3B)
+  nontherm_long_base_sim = ishft(flare_flag,-3) and 3b
 
   expect = 44 - mins
 
@@ -509,8 +513,8 @@ pro stx_fsw_fd_short__test::test_nonthermal_long
 
   mess = 'Flare magnitude index nonthermal long baseline - ' +$
     string(13B) + ' minimum start test failure: ' +$
-    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect)),",") +$
-    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found)),",")
+    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect + mins)),",") +$
+    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found + mins)),",")
 
   assert_true, count, mess
 end
@@ -533,7 +537,7 @@ pro stx_fsw_fd_short__test::test_nonthermal_long_tm
   self.tmtc_reader->getdata, asw_ql_flare_flag_location=ffl_tm, solo_packet=solo_packets
   flare_flag = (ffl_tm[0].flare_flag)[mins:maxs]  
   
-  nontherm_long_base_sim =(ishft(flare_flag,-4)and 3B)
+  nontherm_long_base_sim = ishft(flare_flag,-3) and 3b
 
   ;TODO n.h. add self.t_shift ?
   expect = 44 - mins
@@ -544,8 +548,8 @@ pro stx_fsw_fd_short__test::test_nonthermal_long_tm
 
   mess = 'Flare magnitude index nonthermal long baseline - ' +$
     string(13B) + ' minimum start test failure: ' +$
-    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect)),",") +$
-    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found)),",")
+    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect + mins)),",") +$
+    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found + mins)),",")
 
   assert_true, count, mess
 end
@@ -567,7 +571,7 @@ pro stx_fsw_fd_short__test::test_nonthermal_short
 
   self.fsw->getproperty, stx_fsw_m_flare_flag=flare_flag_str, /complete, /combine
   flare_flag = (flare_flag_str.flare_flag)[mins:maxs]
-  nontherm_short_base_sim =(ishft(flare_flag,-6)and 3B)
+  nontherm_short_base_sim = ishft(flare_flag,-3) and 3b
 
   expect = 150 - mins
 
@@ -577,8 +581,8 @@ pro stx_fsw_fd_short__test::test_nonthermal_short
 
   mess = 'Flare magnitude index nonthermal short baseline - ' +$
     string(13B) + ' minimum start test failure: ' +$
-    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect)),",") +$
-    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found)),",")
+    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect + mins)),",") +$
+    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found + mins)),",")
 
   assert_true, count, mess
 end
@@ -601,7 +605,7 @@ pro stx_fsw_fd_short__test::test_nonthermal_short_tm
   self.tmtc_reader->getdata, asw_ql_flare_flag_location=ffl_tm, solo_packet=solo_packets
   flare_flag = (ffl_tm[0].flare_flag)[mins:maxs]
   
-  nontherm_short_base_sim =(ishft(flare_flag,-6)and 3B)
+  nontherm_short_base_sim = ishft(flare_flag,-3) and 3b
 
   ;TODO n.h. add self.t_shift ?
   expect = 150 - mins
@@ -612,8 +616,8 @@ pro stx_fsw_fd_short__test::test_nonthermal_short_tm
 
   mess = 'Flare magnitude index nonthermal short baseline - ' +$
     string(13B) + ' minimum start test failure: ' +$
-    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect)),",") +$
-    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found)),",")
+    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect + mins)),",") +$
+    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found + mins)),",")
 
   assert_true, count, mess
 end
