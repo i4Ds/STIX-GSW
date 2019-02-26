@@ -54,7 +54,8 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, fits = fi
   srm = stx_build_pixel_drm(ct_edges, ph_energy_edges = ph_edges)
 
 
-  rcr_states = specpar.sp_atten_state.state
+  ;rcr_states = specpar.sp_atten_state.state
+  rcr_states = INTARR(20)
   rcr_states = rcr_states[UNIQ(rcr_states, SORT(rcr_states))]
   nrcr_states = n_elements(rcr_states)
 

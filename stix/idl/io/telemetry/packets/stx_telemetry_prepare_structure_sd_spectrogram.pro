@@ -357,7 +357,7 @@ pro stx_telemetry_prepare_structure_sd_spectrogram_read, fsw_spc_data_time_group
         start_time = stx_time_add(t0, seconds=(*subheader.dynamic_delta_time)[time_idx]/10.0d)
         relative_time[0] = stx_telemetry_util_relative_time(start_time)
         if (time_idx eq subheader.number_samples -1) then begin
-          end_time = stx_time_add(t0, seconds=subheader.closing_time_offset/10.0d)
+          end_time = stx_time_add(end_time, seconds=subheader.closing_time_offset/10.0d)
         endif else begin
           end_time = stx_time_add(t0, seconds=(*subheader.dynamic_delta_time)[time_idx+1]/10.0d)
         endelse

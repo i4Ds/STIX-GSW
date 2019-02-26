@@ -417,10 +417,6 @@ pro stx_telemetry_reader_gui::plot_data
           
           boxStart=boxEnd+1
         endwhile
-        
-        
-       
-        
         break
       end
      

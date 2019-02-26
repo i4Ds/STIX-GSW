@@ -82,7 +82,7 @@ function prepare_packet_structure_sd_xray_1_write_fsw, $
     sub_packet.duration = fix(round(stx_time_diff(buffer_slice.END_TIME,$
       buffer_slice.START_TIME)*10))
 
-    sub_packet.number_science_data_samples = (size(buffer_slice.INTERVALS))[1]
+    sub_packet.number_energy_groups = (size(buffer_slice.INTERVALS))[1]
     sub_packet.detector_mask=stx_mask2bits(buffer_slice.detector_mask,mask_length=32)
     loop_D = fix(TOTAL(buffer_slice.detector_mask))
     ;loop_P = fix(TOTAL(buffer_slice.pixel_mask))

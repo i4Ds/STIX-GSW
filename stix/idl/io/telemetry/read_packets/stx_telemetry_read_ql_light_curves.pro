@@ -82,7 +82,7 @@ function stx_telemetry_read_ql_light_curves, solo_packet=solo_packet, tmr=tmr, _
   ql_light_curves_packet.number_of_rcrs = val
   ql_light_curves_packet.dynamic_rcr_values = ptr_new(bytarr(ql_light_curves_packet.number_of_rcrs)-1)
   ; read 8 bits for each rcr_value
-  for i = 0L, ql_light_curves_packet.number_of_triggers-1 do begin
+  for i = 0L, ql_light_curves_packet.number_of_rcrs-1 do begin
     val = tmr->read(size(byte(0), /type), bits=8, debug=debug, silent=silent)
     (*ql_light_curves_packet.dynamic_rcr_values)[i] = val
   endfor
