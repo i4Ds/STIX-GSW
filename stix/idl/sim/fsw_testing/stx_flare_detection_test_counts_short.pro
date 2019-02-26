@@ -47,10 +47,13 @@
 ;
 ; :history:
 ;    20-Jul-2018 - ECMD (Graz), initial release
+;    08-Feb-2019 - ECMD (Graz), Input counts for 30 detectors are simulated and passed to the flare detection algorithm.
+;                               The peak flux is increased for each simulated flare
+;                               Using updated input parameters
 ;
 ;-
 function stx_flare_detection_test_counts_short,short_timescale_s =short_timescale_s, long_timescale_s = long_timescale_s, $
-  plotting = plotting, save_plots = save_plots
+  plotting = plotting, save_plots = save_plots, flare_flag = flare_flag
   ;set the timescales in seconds
   default, long_timescale_s,  120l
   default, short_timescale_s,   24l
@@ -72,7 +75,7 @@ function stx_flare_detection_test_counts_short,short_timescale_s =short_timescal
   offset = [0]
 
   ;the peak counts for each event in the relevant energy band
-  peak_counts = [2e2*0.06, 2e2*0.06,  3e1*0.06,3e1*0.06,1.25, 1e2*0.06]
+  peak_counts = [2e2*0.06, 2e2*0.06,  3e1*0.06,3e1*0.06,1.25, 2e2*0.06]*6
 
   length=  [1.5*timescale[1], 1.5*timescale[0],timescale[1]/2+timescale[0]/2, timescale[1] , timescale[1], timescale[0]]
 
@@ -160,23 +163,34 @@ function stx_flare_detection_test_counts_short,short_timescale_s =short_timescal
   ;if plotting keyword is set the flare flag will be calculated for the full time range and
   ;the total counts will be plotted along with whether a flare was determined to be present in chunks of 400
   ;quicklook time bins
-  if keyword_set(plotting) then begin
-    ;sd = reform(sd)
-    usedflares = findgen(6)
-    flare_flag = stx_fsw_flare_detection(full_counts*64, full_counts*0.01,  0l, kb = 30,nbl = timescale_s, plotting = plotting,thermal_cfmin = [36,36], $
-      nonthermal_cfmin = [180,180],thermal_kdk =[0.2,0.2],nonthermal_kdk = [0.2,0.2],thermal_krel_rise = [1.5,1.5],nonthermal_krel_rise = [1.,1], $
-      thermal_krel_decay = [0.5,0.5],nonthermal_krel_decay =[0.5,0.5])
-    det = where(flare_flag gt 0)
-    ; flare_flag[det] = 1
-    loadct, 39, /silent
-    q = window()
+  ;
+  therm_counts = full_counts[*,0]#(fltarr(30)+1)
+  nontherm_counts = full_counts[*,1]#(fltarr(30)+1)
 
-  endif
+  counts = [[[therm_counts]],[[nontherm_counts]]]
+  counts = poidev(counts)
 
-  therm_lon_base_sim = (flare_flag and 3B)
-  therm_short_base =(ishft(flare_flag,-2)and 3B)
-  nontherm_long_base_sim =(ishft(flare_flag,-4)and 3B)
-  nontherm_short_base_sim =(ishft(flare_flag,-6)and 3B)
+  full_counts = counts
+  ntime= (size(full_counts))[1]
+
+  usedflares = findgen(6)
+  flare_intensity_lut = read_csv(loc_file( 'stx_fsw_flare_intensity.csv', path = getenv('STX_CONF') ), n_table_header=1)
+
+  flare_intensity = [[flare_intensity_lut.field1],[flare_intensity_lut.field2],[flare_intensity_lut.field3]]
+
+  flare_flag = stx_fsw_flare_detection(full_counts, reform(full_counts[*,0,*]*0.01, ntime, 2 ),  0l, kb = 1 ,nbl = timescale_s, plotting = plotting, cfmin = [10], $
+    kdk =[0.2], krel_rise = [1.5], krel_decay = [0.5] ,flare_intensity_lut = flare_intensity)
+
+
+  therm_index = ishft(flare_flag,-5)
+  nontherm_index = ishft(flare_flag,-3) and 3b
+  location_status = (ishft(flare_flag,-1) and 3b)
+
+  plot, full_counts[*,0]
+  oplot, full_counts[*,1], color = 2
+  oplot, therm_index, color = 4, psym = 10
+  oplot, nontherm_index, color = 5, psym = 10
+
 
 
   return, full_counts

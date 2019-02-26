@@ -20,8 +20,8 @@ bkgd_monitor,"""0-5-6-7-8-11-16-22-32""",10,BIG8,4,1,0,0,0
 bkgd_monitor_lt,,"""10,16""",,4,1,,1,1
 variance,"""0-32""","""1,2,20""","""0,1,10""",0.1,1,1,0,1
 variance_lt,,ALL,,0.1,1,,1,1
-flare_detection,"""2-9-15-20""",FOURIER,ALL,4,1,1,0,1
-flare_detection_lt,,FOURIER,,4,1,,1,1
+flare_detection,"""2-9-15-20""",FOURIER,ALL,4,0,1,0,1
+flare_detection_lt,,FOURIER,,4,0,,1,1
 flare_location_1,"""2-9-15""",FOURIER,CORNERS,4,1,0,0,1
 flare_location_1_lt,,FOURIER,,4,1,,1,1
 flare_location_2,"""2-9-15""",9,BIG8,4,1,,0,0
