@@ -351,8 +351,8 @@ pro stx_fsw_cfl_short__test::_value_location, x, y, t_shift, title
    
    p1 = plot(indgen(t_bins), x_true, symbol ='*', line = '-', COLOR="b", title=title, NAME="X-True", dimensions = [1200,600])
    p2 = plot(indgen(t_bins), y_true, symbol ='*', line = '-', COLOR="r", NAME="Y-True", /over )
-   p3 = plot(indgen(t_bins)*1.5, x, symbol ='*', line = ':', COLOR="b", NAME="X", /over)
-   p4 = plot(indgen(t_bins)*1.5, y, symbol ='*', line = ':', COLOR="r", NAME="Y", /over )
+   p3 = plot(indgen(t_bins), x, symbol ='*', line = ':', COLOR="b", NAME="X", /over)
+   p4 = plot(indgen(t_bins), y, symbol ='*', line = ':', COLOR="r", NAME="Y", /over )
    
    leg = LEGEND(TARGET=[p1,p2,p3,p4], /AUTO_TEXT_COLOR)
    
