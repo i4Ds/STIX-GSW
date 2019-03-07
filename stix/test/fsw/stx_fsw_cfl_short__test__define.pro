@@ -20,8 +20,8 @@ function stx_fsw_cfl_short__test::init, _extra=extra
 
   self.sequence_name = 'stx_scenario_cfl_short_test'
   self.test_name = 'AX_QL_TEST_CFL'
-  self.configuration_file = 'stx_flight_software_simulator_default.xml'
-  self.offset_gain_table = "" ;use default
+  self.configuration_file = 'stx_flight_software_simulator_cfl.xml'
+  self.offset_gain_table = "offset_gain_table_cfl.csv" 
   self.delay = 20 / 4 
 
   return, self->stx_fsw__test::init(_extra=extra)
@@ -307,6 +307,8 @@ pro stx_fsw_cfl_short__test::_value_location, x, y, t_shift, title
   cfl = dblarr(t_bins, 2)
   
   idx_spots = t_shift+self.delay + ((indgen(t_bins)+1)*2)
+  idx_spots = 3  + ((indgen(t_bins)+1))
+
   
   x = x[idx_spots]
   y = y[idx_spots]
@@ -351,8 +353,8 @@ pro stx_fsw_cfl_short__test::_value_location, x, y, t_shift, title
    
    p1 = plot(indgen(t_bins), x_true, symbol ='*', line = '-', COLOR="b", title=title, NAME="X-True", dimensions = [1200,600])
    p2 = plot(indgen(t_bins), y_true, symbol ='*', line = '-', COLOR="r", NAME="Y-True", /over )
-   p3 = plot(indgen(t_bins)*1.5, x, symbol ='*', line = ':', COLOR="b", NAME="X", /over)
-   p4 = plot(indgen(t_bins)*1.5, y, symbol ='*', line = ':', COLOR="r", NAME="Y", /over )
+   p3 = plot(indgen(t_bins), x, symbol ='*', line = ':', COLOR="b", NAME="X", /over)
+   p4 = plot(indgen(t_bins), y, symbol ='*', line = ':', COLOR="r", NAME="Y", /over )
    
    leg = LEGEND(TARGET=[p1,p2,p3,p4], /AUTO_TEXT_COLOR)
    
@@ -419,7 +421,9 @@ pro stx_fsw_cfl_short__test::_value_location2, x, y, t_shift
   cfl = dblarr(t_bins, 2)
   
   idx_spots = t_shift+self.delay + ((indgen(t_bins)+1)*2)
-  
+  idx_spots = 3  + ((indgen(t_bins)+1))
+
+
   x = x[idx_spots]
   y = y[idx_spots]
   

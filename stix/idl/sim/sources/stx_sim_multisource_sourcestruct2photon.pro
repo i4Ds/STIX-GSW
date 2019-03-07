@@ -145,6 +145,10 @@ function stx_sim_multisource_sourcestruct2photon, sourcestruct, sxpos, sypos, $
         func_name = 'f_vth'
         func_param = [sourcestruct.energy_spectrum_param1, sourcestruct.energy_spectrum_param2 ]
       end
+      'uniform': begin
+        func_name = 'stx_uniform_dstn'
+        func_param = [sourcestruct.energy_spectrum_param1, sourcestruct.energy_spectrum_param2 ]
+      end
       else: begin
         print, 'Unknown type of source energy spectrum - defaulting to power-law with index of 5.0'
         func_name  = 'f_pow'
