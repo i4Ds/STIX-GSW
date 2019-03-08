@@ -170,7 +170,7 @@
 	<section name="stx_fsw_module_coarse_flare_locator" alias="cfl">
 		<description>This is the coarse flare locator module.</description>
 		<link>https://www.dropbox.com/s/ygg7xaqkv3f2lsa/FSWcoarseFlareLocator20131009.docx</link>
-		<parameter name="update_frequency" default="8" valid="X gt 0" type="int">
+		<parameter name="update_frequency" default="4" valid="X gt 0" type="int">
 			<description>Update frequency of this module in seconds</description>
 			<unit>seconds</unit>
 		</parameter>
