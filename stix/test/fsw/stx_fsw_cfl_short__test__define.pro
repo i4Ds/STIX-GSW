@@ -45,7 +45,7 @@ pro stx_fsw_cfl_short__test::beforeclass
   lc =  total(lightcurve.accumulated_counts,1)
   start = min(where(lc gt 100))
   peak = max(lc[start:start+3], peak_idx)
-  self.t_shift_sim = start+peak_idx
+  self.t_shift_sim = start + peak_idx
 
   if ~file_exist('ax_tmtc.bin') then begin
     tmtc_data = {$
@@ -91,7 +91,7 @@ pro stx_fsw_cfl_short__test::beforeclass
   lc =  total(ql_lightcurve.counts,1)
   start = min(where(lc gt 100))
   peak = max(lc[start:start+3], peak_idx)
-  self.t_shift = start+peak_idx
+  self.t_shift = start + peak_idx
 
 
 end
@@ -306,8 +306,8 @@ pro stx_fsw_cfl_short__test::_value_location, x, y, t_shift, title
 
   cfl = dblarr(t_bins, 2)
   
-  idx_spots = t_shift+self.delay + ((indgen(t_bins)+1)*2)
-  idx_spots = 3  + ((indgen(t_bins)+1))
+  idx_spots = t_shift + self.delay + ((indgen(t_bins)+1)*2)
+  ;idx_spots = 3  + ((indgen(t_bins)+1))
 
   
   x = x[idx_spots]
