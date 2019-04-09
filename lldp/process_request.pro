@@ -28,7 +28,7 @@ PRO process_request, input_dir, output_dir
   obt_beg = trim(obt_start, '(I010)')
 
   svn_number = svn_number()
-  print, 'SVN number = "+trim(svn_number)
+  print, 'SVN number = '+trim(svn_number)
   print
   aux_dir = input_dir + "/auxiliary"
   filename = aux_dir + "/filtered_tmtc.bin"
