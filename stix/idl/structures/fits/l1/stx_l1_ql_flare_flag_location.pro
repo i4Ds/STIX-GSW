@@ -29,7 +29,7 @@
 ;-
 
 
-function stx_l05_ql_flare_flag_location, n_flares
+function stx_l1_ql_flare_flag_location, n_flares
 
   control_struc = { $
     integration_time : 0, $

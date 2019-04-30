@@ -29,15 +29,20 @@
 ;-
 function stx_l1_ql_spectra_structures, n_energies, n_times
 
-    energy = {CHANNEL: 0L, E_MIN: 0.0, E_MAX: 0.0}
+    control = { $
+        pixel_mask : bytarr(16), $
+        integration_time : 0, $
+        compression_scheme_spec : intarr(3), $
+        compression_scheme_trigger : intarr(3) $
+    }
 
-    energies = replicate(energy, n_energies)
+    energies = stx_fits_energy_structure(n_energies)
     
-    count = {COUNTS: lonarr(32, 32), TRIGGERS: 0L, CHANNEL: lonarr(n_energies), $
+    count = {COUNTS: lonarr(32, 32), TRIGGERS: lonarr(n_energies), CHANNEL: lonarr(n_energies), $
         DETECTOR_MASK: bytarr(32), TIME: 0.0d, TIMEDEL: 0.0}
 
     counts = replicate(count, n_times) 
     
-    return, DICTIONARY('energy', energies, 'count', counts)
+    return, DICTIONARY('energy', energies, 'count', counts, 'control', control)
 
 end

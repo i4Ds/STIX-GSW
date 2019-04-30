@@ -28,7 +28,7 @@
 ;
 ;-
 
-function stx_l05_ql_calibration_spectra_structures, n_spec
+function stx_l1_ql_calibration_spectra_structures, n_spec
 
   control = { $
     detector_mask : bytarr(32), $

@@ -128,7 +128,7 @@ function stx_make_l1_ql_lightcurve_fits, tm_reader, base_directory
     n_times = unprocessed_lc.DYNAMIC_NBR_OF_DATA_POINTS
     n_energies = total(energy_bin_mask)
     relative_times = indgen(n_times) * integration_time
-    
+
     obt_end = obt_beg + ((n_times+1)*integration_time)
 
     structures = stx_l1_ql_lightcurve_structures(n_energies, n_times)
@@ -160,15 +160,15 @@ function stx_make_l1_ql_lightcurve_fits, tm_reader, base_directory
 
     version = 1
     obs_mode = 'Nominal'
-    
-;    TODO proper convertion from OBT to UTC (spicer kernels)
+
+    ;    TODO proper convertion from OBT to UTC (spicer kernels)
     date_obs = anytim(anytim(obt_beg) + 41.0d * 365 * 24 * 60 * 60, /ccsds)
     date_beg = date_obs
     date_end = anytim(anytim(obt_end) + 41.0d * 365 * 24 * 60 * 60, /ccsds)
     date_avg = anytim(((anytim(obt_end) - anytim(obt_beg))/2.0) $
         + anytim(obt_beg) + 41.0d * 365 * 24 * 60 * 60, /ccsds)
 
-;    TODO proper values from external info  
+    ;    TODO proper values from external info
     obs_type = 'LC'
     soop_type = 'SOOP'
     obs_id = 'obs_id'
@@ -239,7 +239,7 @@ function stx_make_l1_ql_background_fits, tm_reader, base_directory
     stx_telemetry_util_time2scet, coarse_time = unprocessed_bg.coarse_time, fine_time = unprocessed_bg.fine_time, stx_time_obj=obt_beg, /reverse
 
     obt_beg = stx_time2any(obt_beg)
-    
+
     stx_km_compression_schema_to_params, unprocessed_bg.COMPRESSION_SCHEMA_BACKGROUND, k=bg_k, m=bg_m, s=bg_s
     stx_km_compression_schema_to_params, unprocessed_bg.COMPRESSION_SCHEMA_TRIGGER, k=tr_k, m=tr_m, s=tr_s
 
@@ -376,15 +376,15 @@ function stx_make_l1_ql_variance_fits, tm_reader, base_directory
     control_struc.pixel_mask = processed_var[0].PIXEL_MASK
     control_struc.compression_scheme_variance = [var_k, var_m, var_s]
 
-;    data_struc.variance = processed_var[0].VARIANCE
-;
-;    !null = mrdfits(fits_path, 0, primary_header)
-;    control = mrdfits(fits_path, 1, control_header)
-;    data = mrdfits(fits_path, 2, data_header)
-;
-;    n_times = n_elements(data)
-;    n_energies = total(control.ENERGY_BIN_MASK)
-;    relative_times = indgen(n_elements(data)) * control.INTEGRATION_TIME
+    ;    data_struc.variance = processed_var[0].VARIANCE
+    ;
+    ;    !null = mrdfits(fits_path, 0, primary_header)
+    ;    control = mrdfits(fits_path, 1, control_header)
+    ;    data = mrdfits(fits_path, 2, data_header)
+    ;
+    ;    n_times = n_elements(data)
+    ;    n_energies = total(control.ENERGY_BIN_MASK)
+    ;    relative_times = indgen(n_elements(data)) * control.INTEGRATION_TIME
 
     ; ENERGY_BIN_MASK by definition doesnt contain last closing energy
     energies = stx_construct_energy_axis(select=[where(control_struc.ENERGY_BIN_MASK eq 1), 32])
@@ -422,7 +422,7 @@ function stx_make_l1_ql_variance_fits, tm_reader, base_directory
         file_mkdir, path
     endif
     fullpath = concat_dir(path, filename)
-    
+
     mwrfits, !NULL, fullpath, primary_header, /create
     !null = mrdfits(fullpath, 0, primary_header)
 
@@ -435,7 +435,7 @@ function stx_make_l1_ql_variance_fits, tm_reader, base_directory
     mwrfits, !NULL, fullpath, primary_header, /create
     mwrfits, rate_info, fullpath, status=stat1
     mwrfits, energy_info, fullpath, status=stat2
-    mwrfits, control, fullpath, control_header, status=stat3
+    mwrfits, control_struc, fullpath, control_header, status=stat3
 
     fxhmodify, fullpath, 'EXTNAME', 'RATE', EXTENSION=1
     fxhmodify, fullpath, 'EXTNAME', 'ENEBAND', EXTENSION=2
@@ -471,14 +471,44 @@ end
 ;       02-May-2018 – SAM (TCD) init
 ;
 ;-
-function stx_make_l1_ql_spectra_fits, fits_path, base_directory
-    !null = mrdfits(fits_path, 0, primary_header)
-    control = mrdfits(fits_path, 1, control_header)
-    data = mrdfits(fits_path, 2, data_header)
+function stx_make_l1_ql_spectra_fits, tm_reader, base_directory
 
-    n_times = n_elements(data)
+    tm_reader->getdata, stx_asw_ql_spectra=processed_spec, solo=solo
+
+    unprocessed_spec = *solo['stx_tmtc_ql_spectra',0,0].source_data
+
+    integration_time = unprocessed_spec.INTEGRATION_TIME
+
+    stx_telemetry_util_time2scet, coarse_time = unprocessed_spec.coarse_time, fine_time = unprocessed_spec.fine_time, stx_time_obj=obt_beg, /reverse
+
+    obt_beg = stx_time2any(obt_beg)
+    obt_end = obt_beg + integration_time * unprocessed_spec.NUMBER_OF_STRUCTURES
+
+    n_times = (size(processed_spec[0].spectrum, /dim))[-1]
     n_energies = 32
-    relative_times = indgen(n_elements(data)) * control.INTEGRATION_TIME
+    relative_times = (n_times + 1) * INTEGRATION_TIME
+
+    stx_km_compression_schema_to_params, unprocessed_spec.COMPRESSION_SCHEMA_SPECTRUM, k=sp_k, m=sp_m, s=sp_s
+    stx_km_compression_schema_to_params, unprocessed_spec.COMPRESSION_SCHEMA_TRIGGER, k=tr_k, m=tr_m, s=tr_s
+
+    ; TODO Why is the number of spectra in processed and unproccesed different?
+    structures = stx_l1_ql_spectra_structures(n_energies, n_times)
+    control_struc = structures.control
+
+    control_struc.pixel_mask = processed_spec[0].PIXEL_MASK
+    control_struc.integration_time = integration_time
+    control_struc.compression_scheme_spec = [sp_k, sp_m, sp_s]
+    control_struc.compression_scheme_trigger = [tr_k, tr_m, tr_s]
+
+    ;    data_struc.detector_mask = processed_spec[0].DETECTOR_MASK
+    ;    data_struc.triggers = processed_spec[0].TRIGGERS
+    ;    data_struc.spectrum = processed_spec[0].SPECTRUM
+    ;
+    ;    !null = mrdfits(fits_path, 0, primary_header)
+    ;    control = mrdfits(fits_path, 1, control_header)
+    ;    data = mrdfits(fits_path, 2, data_header)
+    ;
+
 
     ; ENERGY_BIN_MASK by definition doesnt contain last closing energy
     energies = stx_construct_energy_axis()
@@ -492,26 +522,46 @@ function stx_make_l1_ql_spectra_fits, fits_path, base_directory
 
     rate_info = structures['count']
     rate_info.CHANNEL = lonarr(n_energies)
-    rate_info.TIMEDEL = control.INTEGRATION_TIME
-    rate_info.COUNTS = data.SPECTRUM
-    rate_info.DETECTOR_MASK = data.DETECTOR_MASK
+    rate_info.TIMEDEL = INTEGRATION_TIME
+    rate_info.COUNTS = processed_spec[0].SPECTRUM
+    rate_info.DETECTOR_MASK = processed_spec[0].DETECTOR_MASK
+    rate_info.TRIGGERS = processed_spec[0].TRIGGERS
     rate_info.TIME = relative_times
 
-    obt_beg = float(sxpar(primary_header, 'OBT-BEG'))
+    version = 1
+    obs_mode = 'Nominal'
 
-    filename = 'solo_l2_stix-spectra_'+trim(time_stamp(obt_beg))+'_V'+trim(tstamp)+'.fits'
+    ;    TODO proper convertion from OBT to UTC (spicer kernels)
+    date_obs = anytim(anytim(obt_beg) + 41.0d * 365 * 24 * 60 * 60, /ccsds)
+    date_beg = date_obs
+    date_end = anytim(anytim(obt_end) + 41.0d * 365 * 24 * 60 * 60, /ccsds)
+    date_avg = anytim(((anytim(obt_end) - anytim(obt_beg))/2.0) $
+        + anytim(obt_beg) + 41.0d * 365 * 24 * 60 * 60, /ccsds)
+
+    ;    TODO proper values from external info
+    obs_type = 'LC'
+    soop_type = 'SOOP'
+    obs_id = 'obs_id'
+    obs_target = 'Sun'
+
+    filename = 'solo_l1_stix-spectra_'+trim(time_stamp(date_obs))+'_V'+trim(version)+'.fits'
     path = concat_dir(base_directory, 'spectra')
     if ~FILE_TEST(path, /DIRECTORY) then begin
         file_mkdir, path
     endif
     fullpath = concat_dir(path, filename)
 
-    date_obs = anytim(obt_beg, /ccsds)
+    mwrfits, !NULL, fullpath, primary_header, /create
+    !null = mrdfits(fullpath, 0, primary_header)
 
-    primary_header = stx_make_l1_header(header=primary_header, filename=filename, date_obs=date_obs, $
-        history='test')
+    primary_header = stx_update_primary_header_l1(header=primary_header, filename=filename, $
+        create_date=anytim(!stime, /ccsds), obt_beg=obt_beg, obt_end=obt_end, version=version, $
+        obs_mode=obs_mode, date_obs=date_obs, date_beg=date_beg, date_avg=date_avg, $
+        date_end=date_end, obs_type=obs_type, $
+        soop_type=soop_type, obs_id=obs_id, obs_target=obs_target)
 
-    mwrfits, !NULL, fullpath, primary_header, /create, status=stat0
+
+    mwrfits, !NULL, fullpath, primary_header, /create
     mwrfits, rate_info, fullpath, status=stat1
     mwrfits, energy_info, fullpath, status=stat2
     mwrfits, control, fullpath, control_header, status=stat3
@@ -549,12 +599,80 @@ end
 ;       02-May-2018 – SAM (TCD) init
 ;
 ;-
-function stx_make_l1_ql_calibration_spectra_fits, fits_path, base_directory
-    !null = mrdfits(fits_path, 0, primary_header)
-    control = mrdfits(fits_path, 1, control_header)
-    data = mrdfits(fits_path, 2, data_header)
+function stx_make_l1_ql_calibration_spectra_fits, tm_reader, base_directory
+    tm_reader->getdata, asw_ql_calibration_spectrum=processed_calspec, solo=solo
 
-    ; TODO Not sure what more can be done as are low level data anyway
+    unprocessed_calspec = *solo['stx_tmtc_ql_calibration_spectrum',0,0].source_data
+
+    stx_telemetry_util_time2scet, coarse_time = unprocessed_calspec.coarse_time, fine_time = 0, stx_time_obj=obt_beg, /reverse
+
+    obt_beg = stx_time2any(obt_beg)
+    obt_end = obt_beg + unprocessed_calspec.DURATION
+
+    ; TODO allways 8 sub sepectra or use sub_spectra_mask
+    strucures = stx_l1_ql_calibration_spectra_structures(8)
+    control_struc = strucures.control
+    data_struc  = strucures.data
+
+    control_struc.detector_mask = stx_mask2bits(unprocessed_calspec.DETECTOR_MASK, /reverse, mask_length=32)
+    control_struc.pixel_mask = stx_mask2bits(unprocessed_calspec.PIXEL_MASK, /reverse, mask_length=16)
+    control_struc.duration = unprocessed_calspec.DURATION
+    control_struc.quiet_time = unprocessed_calspec.QUIET_TIME
+    control_struc.live_time = unprocessed_calspec.LIVE_TIME
+    control_struc.average_temperature = unprocessed_calspec.AVERAGE_TEMPERATURE
+
+    all_sub_specta = processed_calspec[0].subspectra
+
+    for i=0, N_ELEMENTS(all_sub_specta)-1 do begin
+        data_struc[i].detecotr_mask = all_sub_specta[i].DETECTOR_MASK
+        data_struc[i].pixel_mask = all_sub_specta[i].PIXEL_MASK
+        data_struc[i].lower_energy_bound_channel = all_sub_specta[i].LOWER_ENERGY_BOUND_CHANNEL
+        data_struc[i].number_of_summed_channels = all_sub_specta[i].NUMBER_OF_SUMMED_CHANNELS
+        data_struc[i].number_of_spectral_points = all_sub_specta[i].NUMBER_OF_SPECTRAL_POINTS
+    endfor
+
+    version = 1
+    obs_mode = 'Nominal'
+
+    ;    TODO proper convertion from OBT to UTC (spicer kernels)
+    date_obs = anytim(anytim(obt_beg) + 41.0d * 365 * 24 * 60 * 60, /ccsds)
+    date_beg = date_obs
+    date_end = anytim(anytim(obt_end) + 41.0d * 365 * 24 * 60 * 60, /ccsds)
+    date_avg = anytim(((anytim(obt_end) - anytim(obt_beg))/2.0) $
+        + anytim(obt_beg) + 41.0d * 365 * 24 * 60 * 60, /ccsds)
+
+    ;    TODO proper values from external info
+    obs_type = 'LC'
+    soop_type = 'SOOP'
+    obs_id = 'obs_id'
+    obs_target = 'Sun'
+
+
+    filename = 'solo_l1_stix-calibration-spectra_'+trim(time_stamp(date_obs))+'_V'+trim(version)+'.fits'
+    path = concat_dir(base_directory, 'calibration_spectra')
+    if ~FILE_TEST(path, /DIRECTORY) then begin
+        file_mkdir, path
+    endif
+    fullpath = concat_dir(path, filename)
+
+
+    mwrfits, !NULL, fullpath, primary_header, /create
+    !null = mrdfits(fullpath, 0, primary_header)
+
+    primary_header = stx_update_primary_header_l1(header=primary_header, filename=filename, $
+        create_date=anytim(!stime, /ccsds), obt_beg=obt_beg, obt_end=obt_end, version=version, $
+        obs_mode=obs_mode, date_obs=date_obs, date_beg=date_beg, date_avg=date_avg, $
+        date_end=date_end, obs_type=obs_type, $
+        soop_type=soop_type, obs_id=obs_id, obs_target=obs_target)
+
+
+    mwrfits, !NULL, fullpath, primary_header, /create
+    mwrfits, data_struc, fullpath, status=stat1
+    mwrfits, control_struc, fullpath, control_header, status=stat3
+
+    fxhmodify, fullpath, 'EXTNAME', 'RATE', EXTENSION=1
+    fxhmodify, fullpath, 'EXTNAME', 'CONTROL', EXTENSION=2
+
 end
 
 ;+
@@ -584,13 +702,68 @@ end
 ;       02-May-2018 – SAM (TCD) init
 ;
 ;-
-function stx_make_l1_ql_flareflag_location_fits, fits_path, base_directory
-    !null = mrdfits(fits_path, 0, primary_header)
-    control = mrdfits(fits_path, 1, control_header)
-    data = mrdfits(fits_path, 2, data_header)
+function stx_make_l1_ql_flareflag_location_fits, tm_reader, base_directory
+    tm_reader->getdata, asw_ql_flare_flag_location=processed_fl, solo=solo
 
-    ; TODO Not sure what more can be done as are low level data anyway
-    print, 1
+    unprocessed_fl = *solo['stx_tmtc_ql_flare_flag_location',0,0].source_data
+
+    integration_time = unprocessed_fl.INTEGRATION_TIME
+
+    stx_telemetry_util_time2scet, coarse_time = unprocessed_fl.coarse_time, fine_time = unprocessed_fl.fine_time, stx_time_obj=obt_beg, /reverse
+
+    obt_beg = stx_time2any(obt_beg)
+    obt_end = obt_beg + integration_time
+
+    structures = stx_l1_ql_flare_flag_location(unprocessed_fl.NUMBER_OF_SAMPLES)
+    control_struc = structures.control
+    data_struc = structures.data
+
+    control_struc.integration_time = integration_time
+    control_struc.n_samples = unprocessed_fl.NUMBER_OF_SAMPLES
+
+    data_struc.flare_flag = processed_fl[0].FLARE_FLAG
+    data_struc.loc_z = processed_fl[0].X_POS
+    data_struc.loc_y = processed_fl[0].Y_POS
+
+    version = 1
+    obs_mode = 'Nominal'
+
+    ;    TODO proper convertion from OBT to UTC (spicer kernels)
+    date_obs = anytim(anytim(obt_beg) + 41.0d * 365 * 24 * 60 * 60, /ccsds)
+    date_beg = date_obs
+    date_end = anytim(anytim(obt_end) + 41.0d * 365 * 24 * 60 * 60, /ccsds)
+    date_avg = anytim(((anytim(obt_end) - anytim(obt_beg))/2.0) $
+        + anytim(obt_beg) + 41.0d * 365 * 24 * 60 * 60, /ccsds)
+
+    ;    TODO proper values from external info
+    obs_type = 'LC'
+    soop_type = 'SOOP'
+    obs_id = 'obs_id'
+    obs_target = 'Sun'
+
+    filename = 'solo_l0.5_stix-flare-flag-location_'+trim(time_stamp(date_obs))+'_V'+trim(version)+'.fits'
+    path = concat_dir(base_directory, 'flareflag')
+    if ~FILE_TEST(path, /DIRECTORY) then begin
+        file_mkdir, path
+    endif
+    fullpath = concat_dir(path, filename)
+
+    mwrfits, !NULL, fullpath, primary_header, /create
+    !null = mrdfits(fullpath, 0, primary_header)
+
+    primary_header = stx_update_primary_header_l1(header=primary_header, filename=filename, $
+        create_date=anytim(!stime, /ccsds), obt_beg=obt_beg, obt_end=obt_end, version=version, $
+        obs_mode=obs_mode, date_obs=date_obs, date_beg=date_beg, date_avg=date_avg, $
+        date_end=date_end, obs_type=obs_type, $
+        soop_type=soop_type, obs_id=obs_id, obs_target=obs_target)
+
+
+    mwrfits, !NULL, fullpath, primary_header, /create
+    mwrfits, data_struc, fullpath, status=stat1
+    mwrfits, control_struc, fullpath, control_header, status=stat3
+
+    fxhmodify, fullpath, 'EXTNAME', 'DATA', EXTENSION=1
+    fxhmodify, fullpath, 'EXTNAME', 'CONTROL', EXTENSION=2
 end
 
 pro stx_make_l1_ql_fits, scenario_name=scenario_name, base_directory
@@ -601,12 +774,12 @@ pro stx_make_l1_ql_fits, scenario_name=scenario_name, base_directory
 
     tm_reader.getdata, solo_packets=solo_packets
 
-;    if solo_packets.haskey('stx_tmtc_ql_light_curves') then ql_lc = stx_make_l1_ql_lightcurve_fits(tm_reader, base_directory)
-;    if solo_packets.haskey('stx_tmtc_ql_calibration_spectrum') then ql_cal_spectra = stx_make_l05_ql_calibraion_spectra_fits(tm_reader, base_directory)
+    if solo_packets.haskey('stx_tmtc_ql_light_curves') then ql_lc = stx_make_l1_ql_lightcurve_fits(tm_reader, base_directory)
+    if solo_packets.haskey('stx_tmtc_ql_calibration_spectrum') then ql_cal_spectra = stx_make_l1_ql_calibration_spectra_fits(tm_reader, base_directory)
     if solo_packets.haskey('stx_tmtc_ql_variance') then ql_variance = stx_make_l1_ql_variance_fits(tm_reader, base_directory)
-;    if solo_packets.haskey('stx_tmtc_ql_spectra') then ql_spectra = stx_make_l05_ql_spectra_fits(tm_reader, base_directory)
-;    if solo_packets.haskey('stx_tmtc_ql_background_monitor') then ql_background = stx_make_l1_ql_background_fits(tm_reader, base_directory)
-;    if solo_packets.haskey('stx_tmtc_ql_flare_flag_location') then ql_flarelist = stx_make_l05_ql_flareflag_location_fits(tm_reader, base_directory)
+    if solo_packets.haskey('stx_tmtc_ql_spectra') then ql_spectra = stx_make_l1_ql_spectra_fits(tm_reader, base_directory)
+    if solo_packets.haskey('stx_tmtc_ql_background_monitor') then ql_background = stx_make_l1_ql_background_fits(tm_reader, base_directory)
+    if solo_packets.haskey('stx_tmtc_ql_flare_flag_location') then ql_flarelist = stx_make_l1_ql_flareflag_location_fits(tm_reader, base_directory)
 
 end
 
