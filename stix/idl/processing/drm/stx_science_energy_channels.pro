@@ -31,47 +31,68 @@
 ;     In the futre the basefile name will be under some configuration control
 ;    reset - if reset, force the data file to be reread into common
 ;    structure - if set, return the science energy channels as a full structure
-;    
+;
 ;    _extra - keywords for get_edges()
 ;    ql  - if set, report the quicklook energy channels
 ;
 ; :Author: richard.schwartz@nasa.gov, 29-jun-2015
+; :History: richard.schwartz@nasa.gov,20-jun-2019, changed default to ScienceEnergyChannels_1000.csv
+;   change non-integer values in normal integer fields to '-999'. I.e change n/a and "max adc" to -999
 ;-
 function stx_science_energy_channels, $
   basefile = basefile, reset=reset, structure = structure, ql = ql, _extra = _extra
 
-common stx_science_energy_channels, energy_channels_str
-default, ql, 0 ;report quicklook channels if set
-default, reset, 0
-default, basefile, 'EnergyBinning20150615.csv'
-if reset or ~is_struct( energy_channels_str ) then begin
-  
-  file  = concat_dir( getenv('STX_DET'), basefile)
-  out   = read_csv( file, head=head, record_start=24, table_header=tbl)
-  names = rd_tfile(file)
-  
-  z     = where( stregex( names, 'channel number',/fold, /boo))
-  names = strtrim( str2arr( delim=',',names[z]), 2)
-  
-  z     = where( names eq 'dE/E')
-  
-  names[z] = 'de_E'
-  names = [ 'type', names ]
-  str   = replicate( create_struct( names[0:8], 'stx_science_energy_channel', 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0), 33)
-  s     = reform_struct( out )
-  for i = 1, 8 do str.(i) = s.(i-1)
-  for i = 1, 8 do str[32].(i) = str[32].(i) eq 0 ? -1 : str[32].(i)
-  energy_channels_str = str
-endif else str = energy_channels_str
+  common stx_science_energy_channels, energy_channels_str
+  default, ql, 0 ;report quicklook channels if set
+  default, reset, 0
+  ;default, basefile, 'EnergyBinning20150615.csv' - changed 20-jun-2019
+  default, basefile, 'ScienceEnergyChannels_1000.csv'
+  if reset or ~is_struct( energy_channels_str ) then begin
 
-;For the quicklook energy bins
-if keyword_set( ql ) then $
-  str = str[ [ 0, where( str[1:*].ql_channel - str.ql_channel ) + 1 ]  ]
-  
- 
-result = keyword_set( structure ) ? str : get_edges( str.energy_edge, _extra = _extra )
+    file  = concat_dir( getenv('STX_DET'), basefile)
+    out   = read_csv( file, head=head, record_start=24, table_header=tbl)
+    names = rd_tfile(file)
 
- 
-return, result
+    z     = where( stregex( names, 'channel number',/fold, /boo))
+    names = strtrim( str2arr( delim=',',names[z]), 2)
+
+    z     = where( names eq 'dE/E')
+
+    names[z] = 'de_E'
+    names = [ 'type', names ]
+    str   = replicate( create_struct( names[0:8], 'stx_science_energy_channel', 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0), 33)
+    s     = reform_struct( out )
+    ;Some of the elements in s are actually text and not text integers. Change them to integer values -999
+    for i = 1, 8 do begin
+      if size(/tname, s.(i-1)) eq 'STRING' then begin
+        temp = s.(i-1)
+        q  = where( ~is_number( temp ), nnan)
+        if nnan gt 0 then temp[ q ] = strtrim( -999,2 ) + strarr( nnan )
+        s.(i-1) = temp
+      endif
+      
+    endfor
+    for i = 1, 8 do str.(i) = s.(i-1)
+    for i = 1, 8 do str[32].(i) = str[32].(i) eq 0 ? -1 : str[32].(i)
+    energy_channels_str = str
+  endif else str = energy_channels_str
+
+  ;For the quicklook energy bins
+  if keyword_set( ql ) then $
+    str = str[ [ 0, where( str[1:*].ql_channel - str.ql_channel ) + 1 ]  ]
+  str[0].ql_channel = -1 ;not a member of the QL, really the LLD
+  str[31].ql_channel =  -1 ;not a member of the QL, really a ULD
+  str[31].eupper = 500.0
+  str[31].binwidth = 350.0
+  str[31].de_e = 0.7
+  str[[0,32]].type  = 'stx_science_discrminator_channels'
+  science_channel = where( str.type eq 'stx_science_energy_channel', nscience)
+  
+
+
+  result = keyword_set( structure ) ? str : get_edges( str[science_channel].energy_edge, _extra = _extra )
+  ;19-jun-2019, RAS, patch in the changes associated with using the first and last channels as descriminators
+  ;andnot as science channels
+  return, result
 end
 
