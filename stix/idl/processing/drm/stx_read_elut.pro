@@ -14,7 +14,7 @@
 ;    IDL> help, adc4096_str,/st
 ;    IDL> help, adc4096_str,/st
 ;    ** Structure <15a51c50>, 5 tags, length=208, data length=206, refs=1:
-;       ELUT_FILE       STRING    'elut_table_20190702.csv'  ELUT filename
+;       ELUT_FILE       STRING    'elut_table_20190704.csv'  ELUT filename
 ;       EKEV            FLOAT     Array[31]                  science energy channel edges in keV
 ;       ADC4096         INT       Array[31]                  4096 ADC channel value based on EKEV and gain/offset
 ;       PIX_ID          INT              0                   Pixel cell of detector, 0-11
@@ -35,7 +35,7 @@
 ;    adc4096_str -
 ;    IDL> help, adc4096_str,/st
 ;    ** Structure <15a51c50>, 5 tags, length=208, data length=206, refs=1:
-;       ELUT_FILE       STRING    'elut_table_20190702.csv'  ELUT filename
+;       ELUT_FILE       STRING    'elut_table_20190704.csv'  ELUT filename
 ;       EKEV            FLOAT     Array[31]                  science energy channel edges in keV
 ;       ADC4096         INT       Array[31]                  4096 ADC channel value based on EKEV and gain/offset
 ;       PIX_ID          INT              0                   Pixel cell of detector, 0-11
@@ -48,6 +48,7 @@
 ;
 ;
 ; :Author: rschwartz70@gmail.com, 2-jul-2019
+; :History: 29-aug-2019, improved the file search for the elut file
 ;-
 pro stx_read_elut, gain, offset, adc4096_str, elut_filename = elut_filename, scale1024 = scale1024
 
@@ -57,7 +58,11 @@ pro stx_read_elut, gain, offset, adc4096_str, elut_filename = elut_filename, sca
   endif else begin
     default, path, [curdir(), concat_dir( concat_dir('ssw_stix','dbase'),'detector')]
 
-    elut_file = file_search( path,'*elut*.csv', count=count)
+    elut_file = file_search( path,'elut_table*.csv', count=count)
+    filename = file_basename( elut_file )
+    ;only include filename with dates. Look for numbers
+    use = where( stregex( filename, '.[0-9].',/boo))
+    elut_file = elut_file[use]
     filename = file_basename( elut_file )
     old_style = where( stregex( filename, '-',/boo), nold, $
       complement = usefile2time, ncomp= nusefile2time )
