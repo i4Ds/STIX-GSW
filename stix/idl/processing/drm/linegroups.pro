@@ -17,11 +17,14 @@ pmm, offset
 pmm, ofst
 plot, histogram( ofst, min = 200, max=360)
 plot, histogram( ofst, min = 200, max=360), psym=10
+adc1024grp = stx_energy2calchan( [30, 34, 79, 83.] )
+
 e3033 = reform( [30.+fltarr(384),33+fltarr(384)]/reproduce( gain[*], 384*2), 384, 2) + reform( reproduce( ofst[*], 2), 384,2)
-plot, histogram( e3033[*], min=300, max=450),psy=10
-
 pmm, e3033[*,1]-e3033[*,0]
+plot, histogram( e3033[*], min=300, max=450),psy=10
+e7983 = reform( [79.+fltarr(384),83+fltarr(384)]/reproduce( gain[*], 384*2), 384, 2) + reform( reproduce( ofst[*], 2), 384,2)
 
+pmm, e7983[*,1]-e7983[*,0]
 e3033 = reform( e3033, 12, 32, 2)
 mm=lonarr(2,32)
 for i=0,31 do mm[0,i]= minmax( e3033[*,i,*])
