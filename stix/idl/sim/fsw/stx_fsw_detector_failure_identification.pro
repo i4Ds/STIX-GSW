@@ -95,8 +95,9 @@ quicklook_livetime[*] = lt_accumulator.accumulated_counts[0,0,*,0]
 
 ;Live time is just a counter (how many times it has be triggered), so need to calculate the livetime as the a time
 livetime = 1. - quicklook_livetime*trigger_duration*1./int_time         ; for each detector
-live_time_corrected_detector_count_rate = quicklook_counts/livetime
-
+;live_time_corrected_detector_count_rate = quicklook_counts/livetime
+;skip live time correction for the moment
+live_time_corrected_detector_count_rate = quicklook_counts
 ;--------------------------------------------------------
 ; test if a detector (or several detectors) behave badly
 ;--------------------------------------------------------

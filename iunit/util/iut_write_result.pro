@@ -32,7 +32,7 @@ pro iut_write_result, reports, filename, format
           oVoid = error->AppendChild(stack_trace)
           oVoid = testcase->AppendChild(error)
         end
-        
+                
         
         
         oVoid = testsuite->AppendChild(testcase)

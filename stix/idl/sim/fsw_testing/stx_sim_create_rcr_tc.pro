@@ -1,5 +1,6 @@
-pro stx_sim_create_rcr_tc, conf  
-  
+pro stx_sim_create_rcr_tc, conf, enabled=enabled
+   
+  default, enabled, "Enabled"
   
   get_lun,lun
   openw, lun, "TC_237_10_RCR.tcl"
@@ -17,7 +18,7 @@ pro stx_sim_create_rcr_tc, conf
   cmd = 'execTC "ZIX37010 '
   
   ;RCR enabled
-  cmd += " {PIX00401 Enabled} "
+  cmd += " {PIX00401 "+ enabled +"} "
   
   ;Pixel mask RCR state = 0
   cmd += ' {PIX00402 ' + trim(bit13[0] + stx_mask2bits(reverse((*(rcr_struct[0].north))))) + '}'

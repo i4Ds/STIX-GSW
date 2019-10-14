@@ -30,6 +30,17 @@
 ;-
 
 
+
+function stx_fsw_fd_short__test::init, _extra=extra
+
+  self.sequence_name = 'stx_scenario_flare_detection_short_test'
+  self.test_name = 'AX_QL_TEST_FD'
+  self.configuration_file = 'stx_flight_software_simulator_ql_fd.xml'
+  setenv, 'WRITE_CALIBRATION_SPECTRUM=false'
+
+  return, self->stx_fsw__test::init(_extra=extra)
+end
+
 ;+
 ;
 ; :description:
@@ -163,13 +174,13 @@ pro stx_fsw_fd_short__test::test_flag_end
   flare_flag = flare_flag_str.flare_flag
   flare_flag[75:125] = 0
   ff_positive = flare_flag <1
-tol = 4
+tol = 3
 
   status = 1 + ff_positive - shift([ff_positive,0],1)
   end_sim = where(status eq 0)
 
   num_flags = 4
-  end_pred = [38,58,132,157]
+  end_pred = [36,58,133,159]
 
   agree = where(end_sim le end_pred+tol and end_sim ge end_pred-tol,count)
 
@@ -205,7 +216,7 @@ pro stx_fsw_fd_short__test::test_flag_end_tm
   end_sim = where(status eq 0)
 
   num_flags = 4
-  end_pred = [38,58,132,157] + self.t_shift
+  end_pred = [36,58,133,159] + self.t_shift
 
   agree = where(end_sim le end_pred+tol and end_sim ge end_pred-tol,count)
 
@@ -270,9 +281,9 @@ pro stx_fsw_fd_short__test::test_flag_positve
 
   pos_pred = bytarr(n_elements(pos_sim))
 
-  st_pred = [31.,44.,130,150]
+  st_pred = [31.,44.,130,149]
 
-  dur_pred = [7,14,3,8]
+  dur_pred = [6,15,3,10]
 
   for i=0, n_elements(st_pred)-1 do pos_pred[st_pred[i]] = replicate(1b, dur_pred[i])
 
@@ -282,8 +293,8 @@ pro stx_fsw_fd_short__test::test_flag_positve
 
   mess = 'Flag positive test failure: ' +$
     string(13B) + 'Fraction of matching bins is: ' + string(frac_match,format='(F0.2)') +$
-    string(13B) + 'Expected flag array:' + strjoin(trim(fix(pos_pred)),",") +$
-    string(13B) + 'but found flag array: ' + strjoin(trim(fix(pos_sim)),",")
+    string(13B) + 'Expected flag array:  ' + string(13B) + strjoin(trim(fix(pos_pred)),",") + $
+    string(13B) + 'but found flag array: ' + string(13B) + strjoin(trim(fix(pos_sim )),",")
 
   assert_true,  frac_match ge  0.95, mess
 end
@@ -309,9 +320,12 @@ pro stx_fsw_fd_short__test::test_flag_positve_tm
 
   pos_pred = bytarr(n_elements(pos_sim))
 
-  st_pred = [31.,44.,130,150]+self.t_shift
 
-  dur_pred = [7,14,3,8]
+  st_pred = [31.,44.,130,149]+self.t_shift
+
+  dur_pred = [6,15,3,10]
+
+
 
   for i=0, n_elements(st_pred)-1 do pos_pred[st_pred[i]] = replicate(1b, dur_pred[i])
 
@@ -345,7 +359,8 @@ pro stx_fsw_fd_short__test::test_thermal_long
 
   self.fsw->getproperty, stx_fsw_m_flare_flag=flare_flag_str, /complete, /combine
   flare_flag = (flare_flag_str.flare_flag)[mins:maxs]
-  therm_lon_base_sim = (flare_flag and 3B)
+  therm_lon_base_sim = ishft(flare_flag,-5)
+
 
   expect = 31 - mins
 
@@ -355,8 +370,8 @@ pro stx_fsw_fd_short__test::test_thermal_long
 
   mess = 'Flare magnitude index thermal long baseline - ' +$
     string(13B) + ' minimum start test failure: ' +$
-    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect)),",") +$
-    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found)),",")
+    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect + mins)),",") +$
+    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found + mins)),",")
 
 
   assert_true, count, mess
@@ -380,7 +395,7 @@ pro stx_fsw_fd_short__test::test_thermal_long_tm
   self.tmtc_reader->getdata, asw_ql_flare_flag_location=ffl_tm, solo_packet=solo_packets
   flare_flag = (ffl_tm[0].flare_flag)[mins:maxs]
   
-  therm_lon_base_sim = (flare_flag and 3B)
+  therm_lon_base_sim = ishft(flare_flag,-5)
   
   ;TODO n.h. add self.t_shift ?
   expect = 31 - mins
@@ -391,8 +406,8 @@ pro stx_fsw_fd_short__test::test_thermal_long_tm
 
   mess = 'Flare magnitude index thermal long baseline - ' +$
     string(13B) + ' minimum start test failure: ' +$
-    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect)),",") +$
-    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found)),",")
+    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect + mins)),",") +$
+    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found + mins)),",")
 
 
   assert_true, count, mess
@@ -417,7 +432,7 @@ pro stx_fsw_fd_short__test::test_thermal_short
 
   self.fsw->getproperty, stx_fsw_m_flare_flag=flare_flag_str, /complete, /combine
   flare_flag = (flare_flag_str.flare_flag)[mins:maxs]
-  therm_short_base =(ishft(flare_flag,-2)and 3B)
+  therm_short_base = ishft(flare_flag,-5)
 
   expect = 130 - mins
 
@@ -427,8 +442,8 @@ pro stx_fsw_fd_short__test::test_thermal_short
 
   mess = 'Flare magnitude index thermal short baseline - ' +$
     string(13B) + ' minimum start test failure: ' +$
-    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect)),",") +$
-    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found)),",")
+    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect + mins)),",") +$
+    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found + mins)),",")
 
   assert_true, count, mess
 end
@@ -452,7 +467,7 @@ pro stx_fsw_fd_short__test::test_thermal_short_tm
   flare_flag = (ffl_tm[0].flare_flag)[mins:maxs]
 
   
-  therm_short_base =(ishft(flare_flag,-2)and 3B)
+  therm_short_base = ishft(flare_flag,-5)
   
   ;TODO n.h. add self.t_shift ?
   expect = 130 - mins
@@ -463,8 +478,8 @@ pro stx_fsw_fd_short__test::test_thermal_short_tm
 
   mess = 'Flare magnitude index thermal short baseline - ' +$
     string(13B) + ' minimum start test failure: ' +$
-    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect)),",") +$
-    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found)),",")
+    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect + mins)),",") +$
+    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found + mins)),",")
 
   assert_true, count, mess
 end
@@ -488,7 +503,7 @@ pro stx_fsw_fd_short__test::test_nonthermal_long
   self.fsw->getproperty, stx_fsw_m_flare_flag=flare_flag_str, /complete, /combine
   flare_flag = (flare_flag_str.flare_flag)[mins:maxs]
   
-  nontherm_long_base_sim =(ishft(flare_flag,-4)and 3B)
+  nontherm_long_base_sim = ishft(flare_flag,-3) and 3b
 
   expect = 44 - mins
 
@@ -498,8 +513,8 @@ pro stx_fsw_fd_short__test::test_nonthermal_long
 
   mess = 'Flare magnitude index nonthermal long baseline - ' +$
     string(13B) + ' minimum start test failure: ' +$
-    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect)),",") +$
-    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found)),",")
+    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect + mins)),",") +$
+    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found + mins)),",")
 
   assert_true, count, mess
 end
@@ -522,7 +537,7 @@ pro stx_fsw_fd_short__test::test_nonthermal_long_tm
   self.tmtc_reader->getdata, asw_ql_flare_flag_location=ffl_tm, solo_packet=solo_packets
   flare_flag = (ffl_tm[0].flare_flag)[mins:maxs]  
   
-  nontherm_long_base_sim =(ishft(flare_flag,-4)and 3B)
+  nontherm_long_base_sim = ishft(flare_flag,-3) and 3b
 
   ;TODO n.h. add self.t_shift ?
   expect = 44 - mins
@@ -533,8 +548,8 @@ pro stx_fsw_fd_short__test::test_nonthermal_long_tm
 
   mess = 'Flare magnitude index nonthermal long baseline - ' +$
     string(13B) + ' minimum start test failure: ' +$
-    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect)),",") +$
-    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found)),",")
+    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect + mins)),",") +$
+    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found + mins)),",")
 
   assert_true, count, mess
 end
@@ -556,7 +571,7 @@ pro stx_fsw_fd_short__test::test_nonthermal_short
 
   self.fsw->getproperty, stx_fsw_m_flare_flag=flare_flag_str, /complete, /combine
   flare_flag = (flare_flag_str.flare_flag)[mins:maxs]
-  nontherm_short_base_sim =(ishft(flare_flag,-6)and 3B)
+  nontherm_short_base_sim = ishft(flare_flag,-3) and 3b
 
   expect = 150 - mins
 
@@ -566,8 +581,8 @@ pro stx_fsw_fd_short__test::test_nonthermal_short
 
   mess = 'Flare magnitude index nonthermal short baseline - ' +$
     string(13B) + ' minimum start test failure: ' +$
-    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect)),",") +$
-    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found)),",")
+    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect + mins)),",") +$
+    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found + mins)),",")
 
   assert_true, count, mess
 end
@@ -590,7 +605,7 @@ pro stx_fsw_fd_short__test::test_nonthermal_short_tm
   self.tmtc_reader->getdata, asw_ql_flare_flag_location=ffl_tm, solo_packet=solo_packets
   flare_flag = (ffl_tm[0].flare_flag)[mins:maxs]
   
-  nontherm_short_base_sim =(ishft(flare_flag,-6)and 3B)
+  nontherm_short_base_sim = ishft(flare_flag,-3) and 3b
 
   ;TODO n.h. add self.t_shift ?
   expect = 150 - mins
@@ -601,8 +616,8 @@ pro stx_fsw_fd_short__test::test_nonthermal_short_tm
 
   mess = 'Flare magnitude index nonthermal short baseline - ' +$
     string(13B) + ' minimum start test failure: ' +$
-    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect)),",") +$
-    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found)),",")
+    string(13B) + 'Expected start indices:' + strjoin(trim(fix(expect + mins)),",") +$
+    string(13B) + 'but found start indices: ' + strjoin(trim(fix(found + mins)),",")
 
   assert_true, count, mess
 end
@@ -610,35 +625,129 @@ end
 
 pro stx_fsw_fd_short__test::beforeclass
 
-  path = "D:\Temp\v20170123\AX_QL_TEST_FD\"
-
-  restore, filename=concat_dir(path, "fsw_conf.sav"), /verb
-
-  self.conf = confManager
-  
-  
-  restore, filename=concat_dir(path, "fsw.sav"), /verb
-  self.fsw    = fsw
-  
-  ;fsw-simulator: ql_tmtc.bin
-  ;AX: D1-2_AX_20180321_1400.bin
-  self.tmtc_reader = stx_telemetry_reader(filename = concat_dir(path, "ql_tmtc.bin"), /scan_mode, /merge_mode)
-  self.tmtc_reader->getdata, statistics = statistics
-  self.statistics = statistics
-
+  self->stx_fsw__test::beforeclass
 
   self.exepted_range = 0.05
   self.plots = list()
-  self.show_plot = 0
+
+
+  self.fsw->getproperty, stx_fsw_ql_lightcurve=lightcurve, /complete, /combine
+
+  lc =  total(lightcurve.accumulated_counts,1)
+  start = min(where(lc gt 100))
+  self.t_shift_sim = start
   
+  
+  if self.show_plot then begin
+    lc_plot = obj_new('stx_plot')
+   
+    a = lc_plot.create_stx_plot(stx_construct_lightcurve(from=lightcurve), /lightcurve, /add_legend, title="Sim Lightcurve Plot", ylog=1)
+   
+    self.plots->add, lc_plot
+  endif
+
+  if ~file_exist('ax_tmtc.bin') then begin
+    tmtc_data = {$
+      QL_LIGHT_CURVES : 1, $
+      QL_FLARE_FLAG_LOCATION : 1 $
+    }
+
+    print, self.fsw->getdata(output_target="stx_fsw_tmtc", filename='ax_tmtc.bin', _extra=tmtc_data)
+  end
+
+
+  self.tmtc_reader = stx_telemetry_reader(filename = "ax_tmtc.bin", /scan_mode, /merge_mode)
+  self.tmtc_reader->getdata, statistics = statistics
+  self.statistics = statistics
+
   self.tmtc_reader->getdata, asw_ql_lightcurve=ql_lightcurves,  solo_packet=solo_packets
-  ql_lightcurve = ql_lightcurves[0]
+  ql_lightcurve = stx_construct_lightcurve(from=ql_lightcurves[0])
   
-  
+  if self.show_plot then begin
+    lc_plot2 = obj_new('stx_plot')
     
-  self.t_shift = min(where(total(ql_lightcurve.counts,1) gt 0))
-  
-  v = stx_offset_gain_reader("offset_gain_table.csv", directory = concat_dir(path, "stix_conf\") , /reset)
+   
+    
+    a = lc_plot2.create_stx_plot(ql_lightcurve, /lightcurve, /add_legend, title="AX Lightcurve Plot", ylog=1)
+   
+    self.plots->add, lc_plot2
+    
+    
+    self.tmtc_reader->getdata, fsw_m_coarse_flare_locator=flare_locator_blocks, fsw_m_flare_flag=flare_flag_blocks, solo_packets=sp
+
+    coarse_flare_location = flare_locator_blocks[0]
+    flare_flag = flare_flag_blocks[0]
+    
+    rate_control = { $
+      type      : "rcr" , $
+      rcr       : ql_lightcurves[0].RATE_CONTROL_REGIME, $
+      time_axis : ql_lightcurve.time_axis $
+    }
+    
+    state_plot_object = obj_new('stx_state_plot')
+
+
+    current_time = isa(flare_flag) ? flare_flag.time_axis.time_start[-1] : rate_control.time_axis.time_start[-1]
+    state_plot_start_time = isa(flare_flag) ? flare_flag.time_axis.time_start[0] : rate_control.time_axis.time_start[0]
+
+    state_plot_object.plot, flare_flag=flare_flag, rate_control=rate_control, current_time=current_time, $
+      start_time=state_plot_start_time, coarse_flare_location=coarse_flare_location, dimensions=[1260,350], /add_legend, current_window = window()
+
+    self.plots->add, state_plot_object
+    
+  endif
+
+
+  stx_sim_create_rcr_tc, self.conf
+
+  default, directory , getenv('STX_DET')
+  default, og_filename, 'offset_gain_table.csv'
+  default, eb_filename, 'EnergyBinning20150615.csv'
+
+  stx_sim_create_elut, og_filename=og_filename, eb_filename=eb_filename, directory = directory
+
+  stx_sim_create_ql_tc, self.conf
+
+  get_lun,lun
+  openw, lun, "test_custom.tcl"
+  printf, lun, 'syslog "running custom script for CFL test"'
+  printf, lun, 'source [file join [file dirname [info script]] "TC_237_10_RCR.tcl"]'
+  free_lun, lun
+
+
+  lc =  total(ql_lightcurve.DATA,1)
+  start = min(where(lc gt 100))
+  self.t_shift = start
+
+
+;  path = "D:\Temp\v20170123\AX_QL_TEST_FD\"
+;
+;  restore, filename=concat_dir(path, "fsw_conf.sav"), /verb
+;
+;  self.conf = confManager
+;  
+;  
+;  restore, filename=concat_dir(path, "fsw.sav"), /verb
+;  self.fsw    = fsw
+;  
+;  ;fsw-simulator: ql_tmtc.bin
+;  ;AX: D1-2_AX_20180321_1400.bin
+;  self.tmtc_reader = stx_telemetry_reader(filename = concat_dir(path, "ql_tmtc.bin"), /scan_mode, /merge_mode)
+;  self.tmtc_reader->getdata, statistics = statistics
+;  self.statistics = statistics
+;
+;
+;  self.exepted_range = 0.05
+;  self.plots = list()
+;  self.show_plot = 0
+;  
+;  self.tmtc_reader->getdata, asw_ql_lightcurve=ql_lightcurves,  solo_packet=solo_packets
+;  ql_lightcurve = ql_lightcurves[0]
+; 
+;    
+;  self.t_shift = min(where(total(ql_lightcurve.counts,1) gt 0))
+;  
+;  v = stx_offset_gain_reader("offset_gain_table.csv", directory = concat_dir(path, "stix_conf\") , /reset)
 
 end
 
@@ -651,35 +760,11 @@ pro stx_fsw_fd_short__test::afterclass
   destroy, self.tmtc_reader
 end
 
-;+
-; cleanup after each test case
-;-
-pro stx_fsw_fd_short__test::after
-
-
-end
-
-;+
-; init before each test case
-;-
-pro stx_fsw_fd_short__test::before
-
-
-end
-
 
 pro stx_fsw_fd_short__test__define
   compile_opt idl2, hidden
 
   void = { $
     stx_fsw_fd_short__test, $
-    fsw    : obj_new(), $
-    conf : obj_new(), $
-    tmtc_reader : obj_new(), $
-    statistics : list(), $
-    exepted_range: 0.0d, $
-    plots : list(), $
-    t_shift : 0L, $
-    show_plot : 0b, $
-    inherits iut_test }
+   inherits stx_fsw__test }
 end

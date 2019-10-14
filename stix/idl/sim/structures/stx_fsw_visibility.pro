@@ -25,6 +25,7 @@ function stx_fsw_visibility
             imag_pos   : long64(0), $   ; minuend of the imaginary part
             real_part  : long64(0), $
             imag_part  : long64(0), $
-            sigamp  : long64(0) $
+            sigamp  : long64(0), $
+            detector_id : byte(0) $
           }
 end

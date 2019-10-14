@@ -21,13 +21,10 @@ function stx_telemetry_packet_structure_sd_xray_1_subheader, packet_word_width=p
     packet                           : 'stx_tmtc_sd_xray_1', $
     delta_time                       : 16, $
     rate_control_regime              : 8, $
-    number_energy_groups             : 5, $ 
-    spare                            : 3, $
-    number_of_pixel_sets             : 8, $
-    pixel_set_index                  : 8, $
+    number_of_pixel_sets             : 8, $ ;define p
+    dynamic_pixel_sets               : 0UL, $                  : 8, $
     detector_mask                    : 32, $
     duration                         : 16, $
-    number_science_data_samples      : 16, $       ; Defines M
     trigger_acc_0                    : 8, $
     trigger_acc_1                    : 8, $
     trigger_acc_2                    : 8, $
@@ -44,10 +41,11 @@ function stx_telemetry_packet_structure_sd_xray_1_subheader, packet_word_width=p
     trigger_acc_13                   : 8, $
     trigger_acc_14                   : 8, $
     trigger_acc_15                   : 8, $
+    number_energy_groups             : 8, $       ; Defines E
     ; Start of science data sample
     dynamic_e_low                    : 0UL, $
     dynamic_e_high                   : 0UL, $
-    dynamic_spare                    : 0UL, $
+    dynamic_n_counts                 : 0UL, $
     dynamic_counts                   : 0UL, $
     pkg_total_bytes_fixed            : long(0) $
   } ; 584 bits fixed = 73 bytes
@@ -71,13 +69,10 @@ function stx_telemetry_packet_structure_sd_xray_1_subheader, packet_word_width=p
     type                             : 'stx_tmtc_sd_xray_1', $
     delta_time                       : uint(0), $
     rate_control_regime              : byte(0), $
-    number_energy_groups             : uint(0), $       ; Defines E
-    spare                            : byte(0), $
     number_of_pixel_sets             : uint(0), $       ; Defines P (Pixels)
-    pixel_set_index                  : uint(0), $
+    dynamic_pixel_sets               : ptr_new(), $     ; Array of length p
     detector_mask                    : ulong(0), $      ; Defines D (Detectors)
     duration                         : uint(0), $
-    number_science_data_samples      : uint(0), $       ; Defines M
     trigger_acc_0                    : ulong(0), $
     trigger_acc_1                    : ulong(0), $
     trigger_acc_2                    : ulong(0), $
@@ -94,10 +89,11 @@ function stx_telemetry_packet_structure_sd_xray_1_subheader, packet_word_width=p
     trigger_acc_13                   : ulong(0), $
     trigger_acc_14                   : ulong(0), $
     trigger_acc_15                   : ulong(0), $
+    number_energy_groups             : uint(0), $       ; Defines E
     ; Start of science data sample
     dynamic_e_low                    : ptr_new(), $ ; Array of length E
     dynamic_e_high                   : ptr_new(), $ ; Array of length E
-    dynamic_spare                    : ptr_new(), $ ; Array of length E
+    dynamic_n_counts                 : ptr_new(), $ ; Array of length E
     dynamic_counts                   : ptr_new(), $ ; List of length E containing Arrays of Pixelsets*Detectors
     pkg_word_width                   : packet_word_width $
   }

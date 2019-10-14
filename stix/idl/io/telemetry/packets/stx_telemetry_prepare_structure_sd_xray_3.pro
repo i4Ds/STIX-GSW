@@ -334,16 +334,11 @@ pro stx_telemetry_prepare_structure_sd_xray_3_read, fsw_visibility_time_group=fs
   fsw_visibility_time_group = list()
 
   ; get compression params
-  compression_param_k_acc = fix(ishft((*solo_slices[0].source_data).compression_schema_acc,-3) and 7)
-  compression_param_m_acc = fix((*solo_slices[0].source_data).compression_schema_acc and 7)
-  compression_param_s_acc = fix(ishft((*solo_slices[0].source_data).compression_schema_acc,-6) and 3)
-  compression_param_k_t = fix(ishft((*solo_slices[0].source_data).compression_schema_t,-3) and 7)
-  compression_param_m_t = fix((*solo_slices[0].source_data).compression_schema_t and 7)
-  compression_param_s_t = fix(ishft((*solo_slices[0].source_data).compression_schema_t,-6) and 3)
+  stx_km_compression_schema_to_params, (*solo_slices[0].source_data).compression_schema_acc, k=compression_param_k_acc, m=compression_param_m_acc, s=compression_param_s_acc
+  stx_km_compression_schema_to_params, (*solo_slices[0].source_data).compression_schema_t, k=compression_param_k_t, m=compression_param_m_t, s=compression_param_s_t
+ 
 
-  ; start time as stx_time
-  stx_telemetry_util_time2scet,coarse_time=(*solo_slices[0].source_data).coarse_time, $
-    fine_time=(*solo_slices[0].source_data).fine_time, stx_time_obj=t0, /reverse
+
 
   ; use starting time and duration as unique identifier per time bin
   starting_time = -1L
@@ -357,13 +352,15 @@ pro stx_telemetry_prepare_structure_sd_xray_3_read, fsw_visibility_time_group=fs
 
   ; loop through all solo_slices
   foreach solo_packet, solo_slices do begin
-
+    
+    ; start time as stx_time  
+    stx_telemetry_util_time2scet,coarse_time=(*solo_packet.source_data).COARSE_TIME, $
+      fine_time=(*solo_packet.source_data).fine_time, stx_time_obj=t0, /reverse
+  
+    
     ; loop through all subheaders
     foreach subheader, (*(*solo_packet.source_data).dynamic_subheaders) do begin
       
-      compression_param_k_vis = fix(ishft(subheader.compression_schema_vis,-3) and 7)
-      compression_param_m_vis = fix(subheader.compression_schema_vis and 7)
-      compression_param_s_vis = fix(ishft(subheader.compression_schema_vis,-6) and 3)
 
       ; create a new time bin
       if (starting_time ne subheader.delta_time or duration ne subheader.duration) then begin        
@@ -420,29 +417,37 @@ pro stx_telemetry_prepare_structure_sd_xray_3_read, fsw_visibility_time_group=fs
       endif
 
       ; create a an archive buffer entry for each count
-      tmp_interval = replicate(interval_entry, subheader.number_substructures)
+      tmp_interval = replicate(interval_entry, subheader.NUMBER_ENERGY_GROUPS)
       relative_time = dblarr(2)
       relative_time[0] = stx_telemetry_util_relative_time(start_time)
       relative_time[1] = stx_telemetry_util_relative_time(end_time)
       energy_science_channel_range = bytarr(2)
 
       ; loop through all data samples
-      for i=0L,   subheader.number_substructures-1 do begin
-        tmp_interval[i].energy_science_channel_range[0] = (*subheader.dynamic_e_low)[i]
+      for e=0L,   subheader.NUMBER_ENERGY_GROUPS-1 do begin
+        tmp_interval[e].energy_science_channel_range[0] = (*subheader.dynamic_e_low)[e]
         ;+1 as we substract 1 in the writing process.
-        tmp_interval[i].energy_science_channel_range[1] = (*subheader.dynamic_e_high)[i]+1
+        tmp_interval[e].energy_science_channel_range[1] = (*subheader.dynamic_e_high)[e]+1
+        
+        tmp_interval[e].total_flux = stx_km_decompress((*subheader.dynamic_tot_counts)[e], $
+            compression_param_k_t, compression_param_m_t, compression_param_s_t)
           
-        for j=0L, loop_D-1 do begin
-          tmp_interval[i].vis[j].total_flux = stx_km_decompress((*subheader.dynamic_tot_counts)[j,i], $
+        for d=0L, loop_D-1 do begin
+          
+          tmp_interval[e].vis[d].detector_id = (*subheader.dynamic_detector_id)[e,d]
+           
+          tmp_interval[e].vis[d].REAL_PART = stx_km_decompress((*subheader.dynamic_vis_real)[e,d], $
             compression_param_k_acc, compression_param_m_acc, compression_param_s_acc)
-          tmp_interval[i].vis[j].REAL_PART = stx_km_decompress((*subheader.dynamic_vis_real)[j,i], $
-            compression_param_k_vis, compression_param_m_vis, compression_param_s_vis)
-          tmp_interval[i].vis[j].IMAG_PART = stx_km_decompress((*subheader.dynamic_vis_imaginary)[j,i], $
-            compression_param_k_vis, compression_param_m_vis, compression_param_s_vis)
+          tmp_interval[e].vis[d].IMAG_PART = stx_km_decompress((*subheader.dynamic_vis_imaginary)[e,d], $
+            compression_param_k_acc, compression_param_m_acc, compression_param_s_acc)
+            
+          if (*subheader.dynamic_vis_real)[e,d] ne 0 OR (*subheader.dynamic_vis_imaginary)[e,d] ne 0 then begin
+            print, tmp_interval[e].vis[d].REAL_PART  ,tmp_interval[e].vis[d].IMAG_PART
+          endif
         endfor
         
-        tmp_interval[i].relative_time_range = relative_time
-        if keyword_set(lvl_2) then tmp_interval[i].sumcase = pixel_set_index
+        tmp_interval[e].relative_time_range = relative_time
+        if keyword_set(lvl_2) then tmp_interval[e].sumcase = pixel_set_index
       endfor
 
       if(n_elements(interval_column) eq 0) then interval_column = [tmp_interval] $

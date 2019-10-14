@@ -82,7 +82,7 @@ function prepare_packet_structure_sd_xray_1_write_fsw, $
     sub_packet.duration = fix(round(stx_time_diff(buffer_slice.END_TIME,$
       buffer_slice.START_TIME)*10))
 
-    sub_packet.number_science_data_samples = (size(buffer_slice.INTERVALS))[1]
+    sub_packet.number_energy_groups = (size(buffer_slice.INTERVALS))[1]
     sub_packet.detector_mask=stx_mask2bits(buffer_slice.detector_mask,mask_length=32)
     loop_D = fix(TOTAL(buffer_slice.detector_mask))
     ;loop_P = fix(TOTAL(buffer_slice.pixel_mask))
@@ -343,37 +343,23 @@ pro stx_telemetry_prepare_structure_sd_xray_1_read, fsw_pixel_data_time_group=fs
   ; init counter for number of structures
   total_number_of_structures=0
   fsw_pixel_data_time_group = list()
-
-  ; get compression params
-  compression_param_k_acc = fix(ishft((*solo_slices[0].source_data).compression_schema_acc,-3) and 7)
-  compression_param_m_acc = fix((*solo_slices[0].source_data).compression_schema_acc and 7)
-  compression_param_s_acc = fix(ishft((*solo_slices[0].source_data).compression_schema_acc,-6) and 3)
-  compression_param_k_t = fix(ishft((*solo_slices[0].source_data).compression_schema_t,-3) and 7)
-  compression_param_m_t = fix((*solo_slices[0].source_data).compression_schema_t and 7)
-  compression_param_s_t = fix(ishft((*solo_slices[0].source_data).compression_schema_t,-6) and 3)
-
-  ; start time as stx_time
-  stx_telemetry_util_time2scet,coarse_time=(*solo_slices[0].source_data).coarse_time, $
-    fine_time=(*solo_slices[0].source_data).fine_time, stx_time_obj=t0, /reverse
+  
+  stx_km_compression_schema_to_params, (*solo_slices[0].source_data).compression_schema_acc, k=compression_param_k_acc, m=compression_param_m_acc, s=compression_param_s_acc
+  stx_km_compression_schema_to_params, (*solo_slices[0].source_data).compression_schema_t, k=compression_param_k_t, m=compression_param_m_t, s=compression_param_s_t
+ 
 
   ; use starting time and duration as unique identifier per time bin
   starting_time = -1L
   duration = 0L
   not_first = 0
 
-  ; ToDo: Implement (and get) pixel set lookup table
-  message, 'INFO: There is no pixel set lookup table yet. Default pixel_mask applied.', /INFO
-
-  interval_entry = stx_fsw_pixel_data()
-  type = 'stx_fsw_pixel_data_time_group'
-  if keyword_set(lvl_2) then begin
-    interval_entry = stx_fsw_pixel_data_summed()
-    type = 'fsw_pixel_data_summed_time_group'
-  endif
-
   ; loop through all solo_slices
   foreach solo_packet, solo_slices do begin
-
+    
+      ; start time as stx_time
+    stx_telemetry_util_time2scet,coarse_time=(*solo_packet.source_data).COARSE_TIME, $
+      fine_time=(*solo_packet.source_data).fine_time, stx_time_obj=t0, /reverse
+    
     ; loop through all subheaders
     foreach subheader, (*(*solo_packet.source_data).dynamic_subheaders) do begin
 
@@ -387,14 +373,15 @@ pro stx_telemetry_prepare_structure_sd_xray_1_read, fsw_pixel_data_time_group=fs
             intervals       : interval_column, $
             start_time      : start_time, $
             end_time        : end_time, $
-            pixel_mask      : pixel_mask, $
+            pixel_sets      : pixel_sets, $
             detector_mask   : detector_mask, $
             rcr             : rcr ,$
             trigger         : trigger $
           }
         endif
         not_first = 1
-
+        
+             
         ; set starting_time and duration to defined unique time bin values
         duration = subheader.duration
         starting_time = subheader.delta_time
@@ -402,15 +389,28 @@ pro stx_telemetry_prepare_structure_sd_xray_1_read, fsw_pixel_data_time_group=fs
         ; convert numbers to masks
         stx_telemetry_util_encode_decode_structure, $
           input=subheader.detector_mask, detector_mask=detector_mask
+          
+        n_det = total(detector_mask, /INTEGER)  
+          
+        if keyword_set(lvl_2) then begin
+          interval_entry = stx_fsw_pixel_data_summed(pixels=subheader.number_of_pixel_sets, detectors=n_det)
+          type = 'fsw_pixel_data_summed_time_group'
+        endif else begin
+          interval_entry = stx_fsw_pixel_data(pixels=subheader.number_of_pixel_sets, detectors=n_det)
+          type = 'stx_fsw_pixel_data_time_group'
+        endelse          
         
-        ; ToDo: Implement (and get) pixel set lookup table
-        pixel_mask=bytarr(12)
-        for i=0, subheader.number_of_pixel_sets -1 do pixel_mask[i]=1b
+        ;pixeldescriptors
+        pixel_sets=ulonarr(subheader.number_of_pixel_sets)
+        for i=0, subheader.number_of_pixel_sets -1 do pixel_sets[i]=(*subheader.dynamic_pixel_sets)[i]
 
         ; get subheader information
         rcr = subheader.rate_control_regime
         start_time = stx_time_add(t0, seconds=subheader.delta_time/10.0d)
         end_time = stx_time_add(t0, seconds=(subheader.duration+subheader.delta_time)/10.d)
+        
+        
+        print, subheader.duration
 
         trigger = ULON64ARR(16)
         trigger[0] = stx_km_decompress(subheader.trigger_acc_0, compression_param_k_t, compression_param_m_t, compression_param_s_t)
@@ -435,26 +435,30 @@ pro stx_telemetry_prepare_structure_sd_xray_1_read, fsw_pixel_data_time_group=fs
       endif
 
       ; create a an archive buffer entry for each count
-      tmp_interval = replicate(interval_entry, subheader.number_science_data_samples)
+      tmp_interval = replicate(interval_entry, subheader.NUMBER_ENERGY_GROUPS)
       relative_time = dblarr(2)
       relative_time[0] = stx_telemetry_util_relative_time(start_time)
       relative_time[1] = stx_telemetry_util_relative_time(end_time)
       energy_science_channel_range = bytarr(2)
-      if keyword_set(lvl_2) then pixel_set_index = subheader.pixel_set_index
+      ;if keyword_set(lvl_2) then pixel_set_index = subheader.pixel_set_index
 
       ; loop through all data samples
-      for i=0L,   subheader.number_science_data_samples-1 do begin
+      for i=0L,   subheader.NUMBER_ENERGY_GROUPS-1 do begin
         tmp_interval[i].energy_science_channel_range[0] = (*subheader.dynamic_e_low)[i]
         ;+1 as we substract 1 in the writing process.
         tmp_interval[i].energy_science_channel_range[1] = (*subheader.dynamic_e_high)[i]+1
         tmp_interval[i].counts = reform(stx_km_decompress((*subheader.dynamic_counts)[*,*,i], $
           compression_param_k_acc, compression_param_m_acc, compression_param_s_acc))
         tmp_interval[i].relative_time_range = relative_time
-        if keyword_set(lvl_2) then tmp_interval[i].sumcase = pixel_set_index
+        ;if keyword_set(lvl_2) then tmp_interval[i].sumcase = pixel_set_index
       endfor
 
-      if(n_elements(interval_column) eq 0) then interval_column = [tmp_interval] $
-      else interval_column = [interval_column,tmp_interval]
+      if(n_elements(interval_column) eq 0) then begin 
+        interval_column = [tmp_interval] 
+        ft = tmp_interval[0].relative_time_range[0]
+      end else interval_column = [interval_column,tmp_interval]
+      
+      print, tmp_interval[0].relative_time_range - ft
 
     endforeach
 
@@ -466,7 +470,7 @@ pro stx_telemetry_prepare_structure_sd_xray_1_read, fsw_pixel_data_time_group=fs
         intervals       : interval_column, $
         start_time      : start_time, $
         end_time        : end_time, $
-        pixel_mask      : pixel_mask, $
+        pixel_sets      : pixel_sets, $
         detector_mask   : detector_mask, $
         rcr             : rcr ,$
         trigger         : trigger $

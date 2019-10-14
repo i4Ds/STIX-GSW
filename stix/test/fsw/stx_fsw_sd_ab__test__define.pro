@@ -176,6 +176,21 @@ pro stx_fsw_sd_ab__test::beforeclass
   printf, lun, 'source [file join [file dirname [info script]] "TC_237_13_FPP.tcl"]'
   free_lun, lun
   
+  
+  get_lun,lun
+  openw, lun, "reqeust_data_l0.tcl"
+  printf, lun, 'source D:\\Tools\\scripts\\procedures.tcl'
+  printf, lun, '# PIX00072 is the start time '
+  
+  printf, lun, 'execTC "ZIX38001 {PIX00076 123} {PIX00070 0} {PIX00072 SET_TIME_HERE} {PIX00073 0} {PIX00248 4294967295} {PIX00071 2} {PIX00077 0} {PIX00078 200} {PIX00079 1} {PIX00200 0} {PIX00201 31} {PIX00202 1} {PIX00077 200} {PIX00078 400} {PIX00079 10} {PIX00200 0} {PIX00201 16} {PIX00202 2}"'
+  free_lun, lun
+  
+  get_lun,lun
+  openw, lun, "reqeust_data_l1.tcl"
+  printf, lun, 'source D:\\Tools\\scripts\\procedures.tcl'
+  printf, lun, '# PIX00072 is the start time '
+  printf, lun, 'execTC "ZIX38001 {PIX00076 123} {PIX00070 1} {PIX00072 SET_TIME_HERE} {PIX00073 0} {PIX00248 4294967295} {PIX00071 2} {PIX00077 0} {PIX00078 200} {PIX00079 1} {PIX00200 0} {PIX00201 31} {PIX00202 1} {PIX00077 200} {PIX00078 400} {PIX00079 10} {PIX00200 0} {PIX00201 16} {PIX00202 2}"'
+  free_lun, lun
    
   ;lc =  total(ql_lightcurve.counts,1)
   ;start = min(where(lc gt 100))

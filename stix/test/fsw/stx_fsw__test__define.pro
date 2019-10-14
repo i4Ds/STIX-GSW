@@ -16,7 +16,8 @@
 
 
 
-function stx_fsw__test::init, _extra=extra
+function stx_fsw__test::init, plot=plot, _extra=extra
+  default, plot, 0
   self.version = 'v20170123' ;time2file(trim(ut_time(/to_local)), /seconds)
   self.seed = 1337
   self.test_root = 'D:\Temp'
@@ -24,7 +25,7 @@ function stx_fsw__test::init, _extra=extra
   self.t_r = 9.91d-6
   self.t_ig = 0.35d-6
   self.offset_gain_table = ""
-  self.show_plot = 1
+  self.show_plot = plot
   return, 1
 end
 

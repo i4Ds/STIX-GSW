@@ -473,19 +473,38 @@ pro stx_scenario_detector_failure__test::test_co_oscillating_flux_80_sourceb_rem
 endelse
 end
 
-;pro stx_scenario_detector_failure__test::beforeclass
-;  self->_setup_test
-;
-;  self->_setup_test_environment
-;
-;  restore, filename=filepath("fsw.sav",root_dir=self.test_output_dir), /ver
-;  self.fsw = fsw
-;end
+pro stx_scenario_detector_failure__test::beforeclass
+   
+   self->stx_scenario_test::beforeclass
+   
+   if self.show_fsw_plots then begin
+   
+     self.fsw->getProperty,     reference_time = reference_time, $
+       current_time  = current_time, $
+       stx_fsw_m_detector_monitor = detector_monitor, $
+       stx_fsw_m_flare_flag = flare_flag, $
+       stx_fsw_ql_lightcurve=lightcurve, $
+       /complete, /combine
+     
+    
+     self.dh_plot = obj_new('stx_detector_health_plot')
+     self.dh_plot.plot, detector_monitor=detector_monitor, flare_flag=flare_flag, $
+       start_time=reference_time, current_time=current_time, $
+       dimensions=[1300,1300], position=[0.1,0.2,0.9,0.9]
+       
+     self.lc_plot = obj_new('stx_plot')
+     a = self.lc_plot.create_stx_plot(stx_construct_lightcurve(from=lightcurve), /lightcurve, /add_legend, title="Lightcurve FSW", ylog=0)
+   end
+   
+
+end
 
 pro stx_scenario_detector_failure__test__define
   compile_opt idl2, hidden
   
   void = { $
     stx_scenario_detector_failure__test, $
+    dh_plot : obj_new(), $
+    lc_plot : obj_new(), $
     inherits stx_scenario_test }
 end

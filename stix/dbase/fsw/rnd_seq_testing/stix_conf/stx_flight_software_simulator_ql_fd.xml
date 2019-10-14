@@ -173,7 +173,7 @@
 		<parameter name="bkg_weigths" default="[0,1,0,0,0]" valid="total(X ge 0) eq 5" type="int_array">
 			<description>Weights on the background determinations.</description>
 		</parameter>
-		<parameter name="out_of_range_factor" default="800" valid="X gt 0" type="int">
+		<parameter name="out_of_range_factor" default="255" valid="X gt 0" type="int">
 			<description>Parameter used to determine if flare is out of range by comparing the counts in the 4 quadrants.</description>
 		</parameter>
 		<parameter name="tot_bk_factor" default="10" valid="ppl_xml_value_in_interval_test(X,[1,80])" type="int">
@@ -307,7 +307,6 @@
 			<description>1 if enable, 0 if disable the background determination</description>
 		</parameter>
 	</section>
-	
 	<section name="stx_fsw_module_flare_detection" alias="fd">
 		<description>Generates a flag for each accumulation bin whether a flare is in progress or not, incl. a flare intensity.</description>
 		<parameter name="update_frequency" default="4" valid="X gt 0" type="int">
@@ -318,36 +317,22 @@
 			<description>Seconds for the median window of 2 time series.</description>
 			<unit>seconds</unit>
 		</parameter>
-		<parameter name="thermal_cfmin" default="[36,36]" valid="total(X gt 0) eq 2" type="int_array">
-			<description>Count threshold to turn on a flare for both time series in the thermal band.</description>
-			<unit>seconds</unit>
-		</parameter>
-		<parameter name="nonthermal_cfmin" default="[180,180]" valid="total(X gt 0) eq 2" type="int_array">
-			<description>Count threshold to turn on a flare for both time series in the nonthermal band.</description>
-			<unit>counts</unit>
-		</parameter>
-		<parameter name="thermal_kdk" default="[0.2,0.2]" valid="total(X gt 0) eq 2" type="float_array">
-			<description>Relative kdk factor for both time series for the thermal band.</description>
-			<unit>counts</unit>
-		</parameter>
-		<parameter name="nonthermal_kdk" default="[0.2,0.2]" valid="total(X gt 0) eq 2" type="float_array">
-			<description>Relative kdk factor for both time series for the nonthermal band.</description>
-		</parameter>
-		 <parameter name="thermal_krel_rise" default="[1.5,1.5]" valid="total(X gt 0) eq 2" type="float_array">
-			<description>Relative krel factor for both time series for the thermal band.</description>
-		</parameter>
-		<parameter name="nonthermal_krel_rise" default="[1.,1]" valid="total(X gt 0) eq 2" type="float_array">
-			<description>relative krel factor for both time series for the nonthermal band.</description>
-		</parameter>
-		<parameter name="thermal_krel_decay" default="[0.5,0.5]" valid="total(X gt 0) eq 2" type="float_array">
-			<description>Relative krel factor for both time series for the thermal band.</description>
-		</parameter>
-		<parameter name="nonthermal_krel_decay" default="[0.5,0.5]" valid="total(X gt 0) eq 2" type="float_array">
-			<description>relative krel factor for both time series for the nonthermal band.</description>
-		</parameter>
-		<parameter name="kb" default="30." valid="X gt 0" type="float">
-			<description>Background scaling factor for all energies and times.</description>
-		</parameter>
+        <parameter name="cfmin" default="10" valid="X gt 0" type="int">
+            <description>Count threshold to turn on a flare for both time series and both energy bands.</description>
+            <unit>counts</unit>
+        </parameter>
+        <parameter name="kdk" default="0.2" valid="X gt 0" type="float">
+            <description>Relative kdk factor for both time series and both energy bands.</description>
+        </parameter>
+        <parameter name="krel_rise" default="1.5" valid="X gt 0" type="float">
+            <description>Relative krel factor for both time series for the thermal band.</description>
+        </parameter>
+        <parameter name="krel_decay" default="0.5" valid="X gt 0" type="float">
+            <description>Relative krel factor for both time series and both energy bands.</description>
+        </parameter>
+        <parameter name="kb" default="1." valid="X gt 0" type="float">
+            <description>Background scaling factor for all energies and times.</description>
+        </parameter>
 		<parameter name="flare_intensity_lut_file" default="concat_dir(getenv('STX_CONF'), 'stx_fsw_flare_intensity.csv')" valid="file_exist(X)" type="string">
 			<description>This is a file path to the flare intensity lookup table.</description>
 		</parameter>

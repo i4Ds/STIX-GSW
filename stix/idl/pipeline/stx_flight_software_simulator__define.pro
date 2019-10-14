@@ -81,15 +81,15 @@ end
 
 pro stx_flight_software_simulator::reloadConfig
   print, "reload config"
-  
+
 
   (*(*self.internal_state).CONFIGURATION_MANAGER)->load_configuration
-  
+
   ;new_conf = stx_configuration_manager(application_name=curent_conf.APPLICATION, initialize=0,configfile=curent_conf.CONFIGURATION_FILE )
 
   ;self->_inititalize_new_fsw_instance, expected_number_time_bins=expected_number_time_bins, start_time=start_time, keep_temp_and_calib_detector_events=keep_temp_and_calib_detector_events, _extra=ex
 
-  
+
 end
 
 ; TODO: Write documtentation
@@ -126,10 +126,10 @@ pro stx_flight_software_simulator::_inititalize_new_fsw_instance, expected_numbe
 
   rcr1b = stx_fsw_m_rate_control_regime()
   rcr1b.time_axis = self->_create_single_time_axis_entry(update_frequency=self->get(/rcr_update_frequency), lookahead = 1)
-  
+
   ; set the rate control regime to zero
   self->_write_data, product_type='stx_fsw_m_rate_control_regime', val=rcr1b, init_t0=0, init_expected_number_time_bins=100
-  
+
   ;rcr2b = stx_fsw_m_rate_control_regime()
   ;rcr2b.time_axis = self->_create_single_time_axis_entry(update_frequency=self->get(/rcr_update_frequency), lookahead =  2)
   ;self->_write_data, product_type='stx_fsw_m_rate_control_regime', val=rcr2b
@@ -508,8 +508,8 @@ end
 ;
 ;    total_source_counts : in, optional, type='long*'
 ;      the number of total counts per detector bevore RCR and time filtering
-;      
-;      
+;
+;
 ;    finalize_processing ; in, optional, type='boolean', default='0'
 ;      By setting this keyword to 1, the flight software simulator tells all its
 ;      modules to close off the data stream and buffers after this bin
@@ -532,9 +532,9 @@ pro stx_flight_software_simulator::process, eventlist, triggerlist, total_source
   ; only install error handler if this routine has not been previously called
   ppl_state_info, out_filename=this_file_name
   found = where(stregex(tb, this_file_name) ne -1, level)
-  
+
   default, total_source_counts, indgen(32)
-  
+
   if(level -1 eq 0) then begin
     ; activate error handler
     ; setup debugging and flow control
@@ -570,7 +570,7 @@ pro stx_flight_software_simulator::process, eventlist, triggerlist, total_source
   ppl_require, in=triggerlist, type='stx_sim_event_triggerlist'
 
   ; the following few lines calculate the number of 4s time bins for the given eventlist, then loops over every 4s separately
-   t_bin_width = (*self.internal_state).time_bin_width
+  t_bin_width = (*self.internal_state).time_bin_width
   density = histogram([eventlist.detector_events.relative_time], binsize=t_bin_width, reverse_indices=time_bin_idx, locations=locations, min=0, /l64)
   density_trigger = histogram([triggerlist.trigger_events.relative_time], binsize=t_bin_width, reverse_indices=time_bin_idx_triggers, locations=locations_triggers, min=0, /l64)
 
@@ -603,16 +603,16 @@ pro stx_flight_software_simulator::process, eventlist, triggerlist, total_source
       print, "Starting time_bin #: ", + trim(string((*self.internal_state).current_bin))
 
       self->_process, current_time_bin_eventlist, current_time_bin_triggerlist, finalize_processing=finalize_processing, _extra=extra
-      
-      
+
+
       tsc_struct = { $
         type      : "stx_fsw_total_source_counts", $
         time_axis : self->_create_single_time_axis_entry(update_frequency = 1), $
         counts    : total_source_counts $
       }
-      
+
       self->_write_data, product_type='stx_fsw_total_source_counts', val = tsc_struct
-            
+
       ; TODO: better logging
       print, "Finished time_bin #: ", + trim(string((*self.internal_state).current_bin))
     endif
@@ -881,13 +881,13 @@ function stx_flight_software_simulator::_execute_stx_fsw_module_rate_control_reg
   ; read the rate control regime state
   ;self->getproperty, current_rcr = rate_control_regime_in
   rate_control_regime_in = self->_read_data(product_type='stx_fsw_m_rate_control_regime', /most_n_recent)
-   
-   self->getproperty, current_bin = current_bin  
-   
-   if current_bin gt 47 then begin
+
+  self->getproperty, current_bin = current_bin
+
+  if current_bin gt 47 then begin
     print, current_bin
-   endif
-    
+  endif
+
   rcr_in = { $
     live_time       : ql_trigger_accumulator, $
     live_time_bkgd  : ql_background_monitor_trigger_accumulator, $
@@ -898,15 +898,15 @@ function stx_flight_software_simulator::_execute_stx_fsw_module_rate_control_reg
   if(~success) then message, 'Module '  + module + ' executed unsuccessfully'
 
 
- 
+
 
   ; set time axis
   rate_control_regime_out.time_axis = self->_create_single_time_axis_entry(update_frequency=self->get(/rcr_update_frequency),lookahead = 1)
-  
-  
-  
-  ;rate_control_regime_out.rcr = max([min([current_bin, 7]),0]) 
-    
+
+
+
+  ;rate_control_regime_out.rcr = max([min([current_bin, 7]),0])
+
   self->_write_data, product_type='stx_fsw_m_rate_control_regime', val=rate_control_regime_out
 
   return, rate_control_regime_out
@@ -928,9 +928,10 @@ function stx_flight_software_simulator::_execute_stx_fsw_module_flare_detection,
   ; get update frequency
   update_frequency = self->get(/fd_update_frequency)
 
+  ; 11-Feb-2019  ECMD (Graz) - Flare detection background is now elements 1 and 3 of the background estimate, corresponding to 8 - 16 and 25 - 50 energy bands.
   fd_in = { $
     ql_counts    : ql_flare_detection_accumulator, $
-    background   : long(background.background[0:1]), $ ; <- I have no idea why ; TODO: WHY?
+    background   : long([background.background[1],background.background[3]]), $ ; <- I have no idea why ; TODO: WHY?
     context      : context, $
     rcr          : rate_control_regime.rcr, $
     int_time     : update_frequency $
@@ -938,14 +939,12 @@ function stx_flight_software_simulator::_execute_stx_fsw_module_flare_detection,
 
   success = (self.modules)[module]->execute(fd_in, flare_flag, self.history, ((*self.internal_state).configuration_manager))
   if(~success) then message, 'Module '  + module + ' executed unsuccessfully'
-  
-   self->getproperty, current_bin = current_bin  
-   
-   ;if (current_bin gt 5 AND current_bin lt 10) OR (current_bin gt 17 AND current_bin lt 30) or (current_bin gt 35 ) then flare_flag.FLARE_FLAG = 1b
-  
+
+  self->getproperty, current_bin = current_bin
+
   ; set time axis
   flare_flag.time_axis = self->_create_single_time_axis_entry(update_frequency=update_frequency)
-    
+
   self->_write_data, product_type='stx_fsw_m_flare_flag', val=flare_flag
   ;self->_write_data, product_type='flare_detection_context', val=flare_detection.context
 
@@ -963,18 +962,18 @@ function stx_flight_software_simulator::_execute_stx_fsw_module_coarse_flare_loc
 
   ; get last background
   background = self->_read_data(product_type='stx_fsw_m_background', most_n_recent=no_backgrounds)
-  
-  flare_flag = self->_read_data(product_type='stx_fsw_m_flare_flag', /most_n_recent)
-  
-  previous_location_str = self->_read_data(product_type='stx_fsw_m_coarse_flare_location', /most_n_recent)
-
- previous_location  = exist(previous_location_str) ? [previous_location_str.x_pos[0],previous_location_str.y_pos[0]] : [0,0]
 
   flare_flag = self->_read_data(product_type='stx_fsw_m_flare_flag', /most_n_recent)
 
   previous_location_str = self->_read_data(product_type='stx_fsw_m_coarse_flare_location', /most_n_recent)
 
- previous_location  = exist(previous_location_str) ? [previous_location_str.x_pos[0],previous_location_str.y_pos[0]] : [0,0]
+  previous_location  = exist(previous_location_str) ? [previous_location_str.x_pos[0],previous_location_str.y_pos[0]] : [0,0]
+
+  flare_flag = self->_read_data(product_type='stx_fsw_m_flare_flag', /most_n_recent)
+
+  previous_location_str = self->_read_data(product_type='stx_fsw_m_coarse_flare_location', /most_n_recent)
+
+  previous_location  = exist(previous_location_str) ? [previous_location_str.x_pos[0],previous_location_str.y_pos[0]] : [0,0]
 
   cfl_in = { $
     background        :   background, $
@@ -991,9 +990,9 @@ function stx_flight_software_simulator::_execute_stx_fsw_module_coarse_flare_loc
   coarse_flare_location.time_axis = self->_create_single_time_axis_entry(update_frequency=self->get(/cfl_update_frequency))
 
   self->_write_data, product_type='stx_fsw_m_coarse_flare_location', val=coarse_flare_location
-  
+
   ;update the flare_flag due to modification within the cfl module
-  flare_flag.flare_flag[0]=coarse_flare_location.flare_flag 
+  flare_flag.flare_flag[0]=coarse_flare_location.flare_flag
   self->_write_data, product_type='stx_fsw_m_flare_flag', val=flare_flag,DO_INSERT=0,DO_UPDATE=1
 
   ;update the flare_flag due to modification within the cfl module
@@ -1007,7 +1006,7 @@ function stx_flight_software_simulator::_execute_stx_fsw_module_background_deter
 
   ; read the background monitor accumulator data
   ql_background_monitor_accumulator = self->_read_data(product_type='stx_fsw_ql_bkgd_monitor', /most_n_recent)
-  
+
   ; get most recent background
   background = self->_read_data(product_type='stx_fsw_m_background', /most_n_recent)
 
@@ -1206,11 +1205,11 @@ pro stx_flight_software_simulator::_process, eventlist, triggerlist, plotting=pl
   self->_update_quicklook_accumulator, accumulators=quicklook_accumulators
 
   ; << QUICKLOOK ACCUMULATOR UPDATE
-  
-  
+
+
   ; read the rate control regime state from last round
   self->getproperty, current_rcr=rate_control_regime
- 
+
   ; >>> FLARE DETECTION
 
   flare_flag = self->_execute_module( $
@@ -1253,8 +1252,8 @@ pro stx_flight_software_simulator::_process, eventlist, triggerlist, plotting=pl
     )
 
   ; <<< VARIANCE
-  
-  
+
+
   ; >>> RATE CONTROL REGIME
 
   rate_control_regime = self->_execute_module( $
@@ -1262,7 +1261,7 @@ pro stx_flight_software_simulator::_process, eventlist, triggerlist, plotting=pl
     )
 
   ; <<< RATE CONTROL REGIME
-  
+
 end
 
 
@@ -1320,12 +1319,13 @@ pro stx_flight_software_simulator::getproperty, $
   stx_fsw_m_coarse_flare_location=stx_fsw_m_coarse_flare_location, $
   stx_fsw_m_archive_buffer_group=stx_fsw_m_archive_buffer_group, $
   stx_fsw_m_lightcurve=stx_fsw_m_lightcurve, $
-  
-  
+
+
   temperature_corrected_eventlist=temperature_corrected_eventlist, $
   stx_sim_calibrated_detector_eventlist=stx_sim_calibrated_detector_eventlist, $
   archive_buffer_leftovers=archive_buffer_leftovers, $
   triggerlist_leftovers=triggerlist_leftovers, $
+  active_detectors=active_detectors, $
   ;archive_buffer_total_counts=archive_buffer_total_counts, $
   ;flare_detection_context=flare_detection_context, $
   ;stx_fsw_m_noisy_detectors=stx_fsw_m_noisy_detectors, $
@@ -1345,6 +1345,7 @@ pro stx_flight_software_simulator::getproperty, $
   if(arg_present(reference_time)) then reference_time = (*self.internal_state).reference_time
   if(arg_present(relative_time)) then relative_time = (*self.internal_state).relative_time
   if(arg_present(time_bin_width)) then time_bin_width = (*self.internal_state).time_bin_width
+  if(arg_present(active_detectors)) then active_detectors = self->_pack_result("active_detectors")
 
   if(arg_present(stx_fsw_ql_lightcurve)) then stx_fsw_ql_lightcurve = self->_read_data(product_type='stx_fsw_ql_lightcurve', most_n_recent=most_n_recent, combine=combine, complete=complete, ignore_tags=ignore_tags)
   if(arg_present(stx_fsw_ql_lt_lightcurve)) then stx_fsw_ql_lt_lightcurve = self->_read_data(product_type='stx_fsw_ql_lightcurve_lt', most_n_recent=most_n_recent, combine=combine, complete=complete, ignore_tags=ignore_tags)
@@ -1379,38 +1380,38 @@ pro stx_flight_software_simulator::getproperty, $
   if(arg_present(stx_sim_calibrated_detector_eventlist)) then stx_sim_calibrated_detector_eventlist = self->_read_data(product_type='stx_sim_calibrated_detector_eventlist', most_n_recent=most_n_recent, combine=combine, complete=complete, ignore_tags=ignore_tags)
   if(arg_present(archive_buffer_leftovers)) then archive_buffer_leftovers = self->_read_data(product_type='archive_buffer_leftovers', most_n_recent=most_n_recent, combine=combine, complete=complete, ignore_tags=ignore_tags)
   if(arg_present(triggerlist_leftovers)) then triggerlist_leftovers = self->_read_data(product_type='triggerlist_leftovers', most_n_recent=most_n_recent, combine=combine, complete=complete, ignore_tags=ignore_tags)
-  
+
   ;special case for lightcurve
   ;there is no lightcurve module so input is equal output
   if(arg_present(stx_fsw_m_lightcurve)) then begin
     self->getproperty, stx_fsw_ql_lightcurve=lq, stx_fsw_ql_lt_lightcurve = lq_lt, stx_fsw_m_rate_control_regime=rcr, most_n_recent=most_n_recent, combine=combine, complete=complete
-    
+
     stx_fsw_m_lightcurve = {$
       type                : 'stx_fsw_m_lightcurve', $
       time_axis           : lq.time_axis, $
-      accumulated_counts  : lq.accumulated_counts, $ 
+      accumulated_counts  : lq.accumulated_counts, $
       rcr                 : rcr.rcr, $
       triggers            : lq_lt.accumulated_counts, $
       DETECTOR_MASK       : lq.DETECTOR_MASK, $
       PIXEL_MASK          : lq.PIXEL_MASK, $
       ENERGY_AXIS         : lq.ENERGY_AXIS $
     }
-    
+
   end
-  
+
   if(arg_present(stx_fsw_m_background)) then begin
     stx_fsw_m_background = self->_read_data(product_type='stx_fsw_m_background', most_n_recent=most_n_recent, combine=combine, complete=complete, ignore_tags=ignore_tags)
     self->getproperty, stx_fsw_ql_bkgd_monitor=bg, stx_fsw_ql_lt_bkgd_monitor=bg_lt, most_n_recent=most_n_recent, combine=combine, complete=complete
-    
+
     n_t = n_elements(stx_fsw_m_background.time_axis.duration) - 1
-    
+
     stx_fsw_m_background = add_tag(stx_fsw_m_background, bg_lt.accumulated_counts[0:n_t], "triggers")
     stx_fsw_m_background = add_tag(stx_fsw_m_background, bg.detector_mask[0:n_t], "detector_mask")
     stx_fsw_m_background = add_tag(stx_fsw_m_background, bg.pixel_mask[0:n_t], "pixel_mask")
     stx_fsw_m_background = add_tag(stx_fsw_m_background, bg.energy_axis, "energy_axis")
-    
+
   end
-  
+
   if(arg_present(stx_fsw_m_variance)) then begin
     stx_fsw_m_variance = self->_read_data(product_type='stx_fsw_m_variance', most_n_recent=most_n_recent, combine=combine, complete=complete, ignore_tags=ignore_tags)
     self->getproperty, stx_fsw_ql_variance=va, stx_fsw_ql_lt_variance=va_lt, most_n_recent=most_n_recent, combine=combine, complete=complete
@@ -1423,8 +1424,8 @@ pro stx_flight_software_simulator::getproperty, $
     stx_fsw_m_variance = add_tag(stx_fsw_m_variance, va.energy_axis, "energy_axis")
     stx_fsw_m_variance = add_tag(stx_fsw_m_variance, (size(va.accumulated_counts, /dimensions))[0], "var_times")
   end
-  
-  
+
+
   ;if(arg_present(archive_buffer_total_counts)) then archive_buffer_total_counts = self->_read_data(product_type='archive_buffer_total_counts', most_n_recent=most_n_recent, combine=combine, complete=complete, ignore_tags=ignore_tags)
   ;if(arg_present(flare_detection_context)) then flare_detection_context = self->_read_data(product_type='flare_detection_context', most_n_recent=most_n_recent, combine=combine, complete=complete, ignore_tags=ignore_tags)
   ;if(arg_present(stx_fsw_m_noisy_detectors)) then stx_fsw_m_noisy_detectors = self->_read_data(product_type='stx_fsw_m_noisy_detectors', most_n_recent=most_n_recent, combine=combine, complete=complete, ignore_tags=ignore_tags)
@@ -1554,7 +1555,7 @@ end
 
 function stx_flight_software_simulator::getconfigmanager
   return, *((*self.internal_state).configuration_manager)
-end  
+end
 
 function stx_flight_software_simulator::getdata, input_data=input_data, output_target=output_target, solo_packets=solo_packets, _extra=extra
   ; detect level of this call on stack
@@ -1596,17 +1597,17 @@ function stx_flight_software_simulator::getdata, input_data=input_data, output_t
       return, self->_flare_selection()
     end
     'stx_fsw_ql_spectra': begin
-         self->getproperty, stx_fsw_ql_spectra=ql_spectra, stx_fsw_ql_lt_spectra=lt_spectra, stx_fsw_m_rate_control = rate_control,  /complete, /combine
-         
-         
-         spec_in = { $
-            rcr              : rate_control, $
-            spectra          : ql_spectra, $
-            spectra_lt       : lt_spectra $
-         }
-         
-         suc = (self.modules)["stx_fsw_module_reduce_ql_spectra"]->execute(spec_in, comp_data, self.history, ((*self.internal_state).configuration_manager))
-         return, comp_data
+      self->getproperty, stx_fsw_ql_spectra=ql_spectra, stx_fsw_ql_lt_spectra=lt_spectra, stx_fsw_m_rate_control = rate_control,  /complete, /combine
+
+
+      spec_in = { $
+        rcr              : rate_control, $
+        spectra          : ql_spectra, $
+        spectra_lt       : lt_spectra $
+      }
+
+      suc = (self.modules)["stx_fsw_module_reduce_ql_spectra"]->execute(spec_in, comp_data, self.history, ((*self.internal_state).configuration_manager))
+      return, comp_data
     end
     'stx_fsw_ivs_result': begin
       flare_list = ppl_typeof(input_data, compareto="stx_fsw_flare_list_entry") ? input_data : self->_flare_selection()
@@ -1621,9 +1622,9 @@ function stx_flight_software_simulator::getdata, input_data=input_data, output_t
       comp_data_flares = list()
 
       foreach flare, flare_list do begin
-        
+
         if ~flare.ended then continue
-        
+
         ;crop the archive buffer to the current processed event
         flare_ab = stx_fsw_crop_archive_buffer(archive_buffer_group, reference_time, flare.fstart, flare.fend)
 
@@ -1668,34 +1669,34 @@ function stx_flight_software_simulator::getdata, input_data=input_data, output_t
     end
     'stx_fsw_ascpect': begin
       default, summing,  tag_exist(extra, "summing", /quiet) ? extra.summing : 100
-      
+
       self->getproperty, reference_time = start_time, current_time = end_time
-      
+
       duration = stx_time_diff(start_time, end_time, /abs )
       times = duration / double(summing) * 1000
       edges = indgen(times+1, /double)*(summing/1000d)
       time_axis = stx_construct_time_axis(stx_time_add(start_time,seconds=edges))
-      
+
       cha1=indgen(times)
       cha2=indgen(times)*2
       chb1=indgen(times)*3
       chb2=indgen(times)*4
-            
+
       ;aspect = stx_fsw_m_aspect(time_axis=time_axis, summing=summing,cha1=cha1, cha2=cha2,chb1=chb1,chb2=chb2)
-      
-      return, aspect 
-      
+
+      return, aspect
+
     end
-    
+
     'stx_fsw_tmtc': begin
-      
+
       sd_all = tag_exist(extra, "sd_all", /quiet)
       ql_all = tag_exist(extra, "ql_all", /quiet)
-      
+
       tmtc_in = { $
         fsw : self, $
         filename                : tag_exist(extra, "filename", /quiet) ? extra.filename : "", $
-        ql_light_curves         : tag_exist(extra, "ql_light_curves", /quiet) OR ql_all, $ 
+        ql_light_curves         : tag_exist(extra, "ql_light_curves", /quiet) OR ql_all, $
         ql_background_monitor   : tag_exist(extra, "ql_background_monitor", /quiet) OR ql_all, $
         ql_calibration_spectrum : tag_exist(extra, "ql_calibration_spectrum", /quiet) OR ql_all, $
         ql_flare_flag_location  : tag_exist(extra, "ql_flare_flag_location", /quiet) OR ql_all, $
@@ -1706,15 +1707,15 @@ function stx_flight_software_simulator::getdata, input_data=input_data, output_t
         sd_xray_2               : tag_exist(extra, "sd_xray_2", /quiet) OR sd_all, $
         sd_xray_3               : tag_exist(extra, "sd_xray_3", /quiet) OR sd_all, $
         sd_spectrogram          : tag_exist(extra, "sd_spectrogram", /quiet) OR sd_all $
-      }  
-      
-      if tag_exist(extra, "rel_flare_time", /quiet) then tmtc_in = add_tag(tmtc_in, extra.rel_flare_time, "rel_flare_time")  
-      
+      }
+
+      if tag_exist(extra, "rel_flare_time", /quiet) then tmtc_in = add_tag(tmtc_in, extra.rel_flare_time, "rel_flare_time")
+
       suc = (self.modules)["stx_fsw_module_tmtc"]->execute(tmtc_in, tmtc_out, self.history, ((*self.internal_state).configuration_manager))
       if arg_present(solo_packets) then solo_packets = tmtc_out.solo_packets
       return, tmtc_out.data
-    end  
-    
+    end
+
     else: begin
       return, self->_read_data(product_type=output_target)
     end
@@ -1767,9 +1768,6 @@ function stx_flight_software_simulator::_ivs, flare_ab, start_time=start_time, e
   ;outplot, replicate(start_time.value,2) , [1.8,1.9]
   ;outplot, replicate(end_time.value,2) , [1.8,1.9]
 
-  ;TODO N.H. remove later just for testing purposes
-  ;rcr_flare.rcr[14:20] = 1
-  ;rcr_flare.rcr[21:-1] = 2
 
   ivs_in = {archive_buffer        : flare_ab ,$
     start_time            : reference_time, $
@@ -1811,12 +1809,12 @@ function stx_flight_software_simulator::_flare_selection
     message, "no data to process", /continue
     return, -1
   end
-  
+
   flare_list_in = { $
-     flare_flag : flare_flag, $
-     cfl : cfl $ 
+    flare_flag : flare_flag, $
+    cfl : cfl $
   }
-  
+
   succes = (self.modules)["stx_fsw_module_flare_selection"]->execute(flare_list_in, flare_times, self.history, ((*self.internal_state).configuration_manager))
 
   return, flare_times

@@ -404,7 +404,7 @@ pro stx_flight_software_simulator_gui::_write_tmtc
   
   tmtc_filename = filepath("tmtc.bin",root_dir=self.stx_software_framework->get_scenario())
   ret = self.fsw->getdata(output_target="stx_fsw_tmtc", filename=tmtc_filename, _extra=input_data)
-  print, "TMTC export done: " + ret
+  print, "TMTC export done: "; + ret
   
 end
 

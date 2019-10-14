@@ -155,6 +155,7 @@ function stx_fsw_ql_flare_locator, $
 
   endif
 
+ 
   ;check all elements in reference table correspond to positions an equal distance apart as algorithm can only handle
   ;a constant sampling step size in x and y
   x_diff = sky_x[1:n_elements(sky_x)-1] - sky_x[0:n_elements(sky_x)-2]
@@ -218,10 +219,16 @@ function stx_fsw_ql_flare_locator, $
   endif
 
   ;subtract background from observed counts
-  quadrant_p -= quad_bk_factor*total_background
-  quadrant_q -= quad_bk_factor*total_background
-  quadrant_r -= quad_bk_factor*total_background
-  quadrant_s -= quad_bk_factor*total_background
+  quadrant_p -= quad_bk_factor*total_background 
+  quadrant_q -= quad_bk_factor*total_background 
+  quadrant_r -= quad_bk_factor*total_background 
+  quadrant_s -= quad_bk_factor*total_background 
+  
+ quadrant_p = quadrant_p > 0 
+ quadrant_q = quadrant_q > 0 
+ quadrant_r = quadrant_r > 0 
+ quadrant_s = quadrant_s > 0 
+  
 
   ;determine if algorithm should proceed based on the quadrant counts
   ;test whether count rate is too high or low for an accurate position estimate
@@ -273,7 +280,9 @@ function stx_fsw_ql_flare_locator, $
   small_pixel_contribution = cfl_counts_in[8:11]/2
   cfl_counts = cfl_counts_in[0:7] + [small_pixel_contribution,small_pixel_contribution]
 
-  cfl_counts -= cfl_bk_factor*total_background
+  cfl_counts -= total_background/cfl_bk_factor
+  cfl_counts = cfl_counts > 0 
+
 
   ;reform vector of quadrant counts
   quadrant_counts = [quadrant_p, quadrant_q, quadrant_r, quadrant_s]
@@ -287,7 +296,11 @@ function stx_fsw_ql_flare_locator, $
   dot_products = reform(dot_products, n_res, n_res) ; change dot_products to 65 x 65 matrix
 
   aa = where(dot_products eq max(dot_products), na) ; find maximum of dot_products
-  if na gt 1 then maxi = aa[round(na/2)] else maxi = aa ; if more than one pixel at maxiumum take average
+  if na gt 1 then begin
+    maxi = aa[round(na/2)] 
+  endif else begin
+    maxi = aa ; if more than one pixel at maxiumum take average
+  endelse
   jm = maxi mod n_res ;find where maximum is in x
   km = maxi/n_res ;find where maximum is in y
 

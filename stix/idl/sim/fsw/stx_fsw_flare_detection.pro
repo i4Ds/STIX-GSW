@@ -10,10 +10,10 @@
 ;
 ;    quicklook_accumulated_data
 ;                     : in, type="uint(t,2)"
-;                     the accumulated counts over time for the termal[0,t] and nonthermal[1,t] energy band
+;                     the accumulated counts over time for the thermal[0,t] and nonthermal[1,t] energy band
 ;
 ;    background       : in, type="uint(t,2)"
-;                     the accumulated background counts over time for the termal[0,t] and nonthermal[1,t] energy band
+;                     the accumulated background counts over time for the thermal[0,t] and nonthermal[1,t] energy band
 ;
 ;    rate_control_state
 ;                     : in, type="byte(t)"
@@ -54,19 +54,17 @@
 ;    10-May-2016 - Laszlo I. Etesi (FHNW), updates due to structure changes
 ;    08-Mar-2017 - ECMD (Graz), replaced krel with krel_rise in plotting section
 ;    20-Jul-2018 - ECMD (Graz), a single rate_control_state or one for every time bin can now be given
+;    08-Feb-2019 - ECMD (Graz), Using updated input parameters to match ICD
+;                               Population of flare status byte updated to match STIX-TN-0108-FHNW_I5R2_FSW_Flare_Detection
 ;
 ;-
 function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_control_state  $
   , nbl = nbl $
   , kb = kb $
-  , thermal_kdk = thermal_kdk $
-  , nonthermal_kdk = nonthermal_kdk $
-  , thermal_krel_rise = thermal_krel_rise $
-  , nonthermal_krel_rise = nonthermal_krel_rise $
-  , thermal_krel_decay = thermal_krel_decay $
-  , nonthermal_krel_decay = nonthermal_krel_decay $
-  , thermal_cfmin = thermal_cfmin $
-  , nonthermal_cfmin = nonthermal_cfmin $
+  , kdk = kdk $
+  , krel_rise = krel_rise $
+  , krel_decay = krel_decay $
+  , cfmin = cfmin $
   , flare_intensity_lut = flare_intensity_lut $
   , context = context $
   , int_time = int_time $
@@ -75,38 +73,40 @@ function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_c
 
 
 
+
   default, n_t,                         500
   default, quicklook_accumulated_data,  [[(sin(findgen(n_t)/40.0)+1)*120],[(sin((findgen(n_t)+3)/20.0)+2)*60]]
 
 
   default, nbl,                         [1200,60]
-  default, thermal_cfmin,               [5,5]
-  default, nonthermal_cfmin,            [30,30]
-  default, thermal_kdk,                 [0.2,0.2]
-  default, nonthermal_kdk,              [0.2,0.2]
-  default, thermal_krel_rise,           [1.5,1.5]
-  default, nonthermal_krel_rise,        [1.,1.]
-  default, thermal_krel_decay,          [0.5,0.5]
-  default, nonthermal_krel_decay,       [0.5,0.5]
+  default, cfmin,                       [30]
+  default, kdk,                         [0.2]
+  default, krel_rise,                   [1.5]
+  default, krel_decay,                  [0.5]
   default, kb,                          30.
   default, int_time,                    4.
   default, plotting,                    1
-  default, flare_intensity_lut,         list([10l,100,1000,10000],[10l,100])
-  default, bit_shift,                   [0,2]
+  default, flare_intensity_thresholds,  list([flare_intensity_lut[0:3,-1]],[flare_intensity_lut[4:5,-1]])
+  default, bit_shift,                   [5,3]
 
 
-  kdk   = [thermal_kdk, nonthermal_kdk]
-  cfmin = [thermal_cfmin, nonthermal_cfmin]
-  krel_rise  = [thermal_krel_rise, nonthermal_krel_rise]
-  krel_decay  = [thermal_krel_rise, nonthermal_krel_rise]
+
+  n_time = (size(quicklook_accumulated_data))[1]
+
+  default, rate_control_state,          bytarr(n_time)
+
+  quicklook_accumulated_data = median(quicklook_accumulated_data, dim = 2)
 
 
   n_time_nbl = nbl/int_time
 
-  fip = bytarr(4)
-  cbk = [.0,.0,.0,.0]
+  normalization_factor_thermal    = flare_intensity_lut[rate_control_state, 0]
+  normalization_factor_nonthermal = flare_intensity_lut[rate_control_state, 1]
 
-  n_time = n_elements(quicklook_accumulated_data)/2
+
+  fip = bytarr(4)
+  cbk = [0.,0.,0.,0.]
+
   default, background,  [[indgen(n_time)/20],[indgen(n_time)/40]]
 
   if (size(background))[0] eq 1 then background = transpose(background)
@@ -121,18 +121,19 @@ function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_c
   end
 
 
-  default, rate_control_state, bytarr(n_time)
-
-
   thermal_cc = quicklook_accumulated_data[*,0]
-  thermal_cbc = thermal_cc - background[*,0] * kb
+  thermal_cbc = thermal_cc - background[*,0] * kb > 0
+  thermal_cbc *= normalization_factor_thermal
+
   lt0 = where(thermal_cbc lt 0, count_lt0)
-  if count_lt0 gt 0 then thermal_cbc[lt0]=0
+  if count_lt0 gt 0 then thermal_cbc[lt0] = 0
 
   nonthermal_cc = quicklook_accumulated_data[*,1]
-  nonthermal_cbc = nonthermal_cc - background[*,1] * kb
+  nonthermal_cbc = nonthermal_cc - background[*,1] * kb > 0
+  nonthermal_cbc *= normalization_factor_nonthermal
+
   lt0 = where(nonthermal_cbc lt 0, count_lt0)
-  if count_lt0 gt 0 then nonthermal_cbc[lt0]=0
+  if count_lt0 gt 0 then nonthermal_cbc[lt0] = 0
 
   cbl = make_array(n_time,4,value=!VALUES.f_nan)
 
@@ -140,25 +141,24 @@ function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_c
   cbk_values = make_array(n_time,4,value=!VALUES.f_nan)
   ce = make_array(n_time,4,value=!VALUES.f_nan)
 
-  max_range = max(n_time_nbl[1],subscript_min=max_range_idx)
+  max_range = max(n_time_nbl[1], subscript_min = max_range_idx)
 
-  for t=n_time_nbl[max_range_idx], n_time-1 do begin
+  for t = n_time_nbl[max_range_idx], n_time-1 do begin
 
     ;print,  t
-    cbl[t,0]=median(thermal_cbc[t-n_time_nbl[0]:t])
-    cbl[t,1]=median(thermal_cbc[t-n_time_nbl[1]:t])
-    cbl[t,2]=median(nonthermal_cbc[t-n_time_nbl[0]:t])
-    cbl[t,3]=median(nonthermal_cbc[t-n_time_nbl[1]:t])
+    cbl[t,0] = median(thermal_cbc[t-n_time_nbl[0]:t]) > 1
+    cbl[t,1] = median(thermal_cbc[t-n_time_nbl[1]:t]) > 1
+    cbl[t,2] = median(nonthermal_cbc[t-n_time_nbl[0]:t]) > 1
+    cbl[t,3] = median(nonthermal_cbc[t-n_time_nbl[1]:t]) > 1
 
-    ce[t,*] = [thermal_cbc[t],thermal_cbc[t], nonthermal_cbc[t],nonthermal_cbc[t]]-cbl[t,*]
+    ce[t,*] = [thermal_cbc[t],thermal_cbc[t], nonthermal_cbc[t],nonthermal_cbc[t]]-cbl[t,*] > 0
 
     ;set below zero values to zero
     bz = where(ce[t,*] lt 0, cbz)
-    if cbz gt 0 then ce[t,bz]=0
+    if cbz gt 0 then ce[t,bz] = 0
 
 
     ;if the attenuator is in place
-
     current_rate_control_state = n_elements(rate_control_state) gt 1 ? rate_control_state[t]: rate_control_state
     ;todo: check for past rate_control_states
     if current_rate_control_state gt 0 then begin
@@ -173,14 +173,14 @@ function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_c
     end
 
 
-    for ci=0, 3 do begin
+    for ci = 0, 3 do begin
       if fip[ci] then begin
         ;update the flux maximum
         cbk[ci] = ce[t,ci] gt cbk[ci] ? ceil(ce[t,ci]) : cbk[ci]
-        cbk_values[t,ci] = ([thermal_kdk,nonthermal_kdk])[ci] * cbk[ci]
+        cbk_values[t,ci] = kdk * cbk[ci]
 
         ;if ce is greater than cpk *kdk
-        flare_still_on = (ce[t,ci] gt (cbk[ci] * kdk[ci])) OR  (ce[t,ci] gt (krel_decay[ci] * cbl[t,ci]))
+        flare_still_on = (ce[t,ci] gt (cbk[ci] * kdk)) OR  (ce[t,ci] gt (krel_decay * cbl[t,ci]))
 
         if flare_still_on then begin
           fip[ci]=1
@@ -200,9 +200,9 @@ function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_c
 
         flare_turn_on =  $
           ;if ce is > than a minimum flare count
-          (ce[t,ci] gt cfmin[ci]) AND $
+          (ce[t,ci] gt cfmin) AND $
           ;if ce is > than Krel * Cbl
-          (ce[t,ci] gt (krel_rise[ci] * cbl[t,ci]))
+          (ce[t,ci] gt (krel_rise * cbl[t,ci]))
 
         if flare_turn_on then begin
           fip[ci]=1
@@ -263,6 +263,15 @@ function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_c
     outplot, cur_time_axis, cbl[*,1], cur_time_axis[0], color=4, thick=1
 
     ;2 row
+    thermal_cfmin = [cfmin,cfmin]
+    nonthermal_cfmin =[cfmin,cfmin]
+
+    thermal_kdk = [kdk,kdk ]
+
+    nonthermal_kdk = [kdk,kdk ]
+    
+    thermal_krel_rise = [krel_rise,krel_rise]
+    nonthermal_krel_rise =[krel_rise,krel_rise]
 
     yrange=minmax(ce[*,0],/nan)
     yrange=minmax([yrange,thermal_cfmin[0]])
@@ -289,7 +298,7 @@ function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_c
     utplot, cur_time_axis, ce[*,1], cur_time_axis[0], color=4, position=[0.12,0.405,0.88,0.513334], xstyle=1, ystyle=9, /noerase, xcharsize=0.01, yrange=yrange, /ylog
     ;cfmin threshold
     outplot, [cur_time_axis[0],cur_time_axis[-1]], make_array(2,value=thermal_cfmin[1]), cur_time_axis[0], linestyle=2
-    outplot, cur_time_axis, cbl[*,1]*krel_rise[1] , cur_time_axis[0],linestyle=1, psym=10
+    outplot, cur_time_axis, cbl[*,1]*krel_rise , cur_time_axis[0],linestyle=1, psym=10
 
     ;flare in progress
     outplot, cur_time_axis, flare_in_progress[*,1]*2, cur_time_axis[0], color=3, thick=3, psym=10
@@ -313,7 +322,7 @@ function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_c
     utplot, cur_time_axis, ce[*,2], cur_time_axis[0],color=5, position=[0.12,0.1684,0.88,0.2767], xstyle=1, ystyle=9, /noerase, xcharsize=0.01, yrange=yrange, /ylog
     ;cfmin threshold
     outplot, [cur_time_axis[0],cur_time_axis[-1]], make_array(2,value=nonthermal_cfmin[0]), cur_time_axis[0],linestyle=2
-    outplot, cur_time_axis, cbl[*,2]*krel_rise[2] , cur_time_axis[0],linestyle=1, psym=10
+    outplot, cur_time_axis, cbl[*,2]*krel_rise , cur_time_axis[0],linestyle=1, psym=10
     ;flare in progress
     outplot, cur_time_axis, flare_in_progress[*,2]*2, cur_time_axis[0], color=3, thick=3, psym=10
     ;flux
@@ -328,7 +337,7 @@ function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_c
     utplot, cur_time_axis, ce[*,3], cur_time_axis[0], color=4, position=[0.12,0.06,0.88,0.1684], xstyle=1, ystyle=9, /noerase, xcharsize=1.5, yrange=yrange, /ylog
     ;cfmin threshold
     outplot, [cur_time_axis[0],cur_time_axis[-1]], make_array(2,value=nonthermal_cfmin[1]), cur_time_axis[0], linestyle=2
-    outplot, cur_time_axis, cbl[*,3]*krel_rise[3] , cur_time_axis[0],linestyle=1, psym=10
+    outplot, cur_time_axis, cbl[*,3]*krel_rise , cur_time_axis[0],linestyle=1, psym=10
     ;flare in progress
     outplot, cur_time_axis, flare_in_progress[*,3]*2, cur_time_axis[0], color=3, thick=3, psym=10
     ;flux
@@ -387,7 +396,7 @@ function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_c
     end
 
 
-    context_start = min([n_time_nbl[max_range_idx], n_elements(THERMAL_CC)])
+    context_start = min([n_time_nbl[max_range_idx], n_elements(thermal_cc)])
 
     context = stx_fsw_m_flare_detection_context( $
       cbk=cbk, $
@@ -402,15 +411,20 @@ function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_c
   max_ce = max(reform(ce, n_time,2,2), dim = 2)
 
   flare_flag = bytarr(n_time)
-
+  flare_intensity_lut = flare_intensity_thresholds[0]
   for ci=0, 1 do begin
+
     flare_in_progress_idx = where(max_flare_in_progress[*,ci] gt 0, flare_in_progress_idx_count)
 
     if flare_in_progress_idx_count gt 0 then begin
-      add = ishft(byte((value_locate(flare_intensity_lut[ci], max_ce[flare_in_progress_idx,ci]))+1), bit_shift[ci])
+      flag_boundaries  = flare_intensity_thresholds[ci]
+      add = ishft(byte((value_locate(flag_boundaries, max_ce[flare_in_progress_idx,ci]))+1), bit_shift[ci])
+
       flare_flag[flare_in_progress_idx]+=add
     endif
   endfor
+
+
 
 
 

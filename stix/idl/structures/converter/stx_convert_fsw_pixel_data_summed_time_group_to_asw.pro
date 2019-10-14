@@ -6,7 +6,10 @@ function stx_convert_fsw_pixel_data_summed_time_group_to_asw, image_block, energ
 
   foreach group, image_block do begin
     foreach iv, group.intervals do begin
-      pd = stx_pixel_data_summed()
+      
+      iv_s = size(iv.counts)
+      
+      pd = stx_pixel_data_summed(PIXELS=iv_s[1], DETECTORS=iv_s[2])
 
       pd.time_range       = [group.start_time, group.end_time]
       pd.energy_range     = [energy_axis.low[iv.energy_science_channel_range[0]], energy_axis.high[iv.energy_science_channel_range[1]-1]]

@@ -1,3 +1,4 @@
+
 ;+
 ; :description:
 ;    This procedure reads the detecor number, pixel number, gain and offset from a given csv file
@@ -29,7 +30,11 @@ function stx_offset_gain_reader, filename, directory = directory, reset = reset
   default, reset, 0
   common stx_offset_gain_reader, full_filename, og_str
   default, full_filename, 'dummy_filename_xxx'
-  reset = stregex( /boo, /fold, file_basename( filename ), file_basename( full_filename )) ? reset : 1 
+  
+  
+  ;reset = stregex( /boo, /fold, file_basename( filename ), file_basename( full_filename )) ? reset : 1 
+  
+  
   if ~is_struct( og_str ) or reset then begin
     filename = form_filename( filename, '.csv' )
     full_filename = loc_file( path = directory, filename, count = nfile )

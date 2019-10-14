@@ -56,14 +56,16 @@ function stx_fsw_compact_archive_buffer , stx_fsw_archive_buffer, $
   time_axis = time_axis, $
   time_edges = time_edges, $
   disabled_detectors_pixel_counts = disabled_detectors_pixel_counts, $
-  disabled_detectors_total_counts = disabled_detectors_total_counts
+  disabled_detectors_total_counts = disabled_detectors_total_counts, $
+  add_timebin_dummy=add_timebin_dummy
   
+  default, add_timebin_dummy, 1
   default, detector_mask, make_array(32,value=1b, /BYTE)
   default, n_e, 32 ;energy
   default, n_d, 32 ;detectors 
   default, n_p, 12 ;pixel
   
-  time_axis = stx_fsw_get_timex_axis_from_archive_buffer(stx_fsw_archive_buffer, start_time=start_time, time_edges_out=time_edges)
+  time_axis = stx_fsw_get_timex_axis_from_archive_buffer(stx_fsw_archive_buffer, start_time=start_time, time_edges_out=time_edges, add_timebin_dummy=add_timebin_dummy)
   
   n_t = n_elements(time_axis.duration)
 
@@ -73,10 +75,13 @@ function stx_fsw_compact_archive_buffer , stx_fsw_archive_buffer, $
   t_idx = value_locate(time_edges, stx_fsw_archive_buffer.RELATIVE_TIME_RANGE[0,*])
 
   ;todo: detector_index-1?
-  for i=ulong64(0), N_ELEMENTS(stx_fsw_archive_buffer)-1 do pixel_counts[stx_fsw_archive_buffer[i].energy_science_channel, $
+  for i=ulong64(0), N_ELEMENTS(stx_fsw_archive_buffer)-1 do begin
+    pixel_counts[stx_fsw_archive_buffer[i].energy_science_channel, $
     stx_fsw_archive_buffer[i].PIXEL_INDEX, $
     stx_fsw_archive_buffer[i].DETECTOR_INDEX-1, $
     t_idx[i]] += stx_fsw_archive_buffer[i].COUNTS
+  endfor
+    
   
   
   if ARG_PRESENT(total_counts) then begin

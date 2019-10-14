@@ -78,10 +78,13 @@ pro stx_telemetry_reader::update_statistics, solo_packet=solo_packet, type=type
     (self.start_times)[type] = list()
     (self.stats_structs)[type] = 0
   endif
-
+  
+   
+  print, "type: ", type, " sequenz: ",seq_flag, " SSC: ", solo_packet.SOURCE_SEQUENCE_COUNT
+  
   ; create a new list entry if we have a new packet_sequence or a standalone packet
   ;if(seq_flag eq 3 or seq_flag eq 1 or (type eq 'stx_tmtc_ql_calibration_spectrum')) then begin
-  if (self.merge_mode eq 0b AND (seq_flag eq 3 or seq_flag eq 1)) OR (self.merge_mode eq 1b AND n_elements((self.stats_packets)[type]) eq 0) then begin
+  if (self.merge_mode eq 0b AND (seq_flag eq 3 or seq_flag eq 1)) OR ( (self.merge_mode eq 1b OR type eq "stx_tmtc_hc_trace") AND n_elements((self.stats_packets)[type]) eq 0) then begin
     ; create new entry
     ((self.stats_packets)[type]).add, 1
     stx_telemetry_util_time2scet, coarse_time=solo_packet.coarse_time, fine_time=solo_packet.fine_time, $
@@ -117,7 +120,7 @@ pro stx_telemetry_reader::add_solo,solo_packet=solo_packet,type=type
   seq_flag = solo_packet.segmentation_grouping_flags
   ;if(seq_flag eq 3 or seq_flag eq 1 or (type eq 'stx_tmtc_ql_calibration_spectrum')) then begin
   ;if(seq_flag eq 3 or seq_flag eq 1)then begin
-  if (self.merge_mode eq 0b AND (seq_flag eq 3 or seq_flag eq 1)) OR (self.merge_mode eq 1b AND n_elements((self.all_solo_packets)[type]) eq 0) then begin
+  if (self.merge_mode eq 0b AND (seq_flag eq 3 or seq_flag eq 1)) OR ((self.merge_mode eq 1b OR type eq "stx_tmtc_hc_trace") AND n_elements((self.all_solo_packets)[type]) eq 0) then begin
   
     ; create new entry
     (self.all_solo_packets)[type].add, list(solo_packet)
@@ -132,6 +135,7 @@ pro stx_telemetry_reader::getdata, $
   asw_hc_regular_mini = asw_hc_regular_mini, $
   asw_hc_regular_maxi = asw_hc_regular_maxi, $
   asw_hc_heartbeat = asw_hc_heartbeat, $
+  asw_hc_trace = asw_hc_trace, $
   asw_ql_lightcurve = asw_ql_lightcurve, $
   fsw_m_calibration_spectrum=fsw_m_calibration_spectrum, $
   asw_ql_calibration_spectrum=asw_ql_calibration_spectrum, $
@@ -206,7 +210,8 @@ pro stx_telemetry_reader::getdata, $
     bulk_data['fsw_visibility_time_group']=fsw_visibility_time_group
     self->getdata, fsw_spc_data_time_group=fsw_spc_data_time_group
     bulk_data['fsw_spc_data_time_group']=fsw_spc_data_time_group
-    
+    self->getdata, asw_hc_trace=asw_hc_trace
+    bulk_data['asw_hc_trace']=asw_hc_trace
     ; solo_packets
     if(arg_present(solo_packets)) then solo_packets = self.all_solo_packets
     ; statistics
@@ -244,6 +249,20 @@ pro stx_telemetry_reader::getdata, $
     endif
   endif
 
+  ; asw_hc_trace
+  if(arg_present(asw_hc_trace)) then begin
+    type = 'stx_tmtc_hc_trace'
+    if(self.stats_packets.haskey(type)) then begin
+      self->update_packets,type=type
+      asw_hc_trace = list()
+      for idx = 0L, self.stats_structs[type]-1 do begin
+        stx_telemetry_prepare_structure_hc_trace, solo_slices=((self.all_solo_packets)[type])[idx], $
+          trace=trace
+        asw_hc_trace.add, trace
+      endfor
+    endif
+  endif
+  
   ; asw_hc_heartbeat
   if(arg_present(asw_hc_heartbeat)) then begin
     type = 'stx_tmtc_hc_heartbeat'
@@ -610,6 +629,11 @@ function stx_telemetry_reader::read_packet_structure_source_packet_header, scan_
       solo_packet.source_data = ptr_new(tmtc_data)
       break
     end
+    'stx_tmtc_hc_trace': begin
+      tmtc_data = stx_telemetry_read_hc_trace(solo_packet=solo_packet, tmr=self, _extra=extra)
+      solo_packet.source_data = ptr_new(tmtc_data)
+      break
+    end
     'stx_tmtc_sd_xray_0': begin
       tmtc_data = stx_telemetry_read_sd_xray_0(solo_packet=solo_packet, tmr=self, _extra=extra)
       solo_packet.source_data = ptr_new(tmtc_data)
@@ -663,13 +687,20 @@ pro stx_telemetry_reader::auto_read_structure, packet=packet, tag_ignore=tag_ign
 
   for tag_idx = 0L, n_tags(packet)-1 do begin
     tag = tags[tag_idx]
-
+    
     if(total(stregex(tag, tag_ignore_regex, /boolean) ne 0) gt 0) then continue
 
     tag_len = packet.pkg_word_width.(tag_index(packet.pkg_word_width, tag))
     tag_val = packet.(tag_idx)
     
-    packet.(tag_idx) = self->read(size(tag_val, /type), bits=tag_len, debug=debug, silent=silent)
+    read_val = self->read(size(tag_val, /type), bits=tag_len, debug=debug, silent=silent)
+    
+    if tag eq "delta_time" or tag eq "coarse_time" or tag eq "starting_time" or tag eq "duration" then begin
+      print, tag, read_val
+    endif
+    
+     
+    packet.(tag_idx) = read_val
 
   endfor
 end
