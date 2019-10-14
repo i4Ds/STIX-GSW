@@ -1,42 +1,51 @@
 ;+
 ; :Description:
-;    Using the measured gain (adc or adc4) gain and offset
+;    Using the measured gain (adc or adc1024) gain and offset
 ;    write the ELUT (Energy LookUp Table) into a CSV file for all 384 STIX pixel/detectors
-;    adc(4) bins are the adc (4096 channels) with two LSBs suppressed
+;    adc1024 bins are the adc (4096 channels) with two LSBs suppressed
+;    An ADC1024 edge is computed from round( 4 * offset1024 + Edge_in_keV * ( gain1024 / 4 ) )
 ;
 ; :Params:
-;    gain   - adc(4) bin width in keV, nominally about 0.4
-;    offset - adc(4) edge corresponding to 0.0 keV
+;    gain   - adc1024 bin width in keV, nominally about 0.4
+;    offset - adc1024 edge corresponding to 0.0 keV
 ;
 ; :Keywords:
 ;    h5    - if passed, matlab fitresults.mat file holding the gain and offset
 ;    scale - default is 4, using the fitted values from the calibration spectra on the 1024 compressed spectra
 ;    If based on the 4096 adc channels, then scale should be 1
+;    path  - directory path to h5 file
 ; :Results:
-;   Writes an ELUT CSV file into the working directory
+;   Writes an ELUT CSV file into the current directory
 ; :Author: raschwar, 6-jun-2019
 ; :History: 20-jun-2019, RAS,adapt to change in number of science energy edges, changed from 33 to 31
 ;     add the offset and gain to columns in the ELUT
+;           30-jun-2019, RAS, added tvac reader for h5 file
+;           01-jul-2019, RAS, use time2file for date string, change reader in stx_calib_fit_data_prep
+;           
 ;-
-pro stx_write_elut, gain_in, offset_in, h5 = h5, scale = scale, table_header = table_header
+pro stx_write_elut, gain_in, offset_in, h5 = h5, scale = scale, table_header = table_header, path = path
 
-  default, scale, 4.0
+  default, scale, 4.0 ;scale is 4.0 if the gain is for the 1024 ADC fits. 
   default, h5, 'fitsresults.h5'
+  default, path, [curdir(), concat_dir( concat_dir('ssw_stix','dbase'),'detector')]
   npixel = 12
   ndet   = 32
   ndetxnpix = npixel * ndet
-  
-  if ~exist(gain_in) or ~exist(offset_in) && file_exist( h5) then begin
-    r = h5_parse( h5, /read)
-    gain = r.fitgain._data / scale
-    offset = r.fitoffset._DATA * scale
+  h5_path = file_search( path, h5, count = h5_count)
+  if ~exist(gain_in) or ~exist(offset_in) && h5_count ge 1 then begin
+    ;The h5 file from O Grimm has gain and offsets from fitting ADC1024 calibration data
+    h = stx_calib_read_tvac(path=path);
+    gain = h.gain / scale
+    offset = h.offset * scale
   endif else begin
     if exist(gain_in) and exist(offset_in) then begin
-    gain = gain_in
-    offset = offset_in
+      gain = gain_in
+      offset = offset_in
     endif else message, 'No gain or offset information. Either the parameters are missing or the fitsresults file is missing
-    
+
   endelse
+  ;Check to see that gain is ~0.1 and not ~0.4, the 4096 adc channel gain should be lt 0.2
+  if max(gain) gt 0.2 then message,'Stop. Using ADC1024 gain and not ADC4096 gain
   science_edg = exist( science_energy_edges ) ? science_energy_edges : stx_science_energy_channels(/edges_1)
   nenergy_edg = n_elements(science_edg)
   ad_channel = reproduce( offset[*], nenergy_edg) + 1.0/gain[*] # science_edg
@@ -57,6 +66,7 @@ pro stx_write_elut, gain_in, offset_in, h5 = h5, scale = scale, table_header = t
   default, table_header, ['Based on the TVAC measurements by O Grimm May/June 2017.' + $
     ' From STIX_TVAC_Data_MayJune2017\Nominal\FitResults.mat', $
     'Channel energy edges obtained from stx_science_energy_channels(/edges_1) ']
-  sdate = anytim(systime(/sec),fid='sys',/vms,/date)
-  write_csv,'elut_table_'+sdate+'.csv',stable, header = header, table_header = table_header
+  ;Change to date string from time2file which can be read by file2time
+  sdate = time2file( anytim(systime(/sec),fid='sys'),/date)
+  write_csv, 'elut_table_'+sdate+'.csv',stable, header = header, table_header = table_header
 end
