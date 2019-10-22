@@ -32,14 +32,19 @@
 ;-
 function stx_l1_ql_background_structures, n_energies, n_times
 
-    energy = {CHANNEL: 0L, E_MIN: 0.0, E_MAX: 0.0}
+    control = { $
+        integration_time : 0, $
+        energy_bin_mask : bytarr(32), $
+        compression_schema_background : intarr(3), $
+        compression_schema_trigger : intarr(3) $
+    }
     
-    energies = replicate(energy, n_energies)
+    energies = stx_fits_energy_structure(n_energies)
 
     count = {BACKGROUND: lonarr(n_energies), TRIGGERS: 0L, CHANNEL: lonarr(n_energies), TIME: 0.0d, $
         TIMEDEL: 0.0, LIVETIME: 1, ERROR: lonarr(n_energies)}
         
     counts = replicate(count, n_times)
     
-    return, DICTIONARY('energy', energies, 'count', counts)
+    return, DICTIONARY('energy', energies, 'count', counts, 'control', control )
 end
