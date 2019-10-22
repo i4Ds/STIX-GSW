@@ -13,7 +13,7 @@ pid,packet_category,service_type,service_subtype,sid,ssid,stx_tmtc_structure
 91,12,21,6,0,21,stx_tmtc_sd_xray_1
 91,12,21,6,0,22,stx_tmtc_sd_xray_2
 91,12,21,6,0,23,stx_tmtc_sd_xray_3
-91,12,21,6,0,24,stx_tmtc_sd_spectrogram
+91,12,21,6,0,24,stx_tmtc_hc_trace
 91,12,21,6,0,42,stx_tmtc_sd_aspect
 91,12,21,6,0,10,stx_tmtc_sd_xray_0
 91,12,21,6,0,11,stx_tmtc_sd_xray_1

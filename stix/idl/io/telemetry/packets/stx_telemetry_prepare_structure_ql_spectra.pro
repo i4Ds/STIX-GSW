@@ -80,7 +80,7 @@ function prepare_packet_structure_ql_spectra_fsw, ql_spectra=ql_spectra, $
   packet = stx_telemetry_packet_structure_ql_spectra()
 
   ; fill in the data
-  packet.integration_time = ql_spectra.integration_time * 10
+  packet.integration_time = (ql_spectra.integration_time - 1) * 10
 
   ; convert time to scet
   stx_telemetry_util_time2scet, coarse_time=coarse_time, fine_time=fine_time, $
@@ -329,7 +329,7 @@ pro stx_telemetry_prepare_structure_ql_spectra_read, solo_slices=solo_slices, $
     fine_time=(*solo_slices[0].source_data).fine_time, stx_time_obj=start_time, /reverse
     
   ; convert integration time from 1/10s to s
-  integration_time = (*solo_slices[0].source_data).integration_time/10.0  
+  integration_time = ((*solo_slices[0].source_data).integration_time + 1)/10.0  
   
   ; reading the solo_sclice
   for solo_slice_idx = 0L, n_elements(solo_slices)-1 do begin

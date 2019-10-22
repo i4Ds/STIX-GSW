@@ -1,5 +1,6 @@
-pro stx_sim_fsw_prep, test_name, sequence_name, configuration_file=configuration_file, seed=seed, test_root=test_root, version=version, original_dir=original_dir, original_conf=original_conf, dss=dss, fsw=fsw, offset_gain_table=offset_gain_table
+pro stx_sim_fsw_prep, test_name, sequence_name, configuration_file=configuration_file, seed=seed, test_root=test_root, version=version, original_dir=original_dir, original_conf=original_conf, dss=dss, fsw=fsw, offset_gain_table=offset_gain_table, init_only=init_only
   default, offset_gain_table, "offset_gain_table.csv"
+  default, init_only, 0
   
   ; create test root
   mk_dir, test_root
@@ -30,6 +31,8 @@ pro stx_sim_fsw_prep, test_name, sequence_name, configuration_file=configuration
   
   ; Make sure to copy all configuration
   file_copy, getenv('STX_CONF'), '.', /recursive, /overwrite
+  
+  if init_only then return
 
   dss = obj_new('stx_data_simulation')
   dss->set, /stop_on_error

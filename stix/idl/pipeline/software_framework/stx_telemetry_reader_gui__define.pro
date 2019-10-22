@@ -255,7 +255,7 @@ pro stx_telemetry_reader_gui::plot_data
           current_time = stx_time_add(ql_spec.start_time,seconds=time) 
           
           
-          ;zero_detector_idx = where(total(detectors_samples.counts,1) eq 0, zero_detectors_cnt)
+          zero_detector_idx = where(total(detectors_samples.counts,1) eq 0, zero_detectors_cnt)
           
           ;if zero_detectors_cnt ne n_elements(detectors_samples.DETECTOR_INDEX) then begin
           ;  if zero_detectors_cnt ne 0 then message, "Spectra with Zero counts for detector detected: "+strjoin(trim(fix(detectors_samples[zero_detector_idx].DETECTOR_INDEX)+1), " "), /cont
@@ -407,9 +407,14 @@ pro stx_telemetry_reader_gui::plot_data
             energy_axis   : stx_construct_energy_axis(select=where(fsw_spc[0].energy_bin_mask)), $
             pixel_mask    : fsw_spc.pixel_mask $
           }
-
-          srmfilename = filepath("stx_spectrum_srm_"+trim(data_idx)+"_box_"+trim(boxStart)+".fits",root_dir=self.scenario_name)
-          specfilename = filepath("stx_spectrum_"+trim(data_idx)+"_box_"+trim(boxStart)+".fits",root_dir=self.scenario_name)
+          
+          root_dir = self.scenario_name
+          if strlen(root_dir) le 0 then  cd, CURRENT= root_dir
+          
+           
+          
+          srmfilename = filepath("stx_spectrum_srm_"+trim(data_idx)+"_box_"+trim(boxStart)+".fits",root_dir=root_dir)
+          specfilename = filepath("stx_spectrum_"+trim(data_idx)+"_box_"+trim(boxStart)+".fits",root_dir=root_dir)
 
           ospex_obj =   stx_fsw_sd_spectrogram2ospex(spectrogram , /fits, specfilename=specfilename, srmfilename=srmfilename  )
           self.plots->add, ospex_obj

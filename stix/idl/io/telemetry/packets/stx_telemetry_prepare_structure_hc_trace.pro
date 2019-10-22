@@ -49,19 +49,29 @@ end
 pro stx_telemetry_prepare_structure_hc_trace_read, trace=trace, $
   solo_slices=solo_slices, _extra=extra
   
-  tracetext = ""
   
-  ; loop through all solo_slices
-  foreach solo_packet, solo_slices do begin
+ 
+    ; loop through all solo_slices
+    foreach solo_packet, solo_slices do begin
+      
+      ; loop through all subheaders
+      foreach subheader, (*(*solo_packet.source_data).dynamic_subheaders) do begin
+        ;bin mode
+        if (*solo_packet.source_data).COMPRESSION_SCHEMA_ACC eq 1 then begin
+          
+          if N_ELEMENTS(tracetext) eq 0 then tracetext = []
+          
+          tracetext = [tracetext,  (*subheader.dynamic_tracetext)]
+          
+        endif else begin
+          if N_ELEMENTS(tracetext) eq 0 then  tracetext = ""
+          tracetext += string((*subheader.dynamic_tracetext))
+        endelse  
+      endforeach
 
-    ; loop through all subheaders
-    foreach subheader, (*(*solo_packet.source_data).dynamic_subheaders) do begin
-        
-        tracetext += string((*subheader.dynamic_tracetext))
-       
     endforeach
-
-  endforeach
+      
+     
 
   ; add last buffer_entry to list
   trace = { $

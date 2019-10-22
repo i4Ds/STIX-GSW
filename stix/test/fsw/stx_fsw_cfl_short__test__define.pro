@@ -11,8 +11,7 @@
 ;
 ; :history:
 ;   05-Feb-2015 - Laszlo I. Etesi (FHNW), initial release
-;   10-may-2016 - Laszlo I. Etesi (FHNW), minor updates to accomodate structure changes
-;   06-jun-2018 - Nicky Hochmuth add the testing from telemtry and change for AX purpose
+;   15-Mar-2019 - Nicky Hochmuth (FHNW), initial release
 ;-
 
 

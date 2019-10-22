@@ -19,6 +19,7 @@ function stx_fsw_rcr__test::init, _extra=extra
   self.sequence_name = 'RCR'
   self.test_name = 'AX_QL_TEST_RCR'
   self.configuration_file = 'stx_flight_software_simulator_ql_rcr.xml'
+  self.offset_gain_table = "offset_gain_table.csv"
   setenv, 'WRITE_CALIBRATION_SPECTRUM=false'
   
   return, self->stx_fsw__test::init(_extra=extra)
@@ -110,8 +111,6 @@ pro stx_fsw_rcr__test::beforeclass
   self.tmtc_reader->getdata, statistics = statistics
   self.statistics = statistics
   
-  
-
 
   self.tmtc_reader->getdata, asw_ql_lightcurve=ql_lightcurves,  solo_packet=solo_packets
   ql_lightcurve = ql_lightcurves[0]

@@ -27,7 +27,7 @@ function stx_telemetry_packet_structure_ql_variance, packet_word_width=packet_wo
     ssid                             : 8, $
     coarse_time                      : 32, $
     fine_time                        : 16, $
-    integration_time                 : 8, $
+    integration_time                 : 16, $
     samples_per_variance             : 8, $
     detector_mask                    : 32, $ 
     energy_mask                      : 32, $

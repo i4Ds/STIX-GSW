@@ -80,7 +80,7 @@ pro stx_telemetry_reader::update_statistics, solo_packet=solo_packet, type=type
   endif
   
    
-  print, "type: ", type, " sequenz: ",seq_flag, " SSC: ", solo_packet.SOURCE_SEQUENCE_COUNT
+  ;print, "type: ", type, " sequenz: ",seq_flag, " SSC: ", solo_packet.SOURCE_SEQUENCE_COUNT
   
   ; create a new list entry if we have a new packet_sequence or a standalone packet
   ;if(seq_flag eq 3 or seq_flag eq 1 or (type eq 'stx_tmtc_ql_calibration_spectrum')) then begin
@@ -695,9 +695,9 @@ pro stx_telemetry_reader::auto_read_structure, packet=packet, tag_ignore=tag_ign
     
     read_val = self->read(size(tag_val, /type), bits=tag_len, debug=debug, silent=silent)
     
-    if tag eq "delta_time" or tag eq "coarse_time" or tag eq "starting_time" or tag eq "duration" then begin
-      print, tag, read_val
-    endif
+    ;if tag eq "delta_time" or tag eq "coarse_time" or tag eq "starting_time" or tag eq "duration" then begin
+    ;  print, tag, read_val
+    ;endif
     
      
     packet.(tag_idx) = read_val
