@@ -27,44 +27,52 @@
 ;    22-Sep-2016 - Simon Marcin (FHNW), added getdata procedure. Refactoring: use intermediate format.
 ;    14-Oct-2016 - Simon Marcin (FHNW), added state to reader object. Multiple getData calls are now possible.
 ;    25-Jan-2017 - Laszlo I. Etesi (FHNW), added a workaround that allows reading calibration specra with incorrect sequencing flag (lines 81/82)
+;    23-Oct-2019 - ECMD (Graz), Changes to read_packet_structure_source_packet_header unrecognised tm or tc packets
+;                               that otherwise have correct header information are skipped properly
+;                               Added verbose keyword to print the key header information for any recognised packets 
+;
 ;-
 
-function stx_telemetry_reader::init, stream=stream, filename=filename, buffersize=buffersize, scan_mode=scan_mode, merge_mode = merge_mode
+function stx_telemetry_reader::init, stream=stream, filename=filename, buffersize=buffersize, scan_mode=scan_mode, merge_mode = merge_mode, verbose = verbose
   default, scan_mode, 0
   default, merge_mode, 0
+  default, verbose, 0
 
-    self.all_solo_packets   = HASH()
-    self.stats_packets      = HASH()
-    self.stats_structs      = HASH()
-    self.solo_start         = HASH()
-    self.statistics         = HASH()
-    self.start_times        = HASH()
-    self.merge_mode         = merge_mode
+  self.all_solo_packets   = HASH()
+  self.stats_packets      = HASH()
+  self.stats_structs      = HASH()
+  self.solo_start         = HASH()
+  self.statistics         = HASH()
+  self.start_times        = HASH()
+  self.merge_mode         = merge_mode
+  self.verbose            = verbose
 
-    status = self->stx_bitstream_reader::init(stream=stream, filename=filename, buffersize=buffersize)
-    
-    if scan_mode then begin
+  status = self->stx_bitstream_reader::init(stream=stream, filename=filename, buffersize=buffersize)
+
+  if scan_mode then begin
     start_packet_pos = 0
-      while (self->have_data()) do begin
-        solo_packet = self.read_packet_structure_source_packet_header(/scan_mode, $
-          type=type, next_packet_pos=next_packet_pos)
-        
-        if n_elements(solo_packet) gt 0 then begin
-          ; create list if fist packet of this type
-          if (not self.solo_start.haskey(type)) then (self.solo_start)[type] = list()
-          
-          (self.solo_start)[type].add, start_packet_pos
-          start_packet_pos = next_packet_pos
-          ;print, type
-          self->update_statistics, solo_packet=solo_packet, type=type
-        endif
-        
-      endwhile
-    endif
-    
-    self->create_statistics
-    
-    return, status
+    while (self->have_data()) do begin
+      solo_packet = self.read_packet_structure_source_packet_header(/scan_mode, $
+        type=type, next_packet_pos=next_packet_pos)
+
+      if n_elements(solo_packet) gt 0 then begin
+        ; create list if fist packet of this type
+        if (not self.solo_start.haskey(type)) then (self.solo_start)[type] = list()
+
+        ;(self.solo_start)[type].add, start_packet_pos
+        (self.solo_start)[type].add, (self.start_positions)[-1] ; now using the latest entry in start_positions as if packet is not
+        ; recognised start_packet_pos is not updated - ECMD 23-Oct-19
+        start_packet_pos = next_packet_pos
+        ;print, type
+        self->update_statistics, solo_packet=solo_packet, type=type
+      endif
+
+    endwhile
+  endif
+
+  self->create_statistics
+
+  return, status
 end
 
 
@@ -78,10 +86,10 @@ pro stx_telemetry_reader::update_statistics, solo_packet=solo_packet, type=type
     (self.start_times)[type] = list()
     (self.stats_structs)[type] = 0
   endif
-  
-   
+
+
   ;print, "type: ", type, " sequenz: ",seq_flag, " SSC: ", solo_packet.SOURCE_SEQUENCE_COUNT
-  
+
   ; create a new list entry if we have a new packet_sequence or a standalone packet
   ;if(seq_flag eq 3 or seq_flag eq 1 or (type eq 'stx_tmtc_ql_calibration_spectrum')) then begin
   if (self.merge_mode eq 0b AND (seq_flag eq 3 or seq_flag eq 1)) OR ( (self.merge_mode eq 1b OR type eq "stx_tmtc_hc_trace") AND n_elements((self.stats_packets)[type]) eq 0) then begin
@@ -93,7 +101,7 @@ pro stx_telemetry_reader::update_statistics, solo_packet=solo_packet, type=type
     (self.stats_structs)[type] = (self.stats_structs)[type] + 1
   endif else begin
     ; attach
-((self.stats_packets)[type])[-1]  = ((self.stats_packets)[type])[-1] + 1
+    ((self.stats_packets)[type])[-1]  = ((self.stats_packets)[type])[-1] + 1
   endelse
 end
 
@@ -115,20 +123,20 @@ pro stx_telemetry_reader::add_solo,solo_packet=solo_packet,type=type
   if (not self.all_solo_packets.haskey(type)) then begin
     (self.all_solo_packets)[type] = list()
   endif
-  
+
   ; create a new list entry if we have a new packet_sequence or a standalone packet
   seq_flag = solo_packet.segmentation_grouping_flags
   ;if(seq_flag eq 3 or seq_flag eq 1 or (type eq 'stx_tmtc_ql_calibration_spectrum')) then begin
   ;if(seq_flag eq 3 or seq_flag eq 1)then begin
   if (self.merge_mode eq 0b AND (seq_flag eq 3 or seq_flag eq 1)) OR ((self.merge_mode eq 1b OR type eq "stx_tmtc_hc_trace") AND n_elements((self.all_solo_packets)[type]) eq 0) then begin
-  
+
     ; create new entry
     (self.all_solo_packets)[type].add, list(solo_packet)
   endif else begin
     ; attach
     ((self.all_solo_packets)[type])[-1].add,  solo_packet
   endelse
-  
+
 end
 
 pro stx_telemetry_reader::getdata, $
@@ -157,7 +165,7 @@ pro stx_telemetry_reader::getdata, $
   statistics = statistics, $
   solo_packets = solo_packets, $
   scan_mode=scan_mode, _extra=extra
-  
+
 
   ; read all packets (we are not in scan_mode)
   while (self->have_data()) do begin
@@ -169,15 +177,15 @@ pro stx_telemetry_reader::getdata, $
       self->create_statistics
     endif
   endwhile
-  
-  
+
+
   ; ------------------------------------------------------------------------------
   ; create the requested output sructures
-  
+
   ; bulk_data returns all structres as hash
-   if(arg_present(bulk_data)) then begin
+  if(arg_present(bulk_data)) then begin
     bulk_data=HASH()
-    
+
     self->getdata, asw_hc_regular_mini=asw_hc_regular_mini
     bulk_data['asw_hc_regular_mini']=asw_hc_regular_mini
     self->getdata, asw_hc_regular_maxi=asw_hc_regular_maxi
@@ -216,11 +224,11 @@ pro stx_telemetry_reader::getdata, $
     if(arg_present(solo_packets)) then solo_packets = self.all_solo_packets
     ; statistics
     if(arg_present(statistics)) then statistics=self.statistics
-    
+
     ; we already have all data products therefore we return
     return
   endif
-  
+
   ; stx_asw_regular_mini
   if(arg_present(asw_hc_regular_mini)) then begin
     type = 'stx_tmtc_hc_regular_mini'
@@ -228,9 +236,9 @@ pro stx_telemetry_reader::getdata, $
       self->update_packets,type=type
       asw_hc_regular_mini = list()
       for idx = 0L, self.stats_structs[type]-1 do begin
-         stx_telemetry_prepare_structure_hc_regular_mini, solo_slices=((self.all_solo_packets)[type])[idx], $
+        stx_telemetry_prepare_structure_hc_regular_mini, solo_slices=((self.all_solo_packets)[type])[idx], $
           report_mini=report_mini
-          asw_hc_regular_mini.add, report_mini
+        asw_hc_regular_mini.add, report_mini
       endfor
     endif
   endif
@@ -262,7 +270,7 @@ pro stx_telemetry_reader::getdata, $
       endfor
     endif
   endif
-  
+
   ; asw_hc_heartbeat
   if(arg_present(asw_hc_heartbeat)) then begin
     type = 'stx_tmtc_hc_heartbeat'
@@ -276,7 +284,7 @@ pro stx_telemetry_reader::getdata, $
       endfor
     endif
   endif
-  
+
   ; stx_asw_ql_lightcurve
   if(arg_present(asw_ql_lightcurve)) then begin
     type = 'stx_tmtc_ql_light_curves'
@@ -304,7 +312,7 @@ pro stx_telemetry_reader::getdata, $
       endfor
     endif
   endif
-  
+
   ; fsw_m_coarse_flare_locator or fsw_m_flare_flag
   if(arg_present(fsw_m_flare_flag) or arg_present(fsw_m_coarse_flare_locator)) then begin
     type = 'stx_tmtc_ql_flare_flag_location'
@@ -314,8 +322,8 @@ pro stx_telemetry_reader::getdata, $
       fsw_m_coarse_flare_locator = list()
       for idx = 0L, ((self.stats_structs)[type])-1 do begin
         stx_telemetry_prepare_structure_ql_flare_flag_location, solo_slices=((self.all_solo_packets)[type])[idx], $
-              fsw_m_coarse_flare_locator=flare_locator, $
-              fsw_m_flare_flag=flare_flag, _extra=extra
+          fsw_m_coarse_flare_locator=flare_locator, $
+          fsw_m_flare_flag=flare_flag, _extra=extra
         fsw_m_coarse_flare_locator.add, flare_locator
         fsw_m_flare_flag.add, flare_flag
       endfor
@@ -379,7 +387,7 @@ pro stx_telemetry_reader::getdata, $
       endfor
     endif
   endif
-  
+
   ; asw_ql_background_monitor
   if(arg_present(asw_ql_background_monitor)) then begin
     type = 'stx_tmtc_ql_background_monitor'
@@ -438,7 +446,7 @@ pro stx_telemetry_reader::getdata, $
       endfor
     endif
   endif
-  
+
   ; fsw_pixel_data_summed_time_group
   if(arg_present(fsw_pixel_data_summed_time_group)) then begin
     type = 'stx_tmtc_sd_xray_2'
@@ -452,7 +460,7 @@ pro stx_telemetry_reader::getdata, $
       endfor
     endif
   endif
-  
+
   ; fsw_visibility_time_group
   if(arg_present(fsw_visibility_time_group)) then begin
     type = 'stx_tmtc_sd_xray_3'
@@ -466,7 +474,7 @@ pro stx_telemetry_reader::getdata, $
       endfor
     endif
   endif
-  
+
   ; fsw_spc_data_time_group
   if(arg_present(fsw_spc_data_time_group)) then begin
     type = 'stx_tmtc_sd_spectrogram'
@@ -487,7 +495,7 @@ pro stx_telemetry_reader::getdata, $
 
   ; statistics
   if(arg_present(statistics)) then statistics=self.statistics
-     
+
 end
 
 
@@ -496,7 +504,7 @@ pro stx_telemetry_reader::create_statistics
   ; create a new dict which holds stx_telemetry_packet_statistics
   foreach key, self.stats_structs.keys() do begin
     (self.statistics)[key] = list()
-    
+
     for i=0L, n_elements((self.stats_packets)[key])-1  do begin
 
       stat = stx_telemetry_statistics(key,((self.start_times)[key])[i])
@@ -512,7 +520,8 @@ end
 function stx_telemetry_reader::read_packet_structure_source_packet_header, scan_mode=scan_mode, $
   type=type, next_packet_pos=next_packet_pos, start_byte=start_byte
   default, scan_mode, 0
-  
+
+
   ; if we get a start_byte we jump to this position
   if n_elements(start_byte) ne 0 then begin
     old_byteptr = self.byteptr
@@ -523,8 +532,18 @@ function stx_telemetry_reader::read_packet_structure_source_packet_header, scan_
   if n_elements(start_byte) eq 0 then self.start_positions.add, self.byteptr
   ;print, self.byteptr
 
+  current_pos = self.byteptr
+  version = self->read(size(uint(0), /type), bits=3, debug=debug, silent=silent)
+  type = self->read(size(uint(0), /type), bits=1, debug=debug, silent=silent)
+  dfhf = self->read(size(uint(0), /type), bits=1, debug=debug, silent=silent)
+  pid = self->read(size(uint(0), /type), bits=7, debug=debug, silent=silent)
+  category = self->read(size(uint(0), /type), bits=4, debug=debug, silent=silent)
+
+  self.byteptr = current_pos
+  tc =  category eq 12 and pid eq 90  ? 1 : 0
+
   ; generate empty solo packet
-  solo_packet = stx_telemetry_packet_structure_solo_source_packet_header()
+  solo_packet = stx_telemetry_packet_structure_solo_source_packet_header(telecommand = tc)
 
   ; read tmtc mapping file
   mappings = stx_read_tmtc_mapping()
@@ -542,33 +561,56 @@ function stx_telemetry_reader::read_packet_structure_source_packet_header, scan_
     mappings.service_type eq solo_packet.service_type and $
     mappings.service_subtype eq solo_packet.service_subtype and $
     (mappings.sid eq sid_ssid or mappings.ssid eq sid_ssid), n_candidates)
-    
+
   ; fail on incorrect id
   ; TODO choose the fail action
   if(candidate_id eq -1) then begin
-    message, 'No suitable STIX telemetry packet found. packet_category: ' $ 
+    message, 'No suitable STIX telemetry packet found. packet_category: ' $
       + trim(solo_packet.packet_category) + ", pid: " $
       + trim(solo_packet.pid) + ", service_type: " $
       + trim(solo_packet.service_type) + ", service_subtype: " $
       + trim(solo_packet.service_subtype) + ", sid_ssid: " $
       + trim(fix(sid_ssid)) $
       , /CONTINUE
+
+    if scan_mode then begin
+
+      ; substract 9 (not 10?) bytes for TM Packet Data Header that is otherwise not accounted for
+      offset_data_header = tc ?  3 : 9
+
+      ;extract information about this and next packet_start_pos
+      next_packet_pos = (self.byteptr+solo_packet.DATA_FIELD_LENGTH-offset_data_header)
+
+      ;advance pointer and return
+      if self.byteptr +solo_packet.DATA_FIELD_LENGTH ge self.buffersize then begin
+        self.byteptr = self.buffersize
+      endif else self.byteptr +=solo_packet.DATA_FIELD_LENGTH-offset_data_header
+    endif
     return, !NULL
-  endif
-  
+
+  endif else begin
+    if self.verbose then message, 'Suitable STIX telemetry packet found. packet_category: ' $
+      + trim(solo_packet.packet_category) + ", pid: " $
+      + trim(solo_packet.pid) + ", service_type: " $
+      + trim(solo_packet.service_type) + ", service_subtype: " $
+      + trim(solo_packet.service_subtype) + ", sid_ssid: " $
+      + trim(fix(sid_ssid)) $
+      , /continue, /info
+  endelse
+
 
   candidate = mappings[candidate_id]
   type=candidate.STX_TMTC_STR
-  
+
   ;scan_mode = 1
-  if scan_mode then begin  
-    
+  if scan_mode then begin
+
     ; substract 9 (not 10?) bytes for TM Packet Data Header that is otherwise not accounted for
-    offset_data_header = 9
-    
+    offset_data_header = tc ?  3 : 9
+
     ;extract information about this and next packet_start_pos
     next_packet_pos = (self.byteptr+solo_packet.DATA_FIELD_LENGTH-offset_data_header)
-    
+
     ;advance pointer and return
     if self.byteptr +solo_packet.DATA_FIELD_LENGTH ge self.buffersize then begin
       self.byteptr = self.buffersize
@@ -580,15 +622,15 @@ function stx_telemetry_reader::read_packet_structure_source_packet_header, scan_
   ; select appropriate reading routine
   switch (candidate.stx_tmtc_str) of
     'stx_tmtc_ql_calibration_spectrum': begin
-      tmtc_data = stx_telemetry_read_ql_calibration_spectrum(solo_packet=solo_packet, tmr=self, _extra=extra) 
+      tmtc_data = stx_telemetry_read_ql_calibration_spectrum(solo_packet=solo_packet, tmr=self, _extra=extra)
       solo_packet.source_data = ptr_new(tmtc_data)
       break
     end
     'stx_tmtc_ql_light_curves': begin
-      tmtc_data = stx_telemetry_read_ql_light_curves(solo_packet=solo_packet, tmr=self, _extra=extra)  
+      tmtc_data = stx_telemetry_read_ql_light_curves(solo_packet=solo_packet, tmr=self, _extra=extra)
       solo_packet.source_data = ptr_new(tmtc_data)
       break
-    end    
+    end
     'stx_tmtc_ql_spectra': begin
       tmtc_data = stx_telemetry_read_ql_spectra(solo_packet=solo_packet, tmr=self, _extra=extra)
       solo_packet.source_data = ptr_new(tmtc_data)
@@ -643,7 +685,7 @@ function stx_telemetry_reader::read_packet_structure_source_packet_header, scan_
       tmtc_data = stx_telemetry_read_sd_xray_1(solo_packet=solo_packet, tmr=self, _extra=extra)
       solo_packet.source_data = ptr_new(tmtc_data)
       break
-    end     
+    end
     'stx_tmtc_sd_xray_2': begin
       tmtc_data = stx_telemetry_read_sd_xray_1(solo_packet=solo_packet, tmr=self, /lvl_2, _extra=extra)
       solo_packet.source_data = ptr_new(tmtc_data)
@@ -658,7 +700,7 @@ function stx_telemetry_reader::read_packet_structure_source_packet_header, scan_
       tmtc_data = stx_telemetry_read_sd_spectrogram(solo_packet=solo_packet, tmr=self, _extra=extra)
       solo_packet.source_data = ptr_new(tmtc_data)
       break
-    end  
+    end
     'stx_tmtc_sd_aspect': begin
       tmtc_data = stx_telemetry_read_sd_aspect(solo_packet=solo_packet, tmr=self, _extra=extra)
       solo_packet.source_data = ptr_new(tmtc_data)
@@ -667,12 +709,12 @@ function stx_telemetry_reader::read_packet_structure_source_packet_header, scan_
     else: begin
     end
   endswitch
-  
+
   ; if we get a start_byte we reset the byteptr to its old value again
   if n_elements(start_byte) ne 0 then begin
     self.byteptr = old_byteptr
   endif
-  
+
   return, solo_packet
 end
 
@@ -687,19 +729,19 @@ pro stx_telemetry_reader::auto_read_structure, packet=packet, tag_ignore=tag_ign
 
   for tag_idx = 0L, n_tags(packet)-1 do begin
     tag = tags[tag_idx]
-    
+
     if(total(stregex(tag, tag_ignore_regex, /boolean) ne 0) gt 0) then continue
 
     tag_len = packet.pkg_word_width.(tag_index(packet.pkg_word_width, tag))
     tag_val = packet.(tag_idx)
-    
+
     read_val = self->read(size(tag_val, /type), bits=tag_len, debug=debug, silent=silent)
-    
+
     ;if tag eq "delta_time" or tag eq "coarse_time" or tag eq "starting_time" or tag eq "duration" then begin
     ;  print, tag, read_val
     ;endif
-    
-     
+
+
     packet.(tag_idx) = read_val
 
   endfor
@@ -752,7 +794,7 @@ function stx_telemetry_reader::science_header_science_data, ssid
   bits_for_no_sub_structures = 16
 
   case ssid of
-     5: bits_for_no_sub_structures = 16
+    5: bits_for_no_sub_structures = 16
     10: bits_for_no_sub_structures = 16
     11: bits_for_no_sub_structures = 5
     12: bits_for_no_sub_structures = 16
@@ -802,5 +844,6 @@ pro stx_telemetry_reader__define
     statistics         : HASH(), $
     start_times        : HASH(), $
     merge_mode         : 0b, $
+    verbose            : 0b, $
     inherits stx_bitstream_reader }
 end
