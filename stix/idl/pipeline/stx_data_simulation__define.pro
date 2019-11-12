@@ -891,9 +891,13 @@ end
 ;   26-Feb-2016 -            ECMD (Graz), Defaults for timefilter parameter moved to config file
 ;   06-Sep-2016 -            ECMD (Graz), bugfix in pixel cycling
 ;   06-Mar-2017 - Laszlo I. Etesi (FHNW), added failover in case of data gaps, and updated input parameters/keywords
+;   30-Oct-2019 -            ECMD (Graz), added _extra keyword            
 ;
 ;-
-function stx_data_simulation::_read_detector_events, history=history, scenario_name=scenario_name, data_folder=data_folder, rate_control_regime=rate_control_regime, north=north, t_l = t_l, t_r = t_r, t_b = t_b, t_ig=t_ig, time_bins=time_bins, apply_time_filter=apply_time_filter, coarse_flare_row, split_reading_duration=split_reading_duration, split_reading_threshold=split_reading_threshold, pileup_type=pileup_type
+function stx_data_simulation::_read_detector_events, history=history, scenario_name=scenario_name, data_folder=data_folder, rate_control_regime=rate_control_regime, north=north,$
+   t_l = t_l, t_r = t_r, t_b = t_b, t_ig=t_ig, time_bins=time_bins, apply_time_filter=apply_time_filter, coarse_flare_row, $
+   split_reading_duration=split_reading_duration, split_reading_threshold=split_reading_threshold, pileup_type=pileup_type, _extra=extra
+   
   dsrconf = self->get(module='simulated_data_reader')
   default, rate_control_regime, dsrconf.rate_control_regime
   default, split_reading_threshold, dsrconf.split_reading_threshold
@@ -922,7 +926,7 @@ function stx_data_simulation::_read_detector_events, history=history, scenario_n
   ppl_require, type='long*', keyword='time_bins', time_bins=time_bins
 
   ; try setting up the data reader
-  self->_setup_data_reader, scenario_name=scenario_name, out_output_folder=data_folder
+  self->_setup_data_reader, scenario_name=scenario_name, out_output_folder=data_folder 
 
   ; validate time bins
   if(max(where(time_bins lt 0)) ge 0) then message, 'All bins keyword must be greater than zero.'
@@ -1194,8 +1198,9 @@ pro stx_data_simulation::_setup_data_reader, scenario_name=scenario_name, out_ou
   self.fits_det_event_reader = obj_new('stx_sim_detector_events_fits_reader_indexed', out_output_folder)
 end
 
-function stx_data_simulation::_calculate_scenario_length_t, scenario_name=scenario_name
-  self->_setup_data_reader, scenario_name=scenario_name
+;   30-Oct-2019 - ECMD (Graz), added _extra keyword for passthrough to stx_data_simulation::_setup_data_reader 
+function stx_data_simulation::_calculate_scenario_length_t, scenario_name=scenario_name, _extra=extra
+  self->_setup_data_reader, scenario_name=scenario_name, _extra=extra
   return, self.fits_det_event_reader->total_time_span()
 end
 
