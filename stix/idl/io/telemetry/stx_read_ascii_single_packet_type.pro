@@ -63,6 +63,7 @@
 ;
 ; :history:
 ;    25-Oct-2019 - ECMD (Graz), initial release
+;    12-Nov-2019 - RAS  (GSFC), fix typo line 163 missing comma
 ;
 ;-
 function stx_read_ascii_single_packet_type, file, tstart = tstart, tend = tend, packet_type = packet_type, uselines = uselines, solo_packets = solo_packets,$
@@ -160,7 +161,7 @@ function stx_read_ascii_single_packet_type, file, tstart = tstart, tend = tend, 
     endif else  packet_ssid = 0
 
     ;print the relevant header information
-    if verbose then print, 'apid: ', packet_apid,' service: ', packet_service, ' subservice: 'packet_subservice, ' SSID: ' packet_ssid
+    if verbose then print, 'apid: ', packet_apid,' service: ', packet_service, ' subservice: ', packet_subservice, ' SSID: ' packet_ssid
 
     ; check if the packet header information matches any candidates
     ; described in the mapping
