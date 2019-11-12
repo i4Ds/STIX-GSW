@@ -46,6 +46,8 @@
 ;     05-Mar-2015 - Shaun Bloomfield (TCD), added time_distribution_param1/2
 ;     11-Oct-2016 - Laszlo I. Etesi (FHNW), added detector and pixel override parameter (testing)
 ;     17-MAr-2017 - Shane Maloney (TCD), change type of source_id and source_sub_id to prevent overflows
+;     30-Oct-2019 - ECMD (Graz), energy_spectrum_param1 and energy_spectrum_param2 are now strings so that multiple parameters can be
+;                                included in a single field. 
 ;     
 ;-
 function stx_sim_source_structure
@@ -68,8 +70,8 @@ function stx_sim_source_structure
               time_distribution_param1:0.,     $ ; first time distribution parameter
               time_distribution_param2:0.,     $ ; second time distribution parameter
               energy_spectrum_type:'powerlaw', $ ; defines the energy spectrum ['powerlaw', 'uniform']
-              energy_spectrum_param1:1.,       $ ; first energy spectrum parameter
-              energy_spectrum_param2:5.,       $ ; second energy spectrum parameter
+              energy_spectrum_param1:'1.',     $ ; first energy spectrum parameter
+              energy_spectrum_param2:'5.',     $ ; second energy spectrum parameter
               background_multiplier:fltarr(32),$ ; array of 32 subcollimator background effective-area multiplier values
               detector_override:0b,            $ ; used for testing purposes, will direct all background counts towards that detector and pixel \
               pixel_override:0b                $ ; not compatible with background_multiplier, value 0 -> inactive, pixel: 1-12, detector: 1-32

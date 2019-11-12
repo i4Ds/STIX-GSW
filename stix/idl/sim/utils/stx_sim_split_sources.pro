@@ -49,6 +49,8 @@
 ;                  same time ranges as the original source
 ;    08-Feb-2017   Shane Maloney (TCD) Added thermal soucrce option and updated source parameters
 ;                  they are in order
+;    30-Oct-2019 - ECMD (Graz), src_curr.energy_spectrum_type can now be any components recognised by fit_model_components() e.g. 'f_bpow'
+;                  if so parameters are read as a string from energy_spectrum_param1 separated by '+' signs
 ;
 ; :todo:
 ;    4-Aug-2014 - Laszlo I. Etesi (FHNW), splitting is assuming uniform time distribution
@@ -104,12 +106,19 @@ function stx_sim_split_sources, sources=sources, max_photons=max_photons, $
           func_name = 'stx_uniform_dstn'
           func_param = [src_curr.energy_spectrum_param1, src_curr.energy_spectrum_param2 ]
         end
-        else: begin
-          print, 'Unknown type of source energy spectrum - defaulting to power-law with index of 5.0'
-          func_name  = 'f_pow'
-          func_param = [ 1., 5. ]
-        end
-      endcase
+      else: begin
+        function_list = 'f_'+fit_model_components()
+       func_idx=  where( src_curr.energy_spectrum_type eq function_list, nfoundfunc )
+        if nfoundfunc eq 0 then begin
+         print, 'Unknown type of source energy spectrum - defaulting to power-law with index of 5.0'
+        func_name  = 'f_pow'
+        func_param = [ 1., 5. ]
+        endif else begin
+          func_name =  src_curr.energy_spectrum_type
+          func_param = float(strsplit(src_curr.energy_spectrum_param1,'+', /extract))
+        endelse
+      end
+    endcase
       ; only deal with DRM on first run or a change in source energy
       ; spectrum type/parameters
       if (func_name ne old_func_name) or $

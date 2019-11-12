@@ -69,6 +69,8 @@
 ;     08-Feb-2017   Shane Maloney (TCD) Added thermal soucrce option and updated source parameters
 ;                   they are in order
 ;     25-Sep-2017 - ECMD (Graz), bugfix for position of point sources.
+;     30-Oct-2019 - ECMD (Graz), sourcestruct.energy_spectrum_type can now be any components recognised by fit_model_components() e.g. 'f_bpow'
+;                                if so parmameters are read as a string from energy_spectrum_param1 separated by '+' signs
 ;
 ; :todo:
 ;     30-jul-2014 - Shaun & Laszlo, * currently only allows power-law energy distributions
@@ -150,9 +152,17 @@ function stx_sim_multisource_sourcestruct2photon, sourcestruct, sxpos, sypos, $
         func_param = [sourcestruct.energy_spectrum_param1, sourcestruct.energy_spectrum_param2 ]
       end
       else: begin
-        print, 'Unknown type of source energy spectrum - defaulting to power-law with index of 5.0'
+        function_list = 'f_'+fit_model_components()
+       func_idx=  where( sourcestruct[i].energy_spectrum_type eq function_list, nfoundfunc )
+        if nfoundfunc eq 0 then begin
+         print, 'Unknown type of source energy spectrum - defaulting to power-law with index of 5.0'
         func_name  = 'f_pow'
         func_param = [ 1., 5. ]
+        endif else begin
+          func_name =  sourcestruct[i].energy_spectrum_type
+          func_param = float(strsplit(sourcestruct.energy_spectrum_param1,'+', /extract))
+        endelse
+        
       end
     endcase
     
