@@ -364,7 +364,7 @@ function stx_sim_photon_path, ph_str, subc_str, src_str, $;bkg_flux, bkg_duratio
     ;toc,;clock
     
   ;TODO: N.H. why is it dissabled?
-  if 1 then begin ;Branch no longer used
+  if 0 then begin ;Branch no longer used (PAOLO: set if 0)
   ;clock = tic('photons through slits')
   ;  IDEAL GRID PIXEL BINNING
   ;  Determine photons that fall on slit gaps in both the front and
