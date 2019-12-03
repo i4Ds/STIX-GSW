@@ -79,11 +79,11 @@ function stx_pixel_sums, pixel_data, sumcase, fsw=fsw
     pxl_data_summed.live_time = pixel_data.live_time
   end  
   
-  n_det = (size(pixel_data.counts, /dim))[1]
+  n_det = (size(pixel_data.counts, /dim))[0] ;PAOLO: changed 1 in 0
    
   ; group by time-energy-detector and pixel row, Ncells x 4 x 3 x inputs
-  pixels = reform(pixel_data.counts, 4, 3, n_det, n_inputs)
-  summed_pixels = n_elements( indices ) eq 1 ? reform(pixels[*, indices , * ,*]) : total( pixels[*, indices, *, * ], 2 )
+  pixels = reform(pixel_data.counts, n_det, 4, 3, n_inputs) ;PAOLO: changed 4, 3, n_det to n_det, 4, 3
+  summed_pixels = n_elements( indices ) eq 1 ? reform(pixels[*, *, indices , *]) : total( pixels[*, *, indices, *], 3 ) ;PAOLO: swapped dimension 2 to dimension 3 in the summation
     
   pxl_data_summed.counts = summed_pixels
   
