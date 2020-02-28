@@ -49,6 +49,8 @@
 ;
 ; :Author: rschwartz70@gmail.com, 2-jul-2019
 ; :History: 29-aug-2019, improved the file search for the elut file
+; 28-feb-2020, rschwartz70, fix bug so that scale1024, gain, and offset are consistent
+; in value and shape
 ;-
 pro stx_read_elut, gain, offset, adc4096_str, elut_filename = elut_filename, scale1024 = scale1024
 
@@ -86,10 +88,11 @@ pro stx_read_elut, gain, offset, adc4096_str, elut_filename = elut_filename, sca
   endelse
   elut_str = reform_struct( read_csv( elut_file, n_table_header=3 ))
   ;Get the previous offset and gain suitable for the ADC1024 cal spectra
-  if scale1024 then begin
-    offset = reform( elut_str.(0) / 4.0, 12, 32)
-    gain = reform( elut_str.(1) * 4.0, 12, 32)
-  endif
+  scale = scale1024 ? 4.0 : 1.0
+
+  offset = reform( elut_str.(0) / scale, 12, 32)
+  gain = reform( elut_str.(1) * scale, 12, 32)
+
   ekev =(stx_science_energy_channels()).edges_1
   adc4096_str = replicate( {elut_file:file_basename( elut_file[0] ), ekev: ekev, adc4096: intarr(31), pix_id: 0, det_id: 0}, 12, 32)
   adc4096_str[*].pix_id = elut_str.field03
