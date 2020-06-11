@@ -33,26 +33,36 @@
 ;    gain - 4096 ADC gain in keV/ADC, normally about 0.10
 ;    offset - 4096 ADC bin corresponding to 0 keV
 ;    adc4096_str -
-;    IDL> help, adc4096_str,/st
-;    ** Structure <15a51c50>, 5 tags, length=208, data length=206, refs=1:
-;       ELUT_FILE       STRING    'elut_table_20190704.csv'  ELUT filename
-;       EKEV            FLOAT     Array[31]                  science energy channel edges in keV
-;       ADC4096         INT       Array[31]                  4096 ADC channel value based on EKEV and gain/offset
-;       PIX_ID          INT              0                   Pixel cell of detector, 0-11
-;       DET_ID          INT              0                   Detector ID 0-31
+;    IDL> stx_read_elut, gain, offset, str4096, elut_filename = f, scale1024=0, ekev_a = ekev
+;    IDL> print, ekev[*,0:1,0]
+;           3.9528848       5.0419448       6.0220988       7.0022528       7.9824068       8.9625608       10.051621       11.031775
+;           12.011929       12.992083       13.972237       14.952391       16.041451       18.001759       19.962067       22.031281
+;           24.971743       28.021111       32.050633       35.971249       40.000771       45.010447       50.020123       56.009953
+;           62.979937       69.949921       76.048657       83.998795       100.00798       120.04668       149.99583
+;           3.9652347       4.9474497       6.0387997       7.0210147       8.0032297       8.9854447       9.9676597       10.949875
+;           12.041225       13.023440       14.005655       14.987870       15.970085       18.043650       20.008080       21.972510
+;           25.028290       27.974935       32.012930       36.050925       39.979785       44.999995       50.020205       56.022630
+;           63.007270       69.991910       75.994335       83.961190       100.00403       119.97574       149.98786
+;    IDL> pmm,gain
+;         0.104247     0.110312
+;    IDL> pmm, offset
+;          844.445      922.222
 ;
 ; :Keywords:
-;    elut_filename - search and use this file, with or without full path
+;    ELUT_FILENAME - search and use this file, with or without full path
+;    EKEV_ACTUAL   - channel edges with true energies based on full adc 4096 bins
+;    SCALE1024     - 1 or 0, default 1.  If set, gain and offset are returned
+;    for the 1024 ADC calibration data. EKEV_ACTUAL is the same regardless
 ;
 ;
 ;
 ;
 ; :Author: rschwartz70@gmail.com, 2-jul-2019
 ; :History: 29-aug-2019, improved the file search for the elut file
-; 28-feb-2020, rschwartz70, fix bug so that scale1024, gain, and offset are consistent
-; in value and shape
+; :RAS, 11-jun-2020, added ekev_actual, corrected the action of scale1024==0
 ;-
-pro stx_read_elut, gain, offset, adc4096_str, elut_filename = elut_filename, scale1024 = scale1024
+pro stx_read_elut, gain, offset, adc4096_str, elut_filename = elut_filename, scale1024 = scale1024, $
+  ekev_actual = ekev_actual
 
   default, scale1024, 1
   if file_exist( elut_filename ) then begin
@@ -88,14 +98,23 @@ pro stx_read_elut, gain, offset, adc4096_str, elut_filename = elut_filename, sca
   endelse
   elut_str = reform_struct( read_csv( elut_file, n_table_header=3 ))
   ;Get the previous offset and gain suitable for the ADC1024 cal spectra
-  scale = scale1024 ? 4.0 : 1.0
+  
+  if scale1024 then begin
+    offset = reform( elut_str.(0) / 4.0, 12, 32)
+    gain = reform( elut_str.(1) * 4.0, 12, 32)
+  endif else begin
+    offset = reform( elut_str.(0), 12, 32)
+    gain = reform( elut_str.(1), 12, 32)
 
-  offset = reform( elut_str.(0) / scale, 12, 32)
-  gain = reform( elut_str.(1) * scale, 12, 32)
-
+  endelse
   ekev =(stx_science_energy_channels()).edges_1
   adc4096_str = replicate( {elut_file:file_basename( elut_file[0] ), ekev: ekev, adc4096: intarr(31), pix_id: 0, det_id: 0}, 12, 32)
   adc4096_str[*].pix_id = elut_str.field03
   adc4096_str[*].det_id = elut_str.field04
   for i = 4,34 do adc4096_str.adc4096[i-4] = reform( elut_str.(i), 12, 32)
+  scl = scale1024 ? 4.0 : 1.0
+  gain4096 = transpose( reproduce(gain/scl,31),[2,0,1])
+  offset4096 = transpose( reproduce(offset*scl,31),[2,0,1])
+  ekev_actual =  (adc4096_str.adc4096-offset4096)*gain4096
+
 end
