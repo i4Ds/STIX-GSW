@@ -56,7 +56,9 @@
 ;    20-Jul-2018 - ECMD (Graz), a single rate_control_state or one for every time bin can now be given
 ;    08-Feb-2019 - ECMD (Graz), Using updated input parameters to match ICD
 ;                               Population of flare status byte updated to match STIX-TN-0108-FHNW_I5R2_FSW_Flare_Detection
-;
+;    22-May-2020 - ECMD (Graz), modified median call to match FSW implementation 
+;                               update to plot to reflect FSW parameter changes 
+;                                
 ;-
 function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_control_state  $
   , nbl = nbl $
@@ -95,7 +97,7 @@ function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_c
 
   default, rate_control_state,          bytarr(n_time)
 
-  quicklook_accumulated_data = median(quicklook_accumulated_data, dim = 2)
+  quicklook_accumulated_data = median(quicklook_accumulated_data, dim = 2, /ev)
 
 
   n_time_nbl = nbl/int_time
@@ -225,7 +227,7 @@ function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_c
 
     if keyword_set(ps) then begin
       ps_on, PAGE_SIZE=[9.8*2,12.5*2],paper="A3",/landscape, margin=0.5, filename="StixFlaredetectionSimulation.ps"
-      !p.charsize=0.5
+      !p.charsize=0.8
       !p.font=0
 
     end else begin
@@ -235,8 +237,8 @@ function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_c
 
     cur_time_axis = lindgen(n_time)*int_time
 
-
-    hsi_linecolors
+loadct, 0
+    linecolors
 
 
     utplot, cur_time_axis, total(quicklook_accumulated_data,2), cur_time_axis[0], position=[0.12,0.75,0.88,0.98], xstyle=1, title="", ystyle=1, ytitle='', xcharsize=0.01, thick=3, yrange=[min(quicklook_accumulated_data),max(total(quicklook_accumulated_data,2))]
@@ -256,11 +258,11 @@ function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_c
     ;plotting thermal band
 
     ;1 row: cc cbc cbl
-    utplot, cur_time_axis, thermal_cc, cur_time_axis[0], position=[0.12,0.621667,0.88,0.73], xstyle=1, ystyle=9, /noerase,title="Thermal Band ",  xcharsize=0.01, linestyle=3, yrange=[1 , max([thermal_cc,background[*,0],thermal_cbc])], ylog=max(thermal_cc) gt 0
+    utplot, cur_time_axis, thermal_cc, cur_time_axis[0], position=[0.12,0.621667,0.88,0.73], xstyle=1, ystyle=2, /noerase,title="Thermal Band ",  xcharsize=0.01, linestyle=3, yrange=[min([thermal_cc,background[*,0],thermal_cbc]) >1 , max([thermal_cc,background[*,0],thermal_cbc])], ylog=max(thermal_cc) gt 0
     outplot, cur_time_axis, background[*,0], cur_time_axis[0], color=3, linestyle=2
-    outplot, cur_time_axis, thermal_cbc, cur_time_axis[0], color=6, thick=1
-    outplot, cur_time_axis, cbl[*,0], cur_time_axis[0], color=5, thick=1
-    outplot, cur_time_axis, cbl[*,1], cur_time_axis[0], color=4, thick=1
+    outplot, cur_time_axis, thermal_cbc, cur_time_axis[0], color=6
+    outplot, cur_time_axis, cbl[*,0], cur_time_axis[0], color=5
+    outplot, cur_time_axis, cbl[*,1], cur_time_axis[0], color=4
 
     ;2 row
     thermal_cfmin = [cfmin,cfmin]
@@ -278,9 +280,9 @@ function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_c
     yrange[0] = 1
 
     ;ce
-    utplot, cur_time_axis, ce[*,0], cur_time_axis[0],color=5, position=[0.12,0.513334,0.88,0.621667], xstyle=1, ystyle=9, /noerase, xcharsize=0.01, yrange=yrange, /ylog
+    utplot, cur_time_axis, ce[*,0], cur_time_axis[0],color=5, position=[0.12,0.513334,0.88,0.621667], xstyle=1, ystyle=2, /noerase, xcharsize=0.01, yrange=yrange, /ylog
     ;cfmin threshold
-    outplot, [cur_time_axis[0],cur_time_axis[-1]], make_array(2,value=thermal_cfmin[0]), cur_time_axis[0],linestyle=2
+     outplot, cur_time_axis ,make_array(n_elements(cur_time_axis),value=thermal_cfmin[0]), cur_time_axis[0], color =3, linestyle=2
     outplot,cur_time_axis, cbl[*,0]*krel_rise[0] , cur_time_axis[0], linestyle=1, psym=10
 
 
@@ -295,9 +297,9 @@ function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_c
     yrange[0] = 1
 
     ;ce
-    utplot, cur_time_axis, ce[*,1], cur_time_axis[0], color=4, position=[0.12,0.405,0.88,0.513334], xstyle=1, ystyle=9, /noerase, xcharsize=0.01, yrange=yrange, /ylog
+    utplot, cur_time_axis, ce[*,1], cur_time_axis[0], color=4, position=[0.12,0.405,0.88,0.513334], xstyle=1, ystyle=2, /noerase, xcharsize=0.01, yrange=yrange, /ylog
     ;cfmin threshold
-    outplot, [cur_time_axis[0],cur_time_axis[-1]], make_array(2,value=thermal_cfmin[1]), cur_time_axis[0], linestyle=2
+     outplot, cur_time_axis ,make_array(n_elements(cur_time_axis),value=thermal_cfmin[0]), cur_time_axis[0], color =3, linestyle=2
     outplot, cur_time_axis, cbl[*,1]*krel_rise , cur_time_axis[0],linestyle=1, psym=10
 
     ;flare in progress
@@ -307,7 +309,7 @@ function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_c
 
     ;plotting nonthermal band
     ;1 row: cc cbc cbl
-    utplot, cur_time_axis, nonthermal_cc, cur_time_axis[0], position=[0.12,0.2767,0.88,0.385],ystyle=9, xstyle=1, /noerase,xcharsize=0.01, title="Nonthermal Band ",  linestyle=3, yrange=[1,max([nonthermal_cc,background[*,1],nonthermal_cbc])], ylog=max(nonthermal_cc) gt 0
+    utplot, cur_time_axis, nonthermal_cc, cur_time_axis[0], position=[0.12,0.2767,0.88,0.385],ystyle=2, xstyle=1, /noerase,xcharsize=0.01, title="Nonthermal Band ",  linestyle=3, yrange=[1,max([nonthermal_cc,background[*,1],nonthermal_cbc])], ylog=max(nonthermal_cc) gt 0
     outplot, cur_time_axis, background[*,1], cur_time_axis[0], color=3,linestyle=2
     outplot, cur_time_axis, nonthermal_cbc, cur_time_axis[0], color=6, thick=1
     outplot, cur_time_axis, cbl[*,2], cur_time_axis[0], color=5
@@ -319,7 +321,7 @@ function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_c
     yrange[0] = 1
 
     ;ce
-    utplot, cur_time_axis, ce[*,2], cur_time_axis[0],color=5, position=[0.12,0.1684,0.88,0.2767], xstyle=1, ystyle=9, /noerase, xcharsize=0.01, yrange=yrange, /ylog
+    utplot, cur_time_axis, ce[*,2], cur_time_axis[0],color=5, position=[0.12,0.1684,0.88,0.2767], xstyle=1, ystyle=2, /noerase, xcharsize=0.01, yrange=yrange, /ylog
     ;cfmin threshold
     outplot, [cur_time_axis[0],cur_time_axis[-1]], make_array(2,value=nonthermal_cfmin[0]), cur_time_axis[0],linestyle=2
     outplot, cur_time_axis, cbl[*,2]*krel_rise , cur_time_axis[0],linestyle=1, psym=10
@@ -334,7 +336,7 @@ function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_c
     yrange=minmax([yrange,nonthermal_cfmin[1]])
     yrange[0] = 1
     ;ce
-    utplot, cur_time_axis, ce[*,3], cur_time_axis[0], color=4, position=[0.12,0.06,0.88,0.1684], xstyle=1, ystyle=9, /noerase, xcharsize=1.5, yrange=yrange, /ylog
+    utplot, cur_time_axis, ce[*,3], cur_time_axis[0], color=4, position=[0.12,0.06,0.88,0.1684], xstyle=1, ystyle=2, /noerase, xcharsize=1.5, yrange=yrange, /ylog
     ;cfmin threshold
     outplot, [cur_time_axis[0],cur_time_axis[-1]], make_array(2,value=nonthermal_cfmin[1]), cur_time_axis[0], linestyle=2
     outplot, cur_time_axis, cbl[*,3]*krel_rise , cur_time_axis[0],linestyle=1, psym=10
@@ -357,25 +359,20 @@ function stx_fsw_flare_detection, quicklook_accumulated_data, background, rate_c
 
 
     ;fake plot for legend
-    utplot, 0,0, /nodata, /noerase, position=[0,0.05,0.12,0.34],ystyle=5, xstyle=5
-    al_legend, ["CC","Background","CBC","CBL NBL 0","CBL NBL 1","","","NBL 0","CE","CFmin","Krel*CBL","kdk*flux","Flare","","","NBL 1","CE","CFmin","Krel*CBL","kdk*flux","Flare"], colors=[0,3,6,5,4,1,1,1,5,0,0,6,3,1,1,1,4,0,0,6,3], linestyle=[3,2,0,0,0,0,0,0,0,2,1,0,0,0,0,0,0,2,1,0,0], /top, /left, box=0, linsize=1, margin=0
+    utplot, 0,0, /nodata, /noerase, position=[0,0.03,0.09,0.74],ystyle=5, xstyle=5
+    al_legend, ["CC","Background","CBC","CBL NBL 0","CBL NBL 1","","","NBL 0","CE","CFmin","Krel*CBL","kdk*flux","Flare","","","NBL 1","CE","CFmin","Krel*CBL","kdk*flux","Flare"], colors=[0,3,6,5,4,1,1,1,5,0,0,6,3,1,1,1,4,0,0,6,3],$
+       linestyle=[3,2,0,0,0,0,0,0,0,2,1,0,0,0,0,0,0,2,1,0,0], /top, /right, box=0, linsize=1, margin=0, pspacing = 2, spacing = 2
 
 
     ;fake plot for parameters
-    utplot, 0,0, /nodata, /noerase, position=[0.88,0.05,1,0.31],ystyle=5, xstyle=5, margin=0, linsize=0
+    utplot, 0,0, /nodata, /noerase, position=[0.88,0.65,1,0.81],ystyle=5, xstyle=5, margin=0, linsize=0
     al_legend, /top,box=0,/left, $
       [ "KDK","=========",$
-      " t NBL 0: "+trim(thermal_kdk[0]),$
-      " t NBL 1: "+trim(thermal_kdk[1]),$
-      "nt NBL 0: "+trim(nonthermal_kdk[0]),$
-      "nt NBL 1: "+trim(nonthermal_kdk[1])]
+      trim(thermal_kdk[0])]
 
     al_legend, /bottom,box=0,/left, $
       [ "KREL","=========",$
-      " t NBL 0: "+trim(thermal_krel_rise[0]),$
-      " t NBL 1: "+trim(thermal_krel_rise[1]),$
-      "nt NBL 0: "+trim(nonthermal_krel_rise[0]),$
-      "nt NBL 1: "+trim(nonthermal_krel_rise[1])]
+      trim(thermal_krel_rise[0])]
 
     if keyword_set(ps) then begin
       ps_off
