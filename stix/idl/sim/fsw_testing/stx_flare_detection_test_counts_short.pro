@@ -50,6 +50,7 @@
 ;    08-Feb-2019 - ECMD (Graz), Input counts for 30 detectors are simulated and passed to the flare detection algorithm.
 ;                               The peak flux is increased for each simulated flare
 ;                               Using updated input parameters
+;    09-Apr-2020 - ECMD (Graz), Updated parsing of status byte due to reversed definition  
 ;
 ;-
 function stx_flare_detection_test_counts_short,short_timescale_s =short_timescale_s, long_timescale_s = long_timescale_s, $
@@ -182,9 +183,9 @@ function stx_flare_detection_test_counts_short,short_timescale_s =short_timescal
     kdk =[0.2], krel_rise = [1.5], krel_decay = [0.5] ,flare_intensity_lut = flare_intensity)
 
 
-  therm_index = ishft(flare_flag,-5)
+  therm_index = flare_flag and 7 
   nontherm_index = ishft(flare_flag,-3) and 3b
-  location_status = (ishft(flare_flag,-1) and 3b)
+  location_status = (ishft(flare_flag,-5) and 3b)
 
   plot, full_counts[*,0]
   oplot, full_counts[*,1], color = 2
