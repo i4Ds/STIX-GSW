@@ -44,6 +44,8 @@
 ;
 ; :history:
 ;    20-Jul-2018 - ECMD (Graz), initial release
+;    22-May-2020 - ECMD (Graz), modified median call to match FSW implementation
+;    
 ;
 ;-
 pro stx_flare_detection_rhessi_test, fc, savename = savename, rhessi_bg = rhessi_bg, thermal_scaling =thermal_scaling, $
@@ -113,8 +115,8 @@ pro stx_flare_detection_rhessi_test, fc, savename = savename, rhessi_bg = rhessi
 
 
   ;counts = scaled RHESSI counts + STIX background
-  thermal_counts= median(rebin(thermal_counts +poidev(tamp*sin(freq*(2.*!pi*xx + phi))),30,n) + thermal_bkg_counts[0:29,*], dim = 1)
-  nonthermal_counts= median(rebin(nonthermal_counts + poidev(ntamp*sin(freq*(2.*!pi*xx + phi))),30,n) + nonthermal_bkg_counts[0:29,*], dim = 1)
+  thermal_counts= median(rebin(thermal_counts +poidev(tamp*sin(freq*(2.*!pi*xx + phi))),30,n) + thermal_bkg_counts[0:29,*], dim = 1, /ev)
+  nonthermal_counts= median(rebin(nonthermal_counts + poidev(ntamp*sin(freq*(2.*!pi*xx + phi))),30,n) + nonthermal_bkg_counts[0:29,*], dim = 1,/ev)
 
 
   rcounts = long(transpose([[thermal_counts,nonthermal_counts]]))

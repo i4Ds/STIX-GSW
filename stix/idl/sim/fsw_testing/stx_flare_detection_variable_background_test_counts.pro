@@ -31,7 +31,8 @@
 ;
 ; :history:
 ;    20-Jul-2018 - ECMD (Graz), initial release
-;
+;    22-May-2020 - ECMD (Graz), modified median call to match FSW implementation
+;    
 ;-
 pro stx_flare_detection_variable_background_test_counts, plotting = plotting
 
@@ -107,7 +108,7 @@ pro stx_flare_detection_variable_background_test_counts, plotting = plotting
               bvar =  transpose(rebin(backvar, (preevent+nbins),31))
               random_bg = poidev(ceil(0.5*random_bg*bvar +0.5*bvar))
               ;take the median over the imaging detectors
-              background = (median(random_bg[0:29,*], dim = 1))
+              background = median(random_bg[0:29,*], dim = 1, /ev)
 
               ;the current counts array is given by a (2 energy bands) * (number of time bins)
               ;array initially set to the expectation values of the background for each energy band.
