@@ -54,6 +54,7 @@
 ;       29-nov-2017  - richard.schwartz@nasa.gov, if background is set then a background field is set
 ;       ;in the output structure
 ;       06-apr-2018  - ECMD (Graz), values for trap_length_h and trap_length_e can now be passed to stx_tailing_matrix
+;       20-Jul-2020  - ECMD (Graz), updated default values for depth of damage layer and electrode
 ;
 ;-
 
@@ -120,9 +121,10 @@ function stx_build_drm, ct_energy_edges, $
   endif
   
   
-  default, d_be, 0.35     ; 3.5 mm Be
-  default, d_al, 0.06     ; 600 microns (0.6 mm) of Al
-  default, d_pt, 0.00015
+  default, d_be, 0.35     ; 3.5 mm Be  [cm] 
+  default, d_al, 0.06     ; 600 microns (0.6 mm) of Al [cm] 
+  default, d_pt, 3.4e-6    ; 34 nm Platinum electrode [cm] 
+  default damage_layer_depth, 4.4e-5 ; 440 nm dead layer [cm] 
   
   gmcm_be= 1.85 * d_be    ; 3.5 mm Be
   gmcm_al= 2.7  * d_al * attenuator
@@ -166,7 +168,7 @@ function stx_build_drm, ct_energy_edges, $
   
   if keyword_set( tailing ) then begin
     ;calculate the effect of hole taling as a matirx
-    tailing_matrix =  stx_tailing_matrix(phmean, depth = d, include_damage = 1, trap_length_h = trap_length_h, trap_length_e = trap_length_e, _extra = _extra )
+    tailing_matrix =  stx_tailing_matrix(phmean, depth = d, include_damage = 1, trap_length_h = trap_length_h, trap_length_e = trap_length_e, damage_layer_depth=damage_layer_depth, _extra = _extra )
     
     ;calculate the pulse height matrix and smatrix from the energly loss and tailing matrices
     eloss_mat = stx_tailing_products( eloss_mat, tailing_matrix, edges_in, edges_out, win, wout, func, func_par, area, $
