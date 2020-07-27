@@ -55,6 +55,7 @@
 ; :history:
 ;
 ;    22-Apr-2015 - ECMD (Graz), initial release
+;    27-Jul-2020 - RAS  (GSFC), fixed spelling typos
 ;
 ;-
 function stx_calc_pulse_tailing, eloss_mat, photon_energy, count_energy, depth, detector = detector, trap_length_e = trap_length_e, $
