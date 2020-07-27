@@ -27,7 +27,7 @@ function stx_telemetry_packet_structure_ql_flare_flag_location, packet_word_widt
     ssid                             : 8, $
     coarse_time                      : 32, $
     fine_time                        : 16, $
-    integration_time                 : 8, $
+    integration_time                 : 16, $
     number_of_samples                : 16, $ ; = N
     dynamic_flare_flag               : 0U, $ ; dynamic, will be filled during execution with  N*1  octet
     dynamic_flare_location_z         : 0, $ ; dynamic, will be filled during execution with  N*1 octet

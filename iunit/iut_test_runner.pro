@@ -7,6 +7,7 @@ pro iut_test_runner_event, ev
   
   case uvalue of
     'resize'    : begin
+      if ~isa(status) then return
       Widget_Control, status.text,  SCR_XSize=ev.x, SCR_YSize=ev.y*0.3
       Widget_Control, status.table, SCR_XSize=ev.x, SCR_YSize=ev.y*0.7, COLUMN_WIDTHS=(ev.x-100) * [0.4,0.05,0.1,1]
       
@@ -26,7 +27,7 @@ end
 ;   15-Jul-2015 - Laszlo I. Etesi (FHNW), added option setting a search root and exclude patters (either an array of strings or a comma separated string of patterns)
 ;   16-Jul-2015 - Laszlo I. Etesi (FHNW), - bugfix (crash when no excludes were given)
 ;                                         - allowing tc1 to be an undefined variable -> do auto-search
-function iut_test_runner, tc1, tc2, tc3, tc4, tc5, tc6, tc7, tc8, tc9, tc10, search_root=search_root, exclude=exclude, stoponerror=stoponerror, gui=gui, debug=debug, csv_filename=csv_filename, format=format, reports=reports, _extra=extra
+function iut_test_runner, tc1, tc2, tc3, tc4, tc5, tc6, tc7, tc8, tc9, tc10, search_root=search_root, exclude=exclude, stoponerror=stoponerror, gui=gui, debug=debug, csv_filename=csv_filename, format=format, reports=reports, exitidl=exitidl,  _extra=extra
    common iut_test_runner, status
   default, format, "csv" 
   default, stoponerror, 0
@@ -34,6 +35,7 @@ function iut_test_runner, tc1, tc2, tc3, tc4, tc5, tc6, tc7, tc8, tc9, tc10, sea
   default, debug, 0
   default, search_root, '*'
   default, exclude, ''
+  default, exitidl, 0
   testfiles = strarr(10)
   text = 0
   
@@ -167,6 +169,8 @@ function iut_test_runner, tc1, tc2, tc3, tc4, tc5, tc6, tc7, tc8, tc9, tc10, sea
   if gui then widget_control, base, TLB_SET_TITLE = "IUnit - "+(success ? "APPROVED": "FAILURE")
   
   if keyword_set(csv_filename) then iut_write_result, reports, csv_filename, format 
+  
+  if exitidl then exit, status = (success eq 0 ? 1 : 0) 
   
   return,  success
 end

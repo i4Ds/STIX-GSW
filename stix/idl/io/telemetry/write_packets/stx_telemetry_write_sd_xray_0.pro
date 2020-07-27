@@ -29,26 +29,27 @@ pro stx_telemetry_write_sd_xray_0, xray_packet_structure, tmw=tmw, _extra=extra
     ; process the dynamic part of the subheader
     for data_idx = 0L, packet.NUMBER_SCIENCE_DATA_SAMPLES-1 do begin
       
-      ; write continuation_bits 
-      continuation_bit = (*packet.dynamic_continuation_bits)[data_idx]
-      bits = 2
-      tmw->write, continuation_bit, bits=bits, debug=debug, silent=silent
+      ; write pixel_id
+      data = (*packet.dynamic_pixel_id)[data_idx]
+      bits = 4
+      tmw->write, data, bits=bits, debug=debug, silent=silent
 
       ; write detector_id
       data = (*packet.dynamic_detector_id)[data_idx]
       bits = 5
-      tmw->write, data, bits=bits, debug=debug, silent=silent      
-
-      ; write pixel_id 
-      data = (*packet.dynamic_pixel_id)[data_idx]
-      bits = 4
       tmw->write, data, bits=bits, debug=debug, silent=silent
-      
+    
       ; write energy_id
       data = (*packet.dynamic_energy_id)[data_idx]
       bits = 5
       tmw->write, data, bits=bits, debug=debug, silent=silent
-      
+        
+      ; write continuation_bits 
+      continuation_bit = (*packet.dynamic_continuation_bits)[data_idx]
+      bits = 2
+      tmw->write, continuation_bit, bits=bits, debug=debug, silent=silent
+        
+        
       ; write counts (if there are any)
       if(continuation_bit eq 0) THEN CONTINUE
       bits = 16

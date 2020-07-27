@@ -53,6 +53,10 @@ pro stx_plot::delete
 
 end
 
+function stx_plot::plot_object
+  return, (*((self.stx_plots[0])._get_plot_list_ptr()))[0]
+end
+
 function stx_plot::getWindow
   return, (self.stx_plots)[0].getWindow()
 end

@@ -1,7 +1,6 @@
 ;+
 ; :description:
-;    This internal routine accumulate the event list into the archive buffer format 
-;    the archive buffer format
+;    This routine converts bitsmaks to byte array mask and vice versa 
 ;    
 ; :categories:
 ;    STIX, UTILS

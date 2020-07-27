@@ -13,7 +13,8 @@
 ;
 ; :history:
 ;     21-Sep-2016, Simon Marcin (FHNW), updated according to STIX-ICD-0812-ESC_I3R1draft2_TMTC_ICD.pdf
-;
+;     08-Mar-2019, ECMD (Graz), changed fix() to uint() to avoid reading negative values from unsigned telemetry parameters 
+;     
 ;-
 
 function stx_telemetry_packet_structure_ql_calibration_spectrum, packet_word_width=packet_word_width
@@ -114,37 +115,37 @@ function stx_telemetry_packet_structure_ql_calibration_spectrum, packet_word_wid
     subspectrum_mask               : uint(0),   $
   ;  spare2                         : byte(0),   $
     s1_spare                       : byte(0),   $
-    s1_nbr_points                  : fix(0),    $
-    s1_nbr_channels                : fix(0),    $
-    s1_lowest_channel              : fix(0),    $
+    s1_nbr_points                  : uint(0),    $
+    s1_nbr_channels                : uint(0),    $
+    s1_lowest_channel              : uint(0),    $
     s2_spare                       : byte(0),   $
-    s2_nbr_points                  : fix(0),    $
-    s2_nbr_channels                : fix(0),    $
-    s2_lowest_channel              : fix(0),    $
+    s2_nbr_points                  : uint(0),    $
+    s2_nbr_channels                : uint(0),    $
+    s2_lowest_channel              : uint(0),    $
     s3_spare                       : byte(0),   $
-    s3_nbr_points                  : fix(0),    $
-    s3_nbr_channels                : fix(0),    $
-    s3_lowest_channel              : fix(0),    $
+    s3_nbr_points                  : uint(0),    $
+    s3_nbr_channels                : uint(0),    $
+    s3_lowest_channel              : uint(0),    $
     s4_spare                       : byte(0),   $
-    s4_nbr_points                  : fix(0),    $
-    s4_nbr_channels                : fix(0),    $
-    s4_lowest_channel              : fix(0),    $
+    s4_nbr_points                  : uint(0),    $
+    s4_nbr_channels                : uint(0),    $
+    s4_lowest_channel              : uint(0),    $
     s5_spare                       : byte(0),   $
-    s5_nbr_points                  : fix(0),    $
-    s5_nbr_channels                : fix(0),    $
-    s5_lowest_channel              : fix(0),    $
-    s6_spare                       : byte(0),   $
-    s6_nbr_points                  : fix(0),    $
-    s6_nbr_channels                : fix(0),    $
-    s6_lowest_channel              : fix(0),    $
+    s5_nbr_points                  : uint(0),    $
+    s5_nbr_channels                : uint(0),    $
+    s5_lowest_channel              : uint(0),    $
+    s6_spare                       : uint(0),   $
+    s6_nbr_points                  : uint(0),    $
+    s6_nbr_channels                : uint(0),    $
+    s6_lowest_channel              : uint(0),    $
     s7_spare                       : byte(0),   $
-    s7_nbr_points                  : fix(0),    $
-    s7_nbr_channels                : fix(0),    $
-    s7_lowest_channel              : fix(0),    $
+    s7_nbr_points                  : uint(0),    $
+    s7_nbr_channels                : uint(0),    $
+    s7_lowest_channel              : uint(0),    $
     s8_spare                       : byte(0),   $
-    s8_nbr_points                  : fix(0),    $
-    s8_nbr_channels                : fix(0),    $
-    s8_lowest_channel              : fix(0),    $
+    s8_nbr_points                  : uint(0),    $
+    s8_nbr_channels                : uint(0),    $
+    s8_lowest_channel              : uint(0),    $
     number_of_structures           : uint(0),   $
     dynamic_spare                  : ptr_new(), $ 
     dynamic_detector_id            : ptr_new(), $ 

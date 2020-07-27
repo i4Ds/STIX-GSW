@@ -175,7 +175,7 @@ function stx_sim_energy_distribution, nofelem=nofelem, type=type, energy_range=e
       if not keyword_set(param) then param=[0.]
       stx_bkg_continuum_mdl, edg2, continuum
       edge_products, edg2, width = width, edges_1=edg1
-      bkg = degraded_sim(param[0])
+      bkg = stx_degraded_detector_sim(param[0])
       cumulative_counts = total( /cum, /double, bkg)
       use = where(edg1 gt 1.0)
       integral_counts = cumulative_counts / last_item( cumulative_counts )

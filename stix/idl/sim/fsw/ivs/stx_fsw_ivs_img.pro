@@ -29,7 +29,7 @@ function stx_fsw_ivs_img, stx_fsw_archive_buffer, start_time, rcr, rcr_time_axis
     time_axis = time_axis, $
     time_edges = time_edges, $
     total_counts=total_counts, $
-    disabled_detectors_total_counts=disabled_detectors_total_counts)
+    disabled_detectors_total_counts=disabled_detectors_total_counts, add_timebin_dummy=0)
 
 
 

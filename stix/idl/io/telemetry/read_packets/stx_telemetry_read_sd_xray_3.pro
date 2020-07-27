@@ -19,7 +19,7 @@
 function stx_telemetry_read_sd_xray_3, solo_packet=solo_packet, tmr=tmr, _extra=extra
   ppl_require, in=solo_packet, type='stx_tmtc_solo_source_packet_header'
 
-  ; create emtpy ql_light_curve packet
+  ; create emtpy xray_header
   sd_xray_packet = stx_telemetry_packet_structure_sd_xray_header()
 
   ; auto fill packet
@@ -45,44 +45,56 @@ function stx_telemetry_read_sd_xray_3, solo_packet=solo_packet, tmr=tmr, _extra=
     ; auto fill packet
     tmr->auto_read_structure, packet=sub, tag_ignore=['type', 'pkg_.*', 'dynamic_.*', 'header_.*']
 
-    ; get dynamic lenghts
-    loop_D = fix(total(stx_mask2bits(sub.detector_mask,mask_length=32, /reverse)))
-
     ; prepare data pointers for science samples
-    sub.dynamic_e_low = ptr_new(bytarr(sub.number_substructures))
-    sub.dynamic_e_high = ptr_new(bytarr(sub.number_substructures))
-    sub.dynamic_spare = ptr_new(bytarr(sub.number_substructures))
-    sub.dynamic_tot_counts = ptr_new(bytarr(loop_D,sub.number_substructures))
-    sub.dynamic_vis_real = ptr_new(lonarr(loop_D,sub.number_substructures))
-    sub.dynamic_vis_imaginary = ptr_new(lonarr(loop_D,sub.number_substructures))
+    sub.dynamic_e_low = ptr_new(bytarr(sub.number_energy_groups))
+    sub.dynamic_e_high = ptr_new(bytarr(sub.number_energy_groups))
+    sub.dynamic_tot_counts = ptr_new(bytarr(sub.number_energy_groups))
+    sub.dynamic_number_detectors = ptr_new(lonarr(sub.number_energy_groups))
+    
+    sub.dynamic_detector_id = ptr_new(list())
+    sub.dynamic_vis_real = ptr_new(list())
+    sub.dynamic_vis_imaginary = ptr_new(list())
     
     ; process dynamic science dataslices
-    for j = 0L, sub.number_substructures-1 do begin
+    for j = 0L, sub.number_energy_groups-1 do begin
 
       ; e_low: read 2 bits
-      val = tmr->read(1, bits=5, debug=debug, silent=silent)
+      val = tmr->read(1, bits=8, debug=debug, silent=silent)
       (*sub.dynamic_e_low)[j] = val
 
       ; e_high: read 5 bits
-      val = tmr->read(1, bits=5, debug=debug, silent=silent)
+      val = tmr->read(1, bits=8, debug=debug, silent=silent)
       (*sub.dynamic_e_high)[j] = val
+
+      ; flux: read 8 bits
+      val = tmr->read(1, bits=8, debug=debug, silent=silent)
+      (*sub.dynamic_tot_counts)[j] = val
       
-      ; spare: read 6 bits
-      val = tmr->read(1, bits=6, debug=debug, silent=silent)
-      (*sub.dynamic_spare)[j] = val
+      ; n detectors: read 8 bits
+      n_det = tmr->read(1, bits=8, debug=debug, silent=silent)
+      (*sub.dynamic_number_detectors)[j] = n_det   
+      
+      detector_id = bytarr(n_det)
+      vis_real = ULONARR(n_det)
+      vis_imaginary = ULONARR(n_det)
+            
 
       ; counts: read 8 bits each
-      for idx_D = 0, loop_D -1 do begin
+      for idx_D = 0, n_det -1 do begin
           val = tmr->read(1, bits=8, debug=debug, silent=silent)
-          (*sub.dynamic_tot_counts)[idx_D,j] = val
+          detector_id[idx_D] = val
+          
           val = tmr->read(1, bits=8, debug=debug, silent=silent)
-          ;val = stx_telemetry_util_negative_byte(val, /reverse)
-          (*sub.dynamic_vis_real)[idx_D,j] = val
+          vis_real[idx_D] = val
+          
           val = tmr->read(1, bits=8, debug=debug, silent=silent)
-          ;val = stx_telemetry_util_negative_byte(val, /reverse)
-          (*sub.dynamic_vis_imaginary)[idx_D,j] = val
+          vis_imaginary[idx_D] = val
       endfor
-
+      
+      (*sub.dynamic_detector_id).add, detector_id
+      (*sub.dynamic_vis_real).add, vis_real
+      (*sub.dynamic_vis_imaginary).add, vis_imaginary
+      
     endfor
 
     ; add subheader to list

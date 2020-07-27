@@ -46,14 +46,15 @@ function stx_telemetry_read_sd_spectrogram, solo_packet=solo_packet, tmr=tmr, _e
     tmr->auto_read_structure, packet=sub, tag_ignore=['type', 'pkg_.*', 'dynamic_.*', 'header_.*', 'closing_time_offset']
 
     ; get dynamic lenghts
-    energy_bin_mask=stx_mask2bits(sub.energy_bin_mask,mask_length=33, /reverse)
-    loop_E = fix(total(energy_bin_mask))-1
+   
+    
+    loop_E = max([1,((sub.energy_high + 1) - sub.energy_low) / (sub.energy_unit + 1)]);
     loop_T = sub.number_samples
 
     ; prepare data pointers for science samples
     sub.dynamic_delta_time = ptr_new(uintarr(loop_T))
-    sub.dynamic_trigger = ptr_new(intarr(loop_T))
-    sub.dynamic_counts = ptr_new(intarr(loop_E,loop_T))
+    sub.dynamic_trigger = ptr_new(uintarr(loop_T))
+    sub.dynamic_counts = ptr_new(uintarr(loop_E,loop_T))
 
     ; process dynamic science dataslices
     for idx_T = 0L, loop_T-1 do begin
@@ -63,12 +64,16 @@ function stx_telemetry_read_sd_spectrogram, solo_packet=solo_packet, tmr=tmr, _e
       (*sub.dynamic_delta_time)[idx_T] = val
 
       ; dynamic_trigger: read 8 bits
-      val = tmr->read(2, bits=8, debug=debug, silent=silent)
+      val = tmr->read(1, bits=8, debug=debug, silent=silent)
       (*sub.dynamic_trigger)[idx_T] = val
-
+      
+      ;read and ignore the number of energy bins loop_E is allready defindes by the energy binning
+      val = tmr->read(1, bits=8, debug=debug, silent=silent)
+      print, "loop_E: ", loop_E, " repeater_loop_e: ", val 
+      
       ; counts: read 8 bits each
       for idx_E = 0, loop_E -1 do begin
-          val = tmr->read(2, bits=8, debug=debug, silent=silent)
+          val = tmr->read(1, bits=8, debug=debug, silent=silent)
           (*sub.dynamic_counts)[idx_E,idx_T] = val
       endfor
 

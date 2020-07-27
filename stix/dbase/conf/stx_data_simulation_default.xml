@@ -50,7 +50,7 @@
 		<parameter name="T_L" default="2.7d-6 " valid="X ge 0" type="double">
 		<description>the latency time for the detector coincidence time filtering</description>
 		</parameter>
-        <parameter name="T_R" default="18.8d-6" valid="X ge 0" type="double">
+        <parameter name="T_R" default="11d-6" valid="X ge 0" type="double">
     		<description>The readout time for the detector coincidence time filtering. The T_Ignore period occurs at the end of every readout period.</description>
 		</parameter>
         <parameter name="T_Ignore" default=" 0.72d-6" valid="X ge 0" type="double">

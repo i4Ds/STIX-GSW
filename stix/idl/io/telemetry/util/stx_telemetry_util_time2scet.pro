@@ -14,6 +14,10 @@ pro stx_telemetry_util_time2scet, coarse_time=coarse_time, fine_time=fine_time, 
     fine_mask = reverse(stx_mask2bits(fine_time,mask_length=16, /reverse))
     sub_second_value = total(fine_mask*fine_bits)
     
+    ;todo N.H. formalize and configure this step
+    ;we floor to 0.1 second intervals to unify absolut stix time (coarse.fine) and relative time (0.1s intervals) 
+    sub_second_value = floor(sub_second_value * 10)/10.0
+    
     ; add seconds and subseconds
     stx_time_obj=stx_time_add(stx_time_obj,seconds=coarse_time)
     stx_time_obj=stx_time_add(stx_time_obj,seconds=sub_second_value)

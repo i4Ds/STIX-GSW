@@ -17,7 +17,7 @@ function stx_asw_ql_variance, n_time_bins
   return, { $
     type                   : 'stx_asw_ql_variance', $
     time_axis              : stx_construct_time_axis(intarr(n_time_bins+1)), $ ;+1 as time_edges
-    energy_axis            : stx_construct_energy_axis(select=indgen(2)), $
+    energy_mask            : bytarr(32), $
     samples_per_variance   : fix(0), $
     variance               : lonarr(n_time_bins), $
     detector_mask          : bytarr(32), $

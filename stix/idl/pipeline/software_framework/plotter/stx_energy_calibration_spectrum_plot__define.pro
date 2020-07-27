@@ -158,7 +158,7 @@ end
 pro stx_energy_calibration_spectrum_plot::plot2, energy_calibration_spectrum_object, subspectra_to_plot=subspectra_to_plot, $
                                                 pixel_mask=pixel_mask, detector_mask=detector_mask, overplot=overplot, $
                                                 dimensions=dimensions, position=position, current=current, $
-                                                add_legend=add_legend, recalculate_data=recalculate_data, _extra=extra
+                                                add_legend=add_legend, recalculate_data=recalculate_data, out_compacted_spectra = out_compacted_spectra, _extra=extra
   
   ; Get the default styling
   default_styles =  stx_line_plot_styles(/energy_calibration_pixel)
@@ -212,12 +212,14 @@ pro stx_energy_calibration_spectrum_plot::plot2, energy_calibration_spectrum_obj
     endfor
   endfor
   
+  out_compacted_spectra = result_array 
+  
   ; TODO Prepare the x-axis
   x_sub_axis = indgen(1024)
   x_axis = intarr(nmbr_pixels,1024)
   for i=0, nmbr_pixels-1 do x_axis[i,*] = x_sub_axis
   
- 
+  
  
  
   sub_n = n_elements(subspectra_to_plot)

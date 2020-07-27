@@ -44,7 +44,7 @@ function prepare_packet_structure_sd_xray_0_write_fsw, L0_ARCHIVE_BUFFER=L0_ARCH
   science_data = list()
 
   ; fill in the header data
-  packet.ssid = 10
+  packet.ssid = 20
   packet.compression_schema_acc = ishft(compression_param_s_acc, 6) or ishft(compression_param_k_acc, 3) or compression_param_m_acc
   packet.compression_schema_t = ishft(compression_param_s_acc, 6) or ishft(compression_param_k_acc, 3) or compression_param_m_acc
   packet.number_time_samples = (size(L0_ARCHIVE_BUFFER))[1]
@@ -313,16 +313,9 @@ pro stx_telemetry_prepare_structure_sd_xray_0_read, fsw_archive_buffer_time_grou
   fsw_archive_buffer_time_group = list()
 
   ; get compression params
-  compression_param_k_acc = fix(ishft((*solo_slices[0].source_data).compression_schema_acc,-3) and 7)
-  compression_param_m_acc = fix((*solo_slices[0].source_data).compression_schema_acc and 7)
-  compression_param_s_acc = fix(ishft((*solo_slices[0].source_data).compression_schema_acc,-6) and 3)
-  compression_param_k_t = fix(ishft((*solo_slices[0].source_data).compression_schema_t,-3) and 7)
-  compression_param_m_t = fix((*solo_slices[0].source_data).compression_schema_t and 7)
-  compression_param_s_t = fix(ishft((*solo_slices[0].source_data).compression_schema_t,-6) and 3)
   
-  ; start time as stx_time
-  stx_telemetry_util_time2scet,coarse_time=(*solo_slices[0].source_data).coarse_time, $
-    fine_time=(*solo_slices[0].source_data).fine_time, stx_time_obj=t0, /reverse
+  stx_km_compression_schema_to_params, (*solo_slices[0].source_data).compression_schema_acc, k=compression_param_k_acc, m=compression_param_m_acc, s=compression_param_s_acc
+  stx_km_compression_schema_to_params, (*solo_slices[0].source_data).compression_schema_t, k=compression_param_k_t, m=compression_param_m_t, s=compression_param_s_t
   
   ; use starting time and duration as unique identifier per time bin
   starting_time = -1L
@@ -342,6 +335,10 @@ pro stx_telemetry_prepare_structure_sd_xray_0_read, fsw_archive_buffer_time_grou
   
   ; loop through all solo_slices
   foreach solo_packet, solo_slices do begin
+    
+    ; start time as stx_time
+    stx_telemetry_util_time2scet,coarse_time=(*solo_packet.source_data).COARSE_TIME, $
+      fine_time=(*solo_packet.source_data).fine_time, stx_time_obj=t0, /reverse
     
     ; loop through all subheaders
     foreach subheader, (*(*solo_packet.source_data).dynamic_subheaders) do begin
@@ -383,6 +380,8 @@ pro stx_telemetry_prepare_structure_sd_xray_0_read, fsw_archive_buffer_time_grou
         end_time = stx_time_add(t0, seconds=(subheader.duration+subheader.starting_time)/10.0d)
 ;        end_time = t0
 ;        end_time.value.time+= (subheader.duration+subheader.starting_time)*100
+
+        print,  t0.value.TIME, start_time.value.TIME, end_time.value.TIME, duration
         
         trigger = ULON64ARR(16)
         trigger[0] = subheader.trigger_acc_0
@@ -407,7 +406,7 @@ pro stx_telemetry_prepare_structure_sd_xray_0_read, fsw_archive_buffer_time_grou
       endif
       
       ; create a an archive buffer entry for each count
-      tmp_archive_buff = replicate(archive_buffer_entry, subheader.number_science_data_samples)
+      tmp_archive_buff = replicate(archive_buffer_entry, subheader.NUMBER_SCIENCE_DATA_SAMPLES)
       relative_time = dblarr(2)
       relative_time[0] = stx_telemetry_util_relative_time(start_time)
       relative_time[1] = stx_telemetry_util_relative_time(end_time)

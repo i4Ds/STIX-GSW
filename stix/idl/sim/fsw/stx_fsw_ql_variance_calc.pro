@@ -29,13 +29,15 @@
 ;   09-12-2016 - ECMD (GRAZ), implemented revised calculation as described in STIX-TN-0115-FHNW_i2r3_FSW_Variance_Calculation
 ;                             removed multiple quicklook time bin functionality expected input is now the counts in a single quicklook interval 
 ;   06-Mar-2017 - Laszlo I. Etesi (FHNW), minor bugfix in padding routine at the beginning of the routine
+;   28-Mar-2018 - Nicky Hochmuth (FHNW), add 16bit restriction, for instrument simulation
 ;-
-function stx_fsw_ql_variance_calc, variance_str, no_var = no_var
+function stx_fsw_ql_variance_calc, variance_str, no_var = no_var, bit16 = bit16
 
   default, no_var, 40ul
+  default, bit16, 0
   
   ;extract array of accumulated counts
-  counts = ulong(variance_str.accumulated_counts)
+  counts = bit16 ? uint(variance_str.accumulated_counts) : ulong(variance_str.accumulated_counts)
   
   ;if number of intervals passed in is less than no_var pad the remainder with zeros
   if n_elements(counts) lt no_var then begin
@@ -55,7 +57,7 @@ function stx_fsw_ql_variance_calc, variance_str, no_var = no_var
   mean_counts = total(counts, /preserve_type)/no_var
   
   ;calculate the deviation from the mean and scale by a factor 4
-  mean_deviation = long(counts - mean_counts)/4l
+  mean_deviation = long(counts - mean_counts)/4L
   
   ;calculation of variance/16
   variance = total( ulong(mean_deviation*mean_deviation), /preserve_type )

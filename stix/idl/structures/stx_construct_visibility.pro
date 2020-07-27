@@ -96,7 +96,10 @@ function stx_construct_visibility, subc_str, f2r_sep=f2r_sep, radius_au=radius_a
   ; Apply calculated values (if present)
   if(keyword_set(time_range)) then vis.time_range = time_range
   if(keyword_set(energy_range)) then vis.energy_range = energy_range
-  if(keyword_set(totflux)) then vis.totflux = totflux
+  
+  ;totflux not provided by instrument TM
+  ;if(keyword_set(totflux)) then vis.totflux = totflux
+  
   if(keyword_set(sigamp)) then vis.sigamp = sigamp
   if(keyword_set(obsvis)) then vis.obsvis = obsvis
   return, vis

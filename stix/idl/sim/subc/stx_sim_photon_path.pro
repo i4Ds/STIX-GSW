@@ -173,6 +173,8 @@ function stx_sim_photon_path, ph_str, subc_str, src_str, $;bkg_flux, bkg_duratio
   ;  the angles subtended by the edge of the detector and the edge
   ;  of the front grid active area
   ;clock = tic('assign subc_f_n')
+  subc_f_n = fltarr(n_elements(ph_str[*].subc_d_n))
+  subc_r_n = fltarr(n_elements(ph_str[*].subc_d_n))
   
   if ( ( abs(src_str.xcen) lt ( subc_angle_x[0] ) ) and $
        ( abs(src_str.ycen) lt ( subc_angle_y[0] ) ) ) then begin
@@ -205,6 +207,10 @@ function stx_sim_photon_path, ph_str, subc_str, src_str, $;bkg_flux, bkg_duratio
                               
   ;  End checking of subcollimator active areas
   endelse
+  
+  foverlap =  where(subc_f_n ne ph_str.subc_d_n,/null)
+  subc_f_n[foverlap] = 0
+  
   ;toc,;clock
   ;clock = tic('assign subc_r_n')
   ;  Check if photons already known to fall inside their generated
@@ -236,6 +242,9 @@ function stx_sim_photon_path, ph_str, subc_str, src_str, $;bkg_flux, bkg_duratio
   ;  Set angle-modified grid thickness (in mm)
   ;  TODO: make grid thickness into parameter read from look-up file
   grid_thick = 0.4 / cos( ph_str.theta *!dtor)
+  
+  roverlap =  where(subc_r_n ne ph_str.subc_d_n, /null)
+  subc_r_n[roverlap] = 0
   
   ;  Initiate material path lengths for front and rear grid planes 
   ;  to default assumption of passing through slat/non-active area
@@ -346,13 +355,16 @@ function stx_sim_photon_path, ph_str, subc_str, src_str, $;bkg_flux, bkg_duratio
      if ( hist_d[i] ne 0 ) then $    
         ;  Determine pixel indices for the selected subcollimator
        pixel_n[zi] = stx_sim_det_pix( x_pos[zi],  y_pos[zi], subc_str[i-1].det.pixel.edge )
+       
+      ; plot_det_counts,  x_pos[zi],  y_pos[zi], subc_str, i 
+       
        ;out = stx_sim_det_pix_old( [[x_pos[zi]],[y_pos[zi]]], subc_str[i-1])
                              endfor
     ph_str.pixel_n = pixel_n
     ;toc,;clock
     
   ;TODO: N.H. why is it dissabled?
-  if 0 then begin ;Branch no longer used
+  if 0 then begin ;Branch no longer used (PAOLO: set if 0)
   ;clock = tic('photons through slits')
   ;  IDEAL GRID PIXEL BINNING
   ;  Determine photons that fall on slit gaps in both the front and
@@ -371,6 +383,9 @@ function stx_sim_photon_path, ph_str, subc_str, src_str, $;bkg_flux, bkg_duratio
         if ( hist_dp[i] ne 0 ) then $
            ;  Bin photon numbers in terms of integer pixel indices
            det_subc[i-1, *] = histogram( [ph_str.pixel_n[ ph_use[ ri[ ri[i]:ri[i+1]-1 ] ] ]], min=0, max=11, bin=1 )
+           
+          ; plot_det_counts,  x_pos[ph_use[ ri[ ri[i]:ri[i+1]-1 ] ] ],  y_pos[ph_use[ ri[ ri[i]:ri[i+1]-1 ] ] ], subc_str, i
+
            endfor
   endif
   ;toc,;clock

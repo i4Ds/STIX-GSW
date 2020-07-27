@@ -364,7 +364,7 @@ pro stx_plot_pixel_data, pixel_data, subc_str, visibility=visibility, dscale=dsc
   
  
   ;draw the color bar on the top of the chart
-  message, 'REMOVED COLORBAR FROM UTIL, MAY NOT BE NEEDED ANYMORE IN IDL 8.2+'
+  message, 'REMOVED COLORBAR FROM UTIL, MAY NOT BE NEEDED ANYMORE IN IDL 8.2+', /continue
   colorbar, min=min_count, max=max_count, charsize=3, position=[0.25, 0.92, 0.95, 0.96], format='(I)'
   
   

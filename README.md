@@ -1,4 +1,4 @@
-asdfasd
+
 # STIX-GSW (STIX Ground Software)
 Ground-analysis software repository
 

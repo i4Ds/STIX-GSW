@@ -35,10 +35,10 @@ function stx_telemetry_read_ql_flare_flag_location, solo_packet=solo_packet, tmr
 
   ; prepare data pointers for light_curves
   ql_flare_flag_location_packet.dynamic_flare_flag = ptr_new(bytarr(ql_flare_flag_location_packet.number_of_samples)-1)
-  ql_flare_flag_location_packet.dynamic_flare_location_z = ptr_new(bytarr(ql_flare_flag_location_packet.number_of_samples)-1)
-  ql_flare_flag_location_packet.dynamic_flare_location_y = ptr_new(bytarr(ql_flare_flag_location_packet.number_of_samples)-1)
+  ql_flare_flag_location_packet.dynamic_flare_location_z = ptr_new(intarr(ql_flare_flag_location_packet.number_of_samples)-1)
+  ql_flare_flag_location_packet.dynamic_flare_location_y = ptr_new(intarr(ql_flare_flag_location_packet.number_of_samples)-1)
  
-  ; process all lightcurves
+  ; process all entries
   for i = 0L, ql_flare_flag_location_packet.number_of_samples-1 do begin
 
     ; dynamic_flare_flag: read 8 bits

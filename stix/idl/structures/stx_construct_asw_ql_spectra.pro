@@ -16,7 +16,7 @@
 
 function stx_construct_asw_ql_spectra, n_time_bins=n_time_bins, $
   from=from, time_axis=time_axis, spectrum=spectrum, triggers=triggers, pixel_mask=pixel_mask, $
-  energy_axis=energy_axis
+  energy_axis=energy_axis, detector_mask=detector_mask
 
   ; check if at least one of the mandatory keywords is set
   if not keyword_set(n_time_bins) and not keyword_set(from) and not keyword_set(time_axis) then begin
@@ -32,7 +32,7 @@ function stx_construct_asw_ql_spectra, n_time_bins=n_time_bins, $
 
 
   ; define bin sizes if not defined explicit
-  if keyword_set(time_axis) then n_time_bins=size(time_axis.duration, /DIM)+1
+  if keyword_set(time_axis) then n_time_bins=size(time_axis.duration, /DIM)
 
   ; create spectra struct
   spectra=stx_asw_ql_spectra(n_time_bins)
@@ -43,6 +43,7 @@ function stx_construct_asw_ql_spectra, n_time_bins=n_time_bins, $
   if keyword_set(spectrum) then spectra.spectrum = spectrum
   if keyword_set(triggers) then spectra.triggers = triggers
   if keyword_set(pixel_mask) then spectra.pixel_mask = pixel_mask
+  if keyword_set(detector_mask) then spectra.detector_mask = detector_mask
 
   return, spectra
 end

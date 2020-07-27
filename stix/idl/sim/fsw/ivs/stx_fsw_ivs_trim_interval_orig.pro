@@ -71,7 +71,7 @@ function stx_fsw_ivs_trim_interval_orig, interval, spectrogram, times, right=rig
   moved = 1
   
   ;trim the right side as fare as possible
-  while moved do begin
+  while moved AND split_end_idx gt 0 do begin
     moved = 0
     if right && start_time_idx lt end_time_idx && total(spectrogram.counts[e_idx_start : e_idx_end, start_time_idx:end_time_idx]) gt min_count then begin
       split_end_idx--

@@ -45,8 +45,10 @@
 ;    08-Dec-2015 - Simon Marcin (FHNW), initial release
 ;-
 function prepare_packet_structure_ql_variance_fsw, ql_variance=ql_variance, $
-  compression_param_k=compression_param_k, compression_param_m=compression_param_m, $
-  compression_param_s=compression_param_s, _extra=extra
+  compression_param_k=compression_param_k, $
+  compression_param_m=compression_param_m, $
+  compression_param_s=compression_param_s, $
+  _extra=extra
 
   ; type checking
   ppl_require, in=ql_variance, type='stx_fsw_m_variance'
@@ -72,9 +74,10 @@ function prepare_packet_structure_ql_variance_fsw, ql_variance=ql_variance, $
   ; pixel and detector mask already as number
   packet.pixel_mask = ql_variance.pixel_mask[0]
   packet.detector_mask = ql_variance.detector_mask[0]
+  
   energy_mask = bytarr(32)
-  energy_mask[fix(ql_variance.energy_axis.low[0]) : fix(ql_variance.energy_axis.high[0])] = 1
-  packet.energy_mask = stx_mask2bits(packet.energy_mask)
+  energy_mask[fix(ql_variance.energy_axis.LOW_FSW_IDX[0]) : fix(ql_variance.energy_axis.HIGH_FSW_IDX[0])] = 1
+  packet.energy_mask = stx_mask2bits(energy_mask)
   ;packet.energy_channel_lower_bound = fix(ql_variance.energy_axis.low[0])
   ;packet.energy_channel_upper_bound = fix(ql_variance.energy_axis.high[0])
 
@@ -247,11 +250,11 @@ pro stx_telemetry_prepare_structure_ql_variance_read, asw_ql_variance=asw_ql_var
   
   ; get energy axis
   energy_mask=stx_mask2bits((*solo_slices[0].source_data).energy_mask ,mask_length=32, /reverse)
-  index = where(energy_mask eq 1)
-  edges=[index[0],index[-1]]
+  ;index = where(energy_mask eq 1)
+  ;edges=[index[0],index[-1]]
   ;edges=[(*solo_slices[0].source_data).energy_channel_lower_bound, $
   ;  (*solo_slices[0].source_data).energy_channel_upper_bound]
-  energy_axis=stx_construct_energy_axis(energy_edges=edges, select=[0,1])
+  ;energy_axis=stx_construct_energy_axis(energy_edges=edges, select=[0,1])
   
   
   for solo_slice_idx = 0L, (size(solo_slices, /DIM))[0]-1 do begin
@@ -283,7 +286,7 @@ pro stx_telemetry_prepare_structure_ql_variance_read, asw_ql_variance=asw_ql_var
   if(arg_present(asw_ql_variance)) then begin
     asw_ql_variance=stx_asw_ql_variance(total_number_of_structures)
     asw_ql_variance.time_axis=time_axis
-    asw_ql_variance.energy_axis=energy_axis
+    asw_ql_variance.energy_mask=energy_mask
     asw_ql_variance.samples_per_variance=samples_per_variance
     asw_ql_variance.variance=var
     asw_ql_variance.detector_mask=detector_mask

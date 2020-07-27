@@ -93,22 +93,17 @@ function stx_flight_software_simulator_plotter::_create_plot_health, current=cur
   default, position, [0.1,0.1,0.7,1]
   default, showxlabels, 1
   
-  self.fsw->getProperty, active_detectors=active_detectors, flare_flag = flare_flag
   
-  flare_flag.type='stx_flare_flag'
-  dhp = stx_detector_health_plott(active_detectors, flare_flag=flare_flag, current=current)
-  
+  dhp = obj_new('stx_detector_health_plot')
   (self.plots)["detector"] = dhp
   
-  self->_registermouseevents, dhp.window  
-  ;(self.plots)["windows_lightcurve"] = lc_0.window
-  return, dhp.window
+  self->_registermouseevents, dhp.PLOT_WINDOW  
+  return, dhp.PLOT_WINDOW
   
 end
 
 pro stx_flight_software_simulator_plotter::_update_plot_health  
-  self.fsw->getProperty, active_detectors=active_detectors, reference_time=reference_time, flare_flag=flare_flag
-  flare_flag.type = 'stx_flare_flag'
+
   
   dhp = (self.plots)["detector"]
 

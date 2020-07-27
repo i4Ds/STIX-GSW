@@ -34,6 +34,7 @@
 ;
 ; :history:
 ;    14-Jun-2017 - ECMD (Graz), initial release
+;    17-Jul-2020 - ECMD (Graz), updated default value for depth of damage layer
 ;
 ;-
 function  stx_tailing_matrix, energy, depth=depth, trap_length_h = trap_length_h, trap_length_e = trap_length_e, detector = detector, include_damage = include_damage , damage_layer_depth = damage_layer_depth
@@ -47,7 +48,7 @@ function  stx_tailing_matrix, energy, depth=depth, trap_length_h = trap_length_h
   default, trap_length_h, 0.36*1e4 ; mean free path for holes in cm
   default, trap_length_e, 24*1e4 ; mean free path for electrons in cm
   default, include_damage, 1 ;  if true include a damage layer of reduced charge collecting efficiency
-  default, damage_layer_depth, 15 ; depth of damage layer in micrometres
+  default, damage_layer_depth, 4.4e-5 ; depth of damage layer in cm
   default, detector, 'cdte'
   
   ;distance into detector in micrometres for the edge of each layer
@@ -55,6 +56,9 @@ function  stx_tailing_matrix, energy, depth=depth, trap_length_h = trap_length_h
   
   ;convert depth to micrometers
   d = depth*1d4
+  
+  ;convert damage_layer_depth from cm to micrometers
+  damage_layer_depth *= 1d4
   
   ;use the hecht equation to estimate the charge collecting efficiency
   h = (trap_length_h*(1.-exp(-x/trap_length_h)) + trap_length_e*(1.- exp(-(d-x)/trap_length_e)))/d

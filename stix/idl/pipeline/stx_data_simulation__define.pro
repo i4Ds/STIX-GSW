@@ -67,13 +67,13 @@
 ;-
 function stx_data_simulation::init, configuration_manager
   default, configuration_manager, stx_configuration_manager(application_name='stx_data_simulation')
-  
+
   ; dss is not yet state ready, temporary workaround
   ; TODO: introduce state
   internal_state = { $
     type: 'stx_dss_internal_state' $
-    }
-  
+  }
+
   res = self->ppl_processor::init(configuration_manager, internal_state)
   self.available_used_filter_look_ahead_bins = ptr_new(list())
   self.used_filter_look_ahead_events = ptr_new(list())
@@ -177,7 +177,7 @@ function stx_data_simulation::getdata, output_target=output_target, history=hist
       break
     end
     'scenario_length': begin
-      return, self->_calculate_scenario_length_t(_extra=extra) 
+      return, self->_calculate_scenario_length_t(_extra=extra)
       break
     end
     else: begin
@@ -194,7 +194,7 @@ end
 ; :keywords:
 ;    scenario_name : in, required, type='string', default='stx_scenario_1'
 ;      specifies the scenario_name to be used
-;    
+;
 ;    seed : in/out, optional, type='long'
 ;      the random seed used for all random number generators
 ;
@@ -202,18 +202,18 @@ end
 ;    this routine returnes the desired 'output_path'
 ;
 ; :history:
-; 	 12-Nov-2014 - Roman Boutellier (FHNW), initial release
-; 	 22-Jan-2015 - Laszlo I. Etesi (FHNW), updated routine, removed default scenario
-; 	 05-Mar-2015 - Laszlo I. Etesi (FHNW), using user feedback from prepare scenario to skip simulation if necessary
-; 	 10-Mar-2015 - Roman Boutellier (FHNW), changed usage of user feedback (returning without simulation in case out_skip_sim is not 0 (either -1, 1 or 2)
-; 	 26-Feb-2016 - Laszlo I. Etesi (FHNW), pulling out the random seed keyword
-;	 03-Mar-2017 - Laszlo I. Etesi (FHNW), lowered max photons
+;    12-Nov-2014 - Roman Boutellier (FHNW), initial release
+;    22-Jan-2015 - Laszlo I. Etesi (FHNW), updated routine, removed default scenario
+;    05-Mar-2015 - Laszlo I. Etesi (FHNW), using user feedback from prepare scenario to skip simulation if necessary
+;    10-Mar-2015 - Roman Boutellier (FHNW), changed usage of user feedback (returning without simulation in case out_skip_sim is not 0 (either -1, 1 or 2)
+;    26-Feb-2016 - Laszlo I. Etesi (FHNW), pulling out the random seed keyword
+;  03-Mar-2017 - Laszlo I. Etesi (FHNW), lowered max photons
 ;
 ; :todo:
 ;
 ;-
 function stx_data_simulation::_run_data_simulation, history=history, scenario_name=scenario_name, scenario_file=scenario_file, seed=seed
-    
+
   ; 1. define sources
   ;   1.1 read scenario_name, input source list
   ;   1.2 split psources into managable vsources using duration * flux and memory limitation; make sure to split by time
@@ -232,57 +232,57 @@ function stx_data_simulation::_run_data_simulation, history=history, scenario_na
   ; 3. generate background file
   ; 4. combine all vsource files into psource file
   ; 5. combine background and all all psource files into 'one' time-sorted unfiltered event list
-  
+
   dsconf = self->get(module='data_simulation')
-  
-  default, seed, dsconf.seed 
-  
+
+  default, seed, dsconf.seed
+
   if dsconf.seed eq 0 then seed = !NULL
-  
+
   ; Prepare the scenario_name
   self->_prepare_scenario, scenario_name=scenario_name, scenario_file=scenario_file, out_subc_str=subc_str, out_output_path=output_path, out_bkg_sources=bkg_sources, out_sources=sources, out_skip_sim=out_skip_sim
 
 
   if ((out_skip_sim eq -1) || (out_skip_sim gt 0)) then return, output_path
-  
-  
+
+
   ; Split the background struct and then process the backgrounds
   if(ppl_typeof(bkg_sources, compareto='stx_sim_source', /raw)) then begin
     bg_str_split = stx_sim_split_sources(sources=bkg_sources, max_photons=10L^6, subc_str=subc_str, /background)
-    
+
     ; Process the background
     for bg_idx = 0L, n_elements(bg_str_split)-1 do begin
       ; Extract current background
       curr_bg_str = bg_str_split[bg_idx]
-      
+
       ; Generate data
       void = self->_run_background_simulation(background_str=curr_bg_str, subc_str=subc_str, output_path=output_path, seed=seed, attenuator_thickness=dsconf.attenuator_thickness)
     endfor
   endif
-  
+
   ; Split the sources struct and then process the sources
   if (isvalid(sources)) then src_str_split = stx_sim_split_sources(sources=sources, max_photons=10L^7, $
     subc_str=subc_str, all_drm_factors=all_drm_factors, drm0=drm0 )
   for src_idx = 0L, n_elements(src_str_split)-1 do begin
     ; Extract current source
     curr_src_str = src_str_split[src_idx]
-    
-;    error = 0
-;    catch, error
-;    if(error ne 0) then begin
-;      stop
-;      help, /last_message, out=last_message
-;      error = ppl_construct_error(message=last_message, /parse)
-;      ppl_print_error, error
-;    endif
-    
+
+    ;    error = 0
+    ;    catch, error
+    ;    if(error ne 0) then begin
+    ;      stop
+    ;      help, /last_message, out=last_message
+    ;      error = ppl_construct_error(message=last_message, /parse)
+    ;      ppl_print_error, error
+    ;    endif
+
     ; Generate data
     void = self->_run_source_simulation(source=curr_src_str, subc_str=subc_str, all_drm_factors=all_drm_factors, drm0=drm0, index=src_idx, output_path=output_path, seed=seed, attenuator_thickness=dsconf.attenuator_thickness)
   endfor
-  
+
   if(isvalid(bkg_sources)) then complete_set_src = bkg_sources
   if(isvalid(complete_set_src)) then complete_set_src = [complete_set_src, sources] $
-  else complete_set_src = sources 
+  else complete_set_src = sources
 
   ; Finish the processing of the scenario_name
   ret = self->_wrapup_scenario(scenario_file=sc_file, output_path=output_path, source_str=complete_set_src)
@@ -292,7 +292,7 @@ end
 
 ;+
 ; :description:
-; 	 this function reads the given scenario_name
+;    this function reads the given scenario_name
 ;
 ; :keywords:
 ;    scenario_name : in, optional, type='string'
@@ -300,16 +300,16 @@ end
 ;    scenario_file : in, optional, type='string'
 ;      this is the scenario file path; either this keyword or 'scenario_name' must be specified
 ;    out_bkg_sources : out, type='stx_sim_source_structure'
-;      flat array of background sources 
+;      flat array of background sources
 ;    out_sources : out, type='stx_sim_source_structure'
 ;      flat array of sources
 ;    out_scenario_file: out, optional, type='string'
 ;      path of the scenario file
-;    
+;
 ;
 ; :history:
-; 	 12-Nov-2014 - Roman Boutellier (FHNW), initial release
-; 	 22-Jan-2015 - Laszlo I. Etesi (FHNW), changed to procedure and updated keyword list
+;    12-Nov-2014 - Roman Boutellier (FHNW), initial release
+;    22-Jan-2015 - Laszlo I. Etesi (FHNW), changed to procedure and updated keyword list
 ;-
 pro stx_data_simulation::_read_scenario, scenario_name=scenario_name, scenario_file=scenario_file, out_sources=out_sources, out_bkg_sources=out_bkg_sources
   out_sources = stx_sim_read_scenario(scenario_name=scenario_name, scenario_file=scenario_file, out_bkg_str=out_bkg_sources)
@@ -318,7 +318,7 @@ end
 
 ;+
 ; :description:
-; 	 describe the procedure.
+;    describe the procedure.
 ;
 ;
 ;
@@ -329,90 +329,90 @@ end
 ; :returns:
 ;
 ; :history:
-; 	 09-Nov-2014 - Roman Boutellier (FHNW), initial release
-; 	 22-Jan-2015 - Laszlo I. Etesi (FHNW), renamed keywords and added option to ignore non-empty folders
-; 	 05-Mar-2015 - Laszlo I. Etesi (FHNW), - routine is now checking for existing data and let's user choose what to do
-; 	                                       - added keyword out_skip_sim to return user choice when output folder is not empty
-; 	 11-Mar-2015 - Roman Boutellier (FHNW), Added keyword gui to distinguish between calling this method from the GUI or the CLI
+;    09-Nov-2014 - Roman Boutellier (FHNW), initial release
+;    22-Jan-2015 - Laszlo I. Etesi (FHNW), renamed keywords and added option to ignore non-empty folders
+;    05-Mar-2015 - Laszlo I. Etesi (FHNW), - routine is now checking for existing data and let's user choose what to do
+;                                          - added keyword out_skip_sim to return user choice when output folder is not empty
+;    11-Mar-2015 - Roman Boutellier (FHNW), Added keyword gui to distinguish between calling this method from the GUI or the CLI
 ;-
 pro stx_data_simulation::_prepare_scenario, scenario_name=scenario_name, scenario_file=scenario_file, out_subc_str=out_subc_str, out_output_path=out_output_path, out_bkg_sources=out_bkg_sources, out_sources=out_sources, ignore_not_empty=ignore_not_empty, out_skip_sim=out_skip_sim, gui=gui
   default, ignore_not_empty, 1
- 
+
   ; used to inform the calling program not to call the simulation again.
   ; set this to zero and let the user decide later (if needed)
   out_skip_sim = 0
-  
+
   ; Read configuration structure
   conf = self->get(module='data_simulation')
-  
+
   ; Get the base output path
   base_output_path = conf.target_output_directory
-  
+
   ; check that exactly one is given
   if(ppl_typeof(scenario_name, compareto='string') && ppl_typeof(scenario_file, compareto='string')) then message, 'Please only specify a scenario name or a scenario file'
   if(~ppl_typeof(scenario_name, compareto='string') && ~ppl_typeof(scenario_file, compareto='string')) then message, 'Please specify exactly one: scenario name or a scenario file'
-  
+
   self->_read_scenario, scenario_name=scenario_name, scenario_file=scenario_file, out_sources=out_sources, out_bkg_sources=out_bkg_sources
 
   print, 'Running simulation using the scenario name ' + scenario_name + ' and file ' + scenario_file
-  
+
   ; Prepare the output path
   out_output_path = concat_dir(base_output_path, scenario_name)
-  
+
   ; test if output_path is emtpy or not
   ; this test can be skipped, otherwise the output directory is scanned for old data
   ; there are three possible outcomes:
   ; 1. directory does not exist or is empts -> simulation starts
   ; 2. directory exists and is not empty; a 'sources.fits' does not exist -> let user choose between abort and cleanup -> simulate if cleaned up
   ; 3. directory exists and is not empty and a 'sources.fits' exists -> if sources.fits contains a list of sources that match this scenario -> skip simulation, otherwise let user choose next action (remove "old" files or use them)
-;  if(~ignore_not_empty) then begin
-;    all_files = file_search(out_output_path, '*.*', count=count)
-;    
-;    if(count gt 0) then begin
-;      source_file_found = file_search(out_output_path, 'sources.fits', count=count)
-;      
-;      if(count eq 0) then begin
-;        print, 'Output directory contains unknown data. Please check path ' + out_output_path
-; 
-;        usr_input = ''
-;        while (usr_input ne '0' && usr_input ne '1') do begin
-;          read, 'Would you like to clean the output directory and continue [0] or abort [1]: ', usr_input
-;        endwhile
-;        
-;        if(usr_input eq '0') then file_delete, all_files $
-;        else message, 'Output directory contains unknown data. User requested abort.'
-;        
-;      endif else begin
-;        existing_source = mrdfits(source_file_found, 1, structyp='stx_sim_source')
-;        
-;        ; checking for strings and running trim to ensure the str_diff does not fail
-;        ; because of white spaces
-;        for tag_idx = 0L, n_tags(existing_source)-1 do begin
-;          val = existing_source.(tag_idx)
-;          if(ppl_typeof(val, compareto='string', /raw)) then existing_source.(tag_idx) = trim(existing_source.(tag_idx))
-;        endfor
-;
-;        ; checking if the existing_source is a valid source and if
-;        ; they match the sources and background sources currently being processed (need array concat,
-;        ; and assuming background sources come first, followed by physical sources 
-;        if(~ppl_typeof(existing_source, compareto='stx_sim_source', /raw) || str_diff(existing_source, [out_bkg_sources, out_sources])) then begin
-;          print, 'Output directory contains outdated simulation data for this scenario (sources.fits does not match source description from ' + scenario_file + ')'
-;          
-;          usr_input = ''
-;          while (usr_input ne '0' && usr_input ne '1') do begin
-;            read, 'Would you like to delete all old data and re-run the simulation [0] or use existing data [1]: ', usr_input
-;          endwhile
-;          
-;          if(usr_input eq '0') then begin
-;            print, 'Deleting outdated data.'
-;            file_delete, all_files
-;          endif else out_skip_sim = 1
-;        endif else out_skip_sim = 1
-;      endelse
-;    endif
-;  endif
-  out_skip_sim = self->test_output_path_emtpy(scenario_name=scenario_name, scenario_file=scenario_file, conf=conf,out_bkg_sources=out_bkg_sources, out_sources=out_sources, gui=gui) 
-  
+  ;  if(~ignore_not_empty) then begin
+  ;    all_files = file_search(out_output_path, '*.*', count=count)
+  ;
+  ;    if(count gt 0) then begin
+  ;      source_file_found = file_search(out_output_path, 'sources.fits', count=count)
+  ;
+  ;      if(count eq 0) then begin
+  ;        print, 'Output directory contains unknown data. Please check path ' + out_output_path
+  ;
+  ;        usr_input = ''
+  ;        while (usr_input ne '0' && usr_input ne '1') do begin
+  ;          read, 'Would you like to clean the output directory and continue [0] or abort [1]: ', usr_input
+  ;        endwhile
+  ;
+  ;        if(usr_input eq '0') then file_delete, all_files $
+  ;        else message, 'Output directory contains unknown data. User requested abort.'
+  ;
+  ;      endif else begin
+  ;        existing_source = mrdfits(source_file_found, 1, structyp='stx_sim_source')
+  ;
+  ;        ; checking for strings and running trim to ensure the str_diff does not fail
+  ;        ; because of white spaces
+  ;        for tag_idx = 0L, n_tags(existing_source)-1 do begin
+  ;          val = existing_source.(tag_idx)
+  ;          if(ppl_typeof(val, compareto='string', /raw)) then existing_source.(tag_idx) = trim(existing_source.(tag_idx))
+  ;        endfor
+  ;
+  ;        ; checking if the existing_source is a valid source and if
+  ;        ; they match the sources and background sources currently being processed (need array concat,
+  ;        ; and assuming background sources come first, followed by physical sources
+  ;        if(~ppl_typeof(existing_source, compareto='stx_sim_source', /raw) || str_diff(existing_source, [out_bkg_sources, out_sources])) then begin
+  ;          print, 'Output directory contains outdated simulation data for this scenario (sources.fits does not match source description from ' + scenario_file + ')'
+  ;
+  ;          usr_input = ''
+  ;          while (usr_input ne '0' && usr_input ne '1') do begin
+  ;            read, 'Would you like to delete all old data and re-run the simulation [0] or use existing data [1]: ', usr_input
+  ;          endwhile
+  ;
+  ;          if(usr_input eq '0') then begin
+  ;            print, 'Deleting outdated data.'
+  ;            file_delete, all_files
+  ;          endif else out_skip_sim = 1
+  ;        endif else out_skip_sim = 1
+  ;      endelse
+  ;    endif
+  ;  endif
+  out_skip_sim = self->test_output_path_emtpy(scenario_name=scenario_name, scenario_file=scenario_file, conf=conf,out_bkg_sources=out_bkg_sources, out_sources=out_sources, gui=gui)
+
   ;  Build subcollimator geometry structure from look-up file
   out_subc_str = stx_construct_subcollimator()
 
@@ -423,12 +423,12 @@ end
 
 ;+
 ; :description:
-; 	 Tests if the output path for a data simulation is empty or not. This function also
-; 	 deletes any already computed data if the user agrees to do so. It thereby respects if
-; 	 it has been called from the command line or the GUI (keyword GUI set to 1) and reacts
-; 	 accordingly by asking the user for any input using either the command line or dialog
-; 	 windows. In the end the function returns an integer value which describes what actions
-; 	 have been done.
+;    Tests if the output path for a data simulation is empty or not. This function also
+;    deletes any already computed data if the user agrees to do so. It thereby respects if
+;    it has been called from the command line or the GUI (keyword GUI set to 1) and reacts
+;    accordingly by asking the user for any input using either the command line or dialog
+;    windows. In the end the function returns an integer value which describes what actions
+;    have been done.
 ;
 ; :Keywords:
 ;    scenario_name, in, required, type='String'
@@ -455,7 +455,7 @@ end
 ;     - 2     A 2 is returned in only one case: the directory existed and was not empty at the time this
 ;             function has been called. A 'sources.fits' file existed and the file contains a list of sources
 ;             that matches this scenario. This means that the scenario does not have to be simulated again.
-;             
+;
 ;     The following actions should be taken, according to the value returned:
 ;     0:    Simulate the scenario
 ;     -1:   Abort, i.e. do not simulate the scenario (attention: the files in the directory may contain errors)
@@ -463,21 +463,21 @@ end
 ;           created files.
 ;
 ; :history:
-; 	 09-Mar-2015 - Roman Boutellier (FHNW), Initial release (coded by Laszlo I. Etesi (FHNW))
-; 	 26-Mar-2015 - Laszlo I. Etesi (FHNW), small bugfix: testing if background source is valid before using it
-; 	 20-May-2015 - Laszlo I. Etesi (FHNW), bugfix: could not handle bg-only scenarios
-; 	 21-May-2015 - Laszlo I. Etesi (FHNW), fixing the bugfix: minor error (incorrect order of adding bg and regular sources)
-; 	 10-Jun-2015 - Roman Boutellier (FHNW), adding support for paths of scenarios
+;    09-Mar-2015 - Roman Boutellier (FHNW), Initial release (coded by Laszlo I. Etesi (FHNW))
+;    26-Mar-2015 - Laszlo I. Etesi (FHNW), small bugfix: testing if background source is valid before using it
+;    20-May-2015 - Laszlo I. Etesi (FHNW), bugfix: could not handle bg-only scenarios
+;    21-May-2015 - Laszlo I. Etesi (FHNW), fixing the bugfix: minor error (incorrect order of adding bg and regular sources)
+;    10-Jun-2015 - Roman Boutellier (FHNW), adding support for paths of scenarios
 ;-
 function stx_data_simulation::test_output_path_emtpy, scenario_name=scenario_name, gui=gui, conf=conf, out_bkg_sources=out_bkg_sources, out_sources=out_sources, scenario_file=scenario_file
   ; Set the default value for gui to 0 (i.e. no gui used)
   default, gui, 0
-  
+
   if ~arg_present(conf) then begin
     ; Read configuration structure
     conf = self->get(module='data_simulation')
   endif
-  
+
   ; Get the base output path
   base_output_path = conf.target_output_directory
   ; Prepare the output path
@@ -486,15 +486,15 @@ function stx_data_simulation::test_output_path_emtpy, scenario_name=scenario_nam
   endif else begin
     out_output_path = concat_dir(base_output_path, scenario_name)
   endelse
-  
+
   ; Read the scenario in case the out_bkg_sources or out_sources keywords are not set
   if (~arg_present(out_bkg_sources) || ~arg_present(out_sources)) then begin
     self->_read_scenario, scenario_name=scenario_name, scenario_file=scenario_file, out_sources=out_sources, out_bkg_sources=out_bkg_sources
   endif
-  
+
   ; Read all files within the directory
   all_files = file_search(out_output_path, '*.*', count=count)
-  
+
   ; Test if output_path is emtpy or not
   ; There are three possible outcomes:
   ; 1. directory does not exist or is empty -> return 0
@@ -503,15 +503,15 @@ function stx_data_simulation::test_output_path_emtpy, scenario_name=scenario_nam
   ;       otherwise let user choose next action (remove "old" files (return 0) or use them (return 1))
   if(count gt 0) then begin
     source_file_found = file_search(out_output_path, 'sources.fits', count=count)
-      
+
     if(count eq 0) then begin
       ; No 'sources.fits' file exists. So either return -1 (in case the user wants to abort) or 0 (in case
       ; the user wants to delete all entries in the directory and then continue).
-      
+
       ; Distinguish between GUI version and CLI version
       if gui eq 1 then begin
         clicked_answer = dialog_message('Output directory contains unknown data. Please check path ' + out_output_path + '. Would you like to clean the output directory ' + $
-                        ' and continue [yes] or abort [no]?',/question)
+          ' and continue [yes] or abort [no]?',/question)
         ; Check the answer of the user
         if clicked_answer eq 'Yes' then begin
           ; Delete all files
@@ -539,10 +539,10 @@ function stx_data_simulation::test_output_path_emtpy, scenario_name=scenario_nam
       endelse
     endif else begin
       ; A 'sources.fits' file has been found. So either return 0, 1 or 2
-      
+
       ; Read the 'sources.fits' file
       existing_source = mrdfits(source_file_found, 1, structyp='stx_sim_source')
-        
+
       ; checking for strings and running trim to ensure the str_diff does not fail
       ; because of white spaces
       for tag_idx = 0L, n_tags(existing_source)-1 do begin
@@ -558,14 +558,14 @@ function stx_data_simulation::test_output_path_emtpy, scenario_name=scenario_nam
       if(is_valid_out_sources && is_valid_out_bkg_sources) then tbc_sources = [out_bkg_sources, out_sources] $
       else if(is_valid_out_sources) then tbc_sources = out_sources $
       else tbc_sources = out_bkg_sources
-       
+
       if(~ppl_typeof(existing_source, compareto='stx_sim_source', /raw) || str_diff(existing_source, tbc_sources)) then begin
-        
+
         ; Distinguish between the GUI version and the CLI version
         if gui eq 1 then begin
           clicked_answer = dialog_message('Output directory contains outdated simulation data for this scenario (sources.fits does not match source description from ' + $
-                                            scenario_file + '). Would you like to delete all old data and re-run the simulation [yes] or use the existing data [no]?', $
-                                            /question)
+            scenario_file + '). Would you like to delete all old data and re-run the simulation [yes] or use the existing data [no]?', $
+            /question)
           ; Check the answer of the user
           if clicked_answer eq 'Yes' then begin
             ; Delete the old data and return 0
@@ -577,12 +577,12 @@ function stx_data_simulation::test_output_path_emtpy, scenario_name=scenario_nam
           endelse
         endif else begin ; Start of CLI version
           print, 'Output directory contains outdated simulation data for this scenario (sources.fits does not match source description from ' + scenario_file + ')'
-            
+
           usr_input = ''
           while (usr_input ne '0' && usr_input ne '1') do begin
             read, 'Would you like to delete all old data and re-run the simulation [0] or use existing data [1]: ', usr_input
           endwhile
-            
+
           if(usr_input eq '0') then begin
             ; Delete the old data and return 0
             print, 'Deleting outdated data.'
@@ -599,7 +599,7 @@ function stx_data_simulation::test_output_path_emtpy, scenario_name=scenario_nam
       endelse
     endelse
   endif
-  
+
   ; There are no files in the directory, therefore return 0
   return, 0
 end
@@ -630,10 +630,10 @@ end
 ;    09-Dec-2014 - Roman Boutellier (FHNW), initial release
 ;    08-Jan-2014 - Aidan O'Flannagain (TCD), bugfix: changed param input from [param1, param1] to [param1, param2]
 ;    05-Mar-2014 - Laszlo I. Etesi (FHNW), added failover in case input data is incorrect and leads to no_counts eq zero
-;    08-Jul-2015 - ECMD (Graz), replacing stx_sim_energy2ad_channel() with call to stx_sim_energy_2_pixel_ad() 
+;    08-Jul-2015 - ECMD (Graz), replacing stx_sim_energy2ad_channel() with call to stx_sim_energy_2_pixel_ad()
 ;    30-Sep-2015 - Laszlo I. Etesi (FHNW), fixed an issue which could lead to a det index of 33 (pointed out by Ewan); also changed
 ;                                          precision of totals from float to double to help avoid precision issue
-;    02-Feb-2016 - ECMD (Graz), If uniform distribution is given in a scenario background with the keywords energy_spectrum_param1 
+;    02-Feb-2016 - ECMD (Graz), If uniform distribution is given in a scenario background with the keywords energy_spectrum_param1
 ;                               and energy_spectrum_param2 they are interpreted as the upper and lower energy limits
 ;    26-Feb-2016 - Laszlo I. Etesi (FHNW), slightly changed the default background handling
 ;    11-Oct-2016 - Laszlo I. Etesi (FHNW), updated code to allow overriding pixel and detector id
@@ -641,29 +641,29 @@ end
 ;-
 function stx_data_simulation::_run_background_simulation, background_str=background_str, subc_str=subc_str, output_path=output_path, seed=seed, attenuator_thickness=attenuator_thickness
   default , attenuator_thickness, 1.0
-  
+
   ; determine number of detector events to simulate from time,
   ; count flux [events/cm^2/s] and total detector effective
   ; area (detectors with bkg_mult_mask = 0 are not simulated)
   no_counts = ceil( background_str.duration * $
-                    background_str.flux * $
-                    total( subc_str.det.area * background_str.background_multiplier ) )
-                    
+    background_str.flux * $
+    total( subc_str.det.area * background_str.background_multiplier ) )
+
   if(no_counts le 0) then message, 'Number of counts less or equal to zero. Please check your source structure.'
- 
+
   conf = self->get(module='data_simulation')
 
   ; set default background
   bkg_erange = conf.background_energy_range
-  
+
   ; override default
   if(background_str.energy_spectrum_type eq 'uniform') then begin
     bkg_erange_override = [background_str.energy_spectrum_param1, background_str.energy_spectrum_param2]
-    
+
     ; only override it if values set
     bkg_erange = max(bkg_erange_override) gt 0 ? bkg_erange_override : bkg_erange
   endif
-  
+
   ; TEMPORARY: generate uniform energy distribution. Use Richard's routine later
   edist = stx_sim_energy_distribution(nofelem=no_counts, type=background_str.energy_spectrum_type, $
     param=[background_str.energy_spectrum_param1, background_str.energy_spectrum_param2], energy_range=bkg_erange, seed=seed)
@@ -676,12 +676,12 @@ function stx_data_simulation::_run_background_simulation, background_str=backgro
     ; uniformly select detector index using detector effective
     ; areas to generate CDF for all detectors
     det_cdf = rebin( total( ( subc_str.det.area * background_str.background_multiplier ) / $
-                            total(subc_str.det.area * background_str.background_multiplier, /double ), /cumulative, /double ), 32, no_counts )
-    
+      total(subc_str.det.area * background_str.background_multiplier, /double ), /cumulative, /double ), 32, no_counts )
+
     ; uniformly select detector indices
     ddist_idx = transpose(rebin(randomu(seed, no_counts, /double), no_counts, 32))
-  
-    ; test detectors (generate boolean mask of where ddist_idx is 
+
+    ; test detectors (generate boolean mask of where ddist_idx is
     ; lower than the detector cdf entry then use the number of '1's
     ; directly as index) RECALL subcollimators numbered 1-32
     ; NB: In very rare cases (precision issue) all det_cdf are greater than ddist_idx which leads to a detector index of 33,
@@ -690,24 +690,24 @@ function stx_data_simulation::_run_background_simulation, background_str=backgro
   endif else begin ; do this if detector override is active
     det_match_idx = intarr(no_counts) + background_str.detector_override < 32
   endelse
-  
+
   if(background_str.pixel_override le 0) then begin
     ; uniformly select pixel index using pixel size
     ; generate CDF (pixels) for all detectors
     pxl_cdf = total(subc_str.det.pixel.area / $
-              rebin(total(subc_str.det.pixel.area, 1), 32, 12), /cumulative, 1)
-  
+      rebin(total(subc_str.det.pixel.area, 1), 32, 12), /cumulative, 1)
+
     ; INCONSISTENT PIXEL AND DETECTOR NUMBERING 1.. 32 and 0...11
-  
+
     ; uniformly select pixel indeces
     pdist_idx = transpose(rebin(randomu(seed, no_counts), no_counts, 12))
-  
+
     ; test pixels (generate boolean mask of where pdist_idx is lower than the pixel cdf entry; then use the number of '1's directly as index)
     pxl_match_idx = 12 - fix(total(pdist_idx le pxl_cdf[*,det_match_idx-1], 1))
   endif else begin ; do this if pixel override is active
     pxl_match_idx = intarr(no_counts) + background_str.pixel_override - 1 < 11
   endelse
-  
+
   ; combine all data
   ; convert photons to detector events
   ; TODO update stx_construct_sim_detector_event to work on arrays
@@ -717,9 +717,9 @@ function stx_data_simulation::_run_background_simulation, background_str=backgro
   bg_events.detector_index = det_match_idx
   bg_events.pixel_index = pxl_match_idx
   bg_events.energy_ad_channel = stx_sim_energy_2_pixel_ad(edist, det_match_idx, pxl_match_idx )
-  
-  ;bg_events.attenuator_flag = 0b
-  bg_events.attenuator_flag = stx_attenuator_filter(edist, attenuator_thickness, seed=seed)
+
+  bg_events.attenuator_flag = 0b ; bg_events aren't passing through the grids
+  ;bg_events.attenuator_flag = stx_attenuator_filter(edist, attenuator_thickness, seed=seed)
 
   bg_events = stx_sim_timeorder_eventlist(bg_events)
 
@@ -749,9 +749,9 @@ end
 ;   structures instead of packet format. Also, events incident for each detector are kept
 ;   together until the time codes are assigned to make for faster access to geometry
 ;   information and to reduce repeated of scanning (using where) of the photon locations
-;   as compared to the detector and pixel boundaries. What is stream vs packet format for 
+;   as compared to the detector and pixel boundaries. What is stream vs packet format for
 ;   a data structure?
-;   
+;
 ;    IDL> help, replicate( {a:5, b:6}, 10),/st  - PACKET FORMAT
 ;    ** Structure <f10d030>, 2 tags, length=4, data length=4, refs=1:
 ;    A               INT              5
@@ -763,10 +763,10 @@ end
 
 ; While for many operations packet format is easier to write programs for there are times
 ; you need to use stream format as when you have to operate on an entire field in a
-; structure. In stream format the data should be in consecutive storage location enabling 
+; structure. In stream format the data should be in consecutive storage location enabling
 ; direct access while in packet format the data have to be obtained through indirect addessing
-; 
-;   
+;
+;
 ;    After code speed up it takes 4.6 seconds through the energy filter step for 10117696 events
 ;    Here are the details from the Profiler
 ;    Routine                                 Hit count  Time self(ms)   Time/hit(ms)   Time+sub(ms)   Time+sub/hit
@@ -783,7 +783,7 @@ end
 ;    STX_SIM_DET_PIX                                32         348.34         10.886         403.19         12.600
 ;    RANDOMU                                        36         222.43         6.1785         222.43         6.1785
 ;    HISTOGRAM                                       3         164.63         54.878         164.63         54.878
-;    
+;
 ;    Using the old code it took 23.4 seconds
 ;    Here are the Profiler details
 ;    Routine                                 Hit count  Time self(ms)   Time/hit(ms)   Time+sub(ms)   Time+sub/hit
@@ -803,30 +803,30 @@ end
 function stx_data_simulation::_run_source_simulation, source=source, subc_str=subc_str, all_drm_factors=all_drm_factors, drm0=drm0, index=index, output_path=output_path,attenuator_thickness=attenuator_thickness, seed = seed
   ; energy assigned bag of detected counts,
   ; yet to have photon paths ray traced
-default , attenuator_thickness, 1.0
+  default , attenuator_thickness, 1.0
 
-;clock1 = tic('all')
+  ;clock1 = tic('all')
 
   ph_bag = stx_sim_multisource_sourcestruct2photon( source, $
-    subc_str=subc_str, all_drm_factors=all_drm_factors[index], drm0=drm0, seed = seed) 
-  
+    subc_str=subc_str, all_drm_factors=all_drm_factors[index], drm0=drm0, seed = seed)
+
   ;  Determine detector pixel and subcollimator indices for each
   ;  simulated count (i.e., all sources and background)
-  
+
   det_sub = stx_sim_photon_path( ph_bag, subc_str, source, $
     ph_loc = ph_loc, _extra = _extra )
- 
+
   ;do the hit test for each count candidate
   ixph   = stx_sim_energyfilter(ph_bag) ;use these indices
   ;Only reporting the index of the surviving photons. We'll use these when
-  ;we create the output eventlist.  
+  ;we create the output eventlist.
 
   ; generate time profile, as the events are independent at this stage
   ;we only pass in the number of surviving events
   time = stx_sim_time_distribution(data_granulation=data_granulation, nofelem=n_elements(ixph), $
     type=source.time_distribution, length=source.duration, seed = seed) * data_granulation
-;toc, clock1
-  
+  ;toc, clock1
+
   ; adjust start times in case of splitting
   time += source.start_time
 
@@ -881,23 +881,27 @@ end
 ;   19-Aug-2014 - Laszlo I. Etesi (FHNW), initial release
 ;   18-Sep-2014 - Laszlo I. Etesi (FHNW), proper boundary handling
 ;   30-Nov-2014 - Laszlo I. Etesi (FHNW), speed improvements to data reading
-;   15-Jan-2015 - Laszlo I. Etesi (FHNW), the internal coincidence structure (that is keeping a record of filtered counts) 
+;   15-Jan-2015 - Laszlo I. Etesi (FHNW), the internal coincidence structure (that is keeping a record of filtered counts)
 ;                                         is now also updated when no data are returned due to data gaps (DSS)
 ;   30-Jun-2015 -            ECMD (Graz), added t_l, t_r and t_b keywords
 ;   02-Jul-2015 - Aidan O'Flannagain (TCD), added coarse_flare_row keyword for rcr states > 1
 ;   02-Jul-2015 - Aidan O'Flannagain (TCD), added implementation of pixel removal and cycling for rcr states > 1
-;   17-Jul-2015 - Laszlo I. Etesi (FHNW), fixed an issue with the filtering; some future trigger events were not properly removed                                              
+;   17-Jul-2015 - Laszlo I. Etesi (FHNW), fixed an issue with the filtering; some future trigger events were not properly removed
 ;   01-Feb-2016 -            ECMD (Graz), Now removing small pixel counts in rcr 2 - 4
 ;   26-Feb-2016 -            ECMD (Graz), Defaults for timefilter parameter moved to config file
 ;   06-Sep-2016 -            ECMD (Graz), bugfix in pixel cycling
 ;   06-Mar-2017 - Laszlo I. Etesi (FHNW), added failover in case of data gaps, and updated input parameters/keywords
-;   
+;   30-Oct-2019 -            ECMD (Graz), added _extra keyword            
+;
 ;-
-function stx_data_simulation::_read_detector_events, history=history, scenario_name=scenario_name, data_folder=data_folder, rate_control_regime=rate_control_regime, north=north, t_l = t_l, t_r = t_r, t_b = t_b, t_ig=t_ig, time_bins=time_bins, apply_time_filter=apply_time_filter, coarse_flare_row, split_reading_duration=split_reading_duration, split_reading_threshold=split_reading_threshold, pileup_type=pileup_type
+function stx_data_simulation::_read_detector_events, history=history, scenario_name=scenario_name, data_folder=data_folder, rate_control_regime=rate_control_regime, north=north,$
+   t_l = t_l, t_r = t_r, t_b = t_b, t_ig=t_ig, time_bins=time_bins, apply_time_filter=apply_time_filter, coarse_flare_row, $
+   split_reading_duration=split_reading_duration, split_reading_threshold=split_reading_threshold, pileup_type=pileup_type, _extra=extra
+   
   dsrconf = self->get(module='simulated_data_reader')
   default, rate_control_regime, dsrconf.rate_control_regime
   default, split_reading_threshold, dsrconf.split_reading_threshold
-  default, split_reading_duration, dsrconf.split_reading_duration  
+  default, split_reading_duration, dsrconf.split_reading_duration
   default, T_L, dsrconf.T_L
   default, T_R, dsrconf.T_R
   default, T_Ig, dsrconf.T_Ignore
@@ -905,24 +909,24 @@ function stx_data_simulation::_read_detector_events, history=history, scenario_n
   default, allow_discont, 0
   default, north, 1b
   default, cycle_duration, 0.1d
-  
-  
+
+
   ;the background monitor detector
   default, bgm_det_number, 10
-  
-  
+
+
   if (~ptr_valid(self.rcr_states)) then begin
     self.rcr_states = ptr_new(stx_fsw_rcr_table2struct(dsrconf.rcr_states_definition_file))
   endif
-  
-  rcr_states = *self.rcr_states
-  
 
-  
+  rcr_states = *self.rcr_states
+
+
+
   ppl_require, type='long*', keyword='time_bins', time_bins=time_bins
 
   ; try setting up the data reader
-  self->_setup_data_reader, scenario_name=scenario_name, out_output_folder=data_folder
+  self->_setup_data_reader, scenario_name=scenario_name, out_output_folder=data_folder 
 
   ; validate time bins
   if(max(where(time_bins lt 0)) ge 0) then message, 'All bins keyword must be greater than zero.'
@@ -946,12 +950,12 @@ function stx_data_simulation::_read_detector_events, history=history, scenario_n
 
   ; read detector events for this bin + add first events in next bin (if available)
   ; NB: Assuming sorted input
-  
+
   count_estimate = self.fits_det_event_reader->countEstimate(t_start=this_time_bin_start, t_end=this_time_bin_end + extend_t)
-  
-  
+
+
   if count_estimate gt split_reading_threshold then begin
-  ;if count_estimate gt 1000 then begin
+    ;if count_estimate gt 1000 then begin
     subbins_n = floor((this_time_bin_end-this_time_bin_start)/split_reading_duration)
     subbins = dblarr(2,subbins_n)
     subbins[0,*] = this_time_bin_start + lindgen(subbins_n)*split_reading_duration
@@ -962,91 +966,91 @@ function stx_data_simulation::_read_detector_events, history=history, scenario_n
     subbins_n = 1
     subbins = [this_time_bin_start,this_time_bin_end + extend_t]
   endelse
-  
+
   all_detector_events = []
-  
+
   total_source_counts = ulon64arr(32)
-  
+
   ;get the current pixel and attenuator states depending on cfl and rcr
   current_states = rcr_states[where(rcr_states.level eq rate_control_regime)]
   pixel_states = north ? *current_states.north : *current_states.south
   pixel_cycles = n_elements(pixel_states) / 12
   bkg_pixel_states = *current_states.BACKGROUND
-  
 
-  
+
+
   for index = 0L, subbins_n-1 do begin
 
     detector_events = self.fits_det_event_reader->read(t_start=subbins[0,index], t_end=subbins[1,index], sort=1, /safe)
-    
+
     if detector_events eq !NULL then continue
-          
-    ;sum all events by detector 
+
+    ;sum all events by detector
     total_source_counts[detector_events.detector_index-1]++
-        
+
     print, index, " Read Events from file: ", n_elements(detector_events)
-    
+
     ;todo: n.h. remove
     ;for debug and testing only
     ;directory = self.fits_det_event_reader.data_directory
     ;directory +=  path_sep()
     ;if this_time_bin_start gt 108 then save, detector_events, filename= directory + "EL"+trim(this_time_bin_start)+"_"+trim(this_time_bin_end)+"_"+trim(index)+".sav"
-    
+
     ; fits reader returns an event with relative time eq -1 when no data were found
     ; making sure to update internal coincidence structure in case the data have gaps
     if(detector_events[0].relative_time eq -1) then begin
       if((*self.available_used_filter_look_ahead_bins).where(time_bins[0]) eq !NULL) then begin
         ; add last bin to "used bin list"
         (*self.available_used_filter_look_ahead_bins).add, time_bins[-1]
-  
+
         ; add !NULL since no events were used
         (*self.used_filter_look_ahead_events).add, !NULL
-      endif    
+      endif
       return, !NULL
     endif
-  
-   
-          
-    ;remove the attenuator events  
+
+
+
+    ;remove the attenuator events
     ;but not if overriden by config
-    if(current_states.ATTENUATOR && ~dsrconf.attenuator_out) then begin  
+    if(current_states.ATTENUATOR && ~dsrconf.attenuator_out) then begin
       ;the background monitor is not covered by attenuator
       attenuator_detector_event_idx = where(detector_events.attenuator_flag eq 1 AND detector_events.DETECTOR_INDEX ne bgm_det_number, no_rcr_1)
       if(no_rcr_1 gt 0) then remove, attenuator_detector_event_idx, detector_events
       destroy, attenuator_detector_event_idx
     endif
-    
-    ;use the background pixel mask in any case 
+
+    ;use the background pixel mask in any case
     ;there is no background cycling
     bkg_off_pixels = where(bkg_pixel_states eq 0)
     bkg_off_pixel_event_idx = where(is_member(detector_events.pixel_index, bkg_off_pixels) and detector_events.detector_index eq bgm_det_number, nr_off_pixel_events)
     if(nr_off_pixel_events gt 0) then remove, bkg_off_pixel_event_idx, detector_events
-    
-    ;no real cycling  
+
+    ;no real cycling
     if pixel_cycles eq 1 then begin
       ;use the pixel mask for all detectors beside background
       off_pixels = where(pixel_states eq 0)
       off_pixel_event_idx = where(is_member(detector_events.pixel_index, off_pixels) and detector_events.detector_index ne bgm_det_number, nr_off_pixel_events)
       if(nr_off_pixel_events gt 0) then remove, off_pixel_event_idx, detector_events
     endif else begin
-      
+
       for c = 0, pixel_cycles-1 do begin
         off_pixels = where(pixel_states[*,c] eq 0)
         modTimes = (detector_events.relative_time-this_time_bin_start) mod (cycle_duration*pixel_cycles)
-        off_pixel_and_time_event_idx = where(modTimes ge (c*cycle_duration) and modTimes lt ((c+1)*cycle_duration) and detector_events.detector_index ne bgm_det_number and is_member(detector_events.pixel_index, off_pixels), nr_off_pixel_events) 
+        off_pixel_and_time_event_idx = where(modTimes ge (c*cycle_duration) and modTimes lt ((c+1)*cycle_duration) and detector_events.detector_index ne bgm_det_number and is_member(detector_events.pixel_index, off_pixels), nr_off_pixel_events)
         if (nr_off_pixel_events gt 0) then remove, off_pixel_and_time_event_idx, detector_events
       endfor
-      
+
     endelse
-    
+
     all_detector_events = temporary([temporary(all_detector_events), detector_events])
     print, rate_control_regime, " AFTER RCR Filter: ", n_elements(detector_events)
     print, "Total: ", n_elements(all_detector_events);
-    
+
   endfor ;sub time interval reading
-  
+
   detector_events = temporary(all_detector_events)
-  
+
   ; if we end up here with detector_events being !NULL, we must have lost all events in the section above;
   ; making sure to update internal coincidence structure in case the data have gaps
   if(detector_events eq !NULL) then begin
@@ -1059,9 +1063,9 @@ function stx_data_simulation::_read_detector_events, history=history, scenario_n
     endif
     return, !NULL
   endif
-  
+
   ;if detector_events eq !NULL then return, !NULL
-    
+
   if(apply_time_filter) then begin
     if(time_bins[0] gt 0) then begin
       ; remove events used in previous bin
@@ -1103,7 +1107,7 @@ function stx_data_simulation::_read_detector_events, history=history, scenario_n
       for extra_idx = 0L, no_extra_events_next_bin-1 do begin
         current_extra_event = event[extra_events_next_bin_idx[extra_idx]]
         associated_extra_event_idx = where(event.relative_time ge current_extra_event.relative_time and event.adgroup_index eq current_extra_event.adgroup_index, no_associated_extra_event)
-;        associated_extra_event_idx = self->_compare_times_adgroupindices(event, current_extra_event, nmbr_associated_extra_event=no_associated_extra_event) 
+        ;        associated_extra_event_idx = self->_compare_times_adgroupindices(event, current_extra_event, nmbr_associated_extra_event=no_associated_extra_event)
         associated_extra_event_idx_complete.add, associated_extra_event_idx, /extract
 
         ; clean-up filtered_events_test (the associated events have no trigger, thus won't be in the filtered_events_test list)
@@ -1179,23 +1183,24 @@ function stx_data_simulation::_read_detector_events, history=history, scenario_n
   endif else return, det_eventlist
 end
 
-pro stx_data_simulation::_setup_data_reader, scenario_name=scenario_name, out_output_folder=out_output_folder  
+pro stx_data_simulation::_setup_data_reader, scenario_name=scenario_name, out_output_folder=out_output_folder
   dsconf = self->get(module='data_simulation')
   base_output_path = dsconf.target_output_directory
-  
+
   ; try locating data folder
   if(ppl_typeof(scenario_name, compareto='string')) then out_output_folder = concat_dir(base_output_path, scenario_name) $
   else if(~ppl_typeof(out_output_folder, compareto='string')) then message, 'Please set either a valid scenario_name name or give a data folder.'
 
   if(~file_exist(out_output_folder)) then message, 'Could not locate data folder for given scenario_name: ' + out_output_folder
-  
+
   if(obj_valid(self.fits_det_event_reader)) then return
-  
+
   self.fits_det_event_reader = obj_new('stx_sim_detector_events_fits_reader_indexed', out_output_folder)
 end
 
-function stx_data_simulation::_calculate_scenario_length_t, scenario_name=scenario_name
-  self->_setup_data_reader, scenario_name=scenario_name
+;   30-Oct-2019 - ECMD (Graz), added _extra keyword for passthrough to stx_data_simulation::_setup_data_reader 
+function stx_data_simulation::_calculate_scenario_length_t, scenario_name=scenario_name, _extra=extra
+  self->_setup_data_reader, scenario_name=scenario_name, _extra=extra
   return, self.fits_det_event_reader->total_time_span()
 end
 
@@ -1220,27 +1225,27 @@ end
 function stx_data_simulation::_compare_times_adgroupIndices, event, extra_event, nmbr_associated_extra_event=nmbr_associated_extra_event
   ; Get the indices of greater/equal relative times
   time_indices = where(event.relative_time ge extra_event.relative_time)
-  
+
   ; Get the indices of equal adgroup_index
   adgroup_indices_list = list()
   event_adgroup_index = event.adgroup_index
   for i=0L, (size(event_adgroup_index))[2]-1 do begin
-                  if array_equal(event_adgroup_index[*,i],extra_event.adgroup_index) then adgroup_indices_list.add, i
+    if array_equal(event_adgroup_index[*,i],extra_event.adgroup_index) then adgroup_indices_list.add, i
   endfor
   adgroup_indices = adgroup_indices_list.toarray()
-  
+
   ; Get the indices which are present in adgroup_indices and time_indices, set nmbr_ associated_extra_event to the number of indices and return the indices
   res_indices = self->_set_intersection(time_indices,adgroup_indices)
-  
+
   nmbr_associated_extra_event = size(res_indices,/n_elements)
-  
+
   return, res_indices
 end
 
 ;+
 ; :description:
 ;    Creates the intersection of two arrays.
-;    Created by IDL founder David Stern. 
+;    Created by IDL founder David Stern.
 ;
 ; :Params:
 ;    a
@@ -1257,11 +1262,11 @@ function stx_data_simulation::_set_intersection, a, b
   ; Get maximum and minimum
   minab = min(a, MAX=maxa) > min(b, MAX=maxb)
   maxab = maxa < maxb
-  
+
   ;If either set is empty, or their ranges don't intersect: result = NULL.
   if maxab lt minab or maxab lt 0 then return, -1
   r = where((histogram(a, MIN=minab, MAX=maxab) ne 0) and  $
-            (histogram(b, MIN=minab, MAX=maxab) ne 0), count)
+    (histogram(b, MIN=minab, MAX=maxab) ne 0), count)
   if count eq 0 then return, -1 else return, r + minab
 end
 
