@@ -34,7 +34,7 @@ jobs:
       working-directory: docs
       run: |
         make html
-        make pdf
+        make latexpdf
    
     - name: Upload html docs
       uses: actions/upload-artifact@v2
