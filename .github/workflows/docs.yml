@@ -34,13 +34,12 @@ jobs:
       working-directory: docs
       run: |
         make html
-        make latexpdf
    
     - name: Upload html docs
       uses: actions/upload-artifact@v2
       with:
         name: PDF
-        path: docs/_build/pdf
+        path: docs/_build/html
       
     - name: GHP Deploy 🚀
       uses: JamesIves/github-pages-deploy-action@3.5.9
