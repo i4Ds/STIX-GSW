@@ -1,0 +1,49 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ master, development ]
+  pull_request:
+    branches: [ master, development ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  doc:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+    # Runs a single command using the runners shell
+    - name: Install python requirements
+      run: |
+        pip3 install --upgrade pip setuptools wheel
+        pip3 install sphinx recommonmark
+        echo "::add-path::/home/runner/.local/bin"
+
+    # Runs a set of commands using the runners shell
+    - name: Build Docs
+      working-directory: docs
+      run: |
+        make html
+   
+    - name: Upload html docs
+      uses: actions/upload-artifact@v2
+      with:
+        name: PDF
+        path: docs/_build/html
+      
+    - name: GHP Deploy 🚀
+      uses: JamesIves/github-pages-deploy-action@3.5.9
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH: gh-pages # The branch the action should deploy to.
+        FOLDER: docs/_build/html # The folder the action should deploy.
