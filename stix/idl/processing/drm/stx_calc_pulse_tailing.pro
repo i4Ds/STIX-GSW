@@ -55,6 +55,7 @@
 ; :history:
 ;
 ;    22-Apr-2015 - ECMD (Graz), initial release
+;    27-Jul-2020 - RAS  (GSFC), fixed spelling typos
 ;
 ;-
 function stx_calc_pulse_tailing, eloss_mat, photon_energy, count_energy, depth, detector = detector, trap_length_e = trap_length_e, $
@@ -160,10 +161,10 @@ function stx_calc_pulse_tailing, eloss_mat, photon_energy, count_energy, depth, 
     
     pad =[fltarr(n_elements(ckern)), conv_eloss, fltarr(n_elements(ckern))]
     ;calculate the convolution
-    padded_convol_spetrum = convol(pad,reverse(ckern))
-    convolved_spetrum = padded_convol_spetrum[n_elements(ckern):(n_elements(ckern)+n_conv_eloss)-1]
+    padded_convol_spectrum = convol(pad,reverse(ckern))
+    convolved_spectrum = padded_convol_spectrum[n_elements(ckern):(n_elements(ckern)+n_conv_eloss)-1]
     ;return output to initial energy binning
-    tailing_eloss_mat[*,i_energy] = interpol(convolved_spetrum, conv_energy, count_energy)
+    tailing_eloss_mat[*,i_energy] = interpol(convolved_spectrum, conv_energy, count_energy)
   endfor
   
   return, tailing_eloss_mat
