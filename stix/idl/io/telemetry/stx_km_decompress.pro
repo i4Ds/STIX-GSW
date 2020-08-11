@@ -4,7 +4,7 @@
 ; :Description:
 ;    This function returns a decompression of quasi-exponential 1 byte compression of integer data, both positive
 ;    or negative depending on the parameterization.  For the decompression it returns the mid-point value of the possible
-;    compressed values that could have given the input. 
+;    compressed values that could have given the input.
 ;    e.g.
 ;    IDL> print, stx_km_compress( lindgen(11)+246 )
 ;    78  78  79  79  79  79  79  79  79  79  80
@@ -13,28 +13,28 @@
 ;    IDL> print, stx_km_decompress( 79, /table )
 ;    248
 ;    For compression 248-255 all yield a compressed value of 79.  On decompression, 79 yields 252, midway from 248 to 255
-;    
+;
 ;    From Gordon Hurford:
-;    The the compression algorithm is applied to an integer value, V, to yield a compressed value, C, as follows:
-;    
+;    The compression algorithm is applied to an integer value, V, to yield a compressed value, C, as follows:
+;
 ;    1. If  V <   0,               set s=1 and set V = -V.
-;    
+;
 ;    2. If  V <   2^(M+1),  set C = V and skip to step 6.
-;    
+;
 ;    3. If  V >= 2^(M+1),  shift V right until 1’s (if any) appear only in LS M+1 bits
-;    
+;
 ;    3. Exponent, e = number of shifts+ 1
-;    
+;
 ;    4. Mantissa, m =  LS M bits of the shifted value.
-;    
+;
 ;    5. Set C = m + 2^M * e
-;    
+;
 ;    6. If S=1, set msb of C = s.
-;    
+;
 ;    The algorithms that I (GH) remember were used on the Electron Isotope Spectrometers (E..C.Stone, PI) that flew on IMPs 7 and 8,
 ;    launched in 1972 and 1973?.
-;    
-;    
+;
+;
 ;
 ; :Params:
 ;    data - Input, to be compressed, see V above
@@ -42,7 +42,7 @@
 ;    k - number of bits for the exponent, default is 4, integer
 ;    m - number of bits for the mantissa, default is 8-k, integer
 ;    s - if set, then both positive and negative integers can be compressed, default is 0, integer only 0 or 1
-;    
+;
 ; :Examples:
 ;   To create an interpolation table to use for compression or decompression:
 ;     decomp_table = stx_km_decompress( bindgen( 256 ), k, m, s, /table )
@@ -113,28 +113,31 @@
 ;    32768       34816       36864       38912       40960       43008       45056       47104       49152       51200       53248       55296       57344       59392       61440       63488
 ;    65536       69632       73728       77824       81920       86016       90112       94208       98304      102400      106496      110592      114688      118784      122880      126976
 ;    131072      139264      147456      155648      163840      172032      180224      188416      196608      204800      212992      221184      229376      237568      245760      253952
-;    262144      278528      294912      311296      327680      344064      360448      376832      393216      409600      425984      442368      458752      475136      491520      507904; 
+;    262144      278528      294912      311296      327680      344064      360448      376832      393216      409600      425984      442368      458752      475136      491520      507904;
 ; :Keywords:
 ;    error - returns 0 if successful, 1 for early termination
 ;    table - if set, returns an interpolation table value which is the minimum absolute value consistent with the
 ;     compressed value
 ;
 ; :Author: richard.schwartz@nasa.gov
-; 
+;
 ; :History: 11-may-2015, initial version
 ; 14-mar-2017, RAS, fixed types to protect from IDL byte bug in ishft
-; 21-mar-2017, NH, added K M S undefined warning. All KMS values should be definded in some configuration files and nor rely on defaults
+; 21-mar-2017, NH, added K M S undefined warning. All KMS values should be defined in some configuration files and nor rely on defaults
+; 29-may-2020, ECMD (Graz), optionally print maximum value and rms error range for given parameters
+;
+;
 ;-
-function stx_km_decompress, data, k, m, s, error = error, table = table
+function stx_km_decompress, data, k, m, s, error = error, table = table, print_info = print_info
   error = 1
   default, table, 0
-  
-  
+  default, print_info, 0
+
   if ~isa(k) || ~isa(m) || ~isa(s) then begin
     message, /info, 'K ,M or S is undefined using default instead!'
   endif
- 
-  
+
+
   default, k, 4
   default, m, 8 - k
   default, s, 0
@@ -148,7 +151,14 @@ function stx_km_decompress, data, k, m, s, error = error, table = table
     print, 'Their total is ', kms
     return, -1 ; error condition
   endif
-  max_value = 2LL^(2^(K-s)-2)  * (2LL^(M+1) -1)
+
+  if print_info then begin
+    max_value = 2LL^(2^(K)-2)  * (2LL^(M+1) -1)
+    print, 'root mean square error range', 1./(sqrt(12)*2^M) , 1/(sqrt(1/12)*s^(M+1))
+    print, 'max_value', max_value
+  endif
+
+
   adata = s ? data and 127 : data
   q   = where( data ge 128 and s, nq)
   out = max_value gt ( 2ul^32 -1 ) ? long64( adata ) : long( adata )
@@ -164,3 +174,4 @@ function stx_km_decompress, data, k, m, s, error = error, table = table
   error = 0
   return, out
 end
+
