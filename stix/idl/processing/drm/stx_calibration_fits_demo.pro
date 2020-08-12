@@ -1,6 +1,6 @@
 ;+
 ; :description:
-;  This procedure demonstrates the reading of a quicklook calibration FITS file, creating an array of the data and plotting each spectrum
+;  This procedure demonstrates the reading of a quicklook calibration FITS file, creating an array of the data and plotting each spectrum 
 ;
 ; :categories:
 ;  calibration, demo, FITS
@@ -13,9 +13,9 @@
 ;
 ;  save                                          : in, type="byte", default="1"
 ;                                                  if set the spec_array and calibration_info variables will be saved to a genx file
-;
+;  
 ;  plotting                                      : in, type="byte", default="1"
-;                                                  if set the a postscript file will be generated containing plots of each calibration spectrum
+;                                                  if set the a postscript file will be generated containing plots of each calibration spectrum 
 ;
 ;
 ;  asw_ql_calibration_spectra                    : out, type="list"
@@ -52,9 +52,9 @@ pro stx_calibration_fits_demo,  directory = directory, save = save,  separate_pl
 
 
   if plotting then begin
-
     stx_plot_calibration_run, calibration_spectrum_array, asw_ql_calibration_spectra
 
   endif
 
 end
+

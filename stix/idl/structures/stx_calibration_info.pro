@@ -1,6 +1,6 @@
 ;+
 ; :description:
-;  stx_calibration_info structure definition
+;  stx_calibration_info structure definition 
 ;
 ; :categories:
 ;

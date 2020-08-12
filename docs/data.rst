@@ -171,6 +171,7 @@ Level 1 Product Structures and Contents
 
 
 
+
 Quick Look
 ~~~~~~~~~~
 
@@ -185,7 +186,6 @@ Common structure mapping channel to energy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-
 Light Curve
 ^^^^^^^^^^^
 
@@ -196,7 +196,6 @@ Control
 Data
 
 
-
 Background
 ^^^^^^^^^^
 
@@ -204,7 +203,6 @@ Control
 
 
 Data
-
 
 
 Spectra
@@ -233,7 +231,6 @@ Flare Flag and Location
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 Control
-
 
 
 Data
