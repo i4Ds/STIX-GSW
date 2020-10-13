@@ -145,6 +145,7 @@
 ;      1   1   1   1   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
 ;      0   0   0   0   0   0   0   0   0   0   0   0
 ; 25-may-2020, ECMD (Graz), optionally print maximum value and rms error range for given parameters
+; 13-oct-2020, rschwartz70@gmail.com change data cast to long64 from long line 196, kudos to Shane
 ;
 ;
 ;-
@@ -193,7 +194,7 @@ function stx_km_compress, data, k, m, s, abs_range = abs_range, range_err = rang
     range_err = 1
     return, 0
   endif
-  adata = long(abs( data )) ;only valid for integer data types
+  adata = long64(abs( data )) ;only valid for integer data types
   q     = where( data lt 0, nq )
   out = byte(adata)
 
