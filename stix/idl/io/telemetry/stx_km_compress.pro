@@ -176,7 +176,7 @@ function stx_km_compress, data, k, m, s, abs_range = abs_range, range_err = rang
     return, -1 ; error condition
   endif
 
-  if print_info then begin
+  if keyword_set( print_info ) then begin
     max_value = 2LL^(2^(K)-2)  * (2LL^(M+1) -1)
     print, 'root mean square error range', 1./(sqrt(12)*2^M) , 1/(sqrt(1/12)*s^(M+1))
     print, 'max_value', max_value
