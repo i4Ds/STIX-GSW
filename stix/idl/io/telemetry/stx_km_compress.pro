@@ -145,6 +145,7 @@
 ;      1   1   1   1   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
 ;      0   0   0   0   0   0   0   0   0   0   0   0
 ; 25-may-2020, ECMD (Graz), optionally print maximum value and rms error range for given parameters
+; 13-oct-2020, rschwartz70@gmail.com change data cast to long64 from long line 196, kudos to Shane
 ;
 ;
 ;-
@@ -175,7 +176,7 @@ function stx_km_compress, data, k, m, s, abs_range = abs_range, range_err = rang
     return, -1 ; error condition
   endif
 
-  if print_info then begin
+  if keyword_set( print_info ) then begin
     max_value = 2LL^(2^(K)-2)  * (2LL^(M+1) -1)
     print, 'root mean square error range', 1./(sqrt(12)*2^M) , 1/(sqrt(1/12)*s^(M+1))
     print, 'max_value', max_value
@@ -193,7 +194,7 @@ function stx_km_compress, data, k, m, s, abs_range = abs_range, range_err = rang
     range_err = 1
     return, 0
   endif
-  adata = long(abs( data )) ;only valid for integer data types
+  adata = long64(abs( data )) ;only valid for integer data types
   q     = where( data lt 0, nq )
   out = byte(adata)
 
