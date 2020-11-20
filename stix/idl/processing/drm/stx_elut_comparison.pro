@@ -15,29 +15,51 @@
 ; :keywords:
 ;
 ; elut_filename_current                      : in, type="string"
-;                                              the path to the second ELUT file which should be compared. Genrally assumed to be the current operational ELUT
+;                                              the path to the second ELUT file which should be compared. Generally assumed to be the current operational ELUT
 ;                                              if unspecified the default file read by stx_read_elut will be used 
 ;
+; n_tbl_new                                  : in, type="int"
+;                                              the number of lines in the table header for the new ELUT file 
 ;
+; n_tbl_current                              : in, type="int"
+;                                              the number of lines in the table header for the current ELUT file
+;
+; candidate_new                              : in, type="boolean"
+;                                              set if the new ELUT csv file is of candidate type 
+;
+; candidate_current                          : in, type="boolean"
+;                                              set if the current ELUT csv file is of candidate type 
+;                                             
+;  kev                                       : in, type="boolean";                                             
+;                                              set to display the offsets in terms of keV rather than as a percentage 
+;
+;  adc                                        : in, type="boolean"
+;                                               set to display the offsets in terms of ADC rather than as a percentage
+;                                             
 ; :examples:
 ;
 ;
 ;
 ; :history:
 ;    15-Apr-2020 - ECMD (Graz), initial release
+;    17-Nov-2020 - ECMD (Graz), added n_tbl_new candidate_new, candidate_current and n_tbl_current keywords as prospective candidate files generated from 
+;                               each calibration run have a different structure from the uploaded files usually stored in /dbase/detector
 ;
 ;-
-pro stx_elut_comparison, elut_filename_new, elut_filename_current = elut_filename_current
+pro stx_elut_comparison, elut_filename_new, elut_filename_current = elut_filename_current, n_tbl_new = n_tbl_new, n_tbl_current = n_tbl_current, $ 
+   candidate_new  = candidate_new, candidate_current = candidate_current, kev =  kev, adc= adc
 
   name_new = file_basename(elut_filename_new)
   name_new = name_new.substring(11,-5)
   
+  default, n_tbl_current, 3
+  default, n_tbl_new, 3
   
   loadct,73
   tvlct,r,g,b, /get
   rgbtabgr=[[reverse(r)],[reverse(g)],[reverse(b)]]
 
-  stx_read_elut, gain_new, offset_new, adc_new, scale = 0, elut_filename = elut_filename_new
+  stx_read_elut, gain_new, offset_new, adc_new, scale = 0, elut_filename = elut_filename_new, n_table_header = n_tbl_new, candidate = candidate_new
 
   energy =  (adc_new.ekev)[*,0,0]
 
@@ -63,7 +85,7 @@ pro stx_elut_comparison, elut_filename_new, elut_filename_current = elut_filenam
   pod = offset_diff/offset_new*100
 
   im = image(transpose(pod), indgen(32), indgen(12), ytitle ="Pixel Index", xtitle = 'Detector Index', Title ='Table Consistency: Offset from ADC boundaries', $
-    rgb_table = rgbtabgr, margin = 0.1, axis = 1, max_value = 1, min_value = 0  )
+    rgb_table = rgbtabgr, margin = 0.1, axis = 1, max_value = 4, min_value = 0  )
   c = colorbar(targe = im, major = 2, position = [200, 440, 455,470], /dev, title = 'Percentage difference')
   im.save, 'elut_comparison_consistency_offset_'+name_new+'.png'
 
@@ -78,12 +100,12 @@ pro stx_elut_comparison, elut_filename_new, elut_filename_current = elut_filenam
 
 
   im = image(transpose( diff), indgen(32), indgen(12), ytitle ='Detector Index' , xtitle = "Pixel Index", $
-    rgb_table = rgbtabgr, margin = 0.1, axis = 1, max_value = 2, min_value = 0, Title= 'Table Consistency: Total ADC Deviation from file Offset Gain ')
+    rgb_table = rgbtabgr, margin = 0.1, axis = 1, max_value = 32, min_value = 0, Title= 'Table Consistency: Total ADC Deviation from file Offset Gain ')
   c = colorbar(targe = im, major = 2, position = [200, 440, 455,470], /dev)
   im.save, 'elut_comparison_consistency_adc_'+name_new+'.png'
 
 
-  stx_read_elut, gain_current, offset_current, adc_current, scale = 0, elut_filename = elut_filename_current
+  stx_read_elut, gain_current, offset_current, adc_current, scale = 0, elut_filename = elut_filename_current, n_table_header = n_tbl_current, candidate = candidate_current
 
 
   gain_diff = gain_new - gain_current
@@ -98,19 +120,17 @@ pro stx_elut_comparison, elut_filename_new, elut_filename_current = elut_filenam
   im.save, 'elut_comparison_gain_'+name_new+'.png'
 
 
-  offset_diff = (offset_new - offset_current)*mean((gain_current+gain_new)/2.)
-  pod = offset_diff
+  offset_diff = (offset_new - offset_current)
 
-  ;offset_diff = (offset_new - offset_current)
-  ;pod = offset_diff/offset_new*100
+   
+  pod = offset_diff/offset_new*100
 
   im = image(transpose(pod), indgen(32), indgen(12), ytitle ="Pixel Index", xtitle = 'Detector Index', Title ='Comparison of Offset with current ELUT', $
-    rgb_table = 70, margin = 0.1, axis = 1, max_value = 1., min_value = -1 )
-  c = colorbar(targe = im, major = 2, position = [200, 440, 455,470], /dev, title = 'Difference from current ELUT [keV]')
+    rgb_table = 70, margin = 0.1, axis = 1, max_value = 2., min_value = -2 )
+  c = colorbar(targe = im, major = 2, position = [200, 440, 455,470], /dev, title = 'Difference from current ELUT [%]')
   l = 'New ELUT : '+  file_basename(elut_filename_new)+  string(10B) +' Current ELUT: '+ file_basename(elut_filename_current)
   t = text(0.5, 0.1,l,ALIGNMENT =0.5,FONT_SIZE=11)
   im.save,  'elut_comparison_offset_'+name_new+'.png'
-
 
 
   apgd = abs(pgd)
@@ -122,43 +142,65 @@ pro stx_elut_comparison, elut_filename_new, elut_filename_current = elut_filenam
   t = text(0.5, 0.1,l,ALIGNMENT =0.5,FONT_SIZE=11)
   im.save, 'elut_comparison_abs_gain_'+name_new+'.png'
 
-  apod = abs(pod)
 
-  im = image(transpose(apod), indgen(32), indgen(12), ytitle ="Pixel Index", xtitle = 'Detector Index', Title ='Comparison of Offset with current ELUT', $
-    rgb_table = rgbtabgr, margin = 0.1, axis = 1, max_value = 1, min_value = 0  )
-  c = colorbar(targe = im, major = 2, position = [200, 440, 455,470], /dev, title = 'Difference from current ELUT [keV]')
+  im = image(abs(transpose(pod)), indgen(32), indgen(12), ytitle ="Pixel Index", xtitle = 'Detector Index', Title ='Comparison of Offset with current ELUT', $
+    rgb_table = rgbtabgr, margin = 0.1, axis = 1, max_value = 3, min_value = 0  )
+  c = colorbar(targe = im, major = 2, position = [200, 440, 455,470], /dev, title = 'Difference from current ELUT [%]')
   l = 'New ELUT : '+  file_basename(elut_filename_new)+  string(10B) +' Current ELUT: '+ file_basename(elut_filename_current)
   t = text(0.5, 0.1,l,ALIGNMENT =0.5,FONT_SIZE=11)
   im.save, 'elut_comparison_abs_offset_'+name_new+'.png'
 
+  im = image(transpose(offset_diff_adc), indgen(32), indgen(12), ytitle ="Pixel Index", xtitle = 'Detector Index', Title ='Comparison of Offset with current ELUT', $
+    rgb_table = 70, margin = 0.1, axis = 1, max_value = 5., min_value = -5 )
+  c = colorbar(targe = im, major = 2, position = [200, 440, 455,470], /dev, title = 'Difference from current ELUT [ADC]')
+  l = 'New ELUT : '+  file_basename(elut_filename_new)+  string(10B) +' Current ELUT: '+ file_basename(elut_filename_current)
+  t = text(0.5, 0.1,l,ALIGNMENT =0.5,FONT_SIZE=11)
+  im.save,  'elut_comparison_offset_adc_'+name_new+'.png'
 
+if keyword_set(adc) then begin
+  offset_diff_adc = (offset_new - offset_current)/4.
+
+  im = image(abs(transpose(offset_diff_adc)), indgen(32), indgen(12), ytitle ="Pixel Index", xtitle = 'Detector Index', Title ='Comparison of Offset with current ELUT', $
+    rgb_table = rgbtabgr, margin = 0.1, axis = 1, max_value = 10, min_value = 0  )
+  c = colorbar(targe = im, major = 2, position = [200, 440, 455,470], /dev, title = 'Difference from current ELUT [ADC1024]')
+  l = 'New ELUT : '+  file_basename(elut_filename_new)+  string(10B) +' Current ELUT: '+ file_basename(elut_filename_current)
+  t = text(0.5, 0.1,l,ALIGNMENT =0.5,FONT_SIZE=11)
+  im.save, 'elut_comparison_abs_offset_adc_'+name_new+'.png'
+
+  im = image(transpose(offset_diff_adc), indgen(32), indgen(12), ytitle ="Pixel Index", xtitle = 'Detector Index', Title ='Comparison of Offset with current ELUT', $
+    rgb_table = 70, margin = 0.1, axis = 1, max_value = 5., min_value = -5 )
+  c = colorbar(targe = im, major = 2, position = [200, 440, 455,470], /dev, title = 'Difference from current ELUT [ADC1024]')
+  l = 'New ELUT : '+  file_basename(elut_filename_new)+  string(10B) +' Current ELUT: '+ file_basename(elut_filename_current)
+  t = text(0.5, 0.1,l,ALIGNMENT =0.5,FONT_SIZE=11)
+  im.save,  'elut_comparison_offset_adc_'+name_new+'.png'
+
+endif
+
+if keyword_set(kev) then begin
+  offset_diff_kev = offset_diff*mean((gain_current+gain_new)/2.)
+
+  im = image(abs(transpose(offset_diff_kev)), indgen(32), indgen(12), ytitle ="Pixel Index", xtitle = 'Detector Index', Title ='Comparison of Offset with current ELUT', $
+    rgb_table = rgbtabgr, margin = 0.1, axis = 1, max_value = 10, min_value = 0  )
+  c = colorbar(targe = im, major = 2, position = [200, 440, 455,470], /dev, title = 'Difference from current ELUT [keV]')
+  l = 'New ELUT : '+  file_basename(elut_filename_new)+  string(10B) +' Current ELUT: '+ file_basename(elut_filename_current)
+  t = text(0.5, 0.1,l,ALIGNMENT =0.5,FONT_SIZE=11)
+  im.save, 'elut_comparison_abs_offset_adc_'+name_new+'.png'
+
+  im = image(transpose(offset_diff_kev), indgen(32), indgen(12), ytitle ="Pixel Index", xtitle = 'Detector Index', Title ='Comparison of Offset with current ELUT', $
+    rgb_table = 70, margin = 0.1, axis = 1, max_value = 5., min_value = -5 )
+  c = colorbar(targe = im, major = 2, position = [200, 440, 455,470], /dev, title = 'Difference from current ELUT [keV]')
+  l = 'New ELUT : '+  file_basename(elut_filename_new)+  string(10B) +' Current ELUT: '+ file_basename(elut_filename_current)
+  t = text(0.5, 0.1,l,ALIGNMENT =0.5,FONT_SIZE=11)
+  im.save,  'elut_comparison_offset_adc_'+name_new+'.png'
+
+
+endif 
 
   a = gain_current
   ae = gain_new
 
   b = offset_current
   be = offset_new
-
-  ;p = plot(indgen(n_elements(a)),reform(a,n_elements(a)), /hist, xtitle = 'Pixel', ytitle = 'Offset', DIMENSIONS=[834,889], $
-  ;  POSITION=[0.10855775,0.59925338,0.53224640,0.95968919],name ='Fitted')
-
-  ;p = plot(indgen(n_elements(a)),reform(ae,n_elements(a)), /hist , color = reform(rgbtab[5,*]), /over, /current, linestyle = 2, xrange = [0, max(where( ae gt 0))], /xstyle,  name ='Expected')
-
-
-
-  ;p.save, 'Offset_Discrepancy_'+namesalllist[k].substring(15,-18)+'.png'
-  ;; wait, 2
-
-  ;p.close
-
-
-  ;a = transpose(a)
-  ;be = transpose(be)
-  ;plot, b, psym = 10, yrange = [0.38,0.42]
-  ;oplot, be,color = 4, psym = 10
-
-  ;p = plot(indgen(n_elements(b)),reform(b,n_elements(b)), /hist,  POSITION=[0.10609144,0.17399378,0.53828033,0.52482883] , xtitle = 'Pixel', ytitle = 'Gain',/current)
-  ;p = plot(indgen(n_elements(b)),reform(be,n_elements(b)), /hist , color = reform(rgbtab[5,*]), /over, /current, linestyle = 2, xrange = [0, max(where( ae gt 0))], /xstyle)
 
 
   x  = indgen(n_elements(a))
@@ -216,10 +258,9 @@ pro stx_elut_comparison, elut_filename_new, elut_filename_current = elut_filenam
     h= [0,h,0]
     x = [x-bin,x,x+bin]
   endif
-  plot0 = plot(x, h, /hist, xstyle =1, xrange =[-3, 3],YTITLE='Number of Pixles', $
-    XTITLE='[keV]', $
+  plot0 = plot(x, h, /hist, xstyle =1, xrange =[-6, 6],YTITLE='Number of Pixles', $
+    XTITLE='[ADC channels]', $
     DIMENSIONS=[600,425], margin = [0.1,0.2,0.05,0.1], $
-    ; POSITION=[0.12777946,0.57747199,0.92997396,0.93320146], $
     layout = [1,2,1], $
     TITLE='Change in Offset')
 
@@ -240,7 +281,6 @@ pro stx_elut_comparison, elut_filename_new, elut_filename_current = elut_filenam
   plot1 = plot(x, h, /hist, xstyle =1, xrange =[-3, 3], $ ; <- Data required
     YTITLE='Number of Pixles', $
     XTITLE='Percentage', margin = [0.1,0.3,0.05,0.05], $
-    ; POSITION=[0.12974137,0.12145282,0.93804784,0.48037966], $
     layout = [1,2,2],$
     TITLE='Change in Gain', $
     /CURRENT)
@@ -248,10 +288,6 @@ pro stx_elut_comparison, elut_filename_new, elut_filename_current = elut_filenam
   title = plot1.TITLE
   title.FONT_NAME = 'DejaVuSans'
   title.FONT_SIZE = 11.000000
-  ;l = xnames[0] +' = '+ strtrim(temp[k],2) +', ' + xnames[2] +' = '+ strtrim(Peak_time[k],2) +', '+ xnames[1]  +' = '+ strtrim(volt[k],2)
-
-
-  ;t = text(0.5, 0.038,l,ALIGNMENT =0.5,FONT_SIZE=11)
 
 
   plot0.save, 'elut_comparison_histogram_'+name_new+'.png'
