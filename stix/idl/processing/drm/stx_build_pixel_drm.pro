@@ -55,12 +55,15 @@
 ;          
 ;
 ;-
-function stx_build_pixel_drm, ct_energy_edges, pixel_mask, rcr = rcr, grid_factor= grid_factor, _extra = _extra
+function stx_build_pixel_drm, ct_energy_edges, pixel_mask, ph_energy_edges = ph_energy_edges,rcr = rcr, grid_factor= grid_factor,dist_factor= dist_factor, _extra = _extra
 
   default, pixel_mask , intarr(12,32) + 1  ; default pixel mask is all pixels from all detectors
   default, grid_factor, 1./4.
+  default, dist_factor, 1.
+  
+  default, ph_energy_edges, findgen(1471)*.1+3
   rcr_area  = stx_rcr_area(rcr)
-  atten = rcr < 1
+  attenuator = rcr < 1
   pixel_mask = pixel_mask <1
   ;the input pixel mask must be a 12 x 32 element of 1s and 0s repenting the pixels from each detector to be used
   if (((size(pixel_mask))[1] ne 12) and ((size(pixel_mask))[2] ne 32) ) then begin
@@ -74,10 +77,12 @@ function stx_build_pixel_drm, ct_energy_edges, pixel_mask, rcr = rcr, grid_facto
   pixel_areas = ss.det.pixel.area
 
   rcr_factor =  rcr_area/(ss.det.area)[0]
+  
+  ph_energy_edges =  get_uniq( [ph_energy_edges,ct_energy_edges],epsilon=0.0001)
 
   ; calculate the drm over the given count energy edges along with any other relevant keywords supplied
   ; using the standard build drm  routine
-  drm = stx_build_drm( ct_energy_edges,atten = atten, _extra=_extra )
+  drm = stx_build_drm( ph_energy_edges, d_be = 0, d_al = 0, d_pt = 0, _extra=_extra )
 
   ;calculate the total area of pixels to be included (multiply the elements in the mask by the elements in ther area array)
   total_area = total( pixel_areas*pixel_mask )
@@ -87,10 +92,18 @@ function stx_build_pixel_drm, ct_energy_edges, pixel_mask, rcr = rcr, grid_facto
   scale_factor  = total_area/drm.area
 
   ;scale the relevant parameters
-  drm.area *= scale_factor*grid_factor
-  drm.smatrix *= rcr_factor
-  drm.eloss_mat *= rcr_factor
-  drm.pls_ht_mat *= rcr_factor
+  drm.area *= scale_factor*grid_factor*rcr_factor*dist_factor
+
+  smatrix = drm.smatrix
+  transmission = stix_transmission(ph_energy_edges, /xcom)
+  dim_drm = size(/dim, smatrix) > 1
+  
+  smatrix = smatrix * rebin( transpose(transmission), dim_drm)
+  
+  data_grouper_edg,smatrix , drm.edges_out, ct_energy_edges, /perwidth, epsilon =0.0001, error=error, emsg=emsg
+  drm = rep_tag_value(drm, ct_energy_edges, 'edges_out')
+  drm = rep_tag_value(drm, smatrix, 'smatrix')
+  
 
   return, drm
 end

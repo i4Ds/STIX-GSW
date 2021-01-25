@@ -90,6 +90,7 @@ function stx_build_drm, ct_energy_edges, $
   attenuator = attenuator, $
   d_al = d_al, $
   d_be = d_be, $
+  d_pt = d_pt, $
   func_par=func_par, $
   func_name = func, $
   efficiency = efficiency, $
