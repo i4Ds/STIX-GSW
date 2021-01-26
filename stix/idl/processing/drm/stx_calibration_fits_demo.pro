@@ -25,8 +25,8 @@
 ;                                                  list of stx_asw_ql_calibration_spectrum corresponding to the spectra
 ;
 ;  calibration_spectrum_array                    : out, type="float"
-;                                                  array of dimention [1024 ADC channels x 12 pixels x 32 detectors x  N calibration runs]
-;                                                  containing the expanded calibaration spectra
+;                                                  array of dimension [1024 ADC channels x 12 pixels x 32 detectors x  N calibration runs]
+;                                                  containing the expanded calibration spectra
 ;
 ;
 ; :examples:
@@ -35,11 +35,14 @@
 ;
 ; :history:
 ;    21-jul-2020 - ECMD (Graz), initial release
+;    19-Nov-2020 - ECMD (Graz), added _extra keywords for pass through of plotting commands, stx_plot_calibration_run now takes additional info 
+;                               from the calibration_info structure 
+;        
 ;
 ;-
 pro stx_calibration_fits_demo,  directory = directory, save = save,  separate_plots= separate_plots, $
   asw_ql_calibration_spectra = asw_ql_calibration_spectra,  calibration_info = calibration_info, calibration_spectrum_array = calibration_spectrum_array, $
-  plotting = plotting
+  plotting = plotting, _extra = _extra
 
   ;default when running the demo is both to save the spectra array to file and to produce postscript plots
   default, directory, '/data/2020/04/27/quicklook'
@@ -48,12 +51,12 @@ pro stx_calibration_fits_demo,  directory = directory, save = save,  separate_pl
 
   ;  all quicklook calibration spectrum fits files are read from the specified directory
   calibration_spectrum_array =  stx_convert_calibration_fits2array( directory, asw_ql_calibration_spectra = asw_ql_calibration_spectra, $
-    calibration_info =calibration_info, save = save )
+    calibration_info = calibration_info, save = save )
 
 
   if plotting then begin
     
-    stx_plot_calibration_run, calibration_spectrum_array, asw_ql_calibration_spectra
+    stx_plot_calibration_run, calibration_spectrum_array, calibration_info, _extra = _extra
 
   endif
 
