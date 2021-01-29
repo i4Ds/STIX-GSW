@@ -34,7 +34,7 @@
 ;
 ;-
 function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, ph_energy_edges = ph_edges, fits = fits, plotman_obj = pobj, specfilename = specfilename, srmfilename  = srmfilename,$
-  flare_location = flare_location,  _extra = _extra
+  flare_location = flare_location,  gtrans32 = gtrans32, _extra = _extra
 
   ;convert the triggers to livetime
 
@@ -54,8 +54,14 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, ph_energy
   ;as the drm expects an array [32, 12] pixel mask replicate the passed pixel mask for each detector
   pixel_mask =(spectrogram.DETECTOR_MASK)##(spectrogram.pixel_mask)
 
-  grid_factors=stix_gtrans32_test(flare_location)
-  grid_factor = average(grid_factors[where(spectrogram.detector_mask eq 1 , /null)])
+  if keyword_set(gtrans32) then begin
+    grid_factors=stix_gtrans32_test(flare_location)
+    grid_factor = average(grid_factors[where(spectrogram.detector_mask eq 1 , /null)])
+  endif else begin
+    print, 'Using nominal grid transmission of 0.25'
+    grid_factor = 0.25
+  endelse
+
 
   ;make the srm for the appropriate pixel mask and energy edges
   srm = stx_build_pixel_drm(ct_edges, pixel_mask,  ph_energy_edges = ph_edges, grid_factor = grid_factor, dist_factor = dist_factor, _extra = _extra)
