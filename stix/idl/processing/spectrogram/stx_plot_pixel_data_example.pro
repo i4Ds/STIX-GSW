@@ -1,6 +1,17 @@
 pro  stx_plot_pixel_data_example, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, time_shift = time_shift,  dist_factor = dist_factor, $
-  flare_location= flare_location, elut_filename = elut_filename
+  flare_location= flare_location, elut_filename = elut_filename, demo = demo 
 
+if keyword_set(demo) then begin
+  
+  message, 'Running demonstraion - overriding all other input keyowrds', /info 
+  fits_path_data = loc_file('solo_L1_stix-sci-xray-l1-1178428688_20200607T213708-20200607T215208_V01_49155.fits', path = concat_dir( getenv('stx_demo_data'),'ospex/sample_data/20200607',/dir) )
+  fits_path_bk   = loc_file('solo_L1_stix-sci-xray-l1-1178448400_20200607T224958-20200608T001954_V01_49807.fits', path = concat_dir( getenv('stx_demo_data'),'ospex/sample_data/20200607',/dir) )  
+  time_shift = 236.9
+  dist_factor =  1./(0.52)^2.
+  flare_location = [-1600,-800.]
+  elut_filename = 'elut_table_20200519.csv'
+  
+endif
 
   stx_read_pixel_data_fits_file, fits_path_data, time_shift, primary_header = primary_header, data_str = data_str, data_header = data_header, control_str = control_str, $
     control_header= control_header, energy_str = energy_str, energy_header = energy_header, t_axis = t_axis, e_axis = e_axis
