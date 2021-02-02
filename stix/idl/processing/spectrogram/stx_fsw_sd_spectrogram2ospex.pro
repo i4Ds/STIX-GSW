@@ -52,14 +52,18 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, ph_energy
   default, ph_edges,  [ ct_edges, maxct + maxct*(findgen(10)+1)/10. ]
 
   ;as the drm expects an array [32, 12] pixel mask replicate the passed pixel mask for each detector
-  pixel_mask =(spectrogram.DETECTOR_MASK)##(spectrogram.pixel_mask)
+  pixel_mask =(spectrogram.detector_mask)##(spectrogram.pixel_mask)
 
   if keyword_set(gtrans32) then begin
     grid_factors=stix_gtrans32_test(flare_location)
     grid_factor = average(grid_factors[where(spectrogram.detector_mask eq 1 , /null)])
   endif else begin
-    print, 'Using nominal grid transmission of 0.25'
-    grid_factor = 0.25
+    
+    print, 'Using nominal (on axis) grid transmission'
+    grid_transmission_file =  concat_dir(getenv('stx_grid'), 'nom_grid_transmission.txt')
+    readcol, grid_transmission_file, grid_factors, format = 'f', skip =2
+    grid_factor = average(grid_factors[where(spectrogram.detector_mask eq 1 , /null)])
+
   endelse
 
 
