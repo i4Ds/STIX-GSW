@@ -1,20 +1,29 @@
-pro  stx_plot_pixel_data_example, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, time_shift = time_shift,  dist_factor = dist_factor, $
-  flare_location= flare_location, elut_filename = elut_filename, demo = demo 
+pro  stx_plot_pixel_data_example, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, time_shift = time_shift, energy_shift = energy_shift, distance = distance, $
+  flare_location= flare_location, elut_filename = elut_filename, demo = demo
 
-if keyword_set(demo) then begin
-  
-  message, 'Running demonstraion - overriding all other input keyowrds', /info 
-  fits_path_data = loc_file('solo_L1_stix-sci-xray-l1-1178428688_20200607T213708-20200607T215208_V01_49155.fits', path = concat_dir( getenv('stx_demo_data'),'ospex/sample_data/20200607',/dir) )
-  fits_path_bk   = loc_file('solo_L1_stix-sci-xray-l1-1178448400_20200607T224958-20200608T001954_V01_49807.fits', path = concat_dir( getenv('stx_demo_data'),'ospex/sample_data/20200607',/dir) )  
-  time_shift = 236.9
-  dist_factor =  1./(0.52)^2.
-  flare_location = [-1600,-800.]
-  elut_filename = 'elut_table_20200519.csv'
-  
-endif
+  if keyword_set(demo) then begin
+
+    message, 'Running demonstraion - overriding all other input keywords', /info
+    fits_path_data = loc_file('solo_L1_stix-sci-xray-l1-1178428688_20200607T213708-20200607T215208_V01_49155.fits', path = concat_dir( getenv('stx_demo_data'),'ospex/sample_data/20200607',/dir) )
+    fits_path_bk   = loc_file('solo_L1_stix-sci-xray-l1-1178448400_20200607T224958-20200608T001954_V01_49807.fits', path = concat_dir( getenv('stx_demo_data'),'ospex/sample_data/20200607',/dir) )
+    time_shift = 236.9
+    distance =  0.52
+    flare_location = [-1600,-800.]
+    elut_filename = 'elut_table_20200519.csv'
+    energy_shift = 0
+
+  endif
+
+  default, time_shift, 0.
+  default, energy_shift, 0.
+  default, distance, 1.
+  default, flare_location, [0.,0.]
+  default, elut_filename, 'elut_table_20200519.csv'
+
+  dist_factor = 1./(distance^2.)
 
   stx_read_pixel_data_fits_file, fits_path_data, time_shift, primary_header = primary_header, data_str = data_str, data_header = data_header, control_str = control_str, $
-    control_header= control_header, energy_str = energy_str, energy_header = energy_header, t_axis = t_axis, e_axis = e_axis
+    control_header= control_header, energy_str = energy_str, energy_header = energy_header, t_axis = t_axis, energy_shift = energy_shift,  e_axis = e_axis
 
   hstart_time = (sxpar(primary_header, 'DATE_BEG'))
 
@@ -57,7 +66,7 @@ endif
 
     pixels_used = where( where(total(total(data_str.pixel_masks,1),2) gt 0 ) ne 0 )
     detectors_used = where(total(data_str.detector_masks,2) gt 0 and mask_use_detectors eq 1)
-    
+
   endelse
 
   energies_used = where( energy_edge_mask eq 1 )
@@ -94,31 +103,43 @@ endif
   bk_err = total(total(data_str.COUNTS_ERR[energy_bins,*,*],2),2)
 
 
-  stx_read_pixel_data_fits_file, fits_path_bk,time_shift, data_str = data_str_bk, control_str = control_str_bk, $
-    energy_str = energy_str_bk, t_axis = t_axis_bk
 
-  counts_in_bk = data_str_bk.counts
+  if keyword_set(fits_path_bk) then begin
 
-  dim_counts_bk = counts_in_bk.dim
+    stx_read_pixel_data_fits_file, fits_path_bk,time_shift, data_str = data_str_bk, control_str = control_str_bk, $
+      energy_str = energy_str_bk, t_axis = t_axis_bk
 
-  ntimes_bk = n_elements(dim_counts_bk) gt 3 ? dim_counts_bk[3] : 1
+    counts_in_bk = data_str_bk.counts
 
-  spec_in_bk = ntimes_bk eq 1 ? (total(total(counts_in_bk[*,pixels_used,detectors_used],2),2)/total(data_str_bk.timedel))#data_str.timedel $
-    : (total(total(total(data_str_bk.counts[*,pixels_used,detectors_used],2),2),2)/total(data_str_bk.timedel))#data_str.timedel
+    dim_counts_bk = counts_in_bk.dim
 
-  spec_in_bk  =  reform(spec_in_bk,[dim_counts_bk[0], ntimes])
+    ntimes_bk = n_elements(dim_counts_bk) gt 3 ? dim_counts_bk[3] : 1
 
-  counts_spec_bk =  spec_in_bk[energy_bins,*]/reproduce(eff_ewidth, ntimes)
+    spec_in_bk = ntimes_bk eq 1 ? (total(total(counts_in_bk[*,pixels_used,detectors_used],2),2)/total(data_str_bk.timedel))#data_str.timedel $
+      : (total(total(total(data_str_bk.counts[*,pixels_used,detectors_used],2),2),2)/total(data_str_bk.timedel))#data_str.timedel
 
-  counts_spec_bk =  reform(counts_spec_bk,[n_elements(energy_bins), ntimes])
+    spec_in_bk  =  reform(spec_in_bk,[dim_counts_bk[0], ntimes])
 
-  spec_in_bsub = counts_spec - counts_spec_bk > 0
+    counts_spec_bk =  spec_in_bk[energy_bins,*]/reproduce(eff_ewidth, ntimes)
 
-  total_error = sqrt(counts_spec + counts_spec_bk )
+    counts_spec_bk =  reform(counts_spec_bk,[n_elements(energy_bins), ntimes])
+
+    spec_in = counts_spec - counts_spec_bk > 0
+
+    total_error = sqrt(counts_spec + counts_spec_bk )
+
+  endif else begin
+
+    spec_in = counts_spec  > 0
+
+    total_error = sqrt(counts_spec)
+
+  endelse
+
   ;insert the information from the telemetry file into the expected stx_fsw_sd_spectrogram structure
   spectrogram = { $
     type          : "stx_fsw_sd_spectrogram", $
-    counts        : spec_in_bsub, $
+    counts        : spec_in, $
     trigger       : transpose(data_str.triggers), $
     time_axis     : t_axis , $
     energy_axis   : e_axis, $
@@ -135,7 +156,6 @@ endif
   phe = transmission.field9
 
   ospex_obj =   stx_fsw_sd_spectrogram2ospex( spectrogram, ph_energy_edges = phe, /include_damage, /fits , /tail, dist_factor = dist_factor, flare_location= flare_location )
-
 
   ospex_obj -> set, spex_eband =  get_edges([4.,10.,15.,25, 50, 84.], /edges_2)
   ospex_obj -> plot_time,  spex_units='flux'
