@@ -49,10 +49,10 @@
 ;       26-Nov-2014 - Shaun Bloomfield (TCD), fixed bug from earlier
 ;                     conversion of stx_construct_subcollimator() to
 ;                     output areas in cm^2
-;       03-Dec-2018 – ECMD (Graz), rcr area change 
-;                                  grids default is nominal 25% 
-;                                  presence of attenuator 
-;          
+;       03-Dec-2018 – ECMD (Graz), rcr area change
+;                                  grids default is nominal 25%
+;                                  presence of attenuator
+;
 ;
 ;-
 function stx_build_pixel_drm, ct_energy_edges, pixel_mask, ph_energy_edges = ph_energy_edges,rcr = rcr, grid_factor= grid_factor,dist_factor= dist_factor, _extra = _extra
@@ -60,7 +60,7 @@ function stx_build_pixel_drm, ct_energy_edges, pixel_mask, ph_energy_edges = ph_
   default, pixel_mask , intarr(12,32) + 1  ; default pixel mask is all pixels from all detectors
   default, grid_factor, 1./4.
   default, dist_factor, 1.
-  
+
   default, ph_energy_edges, findgen(1471)*.1+3
   rcr_area  = stx_rcr_area(rcr)
   attenuator = rcr < 1
@@ -77,7 +77,7 @@ function stx_build_pixel_drm, ct_energy_edges, pixel_mask, ph_energy_edges = ph_
   pixel_areas = ss.det.pixel.area
 
   rcr_factor =  rcr_area/(ss.det.area)[0]
-  
+
   ph_energy_edges =  get_uniq( [ph_energy_edges,ct_energy_edges],epsilon=0.0001)
 
   ; calculate the drm over the given count energy edges along with any other relevant keywords supplied
@@ -95,15 +95,15 @@ function stx_build_pixel_drm, ct_energy_edges, pixel_mask, ph_energy_edges = ph_
   drm.area *= scale_factor*grid_factor*rcr_factor*dist_factor
 
   smatrix = drm.smatrix
-  transmission = stix_transmission(ph_energy_edges, /xcom)
+  transmission = stix_transmission(drm.emean)
   dim_drm = size(/dim, smatrix) > 1
-  
+
   smatrix = smatrix * rebin( transpose(transmission), dim_drm)
-  
+
   data_grouper_edg,smatrix , drm.edges_out, ct_energy_edges, /perwidth, epsilon =0.0001, error=error, emsg=emsg
   drm = rep_tag_value(drm, ct_energy_edges, 'edges_out')
   drm = rep_tag_value(drm, smatrix, 'smatrix')
-  
+
 
   return, drm
 end

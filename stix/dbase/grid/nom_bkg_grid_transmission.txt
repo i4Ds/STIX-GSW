@@ -1,0 +1,14 @@
+;Nominal transmission factors for on-axis grid transmission in BGK detector pixels ECMD - 18-Feb-21
+;N.B. tranmission for fully covered pixels is currently set to 0 
+0.1039555 
+0.0010396 
+0.0103956 
+0.0000000 
+0.0000000 
+0.0103956 
+0.0010396 
+0.1039555 
+0.0000000 
+0.0000000 
+0.0000000 
+0.0000000 

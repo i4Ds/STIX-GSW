@@ -68,7 +68,7 @@ pro stx_write_ospex_fits, $
 
   duration=spec.t_axis.duration
   duration_array=rebin(duration,n_elements(duration),n_elements(ct_edges)-1)
-  livetime_array = rebin(livetime,n_elements(livetime),n_elements(ct_edges)-1)
+  livetime_array = rebin([livetime],n_elements(livetime),n_elements(ct_edges)-1)
   data=f_div(data,transpose(duration_array*livetime_array))
   data_error = f_div(data_error,transpose(duration_array*livetime_array))
 

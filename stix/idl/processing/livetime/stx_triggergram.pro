@@ -43,6 +43,10 @@ function stx_triggergram, triggerdata, t_axis, adg_idx = adg_idx
     message, err
     return, 0
   endif
+  
+  t_axis_dim = size(t_axis.duration, /dimension)
+  if  t_axis_dim[0] eq 1 then triggerdata = reform(triggerdata,n_elements(triggerdata),1)
+  
   sizetriggerdata = size(triggerdata, /str)
   ; Do some parameter checking
   if ~(isarray(triggerdata) and sizetriggerdata.dimensions[0] eq 16 or sizetriggerdata.dimensions[0] eq 1) then $
@@ -53,10 +57,10 @@ function stx_triggergram, triggerdata, t_axis, adg_idx = adg_idx
   
   ; Do some final checking on dimenstions (do they agree)
   triggerdata_dim = sizetriggerdata.dimensions
-  t_axis_dim = size(t_axis.duration, /dimension)
   
   
-  if (triggerdata_dim[1] ne t_axis_dim[0] or t_axis_dim[0] eq 1) then $
+;  if (triggerdata_dim[1] ne t_axis_dim[0] or t_axis_dim[0] eq 1) then $
+    if (triggerdata_dim[1] ne t_axis_dim[0]) then $
      message, "'t_axis' dimensions do not agree with 'triggerdata' dimensions"
   
   
