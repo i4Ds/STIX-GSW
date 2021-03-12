@@ -24,6 +24,7 @@ pro  stx_plot_pixel_data_example, fits_path_data = fits_path_data, fits_path_bk 
 
   stx_read_pixel_data_fits_file, fits_path_data, time_shift, primary_header = primary_header, data_str = data_str, data_header = data_header, control_str = control_str, $
     control_header= control_header, energy_str = energy_str, energy_header = energy_header, t_axis = t_axis, energy_shift = energy_shift,  e_axis = e_axis , use_discriminators = 0
+  
   data_level = 1
 
   hstart_time = (sxpar(primary_header, 'DATE_BEG'))

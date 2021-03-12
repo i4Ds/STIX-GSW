@@ -1,7 +1,10 @@
-function stix_transmission, ein, xcom = xcom
-
+function stix_transmission, ein, det_mask, xcom = xcom, verbose = verbose 
+ 
+  default, det_mask, intarr(32)
   default, xcom, 0
+  
   ;TODO - option for grid covers
+  idx_det = where(det_mask eq 1, count_det)
 
   ;if set cacluate the transmission factors directly using xsec
   if keyword_set(xcom) then begin
@@ -13,7 +16,6 @@ function stix_transmission, ein, xcom = xcom
     angstrom = 1d-8
     mm = .1d0
     nm = 1d-7
-
 
     default, type, 'AB'
     costheta = 1.0d0
@@ -95,19 +97,13 @@ function stix_transmission, ein, xcom = xcom
   endif else begin
     ;otherwise use the transmission values from the CSV file
 
-    transmission = read_csv(loc_file( 'stix_trans_by_component.csv', path = getenv('STX_GRID') ))
+    transmission = read_csv(loc_file( 'stix_transmission_highres_20210303.csv', path = getenv('STX_GRID')), head = header)
 
-    front_window = transmission.FIELD1
-    rear_window = transmission.FIELD2
-    grid_covers = transmission.FIELD3
-    dem = transmission.FIELD4
-    attenuator = transmission.FIELD5
-    mli = transmission.FIELD6
-    calibration_foil = transmission.FIELD7
-    dead_layer = transmission.FIELD8
-    energy = transmission.FIELD9
+    energy = transmission.(0)
 
-    tot = front_window*rear_window*dem*mli*calibration_foil*dead_layer
+    tot = fltarr(n_elements(energy))
+
+    for i =0, count_det-1 do tot += transmission.(idx_det[i]+1)/count_det
 
     if  ~array_equal(energy, ein) then begin
       tot=10^(interpol(alog10(tot),alog10(energy),alog10(ein)))

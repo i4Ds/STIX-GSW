@@ -19,7 +19,7 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, primary_header = prima
   stx_time_obj.value =  anytim(hstart_time , /mjd)
   start_time = stx_time_add(stx_time_obj, seconds = time_shift)
   t_edges = stx_time_add( start_time, $
-    seconds = [0, total(data.timedel,/cum)] )
+    seconds = [0,  data.time + data.timedel/2.] )
 
   t_axis = stx_construct_time_axis(t_edges)
 
@@ -41,13 +41,13 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, primary_header = prima
 
   energy_edges_all2 = transpose([[energy.e_low], [energy.e_high]])
   edge_products, energy_edges_all2, edges_1 = energy_edges_all1
-  
- use_energies = where_arr(energy_edges_all1,energy_edges_1) 
+
+  use_energies = where_arr(energy_edges_all1,energy_edges_1)
   energy_edge_mask = intarr(33)
   energy_edge_mask[use_energies] = 1
-  
+
   e_axis = stx_construct_energy_axis(energy_edges = energy_edges_all1 + energy_shift, select = use_energies)
 
-  
+
 
 end
