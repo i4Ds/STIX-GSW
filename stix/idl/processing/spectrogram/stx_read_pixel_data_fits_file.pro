@@ -18,11 +18,20 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, primary_header = prima
   stx_time_obj = stx_time()
   stx_time_obj.value =  anytim(hstart_time , /mjd)
   start_time = stx_time_add(stx_time_obj, seconds = time_shift)
-  t_edges = stx_time_add( start_time, $
-    seconds = [0,  data.time + data.timedel/2.] )
 
-  t_axis = stx_construct_time_axis(t_edges)
+ 
+  t_start = stx_time_add( start_time,  seconds = [ data.time - data.timedel/2.] )
+  t_end = stx_time_add( start_time,  seconds = [ data.time + data.timedel/2.] )
+  t_mean = stx_time_add( start_time,  seconds = [data.time] )
 
+ 
+  t_axis  = stx_time_axis(n_elements(data.time))
+  t_axis.mean =  t_mean
+  t_axis.time_start = t_start
+  t_axis.time_end = t_end
+  t_axis.DURATION = data.timedel
+
+  
   if control.energy_bin_mask[0] || control.energy_bin_mask[-1] and ~keyword_set(use_discriminators) then begin
 
     control.energy_bin_mask[0] = 0
@@ -47,7 +56,6 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, primary_header = prima
   energy_edge_mask[use_energies] = 1
 
   e_axis = stx_construct_energy_axis(energy_edges = energy_edges_all1 + energy_shift, select = use_energies)
-
 
 
 end

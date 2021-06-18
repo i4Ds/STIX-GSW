@@ -132,9 +132,9 @@ function stx_livetime_fraction, triggergram,  det_select, tau_array = tau_array,
   default, det_select, indgen(32)+1
   
   ntrig  = (size(/dimension, triggergram.triggerdata ))[0]
-  default, tau_array, 10.5e-6 + fltarr(ntrig) ;11 microseconds readout time per event
+  default, tau_array, 11e-6 + fltarr(ntrig) ;11 microseconds readout time per event
   default, eta_array,  3.91e-6 + fltarr(ntrig) ;3.91 microseconds latency time per event
-  
+
   idx_select = ( adg_sc[ where_arr( adg_sc.sc, det_select ) ] ).adg_idx ;these are the agd id needed (1-16)
   test_triggers = where_arr( triggergram.adg_idx, idx_select, /notequal, test_forzero ) ;which triggers to use
   test_triggers = ~test_forzero ;this will be true for all needed triggers for det_select

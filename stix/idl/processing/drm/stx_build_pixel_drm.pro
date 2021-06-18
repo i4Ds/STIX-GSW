@@ -94,8 +94,9 @@ function stx_build_pixel_drm, ct_energy_edges, pixel_mask, ph_energy_edges = ph_
   ;scale the relevant parameters
   drm.area *= scale_factor*grid_factor*rcr_factor*dist_factor
 
+det_mask = total(pixel_mask,1) <1
   smatrix = drm.smatrix
-  transmission = stix_transmission(drm.emean)
+  transmission = stix_transmission(drm.emean, det_mask)
   dim_drm = size(/dim, smatrix) > 1
 
   smatrix = smatrix * rebin( transpose(transmission), dim_drm)

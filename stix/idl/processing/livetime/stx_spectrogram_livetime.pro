@@ -19,10 +19,10 @@ default, level, 1
     end
     4:begin
       dim_counts = [nenergies, ntimes]
-      trig = (fltarr(16)+1./16.)##spectrogram.trigger
+      trig =  (fltarr(16)+1./16.)##transpose(spectrogram.trigger)
       triggergram = stx_triggergram(transpose(trig),  spectrogram.time_axis)
       livetime_fraction = stx_livetime_fraction(triggergram, det_used)
-      livetime_fraction = transpose( rebin(reform(livetime_fraction),[dim_counts[1],dim_counts[0]]))
+      livetime_fraction = transpose( rebin(reform(livetime_fraction[0,*]),[dim_counts[1],dim_counts[0]]))
 
     end
 
