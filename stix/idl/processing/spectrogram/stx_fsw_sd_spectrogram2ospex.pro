@@ -57,14 +57,14 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, ph_energy
   endif else begin
 
     print, 'Using nominal (on axis) grid transmission'
-    grid_transmission_file =  concat_dir(getenv('stx_grid'), 'nom_grid_transmission.txt')
+    grid_transmission_file =  concat_dir(getenv('STX_GRID'), 'nom_grid_transmission.txt')
     readcol, grid_transmission_file, grid_factors, format = 'f', skip =2
     grid_factor = average(grid_factors[grids_used])
   endelse
 
   if grid_factor eq 0 then begin
     if n_elements(grids_used) eq 1 then if grids_used eq 9 then begin
-      grid_transmission_file =  concat_dir(getenv('stx_grid'), 'nom_bkg_grid_transmission.txt')
+      grid_transmission_file =  concat_dir(getenv('STX_GRID'), 'nom_bkg_grid_transmission.txt')
       readcol, grid_transmission_file, bk_grid_factors, format = 'f', skip =2
       grid_factor = average(bk_grid_factors[pixels_used])
 
