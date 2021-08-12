@@ -2,7 +2,7 @@
 ; Description :
 ;   Function to read STIX L1 housekeeping data and return an object containing signals from Aspect system
 ;
-; Syntax      : data = read_L1_data(infile [, /quiet] )
+; Syntax      : data = read_hk_data(infile [, /quiet] )
 ;
 ; Inputs      : input file name
 ;
@@ -18,13 +18,14 @@
 ; History   :
 ;   2019-12-12 - F. Schuller (AIP), initial version of read_SAS_data
 ;   2021-06-16 - FSc: adapted to L1 HK datafiles, and standalone SAS_pipeline package
+;   2021-08-09 - FSc: renamed from read_l1_data to read_hk_data
 ;   
 ; Example:
-;   data = read_L1_data('SAS_20210212-20210215')
+;   data = read_hk_data('SAS_20210212-20210215')
 
 ;-
 
-function read_L1_data, infile, quiet=quiet
+function read_hk_data, infile, quiet=quiet
   common config   ; contains the input directory
 
   ; First, verify that the file exists
@@ -73,21 +74,13 @@ function read_L1_data, infile, quiet=quiet
   ; according to K. Rutkowski's e-mail (2020-04-03)
   V_base = 0.06018  ; [V]
   R_m = 51100.      ; [Ohmn]
-  ; but filter out negative values
-  V_min = V_base
-;  ind_ok = where(abs(duration-64.) lt 0.1 and $
-;                 asp_A0 gt V_min and asp_A1 gt V_min and asp_B0 gt V_min and asp_B1 gt V_min,nb_ok)
-
+  ; keep only measurements at 64s cadence
   ind_ok = where(abs(duration-64.) lt 0.1,nb_ok)
   
   if nb_ok lt nb_rows and not keyword_set(quiet) then $
     print,nb_ok,format='("... keeping only ",I5," entries.")'
   asp_A0 = asp_A0[ind_ok] / 16. &  asp_A1 = asp_A1[ind_ok] / 16.  
   asp_B0 = asp_B0[ind_ok] / 16. &  asp_B1 = asp_B1[ind_ok] / 16.
-
-
-;  asp_A0 = asp_A0[ind_ok] * 1.e-9  &  asp_A1 = asp_A1[ind_ok] * 1.e-9
-;  asp_B0 = asp_B0[ind_ok] * 1.e-9  &  asp_B1 = asp_B1[ind_ok] * 1.e-9
 
   ; channel A
   asp_A0 = (asp_a0 - V_base) / R_m
