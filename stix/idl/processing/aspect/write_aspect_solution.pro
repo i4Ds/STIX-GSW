@@ -2,7 +2,7 @@
 ; Description :
 ;   Procedure to write SAS L2 data to a file
 ;
-; Syntax      : write_L2_data, data [, filename=filename] 
+; Syntax      : write_aspect_solution, data [, filename=filename] 
 ;
 ; Inputs      : a data structure containing timestamps, signal, input FITS header and derived aspect solution
 ;
@@ -14,13 +14,14 @@
 ;
 ; History   :
 ;   2021-06-17 - FSc: initial version
+;   2021-08-09 - FSc: renamed from write_L2_data to write_aspect_solution
 ;
 ; Example:
-;   write_L2_data, data
+;   write_aspect_solution, data
 ;
 ;-
 
-pro write_L2_data, data, filename=filename, quiet=quiet
+pro write_aspect_solution, data, filename=filename, quiet=quiet
   common config   ; contains the output directory
 
   if not keyword_set(filename) then begin
