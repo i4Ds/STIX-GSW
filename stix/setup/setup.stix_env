@@ -17,6 +17,7 @@
 # 05-Feb-2015 - Laszlo I. Etesi (FHNW), added dbase/sim/tests
 # 28-Jul-2015 - Laszlo I. Etesi (FHNW), added dbase/fpga
 # 08-Feb-2016 - Laszlo I. Etesi (FHNW), added dbase/fsw
+# 17-Sep-2021 - Paolo M. (Unige), added dbase/demo/vis_demo
 
 # Overview Variables
 # ------------------
@@ -65,6 +66,7 @@ setenv STX_SCN_TEST	$SSW_STIX/dbase/sim/tests
 setenv STX_FPGA		$SSW_STIX/dbase/fpga
 setenv STX_TMTC		$SSW_STIX/dbase/tmtc
 setenv STX_FSW		$SSW_STIX/dbase/fsw
+setenv STX_VIS_DEMO	$SSW_STIX/dbase/demo/vis_demo
 
 # hack for case-sensitive operative systems
 setenv stx_conf		$SSW_STIX/dbase/conf
