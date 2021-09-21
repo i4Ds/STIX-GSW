@@ -1,5 +1,5 @@
-Based on ECC fit measurements to calibration run 1276 provided by O Limousin 25-June-2021 (ECMD),,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-Channel energy edges obtained from stx_science_energy_channels(/edges_1) ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Based on ECC fit measurements to calibration run 1276 provided by O Limousin 25-June-2021 (ECMD),,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Channel energy edges obtained from stx_science_energy_channels(/edges_1) ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 Offset,Gain keV/ADC,Pixel,Detector,ADC Edge 0 - 4 keV,ADC Edge 1 - 5 keV,ADC Edge 2 - 6 keV,ADC Edge 3 - 7 keV,ADC Edge 4 - 8 keV,ADC Edge 5 - 9 keV,ADC Edge 6 - 10 keV,ADC Edge 7 - 11 keV,ADC Edge 8 - 12 keV,ADC Edge 9 - 13 keV,ADC Edge 10 - 14 keV,ADC Edge 11 - 15 keV,ADC Edge 12 - 16 keV,ADC Edge 13 - 18 keV,ADC Edge 14 - 20 keV,ADC Edge 15 - 22 keV,ADC Edge 16 - 25 keV,ADC Edge 17 - 28 keV,ADC Edge 18 - 32 keV,ADC Edge 19 - 36 keV,ADC Edge 20 - 40 keV,ADC Edge 21 - 45 keV,ADC Edge 22 - 50 keV,ADC Edge 23 - 56 keV,ADC Edge 24 - 63 keV,ADC Edge 25 - 70 keV,ADC Edge 26 - 76 keV,ADC Edge 27 - 84 keV,ADC Edge 28 - 100 keV,ADC Edge 29 - 120 keV,ADC Edge 30 - 150 keV
 898.5185,0.109294,0,0,935,944,953,963,972,981,990,999,1008,1017,1027,1036,1045,1063,1082,1100,1127,1155,1191,1228,1265,1310,1356,1411,1475,1539,1594,1667,1813,1996,2271
 900,0.109276,1,0,937,946,955,964,973,982,992,1001,1010,1019,1028,1037,1046,1065,1083,1101,1129,1156,1193,1229,1266,1312,1358,1412,1477,1541,1595,1669,1815,1998,2273
