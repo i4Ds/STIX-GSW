@@ -1,5 +1,5 @@
 pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, time_shift = time_shift, energy_shift = energy_shift, distance = distance, $
-  flare_location= flare_location, elut_filename = elut_filename, replace_doubles = replace_doubles, keep_short_bins = keep_short_bins
+  flare_location= flare_location, elut_filename = elut_filename, replace_doubles = replace_doubles, keep_short_bins = keep_short_bins, ospex_obj = ospex_obj
 
 
   default, time_shift, 0.
@@ -63,11 +63,13 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
 
   counts_err = data_str.counts_err[energy_bins,*]
 
+   triggers =  reform(counts_spec,[n_energies, n_times]) 
+ 
   ;insert the information from the telemetry file into the expected stx_fsw_sd_spectrogram structure
   spectrogram = { $
     type          : "stx_fsw_sd_spectrogram", $
     counts        : counts_spec, $
-    trigger       : transpose(long(data_str.triggers)), $
+    trigger       : reform(long(data_str.triggers),1,n_times), $
     time_axis     : t_axis , $
     energy_axis   : e_axis, $
     pixel_mask    : pixel_mask_used , $
@@ -81,7 +83,7 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
   data_dims[3] = n_times
 
   stx_convert_science_data2ospex, spectrogram = spectrogram, data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, $
-    dist_factor = dist_factor, flare_location= flare_location, eff_ewidth = eff_ewidth
+    dist_factor = dist_factor, flare_location= flare_location, eff_ewidth = eff_ewidth, ospex_obj = ospex_obj
 
 end
 

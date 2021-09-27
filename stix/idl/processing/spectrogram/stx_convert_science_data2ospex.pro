@@ -1,5 +1,5 @@
 pro stx_convert_science_data2ospex, spectrogram = spectrogram, data_level = data_level, data_dims = data_dims,  fits_path_bk = fits_path_bk,$
-  dist_factor = dist_factor, flare_location= flare_location, eff_ewidth = eff_ewidth
+  dist_factor = dist_factor, flare_location= flare_location, eff_ewidth = eff_ewidth, ospex_obj = ospex_obj
 
   n_energies = data_dims[0]
   n_detectors = data_dims[1]
@@ -131,8 +131,6 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, data_level = data
   ospex_obj -> set, spex_eband = get_edges([4.,10.,15.,25, 50, 84.], /edges_2)
 
   ospex_obj -> plot_time,  spex_units='flux'
-
-  stop
 
 
 end

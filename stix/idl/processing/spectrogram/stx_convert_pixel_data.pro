@@ -1,5 +1,5 @@
 pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, time_shift = time_shift, energy_shift = energy_shift, distance = distance, $
-  flare_location= flare_location, elut_filename = elut_filename, demo = demo
+  flare_location= flare_location, elut_filename = elut_filename, demo = demo, ospex_obj = ospex_obj
 
   if keyword_set(demo) then begin
 
@@ -16,12 +16,11 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
 
   default, time_shift, 0.
   default, energy_shift, 0.
-  default, distaence, 1.
+  default, distance, 1.
   default, flare_location, [0.,0.]
-  default, elut_filenam, 'elut_table_20200519.csv'
+  default, elut_filename, 'elut_table_20200519.csv'
 
   dist_factor = 1./(distance^2.)
-
 
   g10=[3,20,22]-1
   g09=[16,14,32]-1
@@ -125,7 +124,7 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   data_dims[3] = n_times
 
   stx_convert_science_data2ospex, spectrogram = spectrogram, data_level = data_level, data_dims = data_dims,  fits_path_bk = fits_path_bk,$
-    dist_factor = dist_factor, flare_location= flare_location, eff_ewidth = eff_ewidth
+    dist_factor = dist_factor, flare_location= flare_location, eff_ewidth = eff_ewidth,ospex_obj = ospex_obj
 
 end
 
