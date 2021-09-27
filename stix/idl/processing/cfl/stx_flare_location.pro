@@ -65,10 +65,14 @@
 ;                  reading routine stx_construct_subcollimator.pro
 ;    06-Nov-2013 - Shaun Bloomfield (TCD), modified for dimension
 ;                  ordering of new flat pixel_data structure input
+;    27-Sep-2021 = ECMD (Graz), updated pixel data format      
+;                               dot product values can be passed out
+;                               background detector values no longer used for subtraction  
 ;-
 function stx_flare_location, pixel_data, $
                              subc_file=subc_file, mask_file=mask_file, $
-                             skyvec_file=skyvec_file, search=search;, debug=debug
+                             skyvec_file=skyvec_file, search=search, dp_vals = dp_vals,y_edge=y_edge, x_edge= x_edge, debug=debug, $
+  sky_x = sky_x, sky_y = sky_y
   
   ;  Set optional keyword defaults
   subc_file = exist(subc_file) ? subc_file : loc_file( 'stx_subc_params.txt', path = getenv('STX_GRID') )
@@ -123,18 +127,10 @@ function stx_flare_location, pixel_data, $
   ;  Determine CFL subcollimator element location
   cfl_loc = where( stregex( subc.label, 'cfl', /boolean, /fold ) )
   ;  Extract CFL pixels
-  cfl_pix = reform( pixels[cfl_loc, *, *] )
-  ;  Subtract background counts from CFL pixels
-  cfl_pix -= ( subc[cfl_loc].det.pixel.area # bkg_info.background )
-  ;  Ensure counts are non-negative
-  cfl_pix = cfl_pix > 0
-  
+  cfl_pix = reform( pixels[cfl_loc, *] )
+
   ;  Average each pixel over masked subcollimators
-  masked_pix = average( pixels[mask, *, *], 1 )
-  ;  Subtract background counts from masked pixels
-  masked_pix -= ( average( subc[mask].det.pixel.area, 2 ) # bkg_info.background )
-  ;  Ensure counts are non-negative
-  masked_pix = masked_pix > 0
+  masked_pix = average( pixels[mask, *], 1 )
   
   ;  Sum pairs of large pixels in each detector quadrant 
   ;  [top left, top right, bottom left, bottom right]
