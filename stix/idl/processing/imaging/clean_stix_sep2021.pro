@@ -137,6 +137,8 @@ default, beam_width, 10. ;convolving beam sigma in asec, set it to 10" (for STIX
 default, clean_beam, psf_gaussian( npixel = image_dim[0], st_dev = beam_width / pixel, ndim = 2)
 default, nmap, 20  ;1/frequency that intermediate maps are plotted 
 
+this_disp=256. ; used for setting plot dimensions
+
 ;realize the dirty map and build a psf at the center, use odd numbers of pixels to center the map
 weight_used = vis_spatial_frequency_weighting( vis, spatial_frequency_weight, UNIFORM_WEIGHTING = uniform_weighting )
 
@@ -209,7 +211,6 @@ while  test do begin
 	  ;cleaned_map_iter = convol( clean_map, clean_beam, /norm, /center, /edge_zero)
 	  ;contour, /over, cleaned_map_iter, col=2, thick=2, levels = interpol( minmax( cleaned_map_iter ), 5)
 	  cleaned_map_iter = convol( clean_map, clean_beam, /norm, /center, /edge_zero)
-    this_disp=256.
 	  if first_time eq 1 then begin
 	   window,2,xsize=5*this_disp,ysize=this_disp
 	   first_time=0
