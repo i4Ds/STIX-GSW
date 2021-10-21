@@ -55,7 +55,7 @@ pro stx_calib_fit, all_fits_filename, obj = obj, path = path, $
 
   default, write_elut, 0
   stx_read_elut, gain_nominal, offset_nominal, /scale1024, _extra = _extra
-  default, path, [curdir(), concat_dir( concat_dir('ssw_stix','dbase'),'detector')]
+  default, path, [curdir(), concat_dir( concat_dir('SSW_STIX','dbase'),'detector')]
   spectra = n_dimensions( spectra ) ge 3 ? spectra : $
     stx_calib_fit_get_calibration_spectra( filename = calib_spectra_filename, path = path)
 

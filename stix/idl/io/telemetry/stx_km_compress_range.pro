@@ -32,7 +32,7 @@ function stx_km_compress_range, k, m, s, error = error
     print, 'Their total is ', kms
     return, -1 ; error condition
   endif
-  max_value = 2LL^(2^K-2)  * (2LL^(M+1) -1)
+  max_value = 2LL^(2LL^K-2)  * (2LL^(M+1) -1)
   abs_range = s eq 0 ? [0, max_value] : [-1, 1] * max_value
   ;real max values
   

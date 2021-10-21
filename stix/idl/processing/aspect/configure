@@ -1,0 +1,36 @@
+;+
+; Description :
+;   This is a simple file to be executed at the beginning of an IDL session in order to define
+;   a few global parameters, such as the top-level directory under which data files can be found
+;
+; Syntax    : @configure
+;
+; Common blocks:
+;     common config, param_dir, def_calibfile, spice_dir, data_dir, out_dir, sas_version
+;
+;-
+common config, param_dir, def_calibfile, spice_dir, data_dir, out_dir, sas_version
+
+  ; Current version of the SAS pipeline
+  sas_version = '2021-08-09'
+  
+  ; I/O directories:
+  ; - location of some parameter files
+  param_dir = './SAS_param/'
+  ; - default file for calibration (contains relative gains and biases)
+  def_calibfile = 'SAS_calib_2020'
+  ; - location of the L1 HK data files
+  data_dir = '/work1/fschuller/data/L1_FITS/'
+  ; - Output directory
+  out_dir = '/work1/fschuller/data/L2_FITS/'
+  
+  ; Path to the SPICE kernels
+  spice_dir = "/work1/fschuller/data/SPICE/kernels/solar-orbiter/kernels/"
+  spice_kernel = "mk/my_solo.tm"
+  
+  ; Load the Spice kernels that we need
+  cspice_kclear
+  add_sunspice_mission, 'solo'
+  load_sunspice_solo
+  cspice_furnsh, spice_dir + spice_kernel
+  

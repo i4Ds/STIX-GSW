@@ -129,25 +129,25 @@ function stx_livetime_fraction, triggergram,  det_select, tau_array = tau_array,
 
   error = 1
   adg_sc = stx_adg_sc_table()
-  default, det_select, 1
+  default, det_select, indgen(32)+1
+  
+  ntrig  = (size(/dimension, triggergram.triggerdata ))[0]
+  default, tau_array, 11e-6 + fltarr(ntrig) ;11 microseconds readout time per event
+  default, eta_array,  3.91e-6 + fltarr(ntrig) ;3.91 microseconds latency time per event
 
   idx_select = ( adg_sc[ where_arr( adg_sc.sc, det_select ) ] ).adg_idx ;these are the agd id needed (1-16)
-  ntrig  = (size(/dimension, triggergram.triggerdata ))[0]
   test_triggers = where_arr( triggergram.adg_idx, idx_select, /notequal, test_forzero ) ;which triggers to use
   test_triggers = ~test_forzero ;this will be true for all needed triggers for det_select
   ;triggergram must be sorted into adg_idx order!
   ix_fordet = value_locate( triggergram.adg_idx, idx_select )
-  default, tau_array, 18.6e-6 + fltarr(ntrig)
-  default, tau_array,   (11e-6+2.7e-6)+ fltarr(ntrig) ;11e-6+2.7e-6  microseconds readout time per event
-  default, eta_array,  (2.7e-6 + 0.72d-6)+ fltarr(ntrig) ;2.7e-6 + 0.72d-6 microseconds latency time per event
+
   ndt = n_elements( triggergram.t_axis.duration )
   duration = transpose( rebin( triggergram.t_axis.duration, ndt, ntrig ))
   tau_rate =   rebin( tau_array, ntrig, ndt ) / duration
   eta_rate = rebin( eta_array, ntrig, ndt ) / duration
-  eta_rate = rebin( eta_array, ntrig, ndt ) / duration
   nin = triggergram.triggerdata / (1. -  triggergram.triggerdata *tau_rate)
   livetime_fraction = exp( - eta_rate*nin) /(1. + tau_rate* nin)
-  result = livetime_fraction[ ix_fordet, * ]
+  result = livetime_fraction[ ix_fordet[sort((where_arr( adg_sc.sc, det_select,/map ))[where_arr( adg_sc.sc, det_select)])], * ]
   error = 0
   return, result
 

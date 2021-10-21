@@ -30,32 +30,56 @@
 ;
 ;  :todo:
 ;    22-Nov-2016 - ECMD (Graz), livetime and attenuator state are not ready so artificially prescribed here
-;    03-Dec-2018 – ECMD (Graz), livetime and attenuator states accounted for 
+;    03-Dec-2018 – ECMD (Graz), livetime and attenuator states accounted for
 ;
 ;-
-function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, fits = fits, plotman_obj = pobj, specfilename = specfilename, srmfilename  = srmfilename
+function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, ph_energy_edges = ph_edges, fits = fits, plotman_obj = pobj, specfilename = specfilename, srmfilename  = srmfilename,$
+  flare_location = flare_location,  gtrans32 = gtrans32, livetime_fraction =livetime_fraction, _extra = _extra
 
-  ;convert the triggers to livetime
-  ;NB currently issues with trigger format so fractional livetime of 1.0 for all intervals set
-  trig = (fltarr(16)+1./16.)##spectrogram.trigger
-  triggergram = stx_triggergram(transpose(trig),  spectrogram.time_axis)
-  livetime_fraction = stx_livetime_fraction(triggergram)
+
   ntimes = n_elements(spectrogram.time_axis.time_start)
 
   ;get the energy edges for building the drm from the spectrogram
   ct_edges = spectrogram.energy_axis.edges_1
   maxct = max( ct_edges )
-  ph_edges = [ ct_edges, maxct + maxct*(findgen(10)+1)/10. ]
+
+  default, ph_edges,  [ ct_edges, maxct + maxct*(findgen(10)+1)/10. ]
 
   ;as the drm expects an array [32, 12] pixel mask replicate the passed pixel mask for each detector
-  pixel_mask = (fltarr(32)+1)##(spectrogram.pixel_mask)[*,0]
+  pixel_mask =(spectrogram.detector_mask)##(spectrogram.pixel_mask)
+
+  grids_used = [where(spectrogram.detector_mask eq 1 , /null)]
+  pixels_used = [where(spectrogram.pixel_mask eq 1 , /null)]
+
+  if keyword_set(gtrans32) then begin
+    grid_factors=stix_gtrans32_test(flare_location)
+    grid_factor = average(grid_factors[grids_used])
+  endif else begin
+
+    print, 'Using nominal (on axis) grid transmission'
+    grid_transmission_file =  concat_dir(getenv('STX_GRID'), 'nom_grid_transmission.txt')
+    readcol, grid_transmission_file, grid_factors, format = 'f', skip =2
+    grid_factor = average(grid_factors[grids_used])
+  endelse
+
+  if grid_factor eq 0 then begin
+    if n_elements(grids_used) eq 1 then if grids_used eq 9 then begin
+      grid_transmission_file =  concat_dir(getenv('STX_GRID'), 'nom_bkg_grid_transmission.txt')
+      readcol, grid_transmission_file, bk_grid_factors, format = 'f', skip =2
+      grid_factor = average(bk_grid_factors[pixels_used])
+
+    endif else begin
+      message, 'Waring: Grid Factor is 0 - transmission for CFL and BKG detectors is not implemented',/info
+
+    endelse
+  endif
 
   ;make the srm for the appropriate pixel mask and energy edges
-  srm = stx_build_pixel_drm(ct_edges, ph_energy_edges = ph_edges)
+  srm = stx_build_pixel_drm(ct_edges, pixel_mask,  ph_energy_edges = ph_edges, grid_factor = grid_factor, dist_factor = dist_factor, _extra = _extra)
 
 
   ;rcr_states = specpar.sp_atten_state.state
-  rcr_states = INTARR(20)
+  rcr_states = intarr(20)
   rcr_states = rcr_states[UNIQ(rcr_states, SORT(rcr_states))]
   nrcr_states = n_elements(rcr_states)
 
@@ -65,7 +89,7 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, fits = fi
     ;make the srm for the appropriate pixel mask and energy edges
     rcr = rcr_states[i]
 
-    srm = stx_build_pixel_drm(ct_edges, pixel_mask, rcr = rcr, ph_energy_edges = ph_edges,  d_al = 0.06)
+    srm = stx_build_pixel_drm(ct_edges, pixel_mask, rcr = rcr, ph_energy_edges = ph_edges,  grid_factor = grid_factor, dist_factor = dist_factor, _extra = _extra)
     srm_atten[i].srm = srm.smatrix
     srm_atten[i].rcr = rcr
 
@@ -75,7 +99,7 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, fits = fi
 
   ;if the fits keyword is set write the spectrogram and srm data to fits files and then read them in to the ospex object
   if keyword_set(fits) then begin
-    utime = transpose(stx_time2any( spectrogram.time_axis.time_start ))
+    utime = transpose([stx_time2any( spectrogram.time_axis.time_start )])
     ; spectrogram.ltime = livetime_fraction*transpose(rebin(spectrogram.t_axis.duration,ntimes,32))
     ;spectrogram structure for passing to fits writer routine
     ;NB currently attenuator state is not passed in so it is set to 0 here
@@ -83,8 +107,9 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, fits = fi
       data              : spectrogram.counts, $
       t_axis            : spectrogram.time_axis, $
       e_axis            : spectrogram.energy_axis, $
-      ltime             : transpose(livetime_fraction), $
-      attenuator_state  : 0 }
+      ltime             : livetime_fraction, $
+      attenuator_state  : 0 , $
+      error             : spectrogram.error }
 
     default, specfilename, 'stx_spectrum_' + time2file( utime[0] ) + '.fits'
     default, srmfilename, 'stx_srm_' + time2file( utime[0] ) + '.fits'
@@ -111,7 +136,7 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, fits = fi
     ospex_obj->set, spex_respinfo = srm.smatrix
     ospex_obj->set, spex_area = srm.area
     ospex_obj->set, spex_detectors = 'STIX'
-    ospex_obj->set, spex_drm_ph_edges = ph_edges2
+    ospex_obj->set, spex_drm_ph_edges = ph_edges
 
   endelse
 

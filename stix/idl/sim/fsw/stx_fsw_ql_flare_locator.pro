@@ -104,6 +104,9 @@
 ;                             normalisation factor
 ;                             small pixel counts resdistrubited between nearest large pixels
 ;   01-06-2018 - NH (fhnw),   add flar flag as in/out keyword
+;   18-06-2020 - ECMD (Graz), changes to more easily run the routine outside the module
+;                             - added default value for flare_flag (0)
+;                             - added tab_filename as input keyword 
 ;
 ;-
 function stx_fsw_ql_flare_locator, $
@@ -121,6 +124,7 @@ function stx_fsw_ql_flare_locator, $
   cfl_bk_factor = cfl_bk_factor, $
   normalisation_factor = normalisation_factor, $
   tab_data = tab_data, $
+  tab_filename = tab_filename, $ 
   sky_x = sky_x, $
   sky_y = sky_y, $
   crop = crop, $
@@ -142,16 +146,16 @@ function stx_fsw_ql_flare_locator, $
   default, shadow_flags, [0,0]
   default, previous_location, [0,0]
   default, shadow_limit, [26]
-
+  default, flare_flag, 0
   location_status_index = 2B
   default_location =  [0,0]
 
   ;if no table is passed then load the default
   if ~isa(tab_data) || ~isa(sky_x) || ~isa(sky_y) then begin
 
-    tab_filename = floating_point ? 'stx_fsw_cfl_flt_skyvec_table.txt': 'stx_fsw_cfl_int_skyvec_table.txt'
+    if ~keyword_set(tab_filename) then tab_filename = floating_point ? 'stx_fsw_cfl_flt_skyvec_table.txt': 'stx_fsw_cfl_int_skyvec_table.txt'
 
-    tab_data = stx_cfl_read_skyvec(loc_file( tab_filename, path = getenv('STX_CFL'), integer = ~floating_point ), sky_x = sky_x, sky_y = sky_y)
+    tab_data = stx_cfl_read_skyvec(loc_file( tab_filename, path = getenv('STX_CFL')), integer = ~floating_point , sky_x = sky_x, sky_y = sky_y)
 
   endif
 

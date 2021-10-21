@@ -50,6 +50,7 @@ function  stx_tailing_matrix, energy, depth=depth, trap_length_h = trap_length_h
   default, include_damage, 1 ;  if true include a damage layer of reduced charge collecting efficiency
   default, damage_layer_depth, 4.4e-5 ; depth of damage layer in cm
   default, detector, 'cdte'
+  default, r0, 0.8 
   
   ;distance into detector in micrometres for the edge of each layer
   x = 1e4*depth*findgen(n_layers)/n_layers
@@ -67,21 +68,20 @@ function  stx_tailing_matrix, energy, depth=depth, trap_length_h = trap_length_h
   if include_damage then begin
     ; as effieencly changed rapidly in the damage layer a large number of finer
     ;layers are used
-    n_damage = long(n_layers/2)
+    n_damage = 2*long(n_layers)
     
-    tm = damage_layer_depth/2. ; the mean depth of the damage layer
-    
-    a = 1  ; parameter representing the speed of the drop off
-    
-    idx_damage_layer = where(x lt damage_layer_depth,  complement = comp)
-    t = damage_layer_depth*findgen(n_damage)/n_damage
-    
-    ;the sharp drop off in efficiency in the damage layer is modelled
-    ;using a complementary error function
-    damage_layer_efficiency = 0.5 * erfc((t - tm)*a/damage_layer_depth)
+    idx_damage_layer = where(x lt 10.*damage_layer_depth,  complement = comp)
+    t = 10*damage_layer_depth*findgen(n_damage)/n_damage
     
     x = [t, x[comp]]
-    h = [reverse(damage_layer_efficiency), h[comp]]
+    damage_layer_efficiency = 1 -  R0*exp(- x/damage_layer_depth)
+
+    h = (trap_length_h*(1.-exp(-x/trap_length_h)) + trap_length_e*(1.- exp(-(d-x)/trap_length_e)))/d
+
+    h = damage_layer_efficiency*h
+    
+    n_layers = n_elements(x)
+
     
   endif
   

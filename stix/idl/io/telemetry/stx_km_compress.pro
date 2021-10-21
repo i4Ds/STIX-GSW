@@ -16,7 +16,7 @@
 ;    For compression 248-255 all yield a compressed value of 79.  On decompression, 79 yields 252, midway from 248 to 255
 ;
 ;    From Gordon Hurford:
-;    The the compression algorithm is applied to an integer value, V, to yield a compressed value, C, as follows:
+;    The compression algorithm is applied to an integer value, V, to yield a compressed value, C, as follows:
 ;
 ;    1. If  V <   0,               set s=1 and set V = -V.
 ;
@@ -126,27 +126,30 @@
 ; 4-oct-2016, RAS added range checking, ABS_RANGE, RANGE_ERR,
 ; 8-dec-2016, RAS, fixed computation for single negative numbers, "changed to ge 1 from gt 1 ras, 8-dec-2016"
 ; 13-mar-2017, RAS, added type_err for non-integer input
-; 21-mar-2017, NH, added K M S undefined warning. 
-; All KMS values should be defined in some configuration files and not rely on defaults  
+; 21-mar-2017, NH, added K M S undefined warning.
+; All KMS values should be defined in some configuration files and not rely on defaults
 ; 1-feb-2018, RAS, fixed KV computation.
 ;     Previous, failed on low side of Input values
 ;     Input = 2LL^indgen(31)
 ;     IDL> print, stx_km_compress( input[0:30], 5,3, 0) - stx_km_compress( input-1, 5, 3, 0)
-;     1   1   1   1   1   1   1   1   1   1   1 249 249 249 249 249 249 249 249 249 
+;     1   1   1   1   1   1   1   1   1   1   1 249 249 249 249 249 249 249 249 249
 ;     249 249 249 249 249 249 249 249 249 249 249
 ;     IDL> print, stx_km_compress( input[0:30]+1, 5,3, 0) - stx_km_compress( input, 5, 3, 0)
-;     1   1   1   1   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0 
+;     1   1   1   1   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
 ;     0   0   0   0   0   0   0   0   0   0   0
 ;     Current, fixed!
 ;     IDL> print, stx_km_compress( input[0:30], 5,3, 0) - stx_km_compress( input-1, 5, 3, 0)
-;      1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   
+;      1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1
 ;      1   1   1   1   1   1   1   1   1   1   1   1
 ;      IDL> print, stx_km_compress( input[0:30]+1, 5,3, 0) - stx_km_compress( input, 5, 3, 0)
 ;      1   1   1   1   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
 ;      0   0   0   0   0   0   0   0   0   0   0   0
+; 25-may-2020, ECMD (Graz), optionally print maximum value and rms error range for given parameters
+; 13-oct-2020, rschwartz70@gmail.com change data cast to long64 from long line 196, kudos to Shane
+;
 ;
 ;-
-function stx_km_compress, data, k, m, s, abs_range = abs_range, range_err = range_err,  type_err=type_err, error = error
+function stx_km_compress, data, k, m, s, abs_range = abs_range, range_err = range_err,  type_err=type_err, error = error, print_info = print_info
 
   error = 1
   range_err = 0
@@ -172,7 +175,13 @@ function stx_km_compress, data, k, m, s, abs_range = abs_range, range_err = rang
     print, 'Their total is ', kms
     return, -1 ; error condition
   endif
-  ;  max_value = 2LL^(2^(K-s)-2)  * (2LL^(M+1) -1)
+
+  if keyword_set( print_info ) then begin
+    max_value = 2LL^(2^(K)-2)  * (2LL^(M+1) -1)
+    print, 'root mean square error range', 1./(sqrt(12)*2^M) , 1/(sqrt(1/12)*s^(M+1))
+    print, 'max_value', max_value
+  endif
+
   ;  abs_range = s eq 0 ? [0, max_value] : [-1, 1] * max_value
   abs_range = stx_km_compress_range( k, m, s )
   mmdata    = minmax( data )
@@ -185,7 +194,7 @@ function stx_km_compress, data, k, m, s, abs_range = abs_range, range_err = rang
     range_err = 1
     return, 0
   endif
-  adata = long(abs( data )) ;only valid for integer data types
+  adata = long64(abs( data )) ;only valid for integer data types
   q     = where( data lt 0, nq )
   out = byte(adata)
 
@@ -206,4 +215,5 @@ function stx_km_compress, data, k, m, s, abs_range = abs_range, range_err = rang
   error = 0
   return, out
 end
+
 

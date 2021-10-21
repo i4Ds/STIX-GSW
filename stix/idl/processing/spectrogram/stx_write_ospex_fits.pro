@@ -58,6 +58,7 @@ pro stx_write_ospex_fits, $
 
 
   data = float(spec.data)
+  data_error = float(spec.error)
   utime = stx_time2any( spec.t_axis.time_start )
   ct_edges = spec.e_axis.edges_1
   edge_products, ct_edges, edges_2 = ct_edges_2 ;if the energy edges are changed this won't be needed
@@ -67,9 +68,9 @@ pro stx_write_ospex_fits, $
 
   duration=spec.t_axis.duration
   duration_array=rebin(duration,n_elements(duration),n_elements(ct_edges)-1)
-  livetime_array = rebin(livetime,n_elements(livetime),n_elements(ct_edges)-1)
+  livetime_array = rebin([livetime],n_elements(livetime),n_elements(ct_edges)-1)
   data=f_div(data,transpose(duration_array*livetime_array))
-
+  data_error = f_div(data_error,transpose(duration_array*livetime_array))
 
   ;get default filenames for the spectrum and srm files
   default, specfilename, 'stx_spectrum_' + time2file( utime[0] ) + '.fits'

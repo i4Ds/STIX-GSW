@@ -18,11 +18,13 @@
 ;    ADC1024 channel at 0 keV
 ;
 ; :Author: raschwar
+;    22-Apr-2020 - ECMD (Graz), added elut_filename keyword 
+; 
 ;-
-function stx_energy2calchan, energy, gain = gain, offset = offset
+function stx_energy2calchan, energy, gain = gain, offset = offset, elut_filename = elut_filename
 
   if total(abs([n_elements( gain ), n_elements(offset)] -[384,384])) ne 0 then $
-    stx_read_elut, gain, offset
+    stx_read_elut, gain, offset, elut_filename = elut_filename
     sz = size( energy, /dim)
     result = fltarr( [product(sz), 384] )
     for i=0,383 do result[ 0, i] = energy / gain[i] + offset[i]
