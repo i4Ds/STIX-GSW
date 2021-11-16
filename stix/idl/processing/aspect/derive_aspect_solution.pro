@@ -10,6 +10,7 @@
 ;
 ; Input       :
 ;   data      = a structure as returned by read_L1_data
+;   simu_data_file = name of the file with simulated data, including full absolute path
 ;
 ; Keywords    :
 ;   None.
@@ -21,25 +22,26 @@
 ;   2021-04-15, F. Schuller (AIP) : created
 ;   2021-06-17, FSc: changed from function to procedure, store results in input data structure
 ;   2021-07-06, FSc: renamed derive_aspect_solution to avoid conflict with previous function solve_aspect
+;   2021-11-15 - FSc: removed common block "config", pass full path to file with simulated data as input
 ;
 ;-
-pro derive_aspect_solution, data
-  common config   ; needed to find 'param_dir'
+pro derive_aspect_solution, data, simu_data_file
+
+  if n_params() lt 2 then message," SYNTAX: derive_aspect_solution, data, simu_data_file"
 
   ; Make sure that input data is a structure
-  if not is_struct(data) then begin
-    print,"ERROR: input variable is not a structure."
-    return
-  endif
+  if not is_struct(data) then message, " ERROR: input variable is not a structure."
 
-  rsol = get_solrad(data.UTC)
-  ; merged cubes - added 2021-05-12
-  restore, param_dir + 'SAS_simu_2500-6000.sav'    ; covers -400 to +400 mic along X' and Y'
-
+  ; Also check for existence of simu_data_file
+  if strmid(simu_data_file,strlen(simu_data_file)-4,4) ne '.sav' then simu_data_file += '.sav'
+  result = file_test(simu_data_file)
+  if not result then message," ERROR: File "+simu_data_file+" not found."
+  restore, simu_data_file
   nb_X = n_elements(all_X)  &  nb_Y = n_elements(all_Y)
   y_center = where(abs(all_Y) eq min(abs(all_Y)))  &  y_center = y_center[0]   ; index corresponding to closest to no-offset in orthogonal direction
 
   ; prepare array of results
+  rsol = get_solrad(data.UTC)
   nb = n_elements(rsol)
   x_sas = fltarr(nb)  &  y_sas = fltarr(nb)
   
@@ -80,8 +82,8 @@ pro derive_aspect_solution, data
     endif else x_CD = x_CD_tmp
     
     ; convert to SAS frame
-    x_sas[i] = (x_AB - x_CD) / sqrt(2.) * 1.e-6
-    y_sas[i] = (x_AB + x_CD) / sqrt(2.) * 1.e-6
+    x_sas[i] = -1.*(x_AB - x_CD) / sqrt(2.) * 1.e-6
+    y_sas[i] = -1.*(x_AB + x_CD) / sqrt(2.) * 1.e-6
   endfor
   
   ; Store results as arcsec in SRF in the data structure
