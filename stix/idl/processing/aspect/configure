@@ -9,24 +9,25 @@
 ;    common config, param_dir, def_calibfile, def_calfactor, data_dir, out_dir, simu_data_file, sas_version
 ;
 ;-
-common config, param_dir, def_calibfile, def_calfactor, data_dir, out_dir, simu_data_file, sas_version
+;; common config, param_dir, def_calibfile, def_calfactor, data_dir, out_dir, simu_data_file, sas_version
+;;;; commented out 2021-11-15: no common block anymore
 
-  ; Current version of the SAS pipeline
-  sas_version = getenv('SAS_VERSION')
+;  ; Current version of the SAS pipeline
+;  sas_version = getenv('SAS_VERSION')
   
-  ; I/O directories:
-   ; - location of some parameter files
-  param_dir = getenv('SAS_PARAM_DIR')
-  ; - default file for calibration (contains relative gains and biases)
-  def_calibfile = getenv('SAS_CALIBFILE')
-  ; - additional calibration factor
-  def_calfactor = getenv('SAS_CALFACTOR')
-  ; - location of the L1 HK data files
-  data_dir = getenv('SAS_DATA_DIR')
-  ; - Output directory
-  out_dir = getenv('SAS_OUT_DIR')
-  ; - name of the file with simulated data
-  simu_data_file = getenv('SAS_DATA_SIMU')
+;  ; I/O directories:
+;   ; - location of some parameter files
+;  param_dir = getenv('SAS_PARAM_DIR')
+;  ; - default file for calibration (contains relative gains and biases)
+;  def_calibfile = getenv('SAS_CALIBFILE')
+;  ; - additional calibration factor
+;  def_calfactor = getenv('SAS_CALFACTOR')
+;  ; - location of the L1 HK data files
+;  data_dir = getenv('SAS_DATA_DIR')
+;  ; - Output directory
+;  out_dir = getenv('SAS_OUT_DIR')
+;  ; - name of the file with simulated data
+;  simu_data_file = getenv('SAS_DATA_SIMU')
    
   ; Path to the SPICE kernels
   spice_dir = getenv('SPICE_DIR')
