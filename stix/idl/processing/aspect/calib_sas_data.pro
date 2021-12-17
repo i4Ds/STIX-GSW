@@ -45,5 +45,11 @@ pro calib_sas_data, data, calibfile, factor=factor
   for arm=0,3 do data.signal[arm,*] = (data.signal[arm,*] - bias[arm]*1.e-9) / gain[arm]
   ; re-normalisation (if needed)
   data.signal *= factor
+  ; store calibration factor in primary header
+  primary = data.primary
+  sxaddpar, primary, 'SAS_CALI', factor
+  data.primary = primary
+
+  ; Calibration is done:
   data._calibrated = 1
 end

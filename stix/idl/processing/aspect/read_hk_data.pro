@@ -102,6 +102,8 @@ function read_hk_data, infile, quiet=quiet
 
   ; Prepare result structure
   signal = [[asp_A0],[asp_A1],[asp_B0],[asp_B1]]
+  ; add a keyword in primary header to store calibration factor
+  sxaddpar, primary, 'SAS_CALI', 0., "Aspect signals calibration factor", before='HISTORY'
   ; also define attributes y_srf and z_srf where to store the results
   result = {times:res_times, UTC:res_utc, signal:transpose(signal), _calibrated:0, primary:primary, y_srf:0.*res_times, z_srf:0.*res_times}
   return,result
