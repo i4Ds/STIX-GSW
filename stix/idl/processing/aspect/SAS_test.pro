@@ -9,23 +9,26 @@
 
 print,"Reading L1 data file..."
 in_file = "solo_L1_stix-hk-maxi_20210401_V01.fits"
-data_dir = getenv('SAS_DATA_DIR')
+; data_dir = getenv('SAS_DATA_DIR')
+data_dir = '/store/data/STIX/L1_FITS_HK/'
 data = read_hk_data(data_dir + in_file, quiet=0)
 show_info, data
 
 print,"Calibrating data..."
 param_dir = getenv('SAS_PARAM_DIR')
-def_calibfile = getenv('SAS_CALIBFILE')
-calib_file = param_dir + def_calibfile
-cal_factor = 1.10   ; roughly OK for 2021 data
-calib_sas_data, data, calib_file, factor=cal_factor
+; def_calibfile = getenv('SAS_CALIBFILE')
+calib_file = param_dir + 'SAS_calib_20211005.sav'
+aperfile = param_dir + 'apcoord_FM_circ.sav'
+
+calib_sas_data, data, calib_file
+simu_data_file = param_dir + 'SAS_simu.sav'
+auto_scale_sas_data, data, simu_data_file, aperfile
 
 print,"Plotting the signals..."
 show_info, data
 plot4sig, data
 
 print,"Computing aspect solution..."
-simu_data_file = param_dir + getenv('SAS_DATA_SIMU')
 derive_aspect_solution, data, simu_data_file
 !p.multi = [0,1,2]
 utplot, data.utc, data.y_srf, /xs, /ynoz, ytit='!6Y!dSRF !n [arcsec]',chars=1.4
@@ -33,4 +36,5 @@ utplot, data.utc, data.z_srf, /xs, /ynoz, ytit='!6Z!dSRF !n [arcsec]',chars=1.4
 
 print,"End-to-end processing test..."
 out_dir = getenv('SAS_OUT_DIR')
-process_SAS_data, data_dir + in_file, out_dir + 'L2_SAS_test_new.fits', calib_file, simu_data_file, cal_factor=cal_factor
+cal_factor = 1.10   ; starting value, roughly OK for 2021 data
+process_SAS_data, data_dir + in_file, out_dir + 'L2_SAS_test_new.fits', calib_file, simu_data_file, aperfile, cal_factor=cal_factor
