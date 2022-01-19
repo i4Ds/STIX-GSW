@@ -13,7 +13,8 @@
 ;   simu_data_file = name of the file with simulated data, including full absolute path
 ;
 ; Keywords    :
-;   None.
+;   interpol_r  = if set, results are computed for the two nearest values of r_sol, and the weighted average
+;                 (R2-r)/(R2-R1) * (X1,Y1) + (r-R1)/(R2-R1) * (X2,Y2) is returned.
 ;
 ; Output      : 
 ;   Results are stored in attributes y_srf and z_srf of the input structure.
@@ -23,10 +24,95 @@
 ;   2021-06-17, FSc: changed from function to procedure, store results in input data structure
 ;   2021-07-06, FSc: renamed derive_aspect_solution to avoid conflict with previous function solve_aspect
 ;   2021-11-15 - FSc: removed common block "config", pass full path to file with simulated data as input
+;   2022-01-18, FSc: added optional arguments 'interpol_r' and 'interpol_xy'; major rewriting
 ;
 ;-
-pro derive_aspect_solution, data, simu_data_file
 
+function solve_aspect_one_plane, inputA_B, inputC_D, plane_AB, plane_CD, all_X, all_Y, max_iter=max_iter, delta_conv=delta_conv, interpol_xy=interpol_xy
+  ; find aspect solution in a X',Y' plane, for a fixed value of solar radius
+  ;
+  default, max_iter, 10      ; stop after iterations...
+  default, delta_conv, 10.   ; or if successive solutions don't differ by more than 10 mic
+
+  ; Test: if inputA_B or inputC_D is not within the range covered by simulated data,
+  ; then we cannot derive any solution: set results to NaN
+  if inputA_B lt min(plane_AB) or inputC_D lt min(plane_CD) or $
+    inputA_B gt max(plane_AB) or inputC_D gt max(plane_CD) then begin
+    x_AB = float('NaN')
+    x_CD = float('NaN')
+  endif else begin
+    ; 1st: look for optimal offset along A-B assuming no offset along C-D
+    y_center = where(abs(all_Y) eq min(abs(all_Y)))  &  y_center = y_center[0]   ; or closest to no-offset
+    d_sigAB = inputA_B - plane_AB[*,y_center]
+    tmpAB = where(abs(d_sigAB) eq min(abs(d_sigAB)))  &  tmpAB = tmpAB[0]
+    x_AB = all_X[tmpAB]
+
+    ; 2nd: use this 1st estimate to find the optimal offset along C-D
+    dif_Y = all_Y - x_AB
+    ind_Y_CD = where(abs(dif_Y) eq min(abs(dif_Y)))  &  ind_Y_CD = ind_Y_CD[0]
+    d_sigCD = inputC_D - plane_CD[*,ind_Y_CD]
+    tmpCD = where(abs(d_sigCD) eq min(abs(d_sigCD)))  &  tmpCD = tmpCD[0]
+    x_CD = all_X[tmpCD]
+
+    ; Iterate until convergence or max. number of iterations
+    do_more = 1  &  n_iter=0
+    while do_more do begin
+      x_AB_prev = x_AB
+      x_CD_prev = x_CD
+      ; refine solution along A-B using the found x_CD
+      dif_Y = all_Y - x_CD
+      ind_Y_AB = where(abs(dif_Y) eq min(abs(dif_Y)))  &  ind_Y_AB = ind_Y_AB[0]
+      d_sigAB = inputA_B - plane_AB[*,ind_Y_AB]
+      tmpAB = where(abs(d_sigAB) eq min(abs(d_sigAB)))  &  tmpAB = tmpAB[0]
+      x_AB = all_X[tmpAB]
+
+      ; and refine solution along C-D using new solution along A-B
+      if x_AB ne X_AB_prev then begin
+        dif_Y = all_Y - x_AB
+        ind_Y_CD = where(abs(dif_Y) eq min(abs(dif_Y)))  &  ind_Y_CD = ind_Y_CD[0]
+        d_sigCD = inputC_D - plane_CD[*,ind_Y_CD]
+        tmpCD = where(abs(d_sigCD) eq min(abs(d_sigCD)))  &  tmpCD = tmpCD[0]
+        x_CD = all_X[tmpCD]
+      endif else x_CD = x_CD_prev
+      sol_diff = sqrt((x_AB-x_AB_prev)^2 + (x_CD-x_CD_prev)^2)
+      n_iter += 1
+      if n_iter ge max_iter or sol_diff lt delta_conv then do_more = 0
+    endwhile
+
+    if keyword_set(interpol_XY) then begin
+      ; refine solution by interpolating between two nearest points on the grid
+      delta_AB = inputA_B - plane_AB[tmpAB,ind_Y_AB]
+      ; by construction, plane_AB[*,ind_Y] is monotonically decreasing, therefore:
+      if delta_AB lt 0 then begin
+        ind_AB_pos = max([0,tmpAB-1])  &  ind_AB_neg = tmpAB
+      endif else begin
+        ind_AB_pos = tmpAB  &  ind_AB_neg = min([tmpAB+1,1000])
+      endelse
+      delta_pos = inputA_B - plane_AB[ind_AB_pos,ind_Y_AB]
+      delta_neg = plane_AB[ind_AB_neg,ind_Y_AB] - inputA_B
+      x_AB = delta_pos / (delta_pos+delta_neg) * all_X[ind_AB_neg] + delta_neg / (delta_pos+delta_neg) * all_X[ind_AB_pos]
+
+      ; Same game for x_CD
+      delta_CD = inputC_D - plane_CD[tmpCD,ind_Y_CD]
+      if delta_CD lt 0 then begin
+        ind_CD_pos = tmpCD-1  &  ind_CD_neg = tmpCD
+      endif else begin
+        ind_CD_pos = tmpCD  &  ind_CD_neg = tmpCD+1
+      endelse
+      delta_pos = inputC_D - plane_CD[ind_CD_pos,ind_Y_CD]
+      delta_neg = plane_CD[ind_CD_neg,ind_Y_CD] - inputC_D
+      x_CD = delta_pos / (delta_pos+delta_neg) * all_X[ind_CD_neg] + delta_neg / (delta_pos+delta_neg) * all_X[ind_CD_pos]
+    endif
+  endelse
+
+  result = {x_AB:x_AB, x_CD:x_CD}
+  return,result
+end
+
+pro derive_aspect_solution, data, simu_data_file, interpol_r=interpol_r, interpol_xy=interpol_xy
+  default, interpol_r, 0
+  default, interpol_xy, 0
+  
   if n_params() lt 2 then message," SYNTAX: derive_aspect_solution, data, simu_data_file"
 
   ; Make sure that input data is a structure
@@ -37,7 +123,6 @@ pro derive_aspect_solution, data, simu_data_file
   result = file_test(simu_data_file)
   if not result then message," ERROR: File "+simu_data_file+" not found."
   restore, simu_data_file
-  nb_X = n_elements(all_X)  &  nb_Y = n_elements(all_Y)
   y_center = where(abs(all_Y) eq min(abs(all_Y)))  &  y_center = y_center[0]   ; index corresponding to closest to no-offset in orthogonal direction
 
   ; prepare array of results
@@ -53,33 +138,29 @@ pro derive_aspect_solution, data, simu_data_file
     inputA_B = (data.signal[0,i]- data.signal[1,i])*1.e9
     inputC_D = (data.signal[2,i]- data.signal[3,i])*1.e9
 
-    ; 1st: look for optimal offset along A-B assuming no offset along C-D      
-    d_sigAB = inputA_B - sigA_sigB[*,y_center,ind_r]
-    tmpAB = where(abs(d_sigAB) eq min(abs(d_sigAB)))  &  tmpAB = tmpAB[0]
-    x_AB_tmp = all_X[tmpAB]
-
-    ; 2nd: use this 1st estimate to find the optimal offset along C-D
-    dif_Y = all_Y - x_AB_tmp
-    ind_Y = where(abs(dif_Y) eq min(abs(dif_Y)))  &  ind_Y = ind_Y[0]
-    d_sigCD = inputC_D - sigC_sigD[*,ind_Y,ind_r]
-    tmpCD = where(abs(d_sigCD) eq min(abs(d_sigCD)))  &  tmpCD = tmpCD[0]
-    x_CD_tmp = all_X[tmpCD]
-
-    ; 3rd: refine solution along A-B using the found x_CD
-    dif_Y = all_Y - x_CD_tmp
-    ind_Y = where(abs(dif_Y) eq min(abs(dif_Y)))  &  ind_Y = ind_Y[0]
-    d_sigAB = inputA_B - sigA_sigB[*,ind_Y,ind_r]
-    tmpAB = where(abs(d_sigAB) eq min(abs(d_sigAB)))  &  tmpAB = tmpAB[0]
-    x_AB = all_X[tmpAB]
-
-    ; 4th: finally refine solution along C-D using final solution along A-B
-    if x_AB ne X_AB_tmp then begin
-      dif_Y = all_Y - x_AB
-      ind_Y = where(abs(dif_Y) eq min(abs(dif_Y)))  &  ind_Y = ind_Y[0]
-      d_sigCD = inputC_D - sigC_sigD[*,ind_Y,ind_r]
-      tmpCD = where(abs(d_sigCD) eq min(abs(d_sigCD)))  &  tmpCD = tmpCD[0]
-      x_CD = all_X[tmpCD]
-    endif else x_CD = x_CD_tmp
+    if keyword_set(interpol_r) then begin
+      ; find the 2nd closest r_sol
+      if rsol[i]-all_r[ind_r] lt 0. then begin
+        ind_r1 = ind_r -1  &  ind_r2 = ind_r
+      endif else begin
+        ind_r1 = ind_r  &  ind_r2 = ind_r +1
+      endelse
+      plane_AB1 = reform(sigA_sigB[*,*,ind_r1])
+      plane_CD1 = reform(sigC_sigD[*,*,ind_r1])
+      res_AB_CD_1 = solve_aspect_one_plane(inputA_B, inputC_D, plane_AB1, plane_CD1, all_X, all_Y, interpol_xy=interpol_xy)
+      x_AB1 = res_AB_CD_1.x_AB  &  x_CD1 = res_AB_CD_1.x_CD
+      plane_AB2 = reform(sigA_sigB[*,*,ind_r2])
+      plane_CD2 = reform(sigC_sigD[*,*,ind_r2])
+      res_AB_CD_2 = solve_aspect_one_plane(inputA_B, inputC_D, plane_AB2, plane_CD2, all_X, all_Y, interpol_xy=interpol_xy)
+      x_AB2 = res_AB_CD_2.x_AB  &  x_CD2 = res_AB_CD_2.x_CD
+      x_AB = ((all_r[ind_r2]-rsol[i]) * x_AB1 + (rsol[i]-all_r[ind_r1]) * x_AB2) / (all_r[ind_r2]-all_r[ind_r1])
+      x_CD = ((all_r[ind_r2]-rsol[i]) * x_CD1 + (rsol[i]-all_r[ind_r1]) * x_CD2) / (all_r[ind_r2]-all_r[ind_r1])
+    endif else begin
+      plane_AB = reform(sigA_sigB[*,*,ind_r])
+      plane_CD = reform(sigC_sigD[*,*,ind_r])
+      res_AB_CD = solve_aspect_one_plane(inputA_B, inputC_D, plane_AB, plane_CD, all_X, all_Y, interpol_xy=interpol_xy)
+      x_AB = res_AB_CD.x_AB  &  x_CD = res_AB_CD.x_CD
+    endelse
     
     ; convert to SAS frame
     x_sas[i] = -1.*(x_AB - x_CD) / sqrt(2.) * 1.e-6
