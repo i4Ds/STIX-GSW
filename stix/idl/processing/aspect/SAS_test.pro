@@ -15,8 +15,9 @@ data = read_hk_data(data_dir + in_file, quiet=0)
 show_info, data
 
 print,"Calibrating data..."
-param_dir = getenv('SAS_PARAM_DIR')
+; param_dir = getenv('SAS_PARAM_DIR')
 ; def_calibfile = getenv('SAS_CALIBFILE')
+param_dir = '/home/fschuller/Documents/IDL/STIX-GSW/stix/idl/processing/aspect/SAS_param/'
 calib_file = param_dir + 'SAS_calib_20211005.sav'
 aperfile = param_dir + 'apcoord_FM_circ.sav'
 
@@ -29,7 +30,7 @@ show_info, data
 plot4sig, data
 
 print,"Computing aspect solution..."
-derive_aspect_solution, data, simu_data_file
+derive_aspect_solution, data, simu_data_file, interpol_r=1, interpol_xy=1
 !p.multi = [0,1,2]
 utplot, data.utc, data.y_srf, /xs, /ynoz, ytit='!6Y!dSRF !n [arcsec]',chars=1.4
 utplot, data.utc, data.z_srf, /xs, /ynoz, ytit='!6Z!dSRF !n [arcsec]',chars=1.4

@@ -16,7 +16,7 @@ pro auto_scale_sas_data, data, simu_data_file, aperfile, n_iter=n_iter, do_plot=
   ; Compute first solution on a 4x smoothed version of the data
   smo_data = data
   for i=0,1 do smooth_data, smo_data
-  derive_aspect_solution, smo_data, simu_data_file
+  derive_aspect_solution, smo_data, simu_data_file, interpol_r=0, interpol_xy=0
   
   ; Compute mean correction factor needed to match simulated with observed signals
   xx = smo_data.z_srf / 0.375e6  ; convert back from arcsec to mic
@@ -30,7 +30,7 @@ pro auto_scale_sas_data, data, simu_data_file, aperfile, n_iter=n_iter, do_plot=
   
   for i=1, n_iter do begin
     smo_data.signal *= mean(corr)
-    derive_aspect_solution, smo_data, simu_data_file
+    derive_aspect_solution, smo_data, simu_data_file, interpol_r=0, interpol_xy=0
     xx = smo_data.z_srf / 0.375e6  ; convert back from arcsec to mic
     yy = smo_data.y_srf / 0.375e6
     simu_data = compute_sas_signals(xx, yy, smo_data.UTC, aperfile, /quiet)
@@ -41,7 +41,7 @@ pro auto_scale_sas_data, data, simu_data_file, aperfile, n_iter=n_iter, do_plot=
   endfor
 
   data.signal *= cumul_corr
-  derive_aspect_solution, data, simu_data_file
+  derive_aspect_solution, data, simu_data_file, interpol_r=0, interpol_xy=0
   xx = data.z_srf / 0.375e6
   yy = data.y_srf / 0.375e6
   simu_data = compute_sas_signals(xx, yy, data.UTC, aperfile, /quiet)

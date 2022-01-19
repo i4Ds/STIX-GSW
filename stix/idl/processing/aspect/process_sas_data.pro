@@ -27,6 +27,6 @@ pro process_SAS_data, infile, outfile, calibfile, simu_data_file, aperfile, cal_
   data = read_hk_data(infile, quiet=quiet)
   calib_sas_data, data, calibfile, factor=cal_factor
   auto_scale_sas_data, data, simu_data_file, aperfile
-  derive_aspect_solution, data, simu_data_file
+  derive_aspect_solution, data, simu_data_file, interpol_r=1, interpol_xy=1
   write_aspect_solution, data, outfile, quiet=quiet
 end
