@@ -116,7 +116,7 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, ph_energy
 
     stx_write_ospex_fits, spectrum = spectrum_in, srmdata = srm,  specpar = specpar, srm_atten =srm_atten, specfilename = specfilename, srmfilename = srmfilename, ph_edges = ph_edges
 
-    ospex_obj->set, spex_file_reader = 'stx_read'
+    ospex_obj->set, spex_file_reader = 'stx_read_sp'
     ospex_obj->set, spex_specfile = specfilename   ; name of your spectrum file
     ospex_obj->set, spex_drmfile = srmfilename
 
