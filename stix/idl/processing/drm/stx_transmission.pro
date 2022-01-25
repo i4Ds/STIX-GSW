@@ -35,7 +35,7 @@
 ;    31-Jul-2017 - ECMD (Graz), initial release
 ;
 ;-
-function stx_transmission, ein, det_mask, xcom = xcom, verbose = verbose
+function stx_transmission, ein, det_mask, attenuator = attenuator, xcom = xcom, transmission_table = transmission_table, sbo = sbo, verbose = verbose
 
   default, det_mask, intarr(32)+1
   default, xcom, 0
@@ -70,34 +70,28 @@ function stx_transmission, ein, det_mask, xcom = xcom, verbose = verbose
     ;Kapton C22H10N2O5  1: 0.026362, 6: 0.691133, 7: 0.073270, 8: 0.209235  1.43
     rho_kapton  = 1.43d0
     tr_kapton =   ((xsec(emin, 1,type,/cm2perg, /use_xcom, error=error)*0.026362d0 + xsec(emin, 6,type,/cm2perg, /use_xcom, error=error)*0.691133d0 $
-      +  xsec(emin, 7,type,/use_xcom,/cm2perg, error=error)*0.073270d0 + xsec(emin, 8,type,/cm2perg,/use_xcom, error=error)*0.209235d0  ) * rho_kapton/costheta)
+      +  xsec(emin, 7,type,/cm2perg, error=error)*0.073270d0 + xsec(emin, 8,type,/cm2perg, error=error)*0.209235d0  ) * rho_kapton/costheta)
 
     ;Mylar  C10H8O4 1: 0.041959, 6: 0.625017, 8: 0.333025 1.4
-    rho_mylar  = 1.38d0
+    rho_mylar  = 1.4d0
     tr_mylar =   ((xsec(emin, 1,type,/cm2perg, /use_xcom, error=error)*0.041959d0 + xsec(emin, 6,type,/cm2perg, /use_xcom, error=error)*0.625017d0 $
-      +  xsec(emin, 8,type,/cm2perg, /use_xcom,error=error)*0.333025d0 ) * rho_mylar/costheta)
+      +  xsec(emin, 8,type,/cm2perg, error=error)*0.333025d0 ) * rho_mylar/costheta)
 
-    ;pet
-    rho_pet = 1.370
-    tr_pet = (xsec(emin, 1,type,/cm2perg, /use_xcom, error=error)*0.041960+  xsec(emin, 6,type,/cm2perg, /use_xcom, error=error)* 0.625016$
-      + xsec(emin, 8,type,/use_xcom,/cm2perg, error=error)* 0.333024)*rho_pet/costheta
     ;SolarBlack (Carbon)    1: 0.002 8: 0.415, 20: 0.396, 15: 0.187 3.2
-
-
     rho_sb = 3.2
-    tr_sbo =    ((xsec(emin, 1,type,/cm2perg, /use_xcom, error=error)*0.002d0 + xsec(emin, 8,type,/cm2perg, /use_xcom, error=error)*0.415d0 $
+    tr_sbc =    ((xsec(emin, 1,type,/cm2perg, /use_xcom, error=error)*0.002d0 + xsec(emin, 8,type,/cm2perg, /use_xcom, error=error)*0.415d0 $
       +  xsec(emin, 20,type,/cm2perg, /use_xcom, error=error)*0.396d0 + xsec(emin, 15,type,/cm2perg, /use_xcom, error=error)* 0.187d0) * rho_sb/costheta)
 
 
     ;SolarBlack (Oxygen)  4C2CaP  8: 0.301 20: 0.503 15: 0.195  3.2
-    tr_sbc =   ((  xsec(emin, 6,type, /use_xcom,/cm2perg, error=error)*0.301 $
+    tr_sbo =   ((  xsec(emin, 8,type,/cm2perg, error=error)*0.301 $
       +  xsec(emin, 20,type,/cm2perg, /use_xcom, error=error)*0.503 + xsec(emin, 15,type,/cm2perg, /use_xcom, error=error)* 0.195) * rho_sb/costheta)
 
     tr_sb = keyword_set(sbo) ? tr_sbo : tr_sbc
 
     ;Tellurium dioxide TeO2  51: 0.7995, 8: 0.2005 5.670
     rho_dl = 5.670
-    tr_dl =  (  (xsec(emin, 51,type,/cm2perg, /use_xcom, error=error)*0.7995088158691722 + xsec(emin, 8,type,/cm2perg, /use_xcom, error=error)*0.20049124678825841) * rho_dl/costheta)
+    tr_dl =  (  (xsec(emin, 51,type,/cm2perg, /use_xcom, error=error)*0.7995 + xsec(emin, 8,type,/cm2perg, /use_xcom, error=error)*0.2005 ) * rho_dl/costheta)
 
     ;Front window Compound  -
     ;- SolarBlack 0.005 mm
@@ -130,9 +124,8 @@ function stx_transmission, ein, det_mask, xcom = xcom, verbose = verbose
     ; Mylar = 0.25 x 20 + 3 mils
     ; Kapton = 3 mils
     ; Dacron = not incuded
-    ;mli = (1d0/exp( (tr_al)*(42d0 * 1000.d0*angstrom) )) * ( 1.d0/exp( (tr_kapton)*(3d0*mil)  )) * (1d0/exp( (tr_mylar)*(20d0*.25d0*mil + 3d0*mil)))
-
-    mli = (1d0/exp( (tr_al)*(42d0 * 1000.d0*angstrom )))* (1.d0/exp(tr_pet*21.*0.005 *mm))* ( 1.d0/exp( (tr_kapton)*(6d0*mil)  )) * (1d0/exp( (tr_mylar) *(20d0*.25d0*mil)))
+    ;
+    mli = (1d0/exp( (tr_al)*(42d0 * 1000.d0*angstrom) )) * ( 1.d0/exp( (tr_kapton)*(3d0*mil)  )) * (1d0/exp( (tr_mylar) *(20d0*.25d0*mil + 3d0*mil)))
 
     ;Calibration Foil   -
     ;-  AL  4 x 1000 Å
@@ -144,7 +137,6 @@ function stx_transmission, ein, det_mask, xcom = xcom, verbose = verbose
 
 
     tot_coarse = fw*rw*dem_entrance*mli*cal_foil*dead_layer
-
     tot_fine = tot_coarse*grid_covers
 
     idx_covered_grids = [10,11,12,16,17,18]
@@ -153,15 +145,15 @@ function stx_transmission, ein, det_mask, xcom = xcom, verbose = verbose
     for i=0, n_elements(idx_covered_grids)-1 do  tot_detector[*, idx_covered_grids[i]]  = tot_fine
 
 
-    tot = total(reform(tot_detector[*,idx_det]/count_det,n_elements(ein),n_elements(idx_det)),2)
+    tot = total(tot_detector[*,idx_det]/count_det,2)
 
 
     if attenuator then begin
       tot *= att
+
     endif
 
   endif else begin
-    
     ;otherwise use the transmission values from the CSV file
     if file_exist( transmission_table ) then begin
       transmission_table = transmission_table
@@ -178,9 +170,9 @@ function stx_transmission, ein, det_mask, xcom = xcom, verbose = verbose
 
     energy = transmission.(0)
 
-    tot_file = fltarr(n_elements(energy))
+    tot = fltarr(n_elements(energy))
 
-    for i =0, count_det-1 do tot_file += transmission.(idx_det[i]+1)/count_det
+    for i =0, count_det-1 do tot += transmission.(idx_det[i]+1)/count_det
 
     if attenuator then begin
 
@@ -191,15 +183,15 @@ function stx_transmission, ein, det_mask, xcom = xcom, verbose = verbose
 
       att = transmission_components.(4)
 
-      tot *= tot_file
+      tot *= att
     endif
 
 
     if  ~array_equal(energy, ein) then begin
-      tot_file=10^(interpol(alog10(tot_file),alog10(energy),alog10(ein)))
+      tot=10^(interpol(alog10(tot),alog10(energy),alog10(ein)))
     endif
 
-    tot = tot_file
+
   endelse
 
 
@@ -207,6 +199,3 @@ function stx_transmission, ein, det_mask, xcom = xcom, verbose = verbose
 
 
 end
-
-
-

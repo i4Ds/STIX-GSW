@@ -96,7 +96,7 @@ function stx_build_pixel_drm, ct_energy_edges, pixel_mask, ph_energy_edges = ph_
 
   det_mask = total(pixel_mask,1) <1
   smatrix = drm.smatrix
-  transmission = stx_transmission(drm.emean, det_mask)
+  transmission = stx_transmission(drm.emean, det_mask, attenuator = attenuator)
   dim_drm = size(/dim, smatrix) > 1
 
   smatrix = smatrix * rebin( transpose(transmission), dim_drm)

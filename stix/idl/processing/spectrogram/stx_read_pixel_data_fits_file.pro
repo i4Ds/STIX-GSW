@@ -1,37 +1,48 @@
-pro stx_read_pixel_data_fits_file, fits_path, time_shift, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
+pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha=alpha, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
   control_header= control_header, energy_str = energy, energy_header = energy_header, t_axis = t_axis, e_axis = e_axis, $
   energy_shift = energy_shift, use_discriminators = use_discriminators
 
+  default, alpha, 0
   default, time_shift, 0
   default, energy_shift, 0
   default, use_discriminators, 1
 
-  !null = mrdfits(fits_path, 0, primary_header)
-  control = mrdfits(fits_path, 1, control_header, /unsigned)
-  data = mrdfits(fits_path, 2, data_header, /unsigned)
-  energy = mrdfits(fits_path, 3, energy_header, /unsigned)
+  resolve_routine,'mrdfits',/compile_full_file,/either
+
+  !null = stx_read_fits(fits_path, 0, primary_header)
+  control = stx_read_fits(fits_path, 'control', control_header)
+  data = stx_read_fits(fits_path, 'data', data_header)
+  energy = stx_read_fits(fits_path, 'energies', energy_header)
 
 
-  hstart_time = (sxpar(primary_header, 'DATE_BEG'))
+  hstart_time = (sxpar(primary_header, 'date_beg'))
+  processing_level = (sxpar(primary_header, 'LEVEL'))
+  if strcompress(processing_level,/remove_all) eq 'L1A' then alpha = 1
 
   ; create time object
   stx_time_obj = stx_time()
   stx_time_obj.value =  anytim(hstart_time , /mjd)
   start_time = stx_time_add(stx_time_obj, seconds = time_shift)
 
- 
-  t_start = stx_time_add( start_time,  seconds = [ data.time - data.timedel/2.] )
-  t_end = stx_time_add( start_time,  seconds = [ data.time + data.timedel/2.] )
-  t_mean = stx_time_add( start_time,  seconds = [data.time] )
+  if ~keyword_set(alpha) then begin
+    t_start = stx_time_add( start_time,  seconds = [ data.time/10. - data.timedel/20.] )
+    t_end = stx_time_add( start_time,  seconds = [ data.time/10. + data.timedel/20.] )
+    t_mean = stx_time_add( start_time,  seconds = [data.time/10.] )
+  endif else begin
+    t_start = stx_time_add( start_time,  seconds = [ data.time - data.timedel/2.] )
+    t_end = stx_time_add( start_time,  seconds = [ data.time + data.timedel/2.] )
+    t_mean = stx_time_add( start_time,  seconds = [data.time] )
+  endelse
 
- 
+
+
   t_axis  = stx_time_axis(n_elements(data.time))
   t_axis.mean =  t_mean
   t_axis.time_start = t_start
   t_axis.time_end = t_end
   t_axis.DURATION = data.timedel
 
-  
+
   if control.energy_bin_mask[0] || control.energy_bin_mask[-1] and ~keyword_set(use_discriminators) then begin
 
     control.energy_bin_mask[0] = 0
@@ -42,6 +53,10 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, primary_header = prima
     data.counts_err[0,*,*,*] = 0.
     data.counts_err[-1,*,*,*] = 0.
 
+  endif
+  if ~keyword_set(alpha) then begin
+    new_rcr =  fix((data.rcr).substring(-1))
+   data =  rep_tag_value(data, new_rcr, 'RCR') 
   endif
 
   energies_used = where( control.energy_bin_mask eq 1 , nenergies)

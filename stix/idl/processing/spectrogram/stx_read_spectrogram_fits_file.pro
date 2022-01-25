@@ -1,34 +1,52 @@
 pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
   control_header= control_header, energy_str = energy, energy_header = energy_header, t_axis = t_axis, e_axis = e_axis, $
   energy_shift = energy_shift, use_discriminators = use_discriminators, keep_short_bins = keep_short_bins, replace_doubles = replace_doubles, $
-  apply_time_shift = apply_time_shift
+  shift_duration = shift_duration
 
   default, time_shift, 0
   default, energy_shift, 0
   default, use_discriminators, 1
   default, replace_doubles, 0
   default, keep_short_bins, 0
-  default, apply_time_shift , 1
 
-  !null = mrdfits(fits_path, 0, primary_header, /silent)
-  control = mrdfits(fits_path, 1, control_header, /unsigned, /silent)
-  data = mrdfits(fits_path, 2, data_header, /unsigned, /silent)
-  energy = mrdfits(fits_path, 3, energy_header, /unsigned, /silent)
+  resolve_routine,'mrdfits',/compile_full_file,/either
+
+  !null = stx_read_fits(fits_path, 0, primary_header)
+  control = stx_read_fits(fits_path, 'control', control_header)
+  data = stx_read_fits(fits_path, 'data', data_header)
+  energy = stx_read_fits(fits_path, 'energies', energy_header)
+
 
   n_time = n_elements(data.time)
 
   hstart_time = (sxpar(primary_header, 'DATE_BEG'))
 
+  processing_level = (sxpar(primary_header, 'LEVEL'))
+  if strcompress(processing_level,/remove_all) eq 'L1A' then alpha = 1
+
+
+  trigger_zero = (sxpar(data_header, 'TZERO3'))
+  new_triggers = float(trigger_zero +data.triggers)
+  data= rep_tag_value(data, 'TRIGGERS', new_triggers)
   ;TO BE ADDED WHEN FULL_RESOLUTION KEWORD IS INCUDED
   ;  full_resolution = (sxpar(primary_header, 'FULL_RESOLUTION'))
   ;
   ;if ~full_resolution  and apply_time_shift then begin
   ;    message, /info, 'For time shift compensation full archive buffer time resoultion files are needed.'
   ;endif
+  
+  duration_shift_needed = (anytim(hstart_time) lt anytim('2021-12-09T00:00:00')) ? 1 : 0
+  
+  default, shift_duration, duration_shift_needed
+
 
   if ~keyword_set(keep_short_bins) and (anytim(hstart_time) lt anytim('2020-11-25T00:00:00') ) then $
     message, 'Automatic short bin removal should not be attempted on observations before 25-Nov-20'
-  if apply_time_shift then begin
+
+  if ~keyword_set(shift_duration) and (anytim(hstart_time) gt anytim('2021-12-09T00:00:00') ) then $
+    message, 'Shift of duration with respect to time bins is no longer needed after 09-Dec-21'
+
+  if shift_duration then begin
 
     ;shift counts and triggers by one time step
     counts = data.counts
@@ -60,6 +78,7 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
     counts_err = data.counts_err
     triggers = data.triggers
     triggers_err = data.triggers_err
+    triggers_err = sqrt(data.triggers)
     duration = (data.timedel)
     time_bin_center = (data.time)
 
@@ -110,12 +129,20 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
 
   endif
 
+  if alpha then begin
+
+    rcr = replicate(control.rcr, n_time)
+  endif else begin
+    rcr = fix((data.rcr).substring(-1))
+  endelse
+
   data = {time: time_bin_center,$
     timedel:duration , $
     triggers:triggers, $
     triggers_err: triggers_err,$
     counts:counts ,$
     counts_err: counts_err ,$
+    rcr: rcr,$
     control_index:(data.control_index)[0:-2]}
 
 

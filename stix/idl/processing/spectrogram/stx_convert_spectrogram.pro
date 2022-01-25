@@ -1,5 +1,5 @@
 pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, time_shift = time_shift, energy_shift = energy_shift, distance = distance, $
-  flare_location= flare_location, elut_filename = elut_filename, replace_doubles = replace_doubles, keep_short_bins = keep_short_bins, ospex_obj = ospex_obj
+  flare_location= flare_location, elut_filename = elut_filename, replace_doubles = replace_doubles, keep_short_bins = keep_short_bins, apply_time_shift = apply_time_shift, ospex_obj = ospex_obj
 
 
   default, time_shift, 0.
@@ -12,7 +12,8 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
 
   stx_read_spectrogram_fits_file, fits_path_data, time_shift, primary_header = primary_header, data_str = data_str, data_header = data_header, control_str = control_str, $
     control_header= control_header, energy_str = energy_str, energy_header = energy_header, t_axis = t_axis, energy_shift = energy_shift,  e_axis = e_axis , use_discriminators = 0,$
-    replace_doubles = replace_doubles, keep_short_bins = keep_short_bins
+    replace_doubles = replace_doubles, keep_short_bins = keep_short_bins, shift_duration = shift_duration
+
 
   data_level = 4
 
@@ -65,6 +66,8 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
 
    triggers =  reform(counts_spec,[n_energies, n_times]) 
  
+   rcr = data_str.rcr
+ 
   ;insert the information from the telemetry file into the expected stx_fsw_sd_spectrogram structure
   spectrogram = { $
     type          : "stx_fsw_sd_spectrogram", $
@@ -74,6 +77,7 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
     energy_axis   : e_axis, $
     pixel_mask    : pixel_mask_used , $
     detector_mask : detector_mask_used, $
+    rcr           : rcr, $
     error         : counts_err}
 
   data_dims = lonarr(4)
@@ -81,8 +85,19 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
   data_dims[1] = 1
   data_dims[2] = 1
   data_dims[3] = n_times
+ 
+ ;get the rcr states and the times of rcr changes from the ql_lightcurves structure
+  ut_rcr = stx_time2any(t_axis.time_start) 
+  
 
-  stx_convert_science_data2ospex, spectrogram = spectrogram, data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, $
+
+  find_changes, rcr, index, state, count=count
+
+  ;add the rcr information to a specpar structure so it can be incuded in the spectrum FITS file
+  specpar = { sp_atten_state :  {time:ut_rcr[index], state:state} }
+  
+
+  stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar,data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, $
     dist_factor = dist_factor, flare_location= flare_location, eff_ewidth = eff_ewidth, ospex_obj = ospex_obj
 
 end

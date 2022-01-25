@@ -40,8 +40,8 @@
 ;       23-Sep-2014 – ECMD (Graz), initial release
 ;       12-Dec-2014 – ECMD (Graz), fixed dimensions to agree with new standard index order of count(energy, pixel, detector, time)
 ;                                  Now using rate rather than counts as the data units
-;       26-nov-2017 - RAS   (GSFC), Get ph_edges from srm structure if passed
-;       03-dec-2018 - ECMD  (Graz), include information for multiple attenuation states
+;       26-Nov-2017 - RAS   (GSFC), Get ph_edges from srm structure if passed
+;       03-Dec-2018 - ECMD  (Graz), include information for multiple attenuation states
 ;
 ;
 ;-

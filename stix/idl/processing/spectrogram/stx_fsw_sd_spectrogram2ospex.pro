@@ -78,8 +78,7 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, ph_energy
   srm = stx_build_pixel_drm(ct_edges, pixel_mask,  ph_energy_edges = ph_edges, grid_factor = grid_factor, dist_factor = dist_factor, _extra = _extra)
 
 
-  ;rcr_states = specpar.sp_atten_state.state
-  rcr_states = intarr(20)
+  rcr_states = specpar.sp_atten_state.state
   rcr_states = rcr_states[UNIQ(rcr_states, SORT(rcr_states))]
   nrcr_states = n_elements(rcr_states)
 
@@ -102,13 +101,12 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, ph_energy
     utime = transpose([stx_time2any( spectrogram.time_axis.time_start )])
     ; spectrogram.ltime = livetime_fraction*transpose(rebin(spectrogram.t_axis.duration,ntimes,32))
     ;spectrogram structure for passing to fits writer routine
-    ;NB currently attenuator state is not passed in so it is set to 0 here
     spectrum_in = { type              : 'stx_spectrogram', $
       data              : spectrogram.counts, $
       t_axis            : spectrogram.time_axis, $
       e_axis            : spectrogram.energy_axis, $
       ltime             : livetime_fraction, $
-      attenuator_state  : 0 , $
+      attenuator_state  : spectrogram.rcr , $
       error             : spectrogram.error }
 
     default, specfilename, 'stx_spectrum_' + time2file( utime[0] ) + '.fits'
@@ -141,8 +139,8 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, ph_energy
   endelse
 
   ;plot the spectrogram data
-  ospex_obj-> plotman, class='spex_data', /pl_spec, spex_units='flux', colortable=3, /log_scale, $
-    yrange=[ ct_edges[0], ct_edges[-1] ], /yst, plotman_obj=pobj
+;  ospex_obj-> plotman, class='spex_data', /pl_spec, spex_units='flux', colortable=3, /log_scale, $
+;    yrange=[ ct_edges[0], ct_edges[-1] ], /yst, plotman_obj=pobj
 
   return, ospex_obj
 end

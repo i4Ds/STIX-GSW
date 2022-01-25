@@ -1,4 +1,4 @@
-pro stx_convert_science_data2ospex, spectrogram = spectrogram, data_level = data_level, data_dims = data_dims,  fits_path_bk = fits_path_bk,$
+pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, data_level = data_level, data_dims = data_dims,  fits_path_bk = fits_path_bk,$
   dist_factor = dist_factor, flare_location= flare_location, eff_ewidth = eff_ewidth, ospex_obj = ospex_obj
 
   n_energies = data_dims[0]
@@ -111,6 +111,7 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, data_level = data
     energy_axis   : e_axis_new, $
     pixel_mask    : spectrogram.pixel_mask , $
     detector_mask : spectrogram.detector_mask, $
+    rcr           : spectrogram.rcr,$
     error         : total_error}
 
   fstart_time = time2fid(atime(stx_time2any((spectrogram.time_axis.time_start)[0])),/full,/time)
@@ -125,7 +126,7 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, data_level = data
   edge_products, phe, mean = mean_phe, width = w_phe
   ph_in = [mean_phe[0]- w_phe[0], mean_phe]
 
-  ospex_obj =   stx_fsw_sd_spectrogram2ospex( spectrogram, ph_energy_edges = ph_in, /include_damage, /fits , /tail, livetime_fraction = eff_livetime_fraction, $
+  ospex_obj =   stx_fsw_sd_spectrogram2ospex( spectrogram, specpar = specpar, ph_energy_edges = ph_in, /include_damage, /fits , /tail, livetime_fraction = eff_livetime_fraction, $
     dist_factor = dist_factor, flare_location= flare_location )
 
   ospex_obj -> set, spex_eband = get_edges([4.,10.,15.,25, 50, 84.], /edges_2)
