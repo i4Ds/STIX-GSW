@@ -7,14 +7,13 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   default, energy_shift, 0
   default, use_discriminators, 1
   default, replace_doubles, 0
-  default, keep_short_bins, 0
-
-  resolve_routine,'mrdfits',/compile_full_file,/either
-
-  !null = stx_read_fits(fits_path, 0, primary_header)
-  control = stx_read_fits(fits_path, 'control', control_header)
-  data = stx_read_fits(fits_path, 'data', data_header)
-  energy = stx_read_fits(fits_path, 'energies', energy_header)
+  default, keep_short_bins, 1
+  default, alpha, 0 
+  
+  !null = stx_read_fits(fits_path, 0, primary_header, mversion_full = mversion_full)
+  control = stx_read_fits(fits_path, 'control', control_header, mversion_full = mversion_full)
+  data = stx_read_fits(fits_path, 'data', data_header, mversion_full = mversion_full)
+  energy = stx_read_fits(fits_path, 'energies', energy_header, mversion_full = mversion_full)
 
 
   n_time = n_elements(data.time)
@@ -34,9 +33,9 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   ;if ~full_resolution  and apply_time_shift then begin
   ;    message, /info, 'For time shift compensation full archive buffer time resoultion files are needed.'
   ;endif
-  
+
   duration_shift_needed = (anytim(hstart_time) lt anytim('2021-12-09T00:00:00')) ? 1 : 0
-  
+
   default, shift_duration, duration_shift_needed
 
 
@@ -77,8 +76,7 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
     counts = data.counts
     counts_err = data.counts_err
     triggers = data.triggers
-    triggers_err = data.triggers_err
-    triggers_err = sqrt(data.triggers)
+    triggers_err =  data.triggers_err
     duration = (data.timedel)
     time_bin_center = (data.time)
 
@@ -130,7 +128,6 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   endif
 
   if alpha then begin
-
     rcr = replicate(control.rcr, n_time)
   endif else begin
     rcr = fix((data.rcr).substring(-1))

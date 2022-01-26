@@ -7,12 +7,10 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha=alpha, primary_h
   default, energy_shift, 0
   default, use_discriminators, 1
 
-  resolve_routine,'mrdfits',/compile_full_file,/either
-
-  !null = stx_read_fits(fits_path, 0, primary_header)
-  control = stx_read_fits(fits_path, 'control', control_header)
-  data = stx_read_fits(fits_path, 'data', data_header)
-  energy = stx_read_fits(fits_path, 'energies', energy_header)
+  !null = stx_read_fits(fits_path, 0, primary_header,  mversion_full = mversion_full)
+  control = stx_read_fits(fits_path, 'control', control_header, mversion_full = mversion_full)
+  data = stx_read_fits(fits_path, 'data', data_header, mversion_full = mversion_full)
+  energy = stx_read_fits(fits_path, 'energies', energy_header, mversion_full = mversion_full)
 
 
   hstart_time = (sxpar(primary_header, 'date_beg'))

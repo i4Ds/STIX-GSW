@@ -67,8 +67,8 @@
 ;
 ; :history:
 ;       23-Sep-2014 – ECMD (Graz), initial release;
-;       03-Dec-2018 – ECMD (Graz), Changed RCR to FILTER for OSPEX compatibility  
-;       
+;       03-Dec-2018 – ECMD (Graz), Changed RCR to FILTER for OSPEX compatibility
+;
 ;-
 
 pro stx_make_spectrum_header,specfile = specfile, $
@@ -86,7 +86,8 @@ pro stx_make_spectrum_header,specfile = specfile, $
   srmheader = srmheader, $
   srmparheader = srmparheader, $
   units = units, $
-  energy_band = energy_band
+  energy_band = energy_band, $
+  any_specfile = any_specfile
 
   fxhmake, header, /date, /init, /extend, errmsg = errmsg
 
@@ -129,8 +130,9 @@ pro stx_make_spectrum_header,specfile = specfile, $
   specparheader = $
     merge_fits_hdrs( specparheader, specheader, ERR_MSG=err_msg, $
     ERR_CODE=err_code )
-
-  fxaddpar, specparheader, 'EXTNAME', 'STIX Spectral Object Parameters', 'Extension name'
+    
+  expected_instrument = keyword_set(any_specfile) ? 'STIX' :'HESSI'
+  fxaddpar, specparheader, 'EXTNAME', expected_instrument +' Spectral Object Parameters', 'Extension name'
 
   srmheader = specheader
   fxaddpar, srmheader, 'GEOAREA', ratearea

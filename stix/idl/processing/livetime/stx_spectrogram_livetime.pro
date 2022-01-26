@@ -26,7 +26,7 @@ default, level, 1
 
     end
 
-    else: message, 'Currently supported levels are 1 (pixel data) and 4 (spectrogram)'
+    else: message, 'Currently supported compaction levels are 1 (pixel data) and 4 (spectrogram)'
   endcase
 
   corrected_counts =  spectrogram.counts/livetime_fraction

@@ -56,6 +56,13 @@ pro stx_write_ospex_fits, $
   ph_edges = ph_edges, $
   _extra = extra_keys
 
+  default, any_specfile, 0 
+  if ~keyword_set(any_specfile) then begin
+   print,  'To use SPEX_ANY_SPECFILE strategy '
+   print,  'change self->setstrategy, '+string(39B)+'SPEX_HESSI_SPECFILE' +string(39B)+ ' to self->setstrategy, '+string(39B)+'SPEX_ANY_SPECFILE'+string(39B)
+   print,  'in STIX rate block of spex_data__define.pro'
+  endif
+
 
   data = float(spec.data)
   data_error = float(spec.error)
@@ -130,7 +137,8 @@ pro stx_write_ospex_fits, $
     srmheader = srmheader, $
     srmparheader = srmparheader, $
     units = units, $
-    energy_band = ct_edges_2
+    energy_band = ct_edges_2, $
+    any_specfile = any_specfile
 
 
   units_arr = [ units, units, ' ', ' ', ' ', 's', 's' ]

@@ -7,7 +7,7 @@
 ; stx_read_data
 ;
 ; PURPOSE:
-; Read STX data from a FITS file for OSPEX
+; Read STIX data from a FITS file for OSPEX
 ;
 ; CATEGORY:
 ; SPEX
@@ -30,8 +30,8 @@
 ; PROCEDURE:
 ;
 ; History:
-; 25-Nov-2015, Kim. Renamed from read_hessi_4_ospex to use for stx spectrum file. Also added
-;   data_name, deconvolved, pseudo_livetime to output structure. Set spex_file_reader to 'stx_read' to use.
+; 25-Nov-2015, Kim. Renamed from read_hessi_4_ospex to use for stix spectrum file. Also added
+;   data_name, deconvolved, pseudo_livetime to output structure. Set spex_file_reader to 'stx_read_sp' to use.
 ; 28-Sep-2015, Kim. Cleaned up header, and removed rhessi-specific parts of code (not totally)
 ;
 ;-
@@ -255,7 +255,7 @@ if c eq 0 then start_time = anytim( fxpar( p_hdr, 'DATE-OBS' ), /vms)
 end_time = anytim( fxpar( p_hdr, 'DATE_END', count=c ), /vms )
 if c eq 0 then end_time = anytim( fxpar( p_hdr, 'DATE-END' ), /vms)
 
-title = 'STX SPECTRUM'
+title = 'STIX SPECTRUM'
 
 ; Look for a response file in the spectral header
 rfile = fxpar( sp_hdr, 'RESPFILE', COUNT=rcount )
@@ -293,7 +293,7 @@ data_str = { $
     AREA: area, $
     LTIME: ltime, $
     CT_EDGES: ct_edges, $
-    data_name: 'STX', $
+    data_name: 'STIX', $
     TITLE: title, $
     RESPFILE: respfile, $
     detused: detused, $
