@@ -1,4 +1,4 @@
-FUNCTION mem_ge_stix_sep2021,vis,imsize,pixel,silent=silent, total_flux=total_flux, percent_lambda=percent_lambda
+FUNCTION stx_mem_ge,vis,imsize,pixel,silent=silent, total_flux=total_flux, percent_lambda=percent_lambda
 
   ; wrapper around MEM_GE
   ; output map structure has north up

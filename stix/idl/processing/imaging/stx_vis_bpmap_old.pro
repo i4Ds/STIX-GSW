@@ -59,7 +59,7 @@
 ; 18-jul-2013, ras, cleaned up documentation, use vis_spatial_frequency() function in vis_bpmap_get_spatial_weights()
 ; 22-jul-2013, ras, migrated to stx_vis_bpmap, this is a wrapper on $SSW/gen/idl/image/vis_bpmap
 ;-
-pro stx_vis_bpmap, visin, time=time, BP_FOV=bp_fov, PIXEL=pixel, MAP=map, $
+pro stx_vis_bpmap_old, visin, time=time, BP_FOV=bp_fov, PIXEL=pixel, MAP=map, $
     QUIET=quiet, PEAKXY=peakxy, NOPLOT=noplot, EDGEFLAG=edgeflag,  $
     label=label, UNIFORM_WEIGHTING=uniform_weighting, spatial_freqency_weight =spatial_frequency_weight, $
     data_only = data_only, $
