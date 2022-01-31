@@ -15,6 +15,7 @@
 ; Keywords    :
 ;   interpol_r  = if set, results are computed for the two nearest values of r_sol, and the weighted average
 ;                 (R2-r)/(R2-R1) * (X1,Y1) + (r-R1)/(R2-R1) * (X2,Y2) is returned.
+;   interpol_xy = if set, interpolate results along each axis of the X'Y' grid
 ;
 ; Output      : 
 ;   Results are stored in attributes y_srf and z_srf of the input structure.
@@ -25,7 +26,8 @@
 ;   2021-07-06, FSc: renamed derive_aspect_solution to avoid conflict with previous function solve_aspect
 ;   2021-11-15 - FSc: removed common block "config", pass full path to file with simulated data as input
 ;   2022-01-18, FSc: added optional arguments 'interpol_r' and 'interpol_xy'; major rewriting
-;
+;   2022-01-28, FSc (AIP) : adapted to STX_ASPECT_DTO structure
+;   
 ;-
 
 function solve_aspect_one_plane, inputA_B, inputC_D, plane_AB, plane_CD, all_X, all_Y, max_iter=max_iter, delta_conv=delta_conv, interpol_xy=interpol_xy
@@ -126,17 +128,18 @@ pro derive_aspect_solution, data, simu_data_file, interpol_r=interpol_r, interpo
   y_center = where(abs(all_Y) eq min(abs(all_Y)))  &  y_center = y_center[0]   ; index corresponding to closest to no-offset in orthogonal direction
 
   ; prepare array of results
-  rsol = get_solrad(data.UTC)
+  foclen = 0.55         ; SAS focal length, in [m]
+  rsol = foclen * (data.SPICE_DISC_SIZE * !pi/180. / 3600.)
   nb = n_elements(rsol)
   x_sas = fltarr(nb)  &  y_sas = fltarr(nb)
   
   for i=0,nb-1 do begin
     delta_r = rsol[i] - all_r
     tmp = where(abs(delta_r) eq min(abs(delta_r)))
-    ind_r = tmp[0]   ; indice of the plane where rsol is the closest to the input value
+    ind_r = tmp[0]   ; index of the plane where rsol is the closest to the input value
 
-    inputA_B = (data.signal[0,i]- data.signal[1,i])*1.e9
-    inputC_D = (data.signal[2,i]- data.signal[3,i])*1.e9
+    inputA_B = (data[i].CHA_DIODE0 - data[i].CHA_DIODE1)*1.e9
+    inputC_D = (data[i].CHB_DIODE0 - data[i].CHB_DIODE1)*1.e9
 
     if keyword_set(interpol_r) then begin
       ; find the 2nd closest r_sol
@@ -165,6 +168,7 @@ pro derive_aspect_solution, data, simu_data_file, interpol_r=interpol_r, interpo
     ; convert to SAS frame
     x_sas[i] = -1.*(x_AB - x_CD) / sqrt(2.) * 1.e-6
     y_sas[i] = -1.*(x_AB + x_CD) / sqrt(2.) * 1.e-6
+    if (~finite(x_AB)  or ~finite(x_CD)) then data[i].ERROR = 'NO_ASPECT_SOL'
   endfor
   
   ; Store results as arcsec in SRF in the data structure

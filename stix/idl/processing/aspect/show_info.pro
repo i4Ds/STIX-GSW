@@ -1,10 +1,27 @@
+;+
+; Description :
+;   Procedure to display basic info about a data structure.
+;
+; Syntax      : show_info, data
+;
+; Inputs      :
+;     data    = an array of STX_ASPECT_DTO structures
+;
+; Output      : None.
+;
+; History   :
+;   2020 - F. Schuller (AIP), initial version
+;   2022-01-28 - FSc (AIP): adapted to STX_ASPECT_DTO structure
+;
+;-
+
 pro show_info, data
   if not is_struct(data) then begin
     print,"ERROR: input variable is not a structure."
     return
   endif
 
-  dt = data.times[1:-1] - data.times[0:-2]
+  dt = data.duration
   resol = median(dt)
   neg = where(dt lt 0,count)
   if count gt 0 then print,count,format='("WARNING - data contains ",I2," jump(s) back in time")'
@@ -12,16 +29,15 @@ pro show_info, data
   if count gt 0 then begin
     print,count,format='("WARNING - data contains ",I3," gaps:")'
     if count le 10 then for i=0,count-1 do $
-      print,data.UTC[gaps[i]],data.UTC[gaps[i]+1],format='(" ... between ",A23," and ",A23)' else begin
-      for i=0,9 do print,data.UTC[gaps[i]],data.UTC[gaps[i]+1],format='(" ... between ",A23," and ",A23)'
+      print,data[gaps[i]].time,data[gaps[i]+1].time,format='(" ... between ",A," and ",A)' else begin
+      for i=0,9 do print,data[gaps[i]].time,data[gaps[i]+1].time,format='(" ... between ",A," and ",A)'
       print,count-10,format='(".... and ",I3," more.")'
     endelse 
   endif
   if resol lt 1. then print,resol*1000,format='("Data at resolution: ",F5.1," ms")' $
                  else print,resol,format='("Data at resolution: ",F6.1," s")'
-  if tag_exist(data,'_calibrated') then begin
-    if data._calibrated then print,"Data has been calibrated." $
-                        else print,"Data NOT calibrated yet."
-  endif
-  print,n_elements(data.times),data.UTC[0],data.UTC[-1],format='(I," data points, from ",A23," to ",A23)'
+  _calibrated = data[0].calib
+  if _calibrated then print,"Data has been calibrated." $
+                 else print,"Data NOT calibrated yet."
+  print,n_elements(data),data[0].time,data[-1].time,format='(I," data points, from ",A," to ",A)'
 end

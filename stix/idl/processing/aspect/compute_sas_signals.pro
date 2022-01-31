@@ -1,20 +1,17 @@
 ;+
 ; Description :
 ;   This function computes the expected SAS signals for all four arms, given vectors of X/Y-offsets
-;   (in the SAS frame) and corresponding UTC times. It returns a data object with same structure as
-;   that returned when reading a file.
-;
-; Category    : simulation / analysis
+;   (in the SAS frame) and corresponding UTC times.
 ;
 ; Syntax      : result = compute_sas_signals(xoff, yoff, in_UTC, aperfile, dx=dx, quiet=quiet)
 ;
 ; Inputs      :
 ;   xoff/yoff = vectors (fn. of time) of Sun position in SAS frame [m]
-;   in_UTC    = vector of strings containing UTC times
+;   solrad    = vector of solar image radii [in m]
 ;   aperfile  = name (with absolute path) of the file with description of apertures geometry
 ;
 ; Output      :
-;   result    = a data object with same structure as that returned when reading a file
+;   result    = a 4xN array that contains the simulated signals for the four arms
 ;
 ; Keywords    :
 ;   dx        = linear step interval [m] - default: 1.e-6
@@ -26,13 +23,12 @@
 ;   2020-02-05, FSc : make computation for one arm only
 ;   2020-06-18, FSc : removed roll angles (included in xoff, yoff)
 ;   2021-12-16, FSc : pass name (with absolute path) of file with description of apertures as argument
+;   2022-01-28, FSc : use solrad instead of in_UTC as input; return only the 4xN array of signals
 ;
 ;-
-function compute_sas_signals, xoff, yoff, in_UTC, aperfile, dx=dx, quiet=quiet
+function compute_sas_signals, xoff, yoff, solrad, aperfile, dx=dx, quiet=quiet
   default, dx, 1.e-6
   
-  solrad = get_solrad(in_UTC)
-  times  = anytim(in_UTC, /tai)
   if not keyword_set(quiet) then print,"Computing signal arm A..."
   compute_sas_expected_signal,xoff,yoff,solrad,0, aperfile, sigA, dx=dx
   if not keyword_set(quiet) then print,"Computing signal arm B..."
@@ -42,6 +38,6 @@ function compute_sas_signals, xoff, yoff, in_UTC, aperfile, dx=dx, quiet=quiet
   if not keyword_set(quiet) then print,"Computing signal arm D..."
   compute_sas_expected_signal,xoff,yoff,solrad,3, aperfile, sigD, dx=dx
 
-  result = {signal:transpose([[sigA],[sigB],[sigC],[sigD]])/1.e9, times:times, utc:in_UTC, _calibrated:1}
+  result = transpose([[sigA],[sigB],[sigC],[sigD]])/1.e9
   return, result
 end
