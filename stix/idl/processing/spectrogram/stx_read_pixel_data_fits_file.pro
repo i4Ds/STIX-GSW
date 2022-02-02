@@ -1,6 +1,6 @@
 pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha=alpha, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
   control_header= control_header, energy_str = energy, energy_header = energy_header, t_axis = t_axis, e_axis = e_axis, $
-  energy_shift = energy_shift, use_discriminators = use_discriminators
+  energy_shift = energy_shift, use_discriminators = use_discriminators, shift_duration = shift_duration
 
   default, alpha, 0
   default, time_shift, 0
@@ -40,6 +40,22 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha=alpha, primary_h
   t_axis.time_end = t_end
   t_axis.DURATION = data.timedel
 
+  ; ************************************
+  ; Andrea (19-Jan-2022)
+  if keyword_set(shift_duration) then begin
+    ; Extract the time duration array
+    time_duration = data.timedel
+
+    ; Create temporary array
+    time_duration_shifted = time_duration
+
+    ; Perform the shift to the temporary array
+    time_duration_shifted[1:-1] = time_duration[0:-2]
+
+    ; Overwrite this information in the stx_time_axis
+    t_axis.DURATION = time_duration_shifted
+  endif
+  ; ************************************
 
   if control.energy_bin_mask[0] || control.energy_bin_mask[-1] and ~keyword_set(use_discriminators) then begin
 

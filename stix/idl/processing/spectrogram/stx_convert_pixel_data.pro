@@ -1,5 +1,5 @@
 pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, time_shift = time_shift, energy_shift = energy_shift, distance = distance, $
-  flare_location= flare_location, elut_filename = elut_filename, demo = demo, ospex_obj = ospex_obj
+  flare_location= flare_location, elut_filename = elut_filename, demo = demo, ospex_obj = ospex_obj, det_ind = det_ind, pix_ind = pix_ind, shift_duration = shift_duration
 
   if keyword_set(demo) then begin
 
@@ -36,14 +36,15 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   g03_10=[g03,g04,g05,g06,g07,g08,g09,g10]
 
   mask_use_detectors = intarr(32)
-  mask_use_detectors[g03_10] = 1
+  if not keyword_set(det_ind) then mask_use_detectors[g03_10] = 1 else mask_use_detectors[det_ind] = 1
 
   mask_use_pixels = intarr(12)
-  mask_use_pixels[*] = 1
+  if not keyword_set(pix_ind) then mask_use_pixels[*] = 1 else mask_use_pixels[pix_ind] = 1
 
 
   stx_read_pixel_data_fits_file, fits_path_data, time_shift, primary_header = primary_header, data_str = data_str, data_header = data_header, control_str = control_str, $
-    control_header= control_header, energy_str = energy_str, energy_header = energy_header, t_axis = t_axis, energy_shift = energy_shift,  e_axis = e_axis , use_discriminators = 0
+    control_header= control_header, energy_str = energy_str, energy_header = energy_header, t_axis = t_axis, energy_shift = energy_shift,  e_axis = e_axis , use_discriminators = 0, $
+    shift_duration = shift_duration
 
   data_level = 1
 
