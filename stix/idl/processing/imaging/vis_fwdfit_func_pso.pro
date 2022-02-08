@@ -1,5 +1,6 @@
 FUNCTION vis_fwdfit_func_pso, xx, extra = extra
 
+
   type = extra.type
   visobs = extra.visobs
   sigamp = extra.sigamp
@@ -42,7 +43,7 @@ FUNCTION vis_fwdfit_func_pso, xx, extra = extra
     ; Set up file I/O error handling.
     ON_IOError, bad_x_circle
     ; Cause type conversion error.
-    if flag then xx[*, 1] = xx[*, 1] * 0. + double(param_opt[2])-mapcenter[1]
+    if flag then xx[*, 1] = xx[*, 1] * 0. + double(param_opt[1]) - mapcenter[0]
     x_loc = reform(xx[*, 1], [n_particles,1])
     
     flag=1
@@ -55,7 +56,7 @@ FUNCTION vis_fwdfit_func_pso, xx, extra = extra
     ; Set up file I/O error handling.
     ON_IOError, bad_y_circle
     ; Cause type conversion error.
-    if flag then xx[*, 2] = xx[*, 2] * 0. - double(param_opt[1])+mapcenter[0]
+    if flag then xx[*, 2] = xx[*, 2] * 0. + double(param_opt[2]) - mapcenter[1]
     y_loc = reform(xx[*,2], [n_particles,1])
     
     flag=1
@@ -152,7 +153,7 @@ FUNCTION vis_fwdfit_func_pso, xx, extra = extra
     ; Set up file I/O error handling.
     ON_IOError, bad_alpha_ellipse
     ; Cause type conversion error.
-    if flag then pa += double(param_opt[3])-90.
+    if flag then pa += double(param_opt[3])
 
     pa = reform(pa, [n_particles,1])  
 
@@ -175,7 +176,7 @@ FUNCTION vis_fwdfit_func_pso, xx, extra = extra
     ; Set up file I/O error handling.
     ON_IOError, bad_x_ellipse
     ; Cause type conversion error.
-    if flag then xx[*, 4] = xx[*, 4] * 0. + double(param_opt[5])-mapcenter[1]
+    if flag then xx[*, 4] = xx[*, 4] * 0. + double(param_opt[4]) - mapcenter[0]
     x_loc = reform(xx[*,4], [n_particles,1])
     
     flag=1
@@ -188,7 +189,7 @@ FUNCTION vis_fwdfit_func_pso, xx, extra = extra
     ; Set up file I/O error handling.
     ON_IOError, bad_y_ellipse
     ; Cause type conversion error.
-    if flag then xx[*, 5] = xx[*, 5] * 0. - double(param_opt[4])+mapcenter[0]
+    if flag then xx[*, 5] = xx[*, 5] * 0. + double(param_opt[5]) - mapcenter[1]
     y_loc = reform(xx[*,5], [n_particles,1])
 
     vispred_re = flux * exp(-(!pi^2. / (4.*alog(2.)))*((u1 * fwhmmajor)^2. + (v1 * fwhmminor)^2.))*cos(2*!pi*((x_loc#u)+(y_loc#v)))
@@ -241,11 +242,6 @@ FUNCTION vis_fwdfit_func_pso, xx, extra = extra
       ; Cause type conversion error.
       if flag then xx[*, 2] = xx[*, 2] * 0. + double(param_opt[2])      
       fwhm2 = reform(xx[*,2], [n_particles,1])     
-;      if flag2 and flag1 then begin
-;        tmp = double(param_opt[0])/double(param_opt[2])
-;        if tmp gt 1. then tmp = 1./tmp
-;        xx[*, 2] = xx[*, 2] * 0. +tmp
-;     endif
 
          
       flag=1
@@ -273,7 +269,7 @@ FUNCTION vis_fwdfit_func_pso, xx, extra = extra
       ; Set up file I/O error handling.
       ON_IOError, bad_x1_multi
       ; Cause type conversion error.
-      if flag then xx[*, 4] = xx[*, 4] * 0. + double(param_opt[5])-mapcenter[1]
+      if flag then xx[*, 4] = xx[*, 4] * 0. + double(param_opt[4]) - mapcenter[0]
       x1 = reform(xx[*,4], [n_particles,1])
             
       flag=1
@@ -286,7 +282,7 @@ FUNCTION vis_fwdfit_func_pso, xx, extra = extra
       ; Set up file I/O error handling.
       ON_IOError, bad_y1_multi
       ; Cause type conversion error.
-      if flag then xx[*, 5] = xx[*, 5] * 0. - double(param_opt[4])+mapcenter[0]
+      if flag then xx[*, 5] = xx[*, 5] * 0. + double(param_opt[5]) - mapcenter[1]
       y1 = reform(xx[*,5], [n_particles,1])
       
       flag=1
@@ -299,7 +295,7 @@ FUNCTION vis_fwdfit_func_pso, xx, extra = extra
       ; Set up file I/O error handling.
       ON_IOError, bad_x2_multi
       ; Cause type conversion error.
-      if flag then xx[*, 6] = xx[*, 6] * 0. + double(param_opt[7])-mapcenter[1]
+      if flag then xx[*, 6] = xx[*, 6] * 0. + double(param_opt[6]) - mapcenter[0]
       x2 = reform(xx[*, 6], [n_particles,1])
 
       flag=1
@@ -312,7 +308,7 @@ FUNCTION vis_fwdfit_func_pso, xx, extra = extra
       ; Set up file I/O error handling.
       ON_IOError, bad_y2_multi
       ; Cause type conversion error.
-      if flag then xx[*, 7] = xx[*, 7] * 0. - double(param_opt[6])+mapcenter[0]
+      if flag then xx[*, 7] = xx[*, 7] * 0. + double(param_opt[7]) - mapcenter[1]
       y2 = reform(xx[*,7], [n_particles,1])
       
       re_obs1 = flux1 * exp(-(!pi^2. * fwhm1^2. / (4.*alog(2.)))#(u^2. + v^2.))*cos(2*!pi*((x1#u)+(y1#v)))
@@ -405,8 +401,7 @@ FUNCTION vis_fwdfit_func_pso, xx, extra = extra
     ; Set up file I/O error handling.
     ON_IOError, bad_alpha_loop
     ; Cause type conversion error.
-    if flag then pa += double(param_opt[3])-90.;-180. 
-    
+    if flag then pa += double(param_opt[3])
     pa = reform(pa, [n_particles,1])
 
     xx[*,1] = reform(sqrt(fwhmmajor[*, 0] * fwhmminor[*, 0]))
@@ -425,7 +420,7 @@ FUNCTION vis_fwdfit_func_pso, xx, extra = extra
     ; Set up file I/O error handling.
     ON_IOError, bad_x_loop
     ; Cause type conversion error.
-    if flag then xx[*, 4] = xx[*, 4] * 0. + double(param_opt[5])-mapcenter[1]
+    if flag then xx[*, 4] = xx[*, 4] * 0. + double(param_opt[4]) - mapcenter[0]
     x_loc = reform(xx[*,4], [n_particles,1])
 
     flag=1
@@ -438,7 +433,7 @@ FUNCTION vis_fwdfit_func_pso, xx, extra = extra
     ; Set up file I/O error handling.
     ON_IOError, bad_y_loop
     ; Cause type conversion error.
-    if flag then xx[*, 5] = xx[*, 5] * 0. - double(param_opt[4])+mapcenter[0]
+    if flag then xx[*, 5] = xx[*, 5] * 0. + double(param_opt[5]) - mapcenter[1]
     y_loc = reform(xx[*,5], [n_particles,1])
     
     flag=1
@@ -454,13 +449,7 @@ FUNCTION vis_fwdfit_func_pso, xx, extra = extra
     if flag then xx[*, 6] = xx[*, 6] * 0. + double(param_opt[6])
     loop_angle = reform(xx[*,6], [n_particles,1])
     
-    ;vis_pred=fltarr(n_particles,2*n_elements(u))
     vis_pred = vis_fwdfit_pso_func_makealoop( flux, xx[*,1], eccen, x_loc, y_loc, pa, loop_angle, u, v)
-
-    
-;    for i=0, n_particles-1 do begin
-;     vis_pred[i,*]=pso_makealoop_nov2021( flux[i], xx[i,1], eccen[i], x_loc[i], y_loc[i], pa[i], loop_angle[i], u, v)
-;    endfor
        
     vispred_re = vis_pred[*,0:n_elements(u)-1]
     vispred_im = vis_pred[*, n_elements(u):2*n_elements(u)-1]

@@ -125,6 +125,7 @@ function vis_FWDFIT_PSO_SOURCE2MAP, srcstr, type=type, pixel=pixel, imsize=mapsi
 
   ENDFOR
 
-  return, make_map(data, xcen=xyoffset[0],ycen=xyoffset[1], dx = pixel[0], dy = pixel[1], id = 'STIX PSO' )
+  return, data
+  ;make_map(data, xcen=xyoffset[0],ycen=xyoffset[1], dx = pixel[0], dy = pixel[1], id = 'STIX PSO' )
 
 END
