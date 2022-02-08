@@ -231,7 +231,7 @@ ENDCASE
   endfor
   spec_all_bkg_k(0,*,*,1:30)=spec_all_bkg(0,*,*,1:30)/this_bin_size_switch
 
-  this_lt = total(live32[*,tlist],2)
+  this_lt = n_elements(tlist) gt 1? total(live32[*,tlist],2) : reform(live32[*,tlist])
   this_lt_bkg = reform(live32_bkg)
   this_en_range = total(ddee(elist))
   n_pix=12
@@ -354,13 +354,13 @@ ENDCASE
   phase += 46.1
 
   ; Grid correction factors
-  phase_cal = read_csv(loc_file( 'GridCorrection.csv', path = getenv('STX_VIS_DEMO') ), header=header, table_header=tableheader)
+  phase_cal = read_csv(loc_file( 'GridCorrection.csv', path = getenv('STX_VIS_DEMO') ), header=header, table_header=tableheader, n_table_header=2 )
   gcorr = phase_cal.field1
   ; Apply grid correction
   phase += gcorr
   
   ; Phase correction
-  phase_cal = read_csv(loc_file( 'PhaseCorrFactors.csv', path = getenv('STX_VIS_DEMO') ), header=header, table_header=tableheader)
+  phase_cal = read_csv(loc_file( 'PhaseCorrFactors.csv', path = getenv('STX_VIS_DEMO')), header=header, table_header=tableheader, n_table_header=2 )
   phase_corr = phase_cal.field1
   ; Apply grid correction
   phase += phase_corr

@@ -1,3 +1,5 @@
+Phase correction factors (in degrees) computed in January 2022
+Obtained by computing the difference between the measured phases and the predicted ones on a dataset of 76 compact events in the energy range 6-10 keV
 -18.79
 18.23
 -0.70

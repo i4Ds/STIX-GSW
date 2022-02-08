@@ -65,11 +65,11 @@ if pixel[0] ne pixel[1] then message, 'Error: pixel size per dimension must be e
 subc_str = stx_construct_subcollimator()
 
 ; Grid correction
-phase_cal = read_csv(loc_file( 'GridCorrection.csv', path = getenv('STX_VIS_DEMO') ), header=header, table_header=tableheader)
+phase_cal = read_csv(loc_file( 'GridCorrection.csv', path = getenv('STX_VIS_DEMO') ), header=header, table_header=tableheader, n_table_header=2)
 phase_corr = phase_cal.field1
 
 ; Phase correction
-phase_cal = read_csv(loc_file( 'PhaseCorrFactors.csv', path = getenv('STX_VIS_DEMO') ), header=header, table_header=tableheader)
+phase_cal = read_csv(loc_file( 'PhaseCorrFactors.csv', path = getenv('STX_VIS_DEMO') ), header=header, table_header=tableheader, n_table_header=2)
 phase_corr += phase_cal.field1
 
 ; Pixel correction
