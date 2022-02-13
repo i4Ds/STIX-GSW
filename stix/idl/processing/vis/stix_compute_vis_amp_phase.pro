@@ -355,13 +355,13 @@ ENDCASE
 
   ; Grid correction factors
   phase_cal = read_csv(loc_file( 'GridCorrection.csv', path = getenv('STX_VIS_DEMO') ), header=header, table_header=tableheader, n_table_header=2 )
-  gcorr = phase_cal.field1
+  gcorr = phase_cal.field2
   ; Apply grid correction
   phase += gcorr
   
   ; Phase correction
-  phase_cal = read_csv(loc_file( 'PhaseCorrFactors.csv', path = getenv('STX_VIS_DEMO')), header=header, table_header=tableheader, n_table_header=2 )
-  phase_corr = phase_cal.field1
+  phase_cal = read_csv(loc_file( 'PhaseCorrFactors.csv', path = getenv('STX_VIS_DEMO')), header=header, table_header=tableheader, n_table_header=3 )
+  phase_corr = phase_cal.field2
   ; Apply grid correction
   phase += phase_corr
 
