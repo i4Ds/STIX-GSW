@@ -82,7 +82,7 @@ pause
 
 niter  = 200    ;number of iterations
 gain   = 0.1    ;gain used in each clean iteration
-nmap   = 20   ;only every 20th integration is shown in plot
+nmap   = 1   ;only every 20th integration is shown in plot
 
 ;Output are 5 maps
 ;index 0: CLEAN map
@@ -90,8 +90,8 @@ nmap   = 20   ;only every 20th integration is shown in plot
 ;index 2: residual map
 ;index 3: clean component map
 ;index 4: clean map without residuals added
-
-clean_map=stx_vis_clean(vis,niter=niter,image_dim=imsize[0],PIXEL=pixel[0],uni=0,gain=0.1,nmap=nmap,/plot,/set)
+beam_width = 20.
+clean_map=stx_vis_clean(vis,niter=niter,image_dim=imsize[0],PIXEL=pixel[0],uni=0,gain=0.1,nmap=nmap,/plot,/set, beam_width=beam_width)
 
 print, " "
 print, "Press SPACE to continue"

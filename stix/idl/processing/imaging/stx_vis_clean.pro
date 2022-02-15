@@ -141,8 +141,10 @@ function stx_vis_clean, vis, niter = niter, image_dim = image_dim_in, pixel = pi
   
   ;realize the dirty map and build a psf at the center, use odd numbers of pixels to center the map
   weight_used = vis_spatial_frequency_weighting( vis, spatial_frequency_weight, UNIFORM_WEIGHTING = uniform_weighting )
+  
+  weight_beam = vis_spatial_frequency_weighting( vis, spatial_frequency_weight, UNIFORM_WEIGHTING = uniform_weighting )
   ;convolving beam FWHM in asec: default estimated from the subcollimators' resolution
-  default, beam_width, vis_sigma_clean_beam(vis, spatial_frequency_weighting = weight_used) * 2. * sqrt(2 * alog(2))
+  default, beam_width, vis_sigma_clean_beam(vis, spatial_frequency_weighting = weight_beam) * 2. * sqrt(2 * alog(2))
   ;beam_width_factor=fcheck(beam_width_factor,1.0) > 1.0
   default, clean_beam, psf_gaussian( npixel = image_dim[0], FWHM = beam_width / pixel, ndim = 2)
   default, nmap, 20  ;1/frequency that intermediate maps are plotted
@@ -174,13 +176,6 @@ function stx_vis_clean, vis, niter = niter, image_dim = image_dim_in, pixel = pi
     this_image(clean_box_r)=1
     this_image0=rotate(this_image,3)
     clean_box=where(this_image0 eq 1)
-    ;tst=dmap0
-    ;tvscl,tst,0
-    ;tvscl,rotate(dmap0,3),1
-    ;tvscl,this_image,2
-    ;tvscl,this_image0,3
-    ;tst(clean_box)=0
-    ;tvscl,tst,4
   endif
 
   component = {clean_comp,  ixctr: 0, iyctr: 0, flux:0.0}
