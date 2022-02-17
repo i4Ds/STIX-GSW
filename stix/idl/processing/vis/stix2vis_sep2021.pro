@@ -14,9 +14,9 @@
 ;  path_bkg_file: path of the background L1 fits file
 ;  time_range: array containing the start and the end of the time interval to consider
 ;  energy_range: array containing lower and upper bound of the energy range to consider
-;  mapcenter: coordinates of center of the map to reconstruct (heliocentric, north up). 
+;  mapcenter: coordinates of center of the map to reconstruct (heliocentric, north up).
 ;             Needed for adding the correct shift to the visibility phases.
-;  
+;
 ;
 ; OUTPUTS:
 ;   visibility structure corresponding to a given time range and a given energy range
@@ -29,19 +29,25 @@
 ;   silent:     if set, plots are not displayed
 ;
 ; HISTORY: September 2021: wrapper around Paolo's first script
-;         
+;          10-jan-2022, added keyword "shift_by_one"
+;          26-jan-2022, xy_flare and mapcenter are cast as float array
+;
 ;-
 
 FUNCTION stix2vis_sep2021, path_sci_file, path_bkg_file, time_range, energy_range, mapcenter, $
-                           xy_flare=xy_flare, subc_index=subc_index, pixels=pixels, silent=silent
+  xy_flare=xy_flare, subc_index=subc_index, pixels=pixels, silent=silent, shift_by_one=shift_by_one
 
   default, xy_flare, [0., 0.]
   default, subc_index, stix_label2ind(['10a','10b','10c','9a','9b','9c','8a','8b','8c','7a','7b','7c',$
-                                       '6a','6b','6c','5a','5b','5c','4a','4b','4c','3a','3b','3c'])
+    '6a','6b','6c','5a','5b','5c','4a','4b','4c','3a','3b','3c'])
   default, pixels, 'TOP+BOT'
- 
+  
+  mapcenter = float(mapcenter)
+  xy_flare  = float(xy_flare)
+  
   ;;;;;;;;;; make amplitudes and phases
-  data = stix_compute_vis_amp_phase(path_sci_file,path_bkg_file,anytim(time_range),energy_range, xy_flare=xy_flare, pixels=pixels, silent=silent)
+  data = stix_compute_vis_amp_phase(path_sci_file,path_bkg_file,anytim(time_range),energy_range, xy_flare=xy_flare, $
+                                    pixels=pixels, silent=silent, shift_by_one=shift_by_one)
 
 
   ;;;;;;;;;; CONSTRUCT VISIBILITY STRUCTURE
@@ -79,7 +85,7 @@ FUNCTION stix2vis_sep2021, path_sci_file, path_bkg_file, time_range, energy_rang
   vis.time_range=[time_l,time_r]
   vis.energy_range=energy_range
 
-return,vis
+  return,vis
 
 END
 

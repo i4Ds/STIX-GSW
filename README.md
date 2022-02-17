@@ -19,9 +19,9 @@ Ground-analysis software repository
 ### Step 2: Create personal STIX IDL startup script (PRO-file for IDL) ###
 Create an IDL script file with name *stix_personal_startup.pro* file inside your *STIX_SW_DEST* folder with the following content:
 ```
-add_path, getenv('IDL_WORKSPACE_PATH')+get_delim()+'dev', /expand, /quiet
-add_path, getenv('IDL_WORKSPACE_PATH')+get_delim()+'iunit', /expand, /quiet
-devel_env_setup, 'on'
+add_path, getenv('IDL_WORKSPACE_PATH') + get_delim() +'stix', /expand, /quiet
+devel_env_setup_propagate_setup_dot_env, root=getenv('IDL_WORKSPACE_PATH'), project='stix' 
+cd, getenv('IDL_WORKSPACE_PATH')
 ```
 
 ### Step 3: Create STIX-specific startup shell script ###
