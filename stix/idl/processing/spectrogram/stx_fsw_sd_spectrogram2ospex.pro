@@ -31,8 +31,8 @@
 ;  :todo:
 ;    22-Nov-2016 - ECMD (Graz), livetime and attenuator state are not ready so artificially prescribed here
 ;    03-Dec-2018 – ECMD (Graz), livetime and attenuator states accounted for
-;    22-Feb-2022 - ECMD (Graz), added pssing of time_shift infromation to file, default systematic error of 5%
-;                               print warning when using on-axis default for background detector 
+;    22-Feb-2022 - ECMD (Graz), added passing of time_shift information to file, default systematic error of 5%
+;                               print warning when using on-axis default for background detector
 ;
 ;-
 function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shift = time_shift, ph_energy_edges = ph_edges, fits = fits, plotman_obj = pobj, specfilename = specfilename, srmfilename  = srmfilename,$

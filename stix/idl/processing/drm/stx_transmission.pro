@@ -42,7 +42,7 @@
 ;
 ;
 ; :history:
-;    18-Aug-2020 - ECMD (Graz), initial release
+;    25-Jan-2021 - ECMD (Graz), initial release 
 ;    12-Mar-2021 - ECMD (Graz), added xcom keyword by default now uses file stix_transmission_highres_20210303.csv 
 ;                               to calculate transmission
 ;    25-Jan-2022 - ECMD (Graz), attenuator and transmission_table keywords added
