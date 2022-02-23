@@ -65,8 +65,8 @@
 ;
 ;  D = Nin * exp (-Dtau/T)
 ;
-;  Note that Nin depends on D, not C. Also, Nin increases monatonically with D. (or equivalently,
-;  D increases monatonically with Nin)
+;  Note that Nin depends on D, not C. Also, Nin increases monotonically with D. (or equivalently,
+;  D increases monotonically with Nin)
 ;
 ;  The second condition is that if a trigger is initiated, no other photon must arrive in the
 ;  coincidence window, the probability for which is Ps. This is the probability that no other
@@ -98,22 +98,23 @@
 ;    Assumptions:    Readout time    6.6 us
 ;        Latency time    3 us
 ;
-;    Counted Triggers  Probability Input photon rate Probability Dead time Reported
-;    /s  of trigger  ph/s  of single hit fraction  events/s/det
-;
-;    100     0.9993  100     0.9997  0.0010  50
-;    1,000   0.9934  1,007   0.9970  0.0096  498
-;    5,000   0.9675  5,168   0.9846  0.0473  2,462
-;    10,000  0.9361  10,682  0.9685  0.0934  4,842
-;    25,000  0.8479  29,485  0.9153  0.2239  11,442
-;    50,000  0.7189  69,548  0.8117  0.4165  20,292  max operating point?
-;    62,500  0.6620  94,412  0.7533  0.5013  23,542
-;    80,000  0.5898  135,643 0.6657  0.6074  26,628
-;    102,000 0.5101  199,971 0.5489  0.7200  27,992  max output rate
-;    120,000 0.4529  264,937 0.4517  0.7954  27,100
-;    150,000 0.3716  403,685 0.2979  0.8893  22,341
-;    200,000 0.2671  748,684 0.1058  0.9717  10,582
-;    300,000 0.1381  2,172,823 0.0015  0.9998  221
+;    Counted Triggers  Probability Input photon rate Probability    Dead time      Reported
+;    /s                of trigger  ph/s              of single hit  fraction       events/s/det
+;  
+;    100               0.9993      100               0.9997          0.0010        50
+;    1,000             0.9934      1,007             0.9970          0.0096        498
+;    5,000             0.9675      5,168             0.9846          0.0473        2,462
+;    10,000            0.9361      10,682            0.9685          0.0934        4,842
+;    25,000            0.8479      29,485            0.9153          0.2239        11,442
+;    50,000            0.7189      69,548            0.8117          0.4165        20,292  max operating point?
+;    62,500            0.6620      94,412            0.7533          0.5013        23,542
+;    80,000            0.5898      135,643           0.6657          0.6074        26,628
+;    102,000           0.5101      199,971           0.5489          0.7200        27,992  max output rate
+;    120,000           0.4529      264,937           0.4517          0.7954        27,100
+;    150,000           0.3716      403,685           0.2979          0.8893        22,341
+;    200,000           0.2671      748,684           0.1058          0.9717        10,582
+;    300,000           0.1381      2,172,823         0.0015          0.9998        221
+;    
 ; :File_comments:
 ;   Uses a default Tau, deadtime per event, of 9.6 microseconds. This may need to
 ;   change based on tests of the Caliste detectors.c

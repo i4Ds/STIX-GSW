@@ -31,9 +31,11 @@
 ;  :todo:
 ;    22-Nov-2016 - ECMD (Graz), livetime and attenuator state are not ready so artificially prescribed here
 ;    03-Dec-2018 – ECMD (Graz), livetime and attenuator states accounted for
+;    22-Feb-2022 - ECMD (Graz), added pssing of time_shift infromation to file, default systematic error of 5%
+;                               print warning when using on-axis default for background detector 
 ;
 ;-
-function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, ph_energy_edges = ph_edges, fits = fits, plotman_obj = pobj, specfilename = specfilename, srmfilename  = srmfilename,$
+function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shift = time_shift, ph_energy_edges = ph_edges, fits = fits, plotman_obj = pobj, specfilename = specfilename, srmfilename  = srmfilename,$
   flare_location = flare_location,  gtrans32 = gtrans32, livetime_fraction =livetime_fraction, _extra = _extra
 
 
@@ -64,6 +66,7 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, ph_energy
 
   if grid_factor eq 0 then begin
     if n_elements(grids_used) eq 1 then if grids_used eq 9 then begin
+      print, 'Using nominal (on axis) grid transmission for background detector'
       grid_transmission_file =  concat_dir(getenv('STX_GRID'), 'nom_bkg_grid_transmission.txt')
       readcol, grid_transmission_file, bk_grid_factors, format = 'f', skip =2
       grid_factor = average(bk_grid_factors[pixels_used])
@@ -99,7 +102,7 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, ph_energy
   ;if the fits keyword is set write the spectrogram and srm data to fits files and then read them in to the ospex object
   if keyword_set(fits) then begin
     utime = transpose([stx_time2any( spectrogram.time_axis.time_start )])
-    ; spectrogram.ltime = livetime_fraction*transpose(rebin(spectrogram.t_axis.duration,ntimes,32))
+
     ;spectrogram structure for passing to fits writer routine
     spectrum_in = { type              : 'stx_spectrogram', $
       data              : spectrogram.counts, $
@@ -112,11 +115,12 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, ph_energy
     default, specfilename, 'stx_spectrum_' + time2file( utime[0] ) + '.fits'
     default, srmfilename, 'stx_srm_' + time2file( utime[0] ) + '.fits'
 
-    stx_write_ospex_fits, spectrum = spectrum_in, srmdata = srm,  specpar = specpar, srm_atten =srm_atten, specfilename = specfilename, srmfilename = srmfilename, ph_edges = ph_edges
+    stx_write_ospex_fits, spectrum = spectrum_in, srmdata = srm,  specpar = specpar, time_shift= time_shift, srm_atten =srm_atten, specfilename = specfilename, srmfilename = srmfilename, ph_edges = ph_edges,xspec = xspec
 
     ospex_obj->set, spex_file_reader = 'stx_read_sp'
     ospex_obj->set, spex_specfile = specfilename   ; name of your spectrum file
     ospex_obj->set, spex_drmfile = srmfilename
+    ospex_obj->set, spex_uncert = 0.05
 
   endif else begin
     ;if the fits keyword is not set use the spex_user_data strategy to pass in the data directly to the ospex object
@@ -135,12 +139,10 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, ph_energy
     ospex_obj->set, spex_area = srm.area
     ospex_obj->set, spex_detectors = 'STIX'
     ospex_obj->set, spex_drm_ph_edges = ph_edges
-
+    ospex_obj->set, spex_uncert = 0.05
+    
   endelse
 
-  ;plot the spectrogram data
-;  ospex_obj-> plotman, class='spex_data', /pl_spec, spex_units='flux', colortable=3, /log_scale, $
-;    yrange=[ ct_edges[0], ct_edges[-1] ], /yst, plotman_obj=pobj
 
   return, ospex_obj
 end

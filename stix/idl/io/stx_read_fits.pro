@@ -28,7 +28,7 @@
 ;
 ; :returns:
 ;
-;    fits_data a structure contining the FITS data for the requested extension.
+;    fits_data a structure containing the FITS data for the requested extension.
 ;
 ; :examples:
 ;
@@ -37,9 +37,9 @@
 ; :history:
 ;
 ;    09-Nov-2021 - ECMD (Graz), initial release
-;    26-Jan-2022 - ECMD (Graz), added check_ver keword which is set to 0 after check it is set to 0 and can be passed out
+;    26-Jan-2022 - ECMD (Graz), added check_ver keyword which is set to 0 after check it is set to 0 and can be passed out
 ;                               added warning about L1A data
-;
+;    22-Feb-2022 - ECMD (Graz), fixed typos and clarified L1A warning, now calls stx_get_mrd_version to get mrdfits version 
 ;
 ;-
 function stx_read_fits, fits_path, extension, header, silent = silent, mversion_full = mversion_full
@@ -48,7 +48,7 @@ function stx_read_fits, fits_path, extension, header, silent = silent, mversion_
 
   if  ~keyword_set(mversion_full) then begin
     ver = mrdfits(/version)
-    mversion_full = mrd_version()
+    mversion_full = stx_get_mrd_version()
     mversion = mversion_full.split('\.')
     if ~(fix(mversion[0]) ge 2 and fix(mversion[1]) ge 27) then begin
       message,'Check you have the up to date version of mrdfits compiled',/info
@@ -67,7 +67,7 @@ function stx_read_fits, fits_path, extension, header, silent = silent, mversion_
   if nlevel_keywords gt 0 then begin
     processing_level = header_str.level
     if strcompress(processing_level,/remove_all) eq 'L1A'  and ~keyword_set(silent) then message, $
-      'Warning: alpha level files will no longer be supported in future', /info
+      'WARNING: Alpha level (L1A) files will no longer be supported in future.', /info
   endif
 
 

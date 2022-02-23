@@ -33,7 +33,8 @@
 ; 25-Nov-2015, Kim. Renamed from read_hessi_4_ospex to use for stix spectrum file. Also added
 ;   data_name, deconvolved, pseudo_livetime to output structure. Set spex_file_reader to 'stx_read_sp' to use.
 ; 28-Sep-2015, Kim. Cleaned up header, and removed rhessi-specific parts of code (not totally)
-;
+; added information of xspec compatibility and time shift to files
+; 22-Feb-2022 - ECMD (Graz), fixed issue with count error  
 ;-
 ;------------------------------------------------------------------------------
 PRO stx_read_sp_data, FILES=files, $
@@ -188,8 +189,10 @@ FOR i=0, N_Elements( sp_tags )-1L DO BEGIN
     IF n_ematch GT 0 THEN ercounts_idx = i
 ENDFOR
 
+ercounts = ercounts_idx[0] GT -1 ? sp_data.( ercounts_idx ) : sp_data.error
+
 rcounts = sp_data.( rcounts_idx )
-if n_ematch gt 0 then ercounts = ercounts_idx[0] GT -1 ? sp_data.( ercounts_idx ) : sp_data.error else ercounts = 0*rcounts
+
 
 ltime = tag_exist(sp_data, 'livetime')? $
   sp_data.livetime: 0*rcounts +1
