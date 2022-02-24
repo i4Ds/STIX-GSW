@@ -60,15 +60,20 @@
 ; :Author: rschwartz70@gmail.com, 2-jul-2019
 ; :History: 29-aug-2019, improved the file search for the elut file
 ; :RAS, 11-jun-2020, added ekev_actual, corrected the action of scale1024==0
+; :ECMD, 23-Feb-2022, fixed issue with finding file if current folder is not /stix 
 ;-
 pro stx_read_elut, gain, offset, adc4096_str, elut_filename = elut_filename, scale1024 = scale1024, $
   ekev_actual = ekev_actual
 
   default, scale1024, 1
-  if file_exist( elut_filename ) then begin
-    elut_file = elut_filename
-  endif else begin
-    default, path, [curdir(), concat_dir( concat_dir('ssw_stix','dbase'),'detector')]
+
+  case 1 of
+    file_exist( elut_filename ) : elut_file = elut_filename
+    file_exist( concat_dir( concat_dir('SSW_STIX','dbase'),'detector') + get_delim() + elut_filename) : $
+      elut_file =  concat_dir( concat_dir('SSW_STIX','dbase'),'detector') + get_delim() + elut_filename
+  else : begin
+
+    default, path, [concat_dir( concat_dir('SSW_STIX','dbase'),'detector')]
 
     elut_file = file_search( path,'elut_table*.csv', count=count)
     filename = file_basename( elut_file )
@@ -95,10 +100,12 @@ pro stx_read_elut, gain, offset, adc4096_str, elut_filename = elut_filename, sca
       ord = reverse( sort( anytim( date )))
       elut_file = elut_file[ ord[0] ]
     endif
-  endelse
+    end
+  endcase
+  
   elut_str = reform_struct( read_csv( elut_file, n_table_header=3 ))
   ;Get the previous offset and gain suitable for the ADC1024 cal spectra
-  
+
   if scale1024 then begin
     offset = reform( elut_str.(0) / 4.0, 12, 32)
     gain = reform( elut_str.(1) * 4.0, 12, 32)

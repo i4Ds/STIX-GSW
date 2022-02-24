@@ -7,32 +7,46 @@
 ;       stx_transmission
 ;
 ; :description:
-;    This procedure saves a property file at given location. The properties... etc.
+; 
+;    This procedure calulates the tramission probality of photons at specified energy rance from the fromt entrance to 
+;    the detector
 ;
 ;
 ; :categories:
 ;    response
 ;
 ; :params:
-;    param1 : in, required, type="string"
-;             a required string input
-;    param2 :
-;
+; 
+;    ein : in, required, type="fltarr"
+;             an array of energies at whicth to calulate the trnsmission
+;             
+;    det_mask :in, type="fltarr", default="intarr(32)+1"
+;              An array of detector indices to use
 ;
 ; :keywords:
-;    keyword1 : in, type="float", default="1.0"
-;               an output float value
-;    keyword2 :
+; 
+;    attenuator : in, type="boolean", default="0"
+;               If set incude transmission through aluminum attenuator 
+;               
+;    xcom : in, type="boolean", default="0"
+;               If set calulate tranmission using IDL xcom rather than supplied tables
+;               
+;    transmission_table : in, type="string", default="stix_transmission_highres_20210303.csv'"
+;              path to csv file of transmission table to use             
 ;
+;    sbo : in, type="boolean", default="0"
+;               if set use SolarBlack (Oxygen) compostion rather than SolarBlack (Carbon) 
 ;
 ; :returns:
-;    strarr[10, 15] with text in it
+;   fltarr with the transmition fraction at the specified energies
 ;
-; :examples:
-;    result = 'hello', /verbose
 ;
 ; :history:
-;    31-Jul-2017 - ECMD (Graz), initial release
+;    25-Jan-2021 - ECMD (Graz), initial release 
+;    12-Mar-2021 - ECMD (Graz), added xcom keyword by default now uses file stix_transmission_highres_20210303.csv 
+;                               to calculate transmission
+;    25-Jan-2022 - ECMD (Graz), attenuator and transmission_table keywords added
+;    22-Feb-2022 - ECMD (Graz), documented 
 ;
 ;-
 function stx_transmission, ein, det_mask, attenuator = attenuator, xcom = xcom, transmission_table = transmission_table, sbo = sbo, verbose = verbose

@@ -1,3 +1,79 @@
+;---------------------------------------------------------------------------
+;+
+; :project:
+;       STIX
+;
+; :name:
+;       stx_read_spectrogram_fits_file
+;
+; :description:
+;    This procedure reads all extensions of a STIX science data x-ray compaction level 4 (spectrogram data) FITS file and converts them to 
+;    IDL structures. The header information for the primary HDU and subsequent extensions is also returned. 
+;   
+; :categories:
+;    spectroscopy, io
+;
+; :params:
+;
+;    fits_path_data : in, required, type="string"
+;              The path to the sci-xray-spec (or sci-spectrogram) observation file
+;
+;    time_shift : in, optional, type="float", default="0."
+;               The difference in seconds in light travel time between the Sun and Earth and the Sun and Solar Orbiter
+;               i.e. Time(Sun to Earth) - Time(Sun to S/C)
+;
+;
+; :keywords:
+; 
+;    energy_shift : in, optional, type="float", default="0."
+;               Shift all energies by this value in keV. Rarely needed only for cases where there is a significant shift
+;               in calibration before a new ELUT can be uploaded.  
+;
+;    alpha : in, type="boolean", default="0"
+;            Set if input file is an alpha e.g. L1A
+;
+;    use_discriminators : in, type="boolean", default="0"
+;               an output float value;
+;
+;    primary_header : out, type="string array"
+;               an output float value;
+;
+;    data_str : out, type="structure"
+;              The header of the primary HDU of the spectrogram data file 
+;
+;    data_header : out, type="string array", default="string array"
+;              The header of the data extention of the spectrogram data file 
+;
+;    data_str : out, type="structure"
+;              The contents of the data extension of the spectrogram data file 
+;
+;    control_header : out, type="string array"
+;                The header of the control extension of the spectrogram data file 
+;               
+;    control_str : out, type="structure"
+;               The contents of the control extension of the spectrogram data file 
+;               
+;    energy_header : out, type="string array"
+;               The header of the energies extension of the spectrogram data file
+;               
+;    energy_str : out, type="structure"
+;              The contents of the energies extension of the spectrogram data file 
+;
+;    t_axis : out, type="stx_time_axis structure",
+;               The time axis corresponding to the observation data 
+;               
+;    e_axis : out, type="stx_energy_axis structure "
+;              The energy axis corresponding to the observation data 
+;              
+;    shift_duration : in, type="boolean", default="1"
+;                     Shift all time bins by 1 to account for FSW time input discrepancy prior to 09-Dec-2021.
+;                     N.B. WILL ONLY WORK WITH FULL TIME RESOUTION DATA WHICH IS USUALLY NOT THE CASE FOR SPECTROGRAM DATA.
+;
+; :history:
+;    18-Jun-2021 - ECMD (Graz), initial release
+;    22-Feb-2022 - ECMD (Graz), documented, improved handling of alpha and non-alpha files, fixed duration shift issue 
+;    
+;-
 pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
   control_header= control_header, energy_str = energy, energy_header = energy_header, t_axis = t_axis, e_axis = e_axis, $
   energy_shift = energy_shift, use_discriminators = use_discriminators, keep_short_bins = keep_short_bins, replace_doubles = replace_doubles, $
@@ -8,8 +84,8 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   default, use_discriminators, 1
   default, replace_doubles, 0
   default, keep_short_bins, 1
-  default, alpha, 0 
-  
+  default, alpha, 0
+
   !null = stx_read_fits(fits_path, 0, primary_header, mversion_full = mversion_full)
   control = stx_read_fits(fits_path, 'control', control_header, mversion_full = mversion_full)
   data = stx_read_fits(fits_path, 'data', data_header, mversion_full = mversion_full)
@@ -34,15 +110,16 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   ;    message, /info, 'For time shift compensation full archive buffer time resoultion files are needed.'
   ;endif
 
+  data.counts_err  += sqrt(data.counts)
+  data.triggers_err += sqrt(data.triggers)
+
   duration_shift_needed = (anytim(hstart_time) lt anytim('2021-12-09T00:00:00')) ? 1 : 0
-
   default, shift_duration, duration_shift_needed
-
 
   if ~keyword_set(keep_short_bins) and (anytim(hstart_time) lt anytim('2020-11-25T00:00:00') ) then $
     message, 'Automatic short bin removal should not be attempted on observations before 25-Nov-20'
 
-  if ~keyword_set(shift_duration) and (anytim(hstart_time) gt anytim('2021-12-09T00:00:00') ) then $
+  if keyword_set(shift_duration) and (anytim(hstart_time) gt anytim('2021-12-09T00:00:00') ) then $
     message, 'Shift of duration with respect to time bins is no longer needed after 09-Dec-21'
 
   if shift_duration then begin
@@ -70,6 +147,7 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
 
     duration = (data.timedel)[0:-2]
     time_bin_center = (data.time)[0:-2]
+    control_index = (data.control_index)[0:-2]
 
   endif else begin
 
@@ -79,6 +157,7 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
     triggers_err =  data.triggers_err
     duration = (data.timedel)
     time_bin_center = (data.time)
+    control_index = (data.control_index)
 
   endelse
 
@@ -128,10 +207,31 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   endif
 
   if alpha then begin
-    rcr = replicate(control.rcr, n_time)
+    rcr = tag_exist(data, 'rcr') ? data.rcr :replicate(control.rcr, n_time)
   endif else begin
-    rcr = fix((data.rcr).substring(-1))
+    rcr = (data.rcr.typecode)[0] eq 7 ? fix((data.rcr).substring(-1)) : (data.rcr)
   endelse
+
+  ; create time object
+  stx_time_obj = stx_time()
+  stx_time_obj.value =  anytim(hstart_time , /mjd)
+  start_time = stx_time_add(stx_time_obj, seconds = time_shift)
+
+  if ~keyword_set(alpha) then begin
+    t_start = stx_time_add( start_time,  seconds = [ time_bin_center/10. - duration/20. ] )
+    t_end   = stx_time_add( start_time,  seconds = [ time_bin_center/10. + duration/20. ] )
+    t_mean  = stx_time_add( start_time,  seconds = [ time_bin_center/10. ] )
+  endif else begin
+    t_start = stx_time_add( start_time,  seconds = [ time_bin_center - duration/2. ] )
+    t_end   = stx_time_add( start_time,  seconds = [ time_bin_center + duration/2. ] )
+    t_mean  = stx_time_add( start_time,  seconds = [ time_bin_center ] )
+  endelse
+
+  t_axis  = stx_time_axis(n_elements(time_bin_center))
+  t_axis.mean =  t_mean
+  t_axis.time_start = t_start
+  t_axis.time_end = t_end
+  t_axis.duration = duration
 
   data = {time: time_bin_center,$
     timedel:duration , $
@@ -140,24 +240,7 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
     counts:counts ,$
     counts_err: counts_err ,$
     rcr: rcr,$
-    control_index:(data.control_index)[0:-2]}
-
-
-  ; create time object
-  stx_time_obj = stx_time()
-  stx_time_obj.value =  anytim(hstart_time , /mjd)
-  start_time = stx_time_add(stx_time_obj, seconds = time_shift)
-
-  t_start = stx_time_add( start_time,  seconds = [time_bin_center - duration/2.] )
-  t_end = stx_time_add( start_time,  seconds = [time_bin_center + duration/2.] )
-  t_mean = stx_time_add( start_time,  seconds = [time_bin_center] )
-
-  t_axis  = stx_time_axis(n_elements(time_bin_center))
-  t_axis.mean =  t_mean
-  t_axis.time_start = t_start
-  t_axis.time_end = t_end
-  t_axis.duration = duration
-
+    control_index:control_index}
 
   if control.energy_bin_mask[0] || control.energy_bin_mask[-1] and ~keyword_set(use_discriminators) then begin
 

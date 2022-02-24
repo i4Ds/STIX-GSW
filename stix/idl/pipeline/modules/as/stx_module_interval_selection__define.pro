@@ -16,7 +16,7 @@
 ;
 ; HISTORY:
 ;       05.02.2013 nicky.hochmuth initial (empty) release
-;       17.06.2015 ECMD (Graz),now consistent with new ordering of the spectrogram 
+;       17.06.2015 ECMD (Graz), now consistent with new ordering of the spectrogram 
 ;                  with energy being the first dimension and time being the last.
 ;-
 

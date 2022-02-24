@@ -37,69 +37,153 @@
 ;             -the summation of the counts recorded by the pixels.
 ;             
 ;CONTACT: massa.p@dima.unige.it
-;-
-function stx_em, countrates, u, v, phase_corr, IMSIZE=imsize, PIXEL=pixel, XYOFFSET=xyoffset, SUMCASE = sumcase, $
-                 MAXITER=maxiter, TOLERANCE=tolerance, SILENT=silent, MAKEMAP=makemap
 
-  default, maxiter, 5000
-  default, imsize, [129, 129]
-  default, pixel, [1., 1.]
-  default, tolerance, 0.001
-  default, silent, 0
-  default, makemap, 0
-  default, xyoffset, [0, 0]
-  n_det_used = n_elements(u)
-  default, phase_corr, fltarr(n_det_used)
-  
-  ; input parameters control
-  if imsize[0] ne imsize[1] then message, 'Error: imsize must be square.'
-  if pixel[0] ne pixel[1] then message, 'Error: pixel size per dimension must be equal.'
-  
-  
+FUNCTION stx_em,countrates,energy_range,time_range,IMSIZE=imsize,PIXEL=pixel,MAPCENTER=mapcenter, WHICH_PIX=which_pix, $
+  subc_index=subc_index, MAXITER=maxiter, TOLERANCE=tolerance, SILENT=silent, MAKEMAP=makemap, XY_FLARE=xy_flare
 
-  ; Creation of the matrix 'H' used in the EM algorithm
-  H = stx_map2pixelabcd_matrix(imsize, pixel, u, v, phase_corr, xyoffset = xyoffset, SUMCASE = sumcase)
+default, which_pix, 'TOP+BOT'
+default, subc_index, stix_label2ind(['3a','3b','3c','4a','4b','4c','5a','5b','5c','6a','6b','6c',$
+                                       '7a','7b','7c','8a','8b','8c','9a','9b','9c','10a','10b','10c'])
 
-  ; Vectorization of the matrix 'pixel_data.counts' containing the number of counts recorded
-  ; by STIX pixels
-  y = reform(countrates, n_det_used*4)
+default, maxiter, 5000
+default, imsize, [129, 129]
+default, pixel, [1., 1.]
+default, tolerance, 0.001
+default, silent, 0
+default, makemap, 0
+default, mapcenter, [0, 0]
+default, xy_flare, [0.,0.]
+n_det_used = n_elements(subc_index)
+default, phase_corr, fltarr(n_det_used)
 
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  ; EXPECTATION MAXIMIZATION ALGORITHM
+; input parameters control
+if imsize[0] ne imsize[1] then message, 'Error: imsize must be square.'
+if pixel[0] ne pixel[1] then message, 'Error: pixel size per dimension must be equal.'
 
-  ;Initialization
-  x = fltarr((size(H,/dim))[1]) + 1.
-  y_index = where(y gt 0.)
-  Ht1 = H ## (y*0.0+1.0)
-  H2 = H^2
+;;;;;;;;;; Before
 
-  if ~keyword_set(silent) then print, 'EM iterations: ' & print, 'N. Iter:      STD:          C-STAT:'
+subc_str = stx_construct_subcollimator()
 
-  ; Loop of the algorithm
-  for iter = 1, maxiter do begin
-    Hx = H # x
-    z = f_div(y , Hx)
-    Hz = H ## z
+; Grid correction
+phase_cal = read_csv(loc_file( 'GridCorrection.csv', path = getenv('STX_VIS_DEMO') ), header=header, table_header=tableheader, n_table_header=2 )
+phase_corr = phase_cal.field2
 
-    x = x * transpose(f_div(Hz, Ht1))
+; Phase correction
+phase_cal = read_csv(loc_file( 'PhaseCorrFactors.csv', path = getenv('STX_VIS_DEMO')), header=header, table_header=tableheader, n_table_header=3 )
+phase_corr += phase_cal.field2
 
-    cstat = 2. / n_elements(y[y_index]) * total(y[y_index] * alog(f_div(y[y_index],Hx[y_index])) + Hx[y_index] - y[y_index])
+; Pixel correction
+phase_corr += 46.1
 
-    ; Stopping rule
-    if iter gt 10 and (iter mod 25) eq 0 then begin
-      emp_back_res = total((x * (Ht1 - Hz))^2)
-      std_back_res = total(x^2 * (f_div(1.0, Hx) # H2))
-      std_index = f_div(emp_back_res, std_back_res)
+phase_corr *= !dtor
 
-      if ~keyword_set(silent) then print, iter, std_index, cstat
+; Sum over top and bottom pixels
+case which_pix of
 
-      if std_index lt tolerance then break
- 
-    endif
-  endfor
+  'TOP': begin
+    pixel_ind = [0]
+  end
 
-  x_im = reform(x, imsize[0],imsize[1])
+  'BOT': begin
+    pixel_ind = [1]
+  end
 
-  return, makemap ? make_map(x_im, xcen=xyoffset[0], ycen=xyoffset[1], dx=pixel[0], dy=pixel[0], id = 'EM') : x_im
+  'TOP+BOT': begin
+    pixel_ind = [0,1]
+  end
+
+endcase
+
+pix = reform(countrates, 32, 4, 3)
+countrates = n_elements( pixel_ind ) eq 1 ? reform(pix[*, *, pixel_ind , *]) : total( pix[*, *, pixel_ind, *], 3 )
+
+eff_area = subc_str.det.pixel.area
+eff_area = reform(transpose(eff_area), 32, 4, 3)
+eff_area = n_elements( pixel_ind ) eq 1 ? reform(eff_area[*, *, pixel_ind , *]) : total(eff_area[*,*,pixel_ind], 3)
+
+; To make the units: counts s^-1 keV^-1 cm^-2
+countrates = countrates/eff_area
+this_gtrans = stix_gtrans32_test_sep_2021(xy_flare)
+for i=0,31 do begin
+  countrates(i,*)=countrates(i,*) * this_gtrans(i) * 4.
+endfor
+countrates = countrates[subc_index, *]
+
+uv = stx_uv_points_giordano()
+u = -uv.u * subc_str.phase
+v = -uv.v * subc_str.phase
+u = u[subc_index]
+v = v[subc_index]
+
+phase_corr = phase_corr[subc_index]
+
+;;;;;;;;;;;;
+
+XYOFFSET=[mapcenter[1], -mapcenter[0]]
+
+; Creation of the matrix 'H' used in the EM algorithm
+H = stx_map2pixelabcd_matrix(imsize, pixel, u, v, phase_corr, xyoffset = XYOFFSET, SUMCASE = 1)
+
+; Vectorization of the matrix 'pixel_data.counts' containing the number of counts recorded
+; by STIX pixels
+y = reform(countrates, n_det_used*4)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; EXPECTATION MAXIMIZATION ALGORITHM
+
+;Initialization
+x = fltarr((size(H,/dim))[1]) + 1.
+y_index = where(y gt 0.)
+Ht1 = H ## (y*0.0+1.0)
+H2 = H^2
+
+if ~keyword_set(silent) then print, 'EM iterations: ' & print, 'N. Iter:      STD:          C-STAT:'
+
+; Loop of the algorithm
+for iter = 1, maxiter do begin
+  Hx = H # x
+  z = f_div(y , Hx)
+  Hz = H ## z
+
+  x = x * transpose(f_div(Hz, Ht1))
+
+  cstat = 2. / n_elements(y[y_index]) * total(y[y_index] * alog(f_div(y[y_index],Hx[y_index])) + Hx[y_index] - y[y_index])
+
+  ; Stopping rule
+  if iter gt 10 and (iter mod 25) eq 0 then begin
+    emp_back_res = total((x * (Ht1 - Hz))^2)
+    std_back_res = total(x^2 * (f_div(1.0, Hx) # H2))
+    std_index = f_div(emp_back_res, std_back_res)
+
+    if ~keyword_set(silent) then print, iter, std_index, cstat
+
+    if std_index lt tolerance then break
+
+  endif
+endfor
+
+x_im = reform(x, imsize[0],imsize[1])
+
+;;;;;;;;;;;; After
+
+em_map = make_map(x_im)
+this_estring=strtrim(fix(energy_range[0]),2)+'-'+strtrim(fix(energy_range[1]),2)+' keV'
+em_map.ID = 'STIX EM '+this_estring+': '
+em_map.dx = pixel[0]
+em_map.dy = pixel[1]
+em_map.xc = mapcenter[0]
+em_map.yc = mapcenter[1]
+em_map.time = anytim((anytim(time_range[1])+anytim(time_range[0]))/2.,/vms)
+em_map.DUR = anytim(time_range[1])-anytim(time_range[0])
+;eventually fill in radial distance etc
+add_prop,em_map,rsun=0.
+add_prop,em_map,B0=0.
+add_prop,em_map,L0=0.
+
+;rotate map to heliocentric view
+em__map=em_map
+em__map.data=rotate(em_map.data,1)
+
+return,em__map
 
 end

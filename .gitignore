@@ -15,11 +15,13 @@ lldp/**/.project
 # ignore the fpga data folder
 fpga
 
+# ignore the Default save folder
+Default
+
 # ignore big data files, will be loaded separately
 stix/dbase/sim/stx_counts.sav
 stix/dbase/fpga/rnd_seq_testing/ES*
 stix/dbase/demo/flare_detection/flare_detection_simulation_data.sav
-stix/idl/demo/*
 
 # ignore test content
 lldp/testing/TEST_OUTPUT/failed/*
