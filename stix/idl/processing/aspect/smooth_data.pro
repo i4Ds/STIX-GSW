@@ -55,7 +55,7 @@ pro smooth_data, data
     
   ; build new array of data structures
   for i=0,new_dim-1 do begin
-    a = {stx_aspect_dto, $
+    a = { $
          cha_diode0: new_sigA[i], cha_diode1: new_sigB[i], chb_diode0: new_sigC[i], chb_diode1: new_sigD[i], $
          time: new_utc[i], duration: new_dura[i], spice_disc_size: new_rsol[i], y_srf: new_y[i], z_srf: new_z[i], $
          calib: new_cal[i], error: new_err[i]}

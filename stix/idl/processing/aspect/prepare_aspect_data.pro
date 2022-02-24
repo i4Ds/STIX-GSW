@@ -58,11 +58,13 @@ function prepare_aspect_data, infile, quiet=quiet
   ; convert back to UTC strings
   UTC_str = anytim2utc(res_times, /ccsds, /truncate)
   ; get array of positions of SolO with respect to the Sun
-  solo_pos = get_sunspice_lonlat(UTC_str,'SOLO')
+  ;solo_pos = get_sunspice_lonlat(UTC_str,'SOLO')
   ; then the solar disc size (radius) is (in arcsec):
-  solrad_m = 6.9566e8   ; solar radius [m]
-  r_sol = solrad_m / (solo_pos[0,*]*1.e3) * 180./!pi * 3600.
+  ;solrad_m = 6.9566e8   ; solar radius [m]
+  ;r_sol = solrad_m / (solo_pos[0,*]*1.e3) * 180./!pi * 3600.
   
+  r_sol = replicate(4.0, nb_rows)
+
   ; Loop through the rows to build an array of data structures
   for i=0,nb_rows-1 do begin
     a =  {stx_aspect_dto, $
