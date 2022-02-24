@@ -110,8 +110,8 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   ;    message, /info, 'For time shift compensation full archive buffer time resoultion files are needed.'
   ;endif
 
-  data.counts_err  += sqrt(data.counts)
-  data.triggers_err += sqrt(data.triggers)
+  data.counts_err  = sqrt(data.counts_err^2. + data.counts)
+  data.triggers_err = sqrt( data.triggers_err^2. + data.triggers)
 
   duration_shift_needed = (anytim(hstart_time) lt anytim('2021-12-09T00:00:00')) ? 1 : 0
   default, shift_duration, duration_shift_needed

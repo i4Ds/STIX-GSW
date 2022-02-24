@@ -95,8 +95,8 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
   if strcompress(processing_level,/remove_all) eq 'L1A' then alpha = 1
 
 
-  data.counts_err  += sqrt(data.counts)
-  data.triggers_err += sqrt(data.triggers)
+  data.counts_err  = sqrt(data.counts_err^2. + data.counts)
+  data.triggers_err = sqrt(data.triggers_err^2. + data.triggers)
 
 
   ; ************************************
