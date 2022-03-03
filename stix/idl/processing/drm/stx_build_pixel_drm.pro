@@ -82,7 +82,7 @@ function stx_build_pixel_drm, ct_energy_edges, pixel_mask, ph_energy_edges = ph_
 
   ; calculate the drm over the given count energy edges along with any other relevant keywords supplied
   ; using the standard build drm  routine
-  drm = stx_build_drm( ph_energy_edges, d_be = 0, d_al = 0, d_pt = 0, _extra=_extra )
+  drm = stx_build_drm( ph_energy_edges, d_be = 0, d_al = 0, _extra=_extra )
 
   ;calculate the total area of pixels to be included (multiply the elements in the mask by the elements in ther area array)
   total_area = total( pixel_areas*pixel_mask )
@@ -94,9 +94,9 @@ function stx_build_pixel_drm, ct_energy_edges, pixel_mask, ph_energy_edges = ph_
   ;scale the relevant parameters
   drm.area *= scale_factor*grid_factor*rcr_factor*dist_factor
 
-det_mask = total(pixel_mask,1) <1
+  det_mask = total(pixel_mask,1) <1
   smatrix = drm.smatrix
-  transmission = stix_transmission(drm.emean, det_mask)
+  transmission = stx_transmission(drm.emean, det_mask, attenuator = attenuator)
   dim_drm = size(/dim, smatrix) > 1
 
   smatrix = smatrix * rebin( transpose(transmission), dim_drm)

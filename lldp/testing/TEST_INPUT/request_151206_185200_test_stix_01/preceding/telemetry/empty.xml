@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns2:ResponsePart xmlns:ns2="http://edds.egos.esa/model">
-    <Response>
-        <PktRawResponse>
-<PktRawResponseElement packetID="1">
-</PktRawResponseElement></PktRawResponse>
-     </Response>
-</ns2:ResponsePart>

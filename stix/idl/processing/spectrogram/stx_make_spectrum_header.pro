@@ -68,6 +68,7 @@
 ; :history:
 ;       23-Sep-2014 – ECMD (Graz), initial release;
 ;       03-Dec-2018 – ECMD (Graz), Changed RCR to FILTER for OSPEX compatibility  
+;       23-Feb-2022 - ECMD (Graz), added information of xspec compatibility and time shift to file headers 
 ;       
 ;-
 
@@ -86,7 +87,10 @@ pro stx_make_spectrum_header,specfile = specfile, $
   srmheader = srmheader, $
   srmparheader = srmparheader, $
   units = units, $
-  energy_band = energy_band
+  energy_band = energy_band, $
+  time_shift = time_shift,$
+  compatibility = compatibility,$
+  any_specfile = any_specfile
 
   fxhmake, header, /date, /init, /extend, errmsg = errmsg
 
@@ -112,6 +116,7 @@ pro stx_make_spectrum_header,specfile = specfile, $
   timesys = strmid(anytim('00:00 1-Jan-79', /ccsds), 0, 19)
   fxaddpar, header, 'TIMESYS',  timesys, 'Reference time in YYYY MM DD hh:mm:ss'
   fxaddpar, header, 'TIMEUNIT', 'd', 'Unit for TIMEZERO, TSTARTI and TSTOPI'
+  fxaddpar, header, 'TIME_SHIFT', time_shift, 'Applied correction for Earth-SO light travel time'
 
 
   primary_header = header
@@ -129,13 +134,15 @@ pro stx_make_spectrum_header,specfile = specfile, $
   specparheader = $
     merge_fits_hdrs( specparheader, specheader, ERR_MSG=err_msg, $
     ERR_CODE=err_code )
-
-  fxaddpar, specparheader, 'EXTNAME', 'STIX Spectral Object Parameters', 'Extension name'
+    
+  expected_instrument = keyword_set(any_specfile) ? 'STIX' :'HESSI'
+  fxaddpar, specparheader, 'EXTNAME', expected_instrument +' Spectral Object Parameters', 'Extension name'
 
   srmheader = specheader
   fxaddpar, srmheader, 'GEOAREA', ratearea
   fxaddpar, specheader, 'RESPFILE', srmfile
   fxaddpar, srmheader, 'PHAFILE', specfile
+  fxaddpar, srmheader,  'SOFTWARE_COMPATIBILITY', compatibility
 
   sep_dets = 0
   sep_dets_cmt = sep_dets ? $

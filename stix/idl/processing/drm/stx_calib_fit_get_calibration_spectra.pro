@@ -13,7 +13,7 @@
 ;-
 function stx_calib_fit_get_calibration_spectra, filename = filename, path = path, quiet = quiet
 
-  default, path, [curdir(), concat_dir( concat_dir('ssw_stix','dbase'),'detector')]
+  default, path, [curdir(), concat_dir( concat_dir('SSW_STIX','dbase'),'detector')]
   default, filename, 'run1_summed.sav'
   default, quiet, 1
   ;Get the calibration data, these were already read from telemetry

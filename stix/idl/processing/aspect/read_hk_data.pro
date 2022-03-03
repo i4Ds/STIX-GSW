@@ -4,7 +4,8 @@
 ;
 ; Syntax      : data = read_hk_data(infile [, /quiet] )
 ;
-; Inputs      : input file name
+; Inputs      : 
+;     infile  = input file name, including full absolute path
 ;
 ; Output      : a data structure that contains:
 ;                 result.UTC     = UTC timestamps as string 
@@ -19,31 +20,32 @@
 ;   2019-12-12 - F. Schuller (AIP), initial version of read_SAS_data
 ;   2021-06-16 - FSc: adapted to L1 HK datafiles, and standalone SAS_pipeline package
 ;   2021-08-09 - FSc: renamed from read_l1_data to read_hk_data
-;   
+;   2021-11-15 - FSc: removed common block "config"
+
 ; Example:
-;   data = read_hk_data('SAS_20210212-20210215')
+;   data = read_hk_data('/path_to_L1_files/SAS_20210212-20210215')
 
 ;-
 
 function read_hk_data, infile, quiet=quiet
-  common config   ; contains the input directory
+
+  if n_params() lt 1 then message,'  SYNTAX: read_hk_data, infile [, /quiet]
 
   ; First, verify that the file exists
-  full_name = data_dir + infile
-  if strmid(full_name,strlen(full_name)-5,5) ne '.fits' then full_name = full_name + '.fits'  
-  result = file_test(full_name)
+  if strmid(infile,strlen(infile)-5,5) ne '.fits' then infile = infile + '.fits'  
+  result = file_test(infile)
   if not result then begin
-    print,"ERROR: File "+full_name+" not found."
+    print,"ERROR: File "+infile+" not found."
     return,0
   endif
 
   ; read file content: Primary header
-  dummy = mrdfits(full_name,0,primary,/silent)
+  dummy = mrdfits(infile,0,primary,/silent)
   utc_0 = sxpar(primary, 'DATE_BEG')
   utc_end = sxpar(primary, 'DATE_END')
 
   ; read file content: data table
-  tbl = mrdfits(full_name,2,head,/silent)   ; binary table in Extension #2
+  tbl = mrdfits(infile,2,head,/silent)   ; binary table in Extension #2
   nb_rows = n_elements(tbl)
   if not keyword_set(quiet) then begin
     msg = string(nb_rows,format='("Input data file contains ",I5," entries, ")')
@@ -62,7 +64,7 @@ function read_hk_data, infile, quiet=quiet
   ; select only data where duration = 64s
   tmp64 = where(abs(duration - 64.) lt 0.1,nb_64)    ; allow for some rounding error
   if nb_64 eq 0 then begin
-    print,"ERROR: no valid data in File "+full_name
+    print,"ERROR: no valid data in File "+infile
     return,0
   endif
 
@@ -99,7 +101,9 @@ function read_hk_data, infile, quiet=quiet
   res_UTC = anytim2utc(res_times, /ccsds, /truncate)
 
   ; Prepare result structure
-  signal = [[asp_A1],[asp_A0],[asp_B1],[asp_B0]]
+  signal = [[asp_A0],[asp_A1],[asp_B0],[asp_B1]]
+  ; add a keyword in primary header to store calibration factor
+  sxaddpar, primary, 'SAS_CALI', 0., "Aspect signals calibration factor", before='HISTORY'
   ; also define attributes y_srf and z_srf where to store the results
   result = {times:res_times, UTC:res_utc, signal:transpose(signal), _calibrated:0, primary:primary, y_srf:0.*res_times, z_srf:0.*res_times}
   return,result

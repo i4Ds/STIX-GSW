@@ -40,12 +40,11 @@
 ;       23-Sep-2014 – ECMD (Graz), initial release
 ;       12-Dec-2014 – ECMD (Graz), fixed dimensions to agree with new standard index order of count(energy, pixel, detector, time)
 ;                                  Now using rate rather than counts as the data units
-;       26-nov-2017 - RAS   (GSFC), Get ph_edges from srm structure if passed
-;       03-dec-2018 - ECMD  (Graz), include information for multiple attenuation states
-;
+;       26-Nov-2017 - RAS   (GSFC), Get ph_edges from srm structure if passed
+;       03-Dec-2018 - ECMD  (Graz), include information for multiple attenuation states
+;       23-Feb-2022 - ECMD  (Graz), added information of xspec compatibility and time shift to files
 ;
 ;-
-
 pro stx_write_ospex_fits, $
   spectrum = spec, $
   specfilename = specfilename, $
@@ -54,7 +53,17 @@ pro stx_write_ospex_fits, $
   srm_atten=srm_atten, $
   srmdata = srm, $
   ph_edges = ph_edges, $
-  _extra = extra_keys
+  time_shift = time_shift,$
+  xspec = xspec,$
+    _extra = extra_keys
+
+  default, any_specfile, 0 
+  default, xspec, 0
+  if ~keyword_set(any_specfile) then begin
+   print,  'To use SPEX_ANY_SPECFILE strategy '
+   print,  'change self->setstrategy, '+string(39B)+'SPEX_HESSI_SPECFILE' +string(39B)+ ' to self->setstrategy, '+string(39B)+'SPEX_ANY_SPECFILE'+string(39B)
+   print,  'in STIX rate block of spex_data__define.pro'
+  endif
 
 
   data = float(spec.data)
@@ -115,6 +124,7 @@ pro stx_write_ospex_fits, $
   timecen = double( reform( ut[0,*] + timedel/2.0 ) )
   exposure = total( timedel*livetime )
 
+  compatibility = xspec ? 'XSPEC' : 'OSPEX'
 
 
   Units = 'rate'
@@ -130,7 +140,10 @@ pro stx_write_ospex_fits, $
     srmheader = srmheader, $
     srmparheader = srmparheader, $
     units = units, $
-    energy_band = ct_edges_2
+    energy_band = ct_edges_2, $
+    time_shift = time_shift,$
+    compatibility = compatibility,$
+    any_specfile = any_specfile
 
 
   units_arr = [ units, units, ' ', ' ', ' ', 's', 's' ]

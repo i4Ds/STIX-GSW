@@ -1,0 +1,36 @@
+; Phase correction factors (in degrees) computed in January 2022
+; Obtained by computing the difference between the measured phases and the
+; predicted ones on a dataset of >50 compact events in the energy range 6-10 keV
+Sub-collimator index,Phase correction factor
+1,-18.79
+2,18.23
+3,-0.70
+4,-11.22
+5,-12.81
+6,-12.00
+7,16.51
+8,-4.65
+9,0.00
+10,0.00
+11,0.00
+12,0.00
+13,0.00
+14,0.21
+15,18.86
+16,-7.07
+17,0.00
+18,0.00
+19,0.00
+20,0.19
+21,-12.55
+22,-9.53
+23,7.50
+24,4.35
+25,10.83
+26,-7.19
+27,20.49
+28,-6.57
+29,-40.60
+30,0.35
+31,24.42
+32,0.46

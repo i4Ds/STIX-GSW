@@ -1,965 +1,0 @@
-SIMPLE  =                    T / Dummy Created by MWRFITS v1.13a                BITPIX  =                    8 / Dummy primary header created by MWRFITS        NAXIS   =                    0 / No data is associated with this header         EXTEND  =                    T / Extensions may (will!) be present              END                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             XTENSION= 'BINTABLE'           / Binary table written by MWRFITS v1.13a         BITPIX  =                    8 / Required value                                 NAXIS   =                    2 / Required value                                 NAXIS1  =                  325 / Number of bytes per row                        NAXIS2  =                  384 / Number of rows                                 PCOUNT  =                    0 / Normally 0 (no varying arrays)                 GCOUNT  =                    1 / Required value                                 TFIELDS =                   11 / Number of columns in table                     COMMENT                                                                         COMMENT  *** End of mandatory fields ***                                        COMMENT                                                                         COMMENT                                                                         COMMENT  *** Column formats ***                                                 COMMENT                                                                         TFORM1  = '17E     '           /                                                TFORM2  = '17E     '           /                                                TFORM3  = '40A     '           /                                                TFORM4  = '10E     '           /                                                TFORM5  = '10E     '           /                                                TFORM6  = '25A     '           /                                                TFORM7  = 'I       '           /                                                TFORM8  = 'I       '           /                                                TFORM9  = 'D       '           /                                                TFORM10 = 'D       '           /                                                TFORM11 = '24A     '           /                                                COMMENT                                                                         COMMENT  *** Column names ***                                                   COMMENT                                                                         TTYPE1  = 'PARAMS_LO'          /                                                TTYPE2  = 'SIGMAS_LO'          /                                                TTYPE3  = 'FUNCTION_LO'        /                                                TTYPE4  = 'PARAMS_HI'          /                                                TTYPE5  = 'SIGMAS_HI'          /                                                TTYPE6  = 'FUNCTION_HI'        /                                                TTYPE7  = 'IP      '           /                                                TTYPE8  = 'ID      '           /                                                TTYPE9  = 'GAINFIT '           /                                                TTYPE10 = 'OFFSETFIT'          /                                                TTYPE11 = 'TIME    '           /                                                END                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             EWÜAĞ@òxEéÿFAønÇ?Aıõ<#×
-AöÌÍ        D¬,B¶!?Yàg<#×
-B          E
-^A
-
-@Œ2µC(J;ùñ<˜                B;àı<’„Æ<¿}                line_nodrm+stx_line_nodrm+stx_line_nodrmD¿¶Awı#BÉŠE¢ÁB¢Ûé?0æc?ğ)B¢          DïH    AÚi°Caõ<¸ot<ã›î=æ<            line_nodrm+stx_line_nodrm    ?Û–»˜Çã@p{ø†YJõ27-Jun-2019 20:38:02.088E4*ªAÇ¨@ç­cFp zAø–?:i³<#×
-AöÌÍ        E9IŠB‡B?OCû<#×
-B          E)%C@êF@Po×C” Ò;óxÒ<n                BÉ:“<ˆ_î<°‰Ì                line_nodrm+stx_line_nodrm+stx_line_nodrmAÄšAJµB?c5EƒÅvB¢sc?Tûè?p›B¢          D²•L    EOšC\ÿ=ÌV= è=]«            line_nodrm+stx_line_nodrm   ?ÛşÁ;Ÿ@r!hŒç°27-Jun-2019 20:39:27.233EWÜAødAèËCFkyÀA÷…Û?%›©<#×
-AöÌÍ        D´¤(BÏ3?y<#×
-B          H ì…DcšùE”DC  ;èÇµ<e{                 C,8<ğû¢=•U                line_nodrm+stx_line_nodrm+stx_line_nodrm?~Û²Awı#BäƒE£#B£m…?-Û?ë¨vB¢          Díì“    G† ëCL<éĞ=·o=ip            line_nodrm+stx_line_nodrm   ?ÛÙ‡Æ2~Ø@pã±A [À27-Jun-2019 20:40:34.839E"&AÈ¶A iXFqAø™ç?;º©<#×
-AöÌÍ        E$BR2?_ÂÅ<#×
-B          EŒÏ§AdäI@ÎšßC•2Õ;ùà<=f                B­¡< <Î                line_nodrm+stx_line_nodrm+stx_line_nodrmF
-ºA*²ˆBEÏ’E1æ¸B¢%š?fq°?	¬B¢          Dx–š    A{=¬C  Ÿ<Ô
-1=+#<›_            line_nodrm+stx_line_nodrm   ?ÛÀ]RÁmô@q‡›‹¬q27-Jun-2019 20:41:57.969DìkDBU¹AyA¹FfùšAùA}? Å5<#×
-AöÌÍ        Dö™ÅBˆè?_Ÿ-<#×
-B          F.r$Aù¨hB¶şC¡‚m<¿Ë<!³9                B!Ê<±¦;<ğÀ                line_nodrm+stx_line_nodrm+stx_line_nodrmEnÛ)AEàVB@?°E^ÓB¢£b?MgX?›êB¢          D´vŠ    AÙ’C6H<ÜÉ»=&Ôö=1—ö            line_nodrm+stx_line_nodrm   ?Û®ÿ\l¡@qKî—Oß27-Jun-2019 20:42:56.194D¿€tB
-Ù´AcÚcFaAø¸ÿ?4í‘<#×
-AöÌÍ        Dõ„’B5?jÀ@<#×
-B          Eÿş´A+nèBœƒğCm< ²1<Z~                B‘È<±ÿ<ó                line_nodrm+stx_line_nodrm+stx_line_nodrmF%§A'ÌdBFgrE7C:B¢,Ç?GÇş>óãB¢          D|’    ArÆÊC!I<¿ûÁ=LY<h[x            line_nodrm+stx_line_nodrm   ?ÛÖ0"İzš@qw:’£27-Jun-2019 20:44:13.542EïªAÉÔB
-„FHA÷m?)-K<#×
-AöÌÍ        D¯õSB¾™?wÇÈ<#×
-B          H½¥«E+/3E«~ŒCŒ!;ö7<jbŞ                Bİ_<ã={QP                line_nodrm+stx_line_nodrm+stx_line_nodrmFWÿAB´B3élEEô2B¢›4?2-»? ÆÈB¢          D¥¡    A@í6C F<Ç¨¶=
-eš<ˆÕ¹            line_nodrm+stx_line_nodrm   ?Û§"X¼Z@páÒˆÎp;27-Jun-2019 20:45:32.013D‹›±Aöç.@£eÌFNİĞAù”Ò? \"<#×
-AöÌÍ        E\ÌBZ?Uëp<#×
-B          CúNy@”ï?Êî|CœŠ<@Î<7‰Y                BŸ6<4<ÅöR                line_nodrm+stx_line_nodrm+stx_line_nodrmAvä¯AYº¿B</˜Eq&¡B¢ú?N‚Ù?ÑSŠB¢          D”F´    EÓÃÎCFò/<ìÑº=9æÛ=p8            line_nodrm+stx_line_nodrm   ?Û›í0ğbÔ@q<›=È27-Jun-2019 20:46:49.449Cf3AŸf‹A`-]D†]Aøpü?58}<#×
-AöÌÍ        C7PKB¼?eıù<#×
-B          E‘·sC- CAöBn„¸<Ä*F<ùX                A°ß=Œ^š=¶¾                line_nodrm+stx_line_nodrm+stx_line_nodrmCÓ%íAo0 B7ËLC¡B¢y“?4F?â˜B¢          Cº‰9    BY]KB`
-‘=¤Ï=ì">ö            line_nodrm+stx_line_nodrm   ?ÛŠ*ÍB>@q‡³×Ûõ27-Jun-2019 20:48:16.813D73ÓA,Ş AÕü?D·GbAør¤?	P–<#×
-AöÌÍ        C?UBåQ?.š<#×
-B          F¢&D<í Cß B£øë<
-=<«g                A×G=zœ+=¨(                line_nodrm+stx_line_nodrm+stx_line_nodrm>á%~Ao0 B7ËLCªéB¢ç?Mƒ{?IŸB¢          CÁvû    GpÔB,lÌ=˜bl=²<H=9»            line_nodrm+stx_line_nodrm 	  ?ÛÛmiç@r;Í5¨27-Jun-2019 20:49:37.478Db+„A/âÒAÈºÈDC-AúWà?©ş<#×
-AöÌÍ        C÷‡Bİ>àCˆ<#×
-B          F¥ÙDÒC£YYBEOï<¢Ø<ßD(                AÚõ=O3ç=©gõ                line_nodrm+stx_line_nodrm+stx_line_nodrmBòAŒYWB&€cD´×B£>ë~?ºÑ!B¢          CêĞJ    C¼–‡B µ=Oñ¢8ç é<¯±â            line_nodrm+stx_line_nodrm 
-  ?Û’:)Çy§@pŒbe+Ô27-Jun-2019 20:50:46.182EWÜA†õ@A ]D†\AøCK?
-¹<#×
-AöÌÍ        Cr&Bîê?ß™<#×
-B          FAWóBÑ„AH–B¥•;<à·s=IQ                B	ÔH=<KB=n                line_nodrm+stx_line_nodrm+stx_line_nodrmDâAJµB?c5C¨ß›B¢]?!ôT>ƒ@ËB¢          CŸÌn    AÎUÎB:Î=aª@=¨]<ûwÛ            line_nodrm+stx_line_nodrm   ?ÛÄÒ,ˆG@q×Xâe27-Jun-2019 20:51:47.769EïªAËòA^BFDBöAø‹¸?8ÜÉ<#×
-AöÌÍ        E	7Bt›?MBÿ<#×
-B          E ıwA£8@­Ö_C+r<4<<ê-                B­Ú†<£”4<ÚMı                line_nodrm+stx_line_nodrm+stx_line_nodrmBRdA«û;B"ZQE–%*B£CH?FãJ@Aç•B¢          E Qó    DyÆCìqµ>…P<ÀŸí?(
-o            line_nodrm+stx_line_nodrm   ?ÛLLß¬£b@r8]cˆf27-Jun-2019 20:52:43.696DìkDAÏªÔ@üFF£Aø†Ç?6¹<#×
-AöÌÍ        E¨®Bƒ?MÎ•<#×
-B          Eš”A>„@›·Cƒ_¦< ¯æ<ÂØ                B®G<›‹S<Ê~ˆ                line_nodrm+stx_line_nodrm+stx_line_nodrmA­&AAŒYWB/L·EP¸B¢EŠ?XS?XB¢          DFÖ    E.À¯CóÂ<Êßå=ú=ÙT            line_nodrm+stx_line_nodrm  ?Û«CII@qĞ~($27-Jun-2019 20:53:42.975E"&AÁ¸AÚ‚FIŒAø“?4¯V<#×
-AöÌÍ        Eã¶B/í?Df<#×
-B          ElFğA\X?@ÖJuC…ëé;ÿíÌ<¨\                B¸Ü<™ôã<Æò¹                line_nodrm+stx_line_nodrm+stx_line_nodrmE”ıAB´BAEgÇ~B¢t?Z÷±?ÀpB¢          DãLy    A¼tÂC[Jq<ßl.=)iÃ=ŸÑŞ            line_nodrm+stx_line_nodrm  ?Û]»œù j@r´b¶®}27-Jun-2019 20:54:47.010EïªAÄ&´A^BF;ÖœAøƒO?>k<#×
-AöÌÍ        E[B<?Lß#<#×
-B          EKµAFKš@ºôCx$–<¤X<$x\                B¯`Û<œÙ£<ÎÁ                line_nodrm+stx_line_nodrm+stx_line_nodrmCôàA€á÷B&î›Eé94B¢Û?H'_?ıÓB¢          D°Ç    CãÅ÷CÃ¤ö=1'Ê=\>_            line_nodrm+stx_line_nodrm  ?Ûz=³¿µ@sY‘Î_27-Jun-2019 20:55:44.749DìkDAÎ Ø@êKæFD  Aø‰v?=ğo<#×
-AöÌÍ        E7íByñ?TÚè<#×
-B          EU÷A@Š÷§C‚F<Ñ<$«Z                B­ Y<Vm<Í4ä                line_nodrm+stx_line_nodrm+stx_line_nodrmD¬hÌAEàVB@?°E?*ÊB¢9¨?c¥?_cB¢          D»’6    B`qƒC ˜å<Ö)µ=™s=~õI            line_nodrm+stx_line_nodrm  ?ÛND0±x³@qÍ}ó¶E¢27-Jun-2019 20:56:49.682D¿€tAÑ¦éA ;F@È—Aø~Ş?<¤E<#×
-AöÌÍ        Ec9BMÈ?J°Â<#×
-B          EójA:T@Â¥ëC}@w<¨Î<!ky                B®Ëä<˜'Ã<Å
-M                line_nodrm+stx_line_nodrm+stx_line_nodrmA¸i
-Ao0 B7ËLEwëB¢p”?=ï;?€éB¢          D¥Œ‹    E/"êCNÆ…<³WŒ=
->Õ=8òì            line_nodrm+stx_line_nodrm  ?Û‘pÖ+ñ @rÛW>«627-Jun-2019 20:57:52.545EïªAÌğ¥@ºÎÂF:w*Aø™¶?0ˆw<#×
-AöÌÍ        E	=B[İ?M	<#×
-B          Dâú‡@›¿?÷ÅòC)`<h[< Ü                Bª¶D<›#<ÇC£                line_nodrm+stx_line_nodrm+stx_line_nodrmD‹¡Awı#B5şTE«èB¢×	?\Şş@ ®B¢          Eå”    B¦~4CŞV¦>ç=)»w?(º’            line_nodrm+stx_line_nodrm  ?Ûßóğş}@rÈ^Ov_Ù27-Jun-2019 20:58:50.685EWÜAÕlÙ@±ºF9OŠAøÑ?3pF<#×
-AöÌÍ        Dø»fB†ú?W¹È<#×
-B          DÎTÜ@‘É„?÷aYC°ú<úß<,Ò÷                BŸù<¬¡L<İÌ                line_nodrm+stx_line_nodrm+stx_line_nodrmB¡WASôßB2DE23=B¢?f±L?>DEB¢          D¡¾‰    DÊ^BéÓ4<ÑÆ=ñ8=$I            line_nodrm+stx_line_nodrm  ?ÛOag#$È@q€LIº^527-Jun-2019 20:59:52.928CğjXAWu¬Aº ÒDoš–AørĞ?#ˆ³<#×
-AöÌÍ        CsßB~?#GR<#×
-B          FEÏoDC³[zBaİŞ<ÂÕh<Şø'                A½S2=•°=È°¸                line_nodrm+stx_line_nodrm+stx_line_nodrmCOA“ïB,!D—˜B¢€M?	'÷?Á>¨B¢          C±g    Bb©Bµ€=šœ“=­º>Ïó            line_nodrm+stx_line_nodrm  ?Û,ù]N°@r¯öı!ÿ.27-Jun-2019 21:01:01.760DK4A.L#BÅµD{"úAø½?È±<#×
-AöÌÍ        CM?pBª>üçÖ<#×
-B          FñbyD“¹şDWgBæ—<¹ßJ<â7‰                B°\=SD:=ÉÒ                line_nodrm+stx_line_nodrm+stx_line_nodrm@,¶A“ïB+ÄµD. B£ß>æAO@@„]B¢          C¤a    Eª¾†C¿·>Np5=£İ¹?P            line_nodrm+stx_line_nodrm 	 ?Ûzåykü¨@r¶“Ãa@27-Jun-2019 21:02:05.389D$â{A+”¶A÷’¦D|hgAøƒü?¥ª<#×
-AöÌÍ        C:tBE?¼D<#×
-B          Fé-¿D¨¡XDb]DB{¹g<¼‹<æäH                Aß8s=r…†=¢A                line_nodrm+stx_line_nodrm+stx_line_nodrm? MÜAo0 B7ËLCø^B¢{¢??›×nB¢          CÁRã    F?_=B¢ˆ=n K=’Ïp=µ¤            line_nodrm+stx_line_nodrm 
- ?Ûx‰~™c@r_“óMj27-Jun-2019 21:03:17.823D´A)ajAËa$DÖ5Aø†w?â<#×
-AöÌÍ        CI›—B#?	LÆ<#×
-B          F”ÁéDc%£CöùhBª±<¸ª6<á)Ñ                AúŒù=Tº=‹Å                line_nodrm+stx_line_nodrm+stx_line_nodrm>u‡ANÂÉB>n;CÉ¿¢B¢aá?"[>?™ÙdB¢          CÚXÙ    G‘zÀB|>á=‰%=¬—R=ßª            line_nodrm+stx_line_nodrm  ?Û;wFˆ{@rE§RT`ª27-Jun-2019 21:04:39.374EïªAÍ…@ÃãôFYM4Aø‰§?:¿V<#×
-AöÌÍ        Ev-B™?[a<#×
-B          DúH@¶ù@áJCŠÖ;ÿ¤Ê<ï‘                B°Ñ<›ê@<Ï0±                line_nodrm+stx_line_nodrm+stx_line_nodrmB²cZAJµB?c5Ec¾cB¢k.?[xT?‹ş3B¢          DÔ.g    DW:uC-2Š<Êby=j›=xA            line_nodrm+stx_line_nodrm   ?Û/fÉû@r·€4mÆ27-Jun-2019 21:05:50.204E"&AÅeñ@ã§xFYÂyAøƒs?:Æü<#×
-AöÌÍ        E£BYĞ?R;Ç<#×
-B          E9,æA	@i‹şC‹²ê;ş§<:C                B¶ûÿ<—<ÅŒÎ                line_nodrm+stx_line_nodrm+stx_line_nodrmBH]bA¢È‚B&E—HhB£W,?U½á@S-kB¢          EEu    Eä¡DJ´)>m•=1 ?¡:            line_nodrm+stx_line_nodrm  ?Û3eˆU@r>“óMj27-Jun-2019 21:06:44.514EWÜAËÈª@ù©ªFND¥Aøw+?DÍ¾<#×
-AöÌÍ        EºÆBs„?S›Æ<#×
-B          E#bA&{—@¢!oC‚ı<<#·¥                B³cg<š™<ÊØT                line_nodrm+stx_line_nodrm+stx_line_nodrmDæ:dANÂÉB>n;E]«ëB¢bî?^Š?v(B¢          D´ö€    B1ŒKC'ı¬=
-…|=ôò=ZO,            line_nodrm+stx_line_nodrm  ?ÛT~–7@qò0oiDg27-Jun-2019 21:07:46.109EWÜAÌ¡@ï¼ÀFPAfAøk?Dî¼<#×
-AöÌÍ        E7SBv¦?bè<#×
-B          E…ƒAÇÍ@–/”CƒwÏ<™Ğ<"×                B©ğ <¥Z<ßå                line_nodrm+stx_line_nodrm+stx_line_nodrmETOA0MôBD©ÒE\v‚B¢|Î?f²Õ?Œ¥B¢          DìàÅ    AúCµC@N<Ñòğ=(T‚=un            line_nodrm+stx_line_nodrm  ?Û.Ï d#–@roÒó27-Jun-2019 21:09:02.536EWÜAË @ù©ªF;$ŠAøˆÇ?8²†<#×
-AöÌÍ        EKìB›U?M½3<#×
-B          Eù/AÇ\@œg>CzæÉ<Ââ<!`                BªG˜<£æ¢<ÚK4                line_nodrm+stx_line_nodrm+stx_line_nodrmDp9øA€á÷B3ş$E‹ ÛB¢ëŠ?Uşí@<„NB¢          E	e    BÂ jD$_ >æ=F„;?gÑ—            line_nodrm+stx_line_nodrm  ?Û:G#« @r‰rGE8ï27-Jun-2019 21:10:01.226DÔÇBAÑIØ@Üw‚FBgAøw,?=ü<#×
-AöÌÍ        Ep>B„š?RÇ<#×
-B          Dİ§@ø«@lä6C}Ûx<j¬<#;B                B«Ÿ.<œ<Ëîœ                line_nodrm+stx_line_nodrm+stx_line_nodrmCjøA¶3—B+vE‰cB£Dü?X,@TğƒB¢          Dş‹    C‘ECøBo>9Ù=0T?p••            line_nodrm+stx_line_nodrm  ?Û5ãÛğV@rLU*™127-Jun-2019 21:10:51.935DìkDAÍ&ö@êKæFJ¢;Aø~¯?9Jl<#×
-AöÌÍ        E
-:Bı?XÏ+<#×
-B          Eé$AÒ5@Œ:C„)1<‰<Ü                B§»Š<¤İ3<×Èÿ                line_nodrm+stx_line_nodrm+stx_line_nodrmEƒ–A.¬BDÿ=EWwıB¢u\?a0Ğ?’êB¢          Dğ¼İ    BLìñCR™É<ô—=2q©=‘Ğ²            line_nodrm+stx_line_nodrm  ?ÛÄ?_‘@rÉ7KÆ¨27-Jun-2019 21:12:05.762D¿€tAÑA§@îu‘F<EAør?@8<#×
-AöÌÍ        E„BB?T›¢<#×
-B          EğA;8O@¯Ã[CxuE<=½<.Í¾                B«Ñ<›ò<ÉL                line_nodrm+stx_line_nodrm+stx_line_nodrmEši@A>®BA¸µE„1eB¢Û°?Gá&@	úB¢          Eqß    A¼t¢D$=¢l¢=1C“?Lº            line_nodrm+stx_line_nodrm  ?Û+ìíÔ„Q@rsò° Äœ27-Jun-2019 21:13:32.196D73ÓA,Ş AÕ#‘D`#£Aø¨®?0Nò<#×
-AöÌÍ        C-â[BÊ„?&‡Á<#×
-B          F¸6›DUd C÷3nBa7‘<×İ×=§                A×û=„Ü°=³€Â                line_nodrm+stx_line_nodrm+stx_line_nodrmB×Í®ASôßB=^	Cğ÷‰B¢kC?¾Ä?¶R:B¢          CÈ°.    C<oB®Tæ=ˆ=³¾è>Ğ            line_nodrm+stx_line_nodrm  ?Úúw·Ç‚@rnÑhr°!27-Jun-2019 21:14:40.780D{LA1¦°AÀDEDz:cAø¦Î?¸Ã<#×
-AöÌÍ        CÜÜB“?û&<#×
-B          F©?¦DÔCŒğB‰"”<¹òL<ç	ƒ                Aâ±=‘L=ÉÍr                line_nodrm+stx_line_nodrm+stx_line_nodrmBMÌæAšBB)zCÅõúB¢l¬?.Ğ?´¶˜B¢          Cµm—    C’­¤Bœç9=’æ=ãs>Œè            line_nodrm+stx_line_nodrm 	 ?ÚÆ6°–5a@rJ+ŸU›=27-Jun-2019 21:15:25.708D73ÓA`êŠA¦—ˆDƒñAø˜§?g<#×
-AöÌÍ        C>¡1BnÚ?"V¢<#×
-B          F_&?CÌÓ`CWÿÁB[A<­œK<Ö´T                Aåªö={â=«ò¨                line_nodrm+stx_line_nodrm+stx_line_nodrm?4A“ïB,!C¬]mB¢]?P·??WRB¢          CËÛª    F‡›(B9zÈ=“¼=Ş¤=épu            line_nodrm+stx_line_nodrm 
- ?Ûj×o/@qëjçÕg27-Jun-2019 21:16:10.169D73ÓA,Ş AÕ%ˆDŠÄ!Aø{3?©–<#×
-AöÌÍ        C*ÖoB‘ì?4&<#×
-B          F«sDFZECéB†„…<²<×3]                AËÉ=‹_j=¼ÊÚ                line_nodrm+stx_line_nodrm+stx_line_nodrm?µ“Awı#B5şTDRhsB£Àñ>ìv‰@•è‰B¢          CØ*    Fø—÷CXä1>‡ÀY=¨±g?È9            line_nodrm+stx_line_nodrm  ?Û&|k‹iU@rKÃa@O27-Jun-2019 21:16:58.310EWÜAÇuAD&F0êAø}8?Aïƒ<#×
-AöÌÍ        Dú/¦B?]™9<#×
-B          E4³°AT
-Å@ßCj_L<+î<)Û¢                Beh<¯Ä<êÙD                line_nodrm+stx_line_nodrm+stx_line_nodrmA+ÂAwı#B5şTE8ŸVB¢CÓ?_á?T§ƒB¢          D·”#    E©´C/B<Î&Ò==œ=Xv            line_nodrm+stx_line_nodrm   ?Û<æ:\a@qµ¡G®{27-Jun-2019 21:17:41.096EWÜAÌ^
-@ù©ªFGÉ±Aøƒ?2‡<<#×
-AöÌÍ        E®vBd9?P„;<#×
-B          E%A#M@†úPC…‰–;ıö(<>ï                B«T	<¡„ä<Ó¾                line_nodrm+stx_line_nodrm+stx_line_nodrmE«sA8ÙÄBBêE`óöB¢ƒ•?J'÷?³İÜB¢          DÛÊ©    A àCKÁ<ê*#=Bâ=‡ÊÑ            line_nodrm+stx_line_nodrm  ?Û/©:÷LÓ@rƒ˜*™0¾27-Jun-2019 21:18:29.184DÔÇBAÏ¼s@æ:¡F87¹Aø‚W?Bà<#×
-AöÌÍ        E™œBfÃ?P-]<#×
-B          E PqA@ŒÃCq²‹<ç<,ëj                B¬şR<œ'‹<Êµï                line_nodrm+stx_line_nodrm+stx_line_nodrmDÎÇÖAgE]B9j+E:TŒB¡ùÅ?‘±Q?¿U–B¢          Dèf\    B‡LÌC-}E=#O=PI„=º0            line_nodrm+stx_line_nodrm  ?Û?–Ù„@r»¸}¿H27-Jun-2019 21:19:14.388DÔÇBAÑDI@Üw‚F/ Aø‡Å?E|÷<#×
-AöÌÍ        EG}Bk@?b_„<#×
-B          Dæy£AU˜@¤LCgëã<~¡<2Ÿ_                B†¦<®<i<çoJ                line_nodrm+stx_line_nodrm+stx_line_nodrmD§êA4!BCáuE#CñB¢2¾?ƒéÌ?V}#B¢          DĞ :    B BBİ´B<ıuÒ=<Â¡=%*“            line_nodrm+stx_line_nodrm  ?Û`Z³ª¼Ø@q™Ôã¼Ó[27-Jun-2019 21:20:06.819DÔÇBAÎ­ˆ@¼¦F,ã†AøŒ'?>İ¦<#×
-AöÌÍ        Dş^%B_Z?Y+ş<#×
-B          DÎîO@Æşº@*ë]CiCã<¾<,›                B‘N<¨=â<ÜW                line_nodrm+stx_line_nodrm+stx_line_nodrmBRdA«û;B"ZQEZÍ‰B£U/?gS™@S]<B¢          EÊ2    D‘øDğ>Yj´=[jl?š0Ì            line_nodrm+stx_line_nodrm  ?ÛÓA[#@r¸l"h
-27-Jun-2019 21:20:45.842E"&AÆõ¡@Äå»F5©«Aø—C?.±u<#×
-AöÌÍ        E-@BUo?R’<#×
-B          Ew@Ä;R@ÈC#Ş<Ì<!UO                B¨U< <Ñ°                line_nodrm+stx_line_nodrm+stx_line_nodrmE”áANÂÉB>n;ELÊ‰B¢q]?WU¶?£HßB¢          Då;"    B/6C9cN<ÛJ¾="Y=†/Ê            line_nodrm+stx_line_nodrm  ?Ûag#$È6@rk&€I27-Jun-2019 21:21:24.797Db+„B/°AªFCÅAøö8?*D‡<#×
-AöÌÍ        D¹LÀBcÁ?yÍ0<#×
-B          E&Õ¬AAíB!C†ğ_<D<,n                Bifh<Ù=*Êo                line_nodrm+stx_line_nodrm+stx_line_nodrmE¶IPA-4çBELE¯)B¢0j?UœÕ?şcB¢          Dş*    A[Ì^Bó\<çE}=-Dê<µIø            line_nodrm+stx_line_nodrm  ?ÛMlP‹3@qRu%F27-Jun-2019 21:22:13.637DÔÇBAÒ#§@Üw‚F2‡fAø‡Æ?A# <#×
-AöÌÍ        E€2BHD?ZM¤<#×
-B          DÛ—@ùJ@pN¤Cm<³<-ËÇ                B¥-<¥OØ<Ùªè                line_nodrm+stx_line_nodrm+stx_line_nodrmErÜ AYº¿B</˜E]
-'B¢³á?Aÿ>?ï(dB¢          Då‚    Aµ=áCT«e=ß{=%Ò=ñÒ¾            line_nodrm+stx_line_nodrm  ?ÛMœk1˜@r@*çÕfÏ27-Jun-2019 21:22:54.828CğjXA(qFAÏÕD]¬Aø„
-?&iû<#×
-AöÌÍ        C Í¤B3Á?8/Ñ<#×
-B          F“‡‹D~mñDcHBe<Ìı6<øVñ                A­>W=ŸD¤=×µC                line_nodrm+stx_line_nodrm+stx_line_nodrmD‡>Ao0 B3ìaC¦3B¡Õg?. ?‚^áB¢          C†%C    BôÕBd-D=Éd¤=ï’z=ßÁ            line_nodrm+stx_line_nodrm  ?Û3¹jğ@rÄPå`A‰27-Jun-2019 21:23:43.137DK4A.L#AÏ:¹Dz‡NAøŠP?ÀO<#×
-AöÌÍ        CFBÉù?)ı><#×
-B          F±>±D4$ÚCÍ75B¾u<À
-O<ìş…                AÈ
-–=˜Ü>=Ò°®                line_nodrm+stx_line_nodrm+stx_line_nodrm>u‡ANÂÉB>n;D>B¢~>ì¾ç?£ö*B¢          C°œ;    Gl•ÚBÄ+=cEb=›qş>ò»            line_nodrm+stx_line_nodrm 	 ?Úá6çÚ+@r,©“á27-Jun-2019 21:24:29.230D{LA¾«d@•¦HDp´,AøÖ§?Ï<#×
-AöÌÍ        C1Bµ‰?=ç$<#×
-B          E"n¼A0,?@JŸSBÌ<ÕS=–Š                A°@¡=”Ó=Å˜Û                line_nodrm+stx_line_nodrm+stx_line_nodrmAuŸKA“ïB)¿YD=~B£!‘>êÅ@OH¸B¢          CÉø    D3bCS¼>ª`=ŸØ?>N            line_nodrm+stx_line_nodrm 
- ?ÛG„#Ğ@r”ŸU›=27-Jun-2019 21:25:15.282DK4A.L#AÍ·jDu	Aø•?<#×
-AöÌÍ        BÎÛõBDÓ?5d<#×
-B          F§jÀD)·CÀĞŸBÂt<½J<æö®                A¦¤=Ä€–>l                line_nodrm+stx_line_nodrm+stx_line_nodrmCÜ|ôAB´BAD×B¢pò>¿I«?ŒpB¢          C¦l•    BHŞ¤BŞÍ¯=^@·=À=‚Ç            line_nodrm+stx_line_nodrm  ?ÛZ–N‹~N@re¥®æ1ù27-Jun-2019 21:26:12.079EïªAÏÇÆ@ºÎÂF0æôAøš¦??{w<#×
-AöÌÍ        Dÿ¢°Bj¨?\Ï¿<#×
-B          DÙ@›@˜ÍÜ@söCnñõ<#o<1Xg                BéC<¬}<ä´–                line_nodrm+stx_line_nodrm+stx_line_nodrmFy»A0MôAãgøEÒAgB¢«ˆ?1MÙ?ÂB¢          E˜½{    @ª¥„C¥Íï<ÕŒ=’u<Ì8ê            line_nodrm+stx_line_nodrm   ?Û Æ´„×k@sAèr° Å27-Jun-2019 21:27:08.450EWÜAÎıû@±ºF0»^Aø¡(??íY<#×
-AöÌÍ        Dû9éBGâ?d=÷<#×
-B          DØ&u@ †!@ÿC]Lô<ú=<\Ş                B˜ò•<¯q<æôü                line_nodrm+stx_line_nodrm+stx_line_nodrmFuÙA*²ˆAïÔ}EÒ´B¢§?8ôâ?Ã!tB¢          EHn    @ˆïC£‹Å<Ö¤=	' <ÖB            line_nodrm+stx_line_nodrm  ?ÛŒG¡A@tQÙ0¾í27-Jun-2019 21:28:05.647D¿€tAÕß@Ğ(F/›“Aø†Ø?DD<#×
-AöÌÍ        E«–Bjg?V¸Á<#×
-B          D¦"U@Ésà@GúCi"$<‡	<-d                B¤µB<¢©Ä<Ôi                line_nodrm+stx_line_nodrm+stx_line_nodrmFoÕA-4çAãW–EÙ+ÀB¢«Z?-[‹?Ã¨B¢          Ejy    @«>™C°P'<Ñ’Î=À<ÑJ×            line_nodrm+stx_line_nodrm  ?Û•Ôèû ½@s^5¨Xy>27-Jun-2019 21:29:09.543DìkDAÔ½p@©àF‰Aø¢l?\Ô“<#×
-AöÌÍ        Dâ[XBhİ?vt~<#×
-B          D¿yZ@™ï?ø4CJ¢-<)ĞH<bµ"                BŠäm<Ç=+                line_nodrm+stx_line_nodrm+stx_line_nodrmB¦ AYº¿AÍEÅó…B£([?}™„@1„ÚB¢                  8xD·<ï˜B$(B‚	¤AiI            line_nodrm+stx_line_nodrm  ?Ûß;dZ¬@sÆôSóM27-Jun-2019 21:30:09.083D¿€tAÕşĞ@ÿ7F#:ÀAøs·?DÛ6<#×
-AöÌÍ        EóBF ?We´<#×
-B          E	òZAC†@@İñC_¤
-<ÑS<<×ƒ                B¦´–<«û‘<÷â                line_nodrm+stx_line_nodrm+stx_line_nodrmF{_A'ÌdBôEÏS†B¢v£?&¨?‚*šB¢          Dàm)    @å¼C¨o¼<Å¡ç=hè<»½            line_nodrm+stx_line_nodrm  ?Û­òìòB@t‡â‚@¸27-Jun-2019 21:31:14.074D¿€tAĞÇ%@Ğ(F0[åAø‘Î?8`<#×
-AöÌÍ        Dñ0!BŠı?ZxM<#×
-B          DµPç@Ù82@FágCoì<(<"¥\                B˜])<ªŠ1<Ü´‡                line_nodrm+stx_line_nodrm+stx_line_nodrmFéjA2ºB•ÓEÚ3½B¢‹A?(E¬?˜_.B¢          EIì    @ÏÁ°C¯y
-<Å=/]<ªlÃ            line_nodrm+stx_line_nodrm  ?ÛóYÿOÖØ@sÜ‰Q‚©“27-Jun-2019 21:32:31.905DìkDAË+qAÙ´F9 RAøw?:—à<#×
-AöÌÍ        E ş9BŠ½?T]<#×
-B          EòüA;ÿ@Æ½QCw£Ø<Ù3< è§                B£âs<§XÑ<İÆY                line_nodrm+stx_line_nodrm+stx_line_nodrmE¥Awı#A$7LEífB¢Ïü?8Ö?ô{@B¢          Kï¨÷    Ex–C´2ï<ìÃq<óß>=|‡´            line_nodrm+stx_line_nodrm  ?Ûm3	AÈ!@sÉ-(Œç27-Jun-2019 21:33:35.823DÔÇBA×¾Z@Üw‚F"õAø†?JÙ<#×
-AöÌÍ        D÷Be1?_L\<#×
-B          Dê¼Aè%@…ÓÉC[£¦<ƒ’<I                Bœ«<³¾<õ°×                line_nodrm+stx_line_nodrm+stx_line_nodrmD}\PAJµB?c5EÜí¢B¢Õ›?OYí?ğXB¢          D™İ    B™E·C¦¬F<ã	Ÿ=ã‰= 
-¹            line_nodrm+stx_line_nodrm  ?ÛµIùHUÚ@s«Rn—P27-Jun-2019 21:34:34.370CÀôAœ+A‘GíDMšAø¿?4<#×
-AöÌÍ        Bò›îBËÄ?8:é<#×
-B          E©›dCš%CGMIBR_<ŞCÃ=9à                A¨@(=¥y=ãQ‡                line_nodrm+stx_line_nodrm+stx_line_nodrmD¯jÛAšBA€È¶DEAIB¢”z>õ&{?×'¸B¢          F£1    A¼ GC+¾a=Í`¼=°_ú>Í±é            line_nodrm+stx_line_nodrm  ?Û;§uû.à@tòäŠ27-Jun-2019 21:35:34.791CÂ¾øA˜ÚAÁ°"D}½—Aø‰’?Ö¾<#×
-AöÌÍ        CT·éBK?'‘q<#×
-B          Ff°D ‹CÒ„B‚]ª<²›H<Ö%                Aã…î=^ñ=‘¯i                line_nodrm+stx_line_nodrm+stx_line_nodrmDNg‚A“ïAßšDUÂ	B¢3Ã>Á˜?{+yB¢          D6ˆ    A/˜C-S=Jk/=’ü¢=C8F            line_nodrm+stx_line_nodrm 	 ?Ûÿ¼ä!}@sV¡aä÷27-Jun-2019 21:36:25.570DK4A.L#Aë¿D€b™AøŸ?©]<#×
-AöÌÍ        C&í1BÓ/?Z<#×
-B          FÂC0DZ¯¦DÉµB…uÒ<³á<Ù“*                Aá^=€ªû=¯<Ï                line_nodrm+stx_line_nodrm+stx_line_nodrmDî[ØAgE]AÀâ.DŒMB¢Zp?n?zASB¢          E,bØ    AÕBĞ'==™½)=ÅI¯=¸-            line_nodrm+stx_line_nodrm 
- ?Û¥°ÿì·@sBR½<627-Jun-2019 21:37:10.927D$â{A+”¶AÂa®D`‚Aø“°?-Æ$<#×
-AöÌÍ        C!<CBìR?u›<#×
-B          F© ÃDH,CÒÆBa#Ë<ÓaÎ= Z                Aêº=uZ=¦g                line_nodrm+stx_line_nodrm+stx_line_nodrmD!4QAšBAV_îD&rB¢®R?j«?îB¢          GîêŠ    CdíBBéóÌ=¥G&=½+¸=áÿ¹            line_nodrm+stx_line_nodrm  ?Û ¥&••ÿ@s¦’T`ªe27-Jun-2019 21:37:54.750EWÜAÌ#@ù©ªF4?»Aø…è?<ªH<#×
-AöÌÍ        Dï6ëB®û?Wš/<#×
-B          EÏ&AÊü@”<Cq|”<	è<%`ä                B›·Œ<±Z£<ìk’                line_nodrm+stx_line_nodrm+stx_line_nodrmBH]bA¢È‚B&EeáB£m?[u@dáÊB¢          E(û    DŞÒ°Có å>E~X=V9ó?ŒÅ†            line_nodrm+stx_line_nodrm   ?Ûºw_²íş@rÍ5¨Xy27-Jun-2019 21:38:32.018EWÜAÌ@@ÚÿÄF.äUAù’y? £<#×
-AöÌÍ        E^BI?S|<#×
-B          Eåï@ëCı@PÃlCIT<,d1<B
-V                B§Ô*<’Œ<Ã…»                line_nodrm+stx_line_nodrm+stx_line_nodrmEfPA€á÷A¶@QE^@B¢Ìì?t±?­B¢          F“·ğ    Bş_CWñ=KÛ=]¿=|¹½            line_nodrm+stx_line_nodrm  ?Û©¢eğö@q3aG®{27-Jun-2019 21:39:11.912DìkDAĞÆw@êKæF3FğAø(?@Y`<#×
-AöÌÍ        DşƒBJ?ZI1<#×
-B          ECnAy*@“şKCoğÂ<Gå<0¦Í                BŸµÖ<¬PW<èT                line_nodrm+stx_line_nodrm+stx_line_nodrmE†‚¾A*²ˆBEÏ’EyB¢B9?d&¥??¿@B¢          D¸F    AÄ¹”BÿÆõ<ú;©=;Å¡=$´¸            line_nodrm+stx_line_nodrm  ?ÛÕEAR°§@qĞÊ¦L/ƒ27-Jun-2019 21:40:06.176DÔÇBA»8…A®F:ù¢Aø¡É?@¢Œ<#×
-AöÌÍ        D÷×B^ã?r<u<#×
-B          Eå1XB%UA‘Cu
-Ü<ª<0º                B°­<·ö•<í”t                line_nodrm+stx_line_nodrm+stx_line_nodrmEä¿«A4!BCáuEµB¢©?nYÒ?_rB¢          Dr`w    A‘5±Bç<ùîH=OgÏ<Íc¹            line_nodrm+stx_line_nodrm  ?Ûvæj±O@qzÇü¹#£27-Jun-2019 21:40:56.773D¬ZTBv‹A†€F(XhAøï„?6ø‰<#×
-AöÌÍ        D¢ß:B-Í?‚r-<#×
-B          F9¡§B(CICkAè<6<<7T                BT™<ñk=?„#                line_nodrm+stx_line_nodrm+stx_line_nodrmE8‰<Ao0 B7ËLE&ÆÒB¢~)?SK#?ˆB¢          D‡ôŒ    AÕ¡ÙCç¿=@=>È4=6Ø            line_nodrm+stx_line_nodrm  ?Ûz‘–•Ù@q]ï·éù27-Jun-2019 21:41:35.353D73ÓB$@ğfÅF-KeAøØæ?5áƒ<#×
-AöÌÍ        DÎ¦¿B.?aÇÀ<#×
-B          D«)BA&Ø8AU¤Cn±O<dé<;ïD                B„µ“<½Ğ==kÔ                line_nodrm+stx_line_nodrm+stx_line_nodrmF–™A'ÌdBFgrDôEŞB¢È?viÍ? ¤¿B¢          D{½    A‹Å´BÍL==V~=_Ã¾<Ã            line_nodrm+stx_line_nodrm  ?Û2ËŸ@qf}Vlô27-Jun-2019 21:42:43.977D¿€tA½Û‰@ù¥ÙF¾Aø¸0?>1Ö<#×
-AöÌÍ        DÒÌæB7À?wœ®<#×
-B          E§AA×#TA Å?C\›<5P<=ûú                B‚: <Æ¦s<ÿQ                line_nodrm+stx_line_nodrm+stx_line_nodrmEªá‰A>®BA¸µEÒIB¢F?YúÌ?]ÓoB¢          Ds¸:    AbK[CÜ#<ûö=8¯ê=	            line_nodrm+stx_line_nodrm  ?ÛÆğéÈ@qƒ¹õY´27-Jun-2019 21:43:30.260D¿€tAÔ+@ÊÆ§F+ñAø‚…?@¿°<#×
-AöÌÍ        DßœVBš·?`0K<#×
-B          DÜH@÷¹@c2ÛC].x<# <?Éì                B‘¡:<ºü<ú|E                line_nodrm+stx_line_nodrm+stx_line_nodrmB®z™A4!BCáuECB¢=º?]§î?cZsB¢          Dµ©    Dd!7C]+<ÇÜe=Eß=g·            line_nodrm+stx_line_nodrm  ?ÛŒT6¸ù±@qãS&Â27-Jun-2019 21:44:21.051CO	ğA:÷A£o…D-éTAø¼à?3¬ø<#×
-AöÌÍ        Bï×ˆB#+?‹l¦<#×
-B          F¢§E HİDm2B>¿Š<ëş=6_                AUr=Ğ>ãZ                line_nodrm+stx_line_nodrm+stx_line_nodrm?Ù­yA€á÷B3ş$CÎÃB¢ÇÒ?yÙ?ÙŞDB¢          Cù,:    F,UÂB§ñM=¿Êú=¹–µ>£’            line_nodrm+stx_line_nodrm  ?Û” ³Ô®C@qƒFsØ27-Jun-2019 21:45:13.822D73ÓA[u“A¥(DLkXAø¤Ã?%XŸ<#×
-AöÌÍ        CBkBnH?ël<#×
-B          FFH´C´tZC>ÍÊB_e<Ùğ•=²o                Aéº¬=s/	=£æª                line_nodrm+stx_line_nodrm+stx_line_nodrmBä§=ASôßB=^	C®4B¢LÎ?JŞ?P[ÉB¢          C«âİ    CÌ B÷ø=·=¸½Q=¨¬.            line_nodrm+stx_line_nodrm 	 ?Ûz,ìÈ×@q¾ÛÀ6ã27-Jun-2019 21:45:58.757CØ`ıAc‡ÎA˜=˜DKgAøg?2Ôâ<#×
-AöÌÍ        C	şÅBjZ?WÊ¦<#×
-B          F1GâCü®CxĞBO=<Ò£S=                A©JV=·"^> LC                line_nodrm+stx_line_nodrm+stx_line_nodrmCTˆĞAJµB?c5C}RB¢0V?:òş?.“MB¢          CdTî    BÃµB"	=¬N=åàä=†ğ            line_nodrm+stx_line_nodrm 
- ?Ûdf±åÁ@q¹¨Œç°27-Jun-2019 21:46:47.697D$â{A+”¶AÛ\DIGÿAø†/?!¦ä<#×
-AöÌÍ        CUhuBE>éàc<#×
-B          F¢(DUğ2D B]3i<Õo/=îO                B =DŞ=…Ö|                line_nodrm+stx_line_nodrm+stx_line_nodrm@BNAYº¿B</˜C£Ô+B¢LY?5M?WÇ[B¢          C¤”â    E«›ÌB^4v=–•l=µÑ>Î9            line_nodrm+stx_line_nodrm  ?Ûâ†ruh@qÚXy=Ù27-Jun-2019 21:47:34.485EïªAÊA^BF>t°Aø€y?8Få<#×
-AöÌÍ        EÙŸB\¤?AxH<#×
-B          E*A&£Ğ@­H£C}÷w<Q<ë¬                B¼%<–6ô<Â±+                line_nodrm+stx_line_nodrm+stx_line_nodrmA¬”óAšBB)zE{~“B£Pb?„ı$@Š¶ùB¢          E	¹    E[²ÃD	>vš0=ci.?µya            line_nodrm+stx_line_nodrm   ?ÛG¥°ÿí@r³l1&é27-Jun-2019 21:48:10.231DìkDAÍÀö@êKæFC~>Aø…`?7†Ö<#×
-AöÌÍ        ER2Bf©?I~š<#×
-B          DøÃ€Aä@‚³´Cf­<#_<¶                B±cH<™nÙ<Ç†ö                line_nodrm+stx_line_nodrm+stx_line_nodrmE*°ANÂÉB>n;Eˆ¨B¢÷…?`"@V‚ŞB¢          E=›    B;,DWñ>‰=Xæf?¸Õ#            line_nodrm+stx_line_nodrm  ?ÛM­1üÒN@r³|6427-Jun-2019 21:48:56.683EWÜAÉ³Ş@ù©ªF8ÜAAøyË?B¶r<#×
-AöÌÍ        EÎìBgD?Næş<#×
-B          EÁšAş3@Ä–CrøÁ<	`<&—µ                Bªv<¢1¨<×v                line_nodrm+stx_line_nodrm+stx_line_nodrmDˆ ÕA>®B@8ÎEßB¢Ğ?58?íÇ2B¢          D“¿w    B|²	C¶€Í<ÔC¢=
-¡=¾            line_nodrm+stx_line_nodrm  ?Ûd­ÿ‚+¿@s;yõY³Ğ27-Jun-2019 21:49:43.377EWÜAÑd@±ºF'ùAø ¨?Gy¨<#×
-AöÌÍ        Dû#	B‹?^ŒN<#×
-B          DÈé¬@•©!@ wıCa—4<$[<;|v                B›Î$<¯R<è7                line_nodrm+stx_line_nodrm+stx_line_nodrmE¤ŠÆA2ºBDJéE"@¼B¢d¯?x(£?¡ËB¢          EóÍ    AÊ’mC(¹Î=m°=P€­=»            line_nodrm+stx_line_nodrm  ?ÛY‰ßrï@rf0:û~‘27-Jun-2019 21:50:43.089EïªAÏgœ@ºÎÂF+ ;Aø›Ê?6©<#×
-AöÌÍ        Dö²©BM2?Në<#×
-B          DÂí@‰NÁ?å ICo·5<¿8<-k)                B¢¦“<©}v<Û+                line_nodrm+stx_line_nodrm+stx_line_nodrmFÀRA4!A½LÖE¾ÎœB¢Äj?Z¥~?ö¶·B¢          F¤É)    AA[³C›²K=DR="±U=®e            line_nodrm+stx_line_nodrm  ?Û%Ô¥ß":@s!Î;Í5¨27-Jun-2019 21:51:27.592D¿€tAÏO&@øÄãF5ç=Aø|I?5ÂN<#×
-AöÌÍ        D÷Ô;B`U?X><#×
-B          EÊ;A:5@·-Cw¨—<	1<"{Ú                Ba<©·²<İpF                line_nodrm+stx_line_nodrm+stx_line_nodrmDîAB´BAE—!B£~¥?@t{@ƒËGB¢          E<Õò    B‡0DD¸M>h¯"=4ö'?©^„            line_nodrm+stx_line_nodrm  ?Ûb• @r~øFÜ]27-Jun-2019 21:52:13.744D¿€tAÕ¨e@Ğ(F-£Aø† ?<ğ<#×
-AöÌÍ        Dí—uBWÎ?cò<#×
-B          DĞD?@ôF@nBˆCkv<Ú‚<1gé                B–§<·¡<ø{6                line_nodrm+stx_line_nodrm+stx_line_nodrmEy›AgE]B9j+E|øB£#œ?b7@O-B¢          E2“ç    Ba€üD'>KÁ=G¹a?Œ©            line_nodrm+stx_line_nodrm  ?ÛOP ,@r’s×Ûõ27-Jun-2019 21:52:53.434EïªAÁâıA_*F(^ËAøvã?G%<#×
-AöÌÍ        EÈ;BYÖ?S+¡<#×
-B          EpÏ2A^WE@¿Ã^Cbâ<“½<<[ı                B¦Z¥<§c<İ5u                line_nodrm+stx_line_nodrm+stx_line_nodrmE!A“ïBFÎEÚ5^B¢±Ö?<S ?åºB¢          DµÃÇ    AŸÂ¹C¨ªÊ<àM¡= rÃ=$-~            line_nodrm+stx_line_nodrm  ?Ûë‰Pv:@s1&éxÕ27-Jun-2019 21:53:28.082CÀôA´‹½A=ÈGD4ÒìAøª’??Ç<#×
-AöÌÍ        BóÀBtƒ?€<#×
-B          E3B¬ıB9†B@Äj<üµ= è^                AÆÈ=—­Û=Ñ2€                line_nodrm+stx_line_nodrm+stx_line_nodrm@lA¢È‚B"h;DGÛB¢ÔÜ?šì@ığB¢          C’à¯    E{¶'C:_>Ô=½o<?6âÿ            line_nodrm+stx_line_nodrm  ?Û7—FBĞ@s*ô9Xb27-Jun-2019 21:54:13.410D73ÓAk>èA¦ÖíDSßPAøµ(?¹€<#×
-AöÌÍ        C!¤'BÚš?#¹{<#×
-B          FNÛ?C½ÈdCNôïBhñã<Ô_P=˜                AÔÄ=‹Ò^=ÁÎn                line_nodrm+stx_line_nodrm+stx_line_nodrmDI
- AB´B?~CQ³B¡ı?U?añB¢          C®>Ş    Bx¬BBlr=Í’†>	{> E™            line_nodrm+stx_line_nodrm 	 ?Ûk b
-·@rß4!-w27-Jun-2019 21:55:02.882E4*ªA‚eÛ@İêDg 8Aø»õ? Â<#×
-AöÌÍ        C	xƒB(˜?bƒ<#×
-B          Fî-qB]’AFUzB‚6,<È®=ˆ                A›Š=¥p-=ëú                line_nodrm+stx_line_nodrm+stx_line_nodrm>ç AJµB?c5C’–B¢T?0ƒr?kx2B¢          C©/÷    G9aBY‚k=•š=ŞşQ>Aê?            line_nodrm+stx_line_nodrm 
- ?Û=ò©Ö'¿@qĞ•2a|27-Jun-2019 21:55:37.979D´A9ÂĞAÌ~½DU¥Aø«õ?1bp<#×
-AöÌÍ        B§(†B~Ò?_H#<#×
-B          F‰CDQ«Có”åBZç<ÙºH=è                A„œo=ğ>.                line_nodrm+stx_line_nodrm+stx_line_nodrmD3«©A`$ÔB:ßC­9}B¢7?'iï?“kB¢          Cšˆ    BBn)ì=©½{=æYñ>]            line_nodrm+stx_line_nodrm  ?Úß‚±ö‡±@r£|£n/27-Jun-2019 21:56:28.463DÔÇBAÔœÂ@Üw‚F8"÷Aø‹u?<X<#×
-AöÌÍ        E-KBU6?BPû<#×
-B          DË¬-@äù_@^-QCvRB<	¯<(ÏÏ                B¸6a<’»¼<¼B[                line_nodrm+stx_line_nodrm+stx_line_nodrmE¸€A+âĞBE‘MERà-B¢sÒ?^?«rÊB¢          Ery    A¸e¶C&Ât<ç=÷
-= Ê            line_nodrm+stx_line_nodrm   ?ÛbA=·ñs@rÜú¬Ùè27-Jun-2019 21:57:20.012DÔÇBAÍš~@Üw‚F?gõAøys?>-ˆ<#×
-AöÌÍ        E3.Bdq?hÎ¹<#×
-B          EEAºÂ@Œ­C|ª<2<%ô                B›Jª<°èƒ<êØ¿                line_nodrm+stx_line_nodrm+stx_line_nodrmE!Å+A4!BCáuE/-ˆB¢J†?ecß?iVB¢          D˜Ó;    B~XC¼2<ç±]=4ƒ³<ÒK            line_nodrm+stx_line_nodrm  ?ÛCc,B»@q•å`A‰27-Jun-2019 21:58:09.972D¿€tAÏÊÒ@Ğ(F2âÒAø?D6M<#×
-AöÌÍ        E ‡^B|®?cMf<#×
-B          DÙG¦A !@grGCl¤y<Á?<.¨                Bœ”<«Öù<áçÈ                line_nodrm+stx_line_nodrm+stx_line_nodrmEšÈïA'ÀBFME2èB¢IÒ?TôĞ??)B¢          DÏ=%    A¢1¸C¶<Õ€Y=Ôc=¯ƒ            line_nodrm+stx_line_nodrm  ?ÛDÔEg^@qŸzÇË)27-Jun-2019 21:59:05.975D73ÓAØêVA†{F-ÚÈAøA?D”B<#×
-AöÌÍ        EPöB^ ?h!(<#×
-B          E<@BXpA©>`Ce+&<
-º<:§²                BšÍÇ<¥nä<Í÷1                line_nodrm+stx_line_nodrm+stx_line_nodrmEİ©A-4çBELEàáB¢8J?mÏ¿?*_wB¢          D{*®    A„İmBê <î¬Y=Eú<×±ñ            line_nodrm+stx_line_nodrm  ?Û3eˆU@qvØ“t¼j27-Jun-2019 22:00:03.386D¿€tA÷“‚AJ§DF>ÿnAøÂ^?1Ò–<#×
-AöÌÍ        DÔŞWBk?d‘ğ<#×
-B          EâP•B\rBahC~Â<ÅÅ<4ƒ;                B„«Ğ<ÅÌò=	—I                line_nodrm+stx_line_nodrm+stx_line_nodrmF ëÿA-4çBCÌ6E4õB¢1a?[ÿ?"d&B¢          Dì•    A{eBûÀ2<ïÎ¬=C–®<Ú ß            line_nodrm+stx_line_nodrm  ?ÚèJ×”¦ì@qN¹õY´27-Jun-2019 22:00:52.104DÔÇBAÊ-É@ıÏ‘F6†xAø4?:¦<#×
-AöÌÍ        Dğ-½B?c ƒ<#×
-B          ETı(AƒÊ@ë7Cu¿š<
-pÆ<.                B–Øç<³Í7<çş                line_nodrm+stx_line_nodrm+stx_line_nodrmEÓL™A*²ˆBEÏ’E+AB¢?/?OÎ?50oB¢          DfJ=    AF¶CŸb<ÔÚ=ŠX<×q            line_nodrm+stx_line_nodrm  ?Úöƒ{á"@qht¢3œ27-Jun-2019 22:01:41.896DÔÇBAÏ¡P@æU°F2cÖAø‡ï?7Äy<#×
-AöÌÍ        Dü‚B‚è?KÜ<#×
-B          DÛ‡xA2`@ƒCrV»<^<!Öª                B¨,+<¥¶´<ÔÑr                line_nodrm+stx_line_nodrm+stx_line_nodrmDÙøtAJµB?c5E=ÜÀB¢Y¤?VœT?a/óB¢          D‘    B%C à<Ùšg=/D=Sêj            line_nodrm+stx_line_nodrm  ?Û'ªhô¶ @q¾ëP°ò|27-Jun-2019 22:02:25.632DÔÇBAÎèÜAt;F)¸›Aø{6?:úæ<#×
-AöÌÍ        DêìB]}?fƒ<#×
-B          E EŠA[y@ğA§CiŠ<Vè<-?)                B•ª5<»kô<ı}*                line_nodrm+stx_line_nodrm+stx_line_nodrmC2CgAÜ1³B¦Ewª¸B£‡ç?aßs@´SB¢          Er    C®¸PD0â>‰ØÏ=Y'>?ÄÙÛ            line_nodrm+stx_line_nodrm  ?Ûkn#Õ@q³JW§†Â27-Jun-2019 22:02:58.147CÀôA¹g;A)õDf|¼Aø¨?b<#×
-AöÌÍ        C&ØBr„?P¢<#×
-B          Dô12Bˆ¢„B@HBw“ª<Ç+<úı                A°„d=£B=âêê                line_nodrm+stx_line_nodrm+stx_line_nodrm>A¸QAB´B/ğkCÖ—B¢O?#Ú?^2{B¢          Cô•”    GiBrôÕ=xS6=’3ö=¨´˜            line_nodrm+stx_line_nodrm  ?ÛDZ¢ãÅ@qÏxQë…27-Jun-2019 22:03:57.283CõZAğ…ç@øEÇDzAøI<?‚E<#×
-AöÌÍ        B³B,?şº<#×
-B          D4¤œBæ›AúÛÌBƒ Æ<l=±â                A‚?ÿ=…2¬>Ğ’                line_nodrm+stx_line_nodrm+stx_line_nodrmDàµúAJµA÷ˆ=Ce^¦B¡ûs?@³>^fÿB¢          D©‡y    A ;>Bøc=‡ß·=ê8í=­º            line_nodrm+stx_line_nodrm 	 ?Û^„ğ•@pÀ‘œàu÷27-Jun-2019 22:04:59.165DK4A.L#AÏDÅDrŸ4Aø™“?Q‡<#×
-AöÌÍ        C&dJBC°>øCØ<#×
-B          F¤>¸D&ÆeC¿ÉQB}xå<¿ D<ê%L                AüÇŞ=ru¹=£Ô                line_nodrm+stx_line_nodrm+stx_line_nodrmCh›rA6]—BClIC×^–B¢nu>ê€b?-›B¢          CÇi"    BÖÌB³]’=v¿õ=°ª¸=ÿol            line_nodrm+stx_line_nodrm 
- ?Û,ù]N°@qíƒä&27-Jun-2019 22:05:47.879DK4A.L#AèÒµDhÄ¡Aø¡%?9<#×
-AöÌÍ        CE\zB#Å?	i<#×
-B          FÊ*DaÎ¶DõBs÷ß<ÆjV<ö"3                Aş¬ÿ=aÎ)=•È“                line_nodrm+stx_line_nodrm+stx_line_nodrmE	LßAEàVA‘q"C¡‡ŸB¢Yò?¡g?1b»B¢          F£Ÿ’    AÀl4BP+ô=’=º=¡=‘#4            line_nodrm+stx_line_nodrm  ?Û>»ıq°G@qzÎ_oÒ27-Jun-2019 22:06:34.135DìkDAÃÏ@Û¥ŸFFÛİAø¯Q?<ñI<#×
-AöÌÍ        E&­BS}?^—X<#×
-B          E—I»A‡õD@À¿ÃCU	<¹´<0ª¾                B 	P<¥›½<ÍÃ                line_nodrm+stx_line_nodrm+stx_line_nodrmD†áA2ºBDJéER‹B¢vî?AÈs?…NÊB¢          DdùJ    B•şüC6M <Ùú=%~e<Çæ            line_nodrm+stx_line_nodrm   ?Û%Nn"Š@qfv_Ø®27-Jun-2019 22:07:21.145D$â{A3\B4MxE|<qAú‚n?pŸj<#×
-AöÌÍ        DƒdBÀè?ŠD)<#×
-B          IÎyG¹
-“G³.C‰š=#ç¦=Œ“                C Æ =›ì=¤Š                line_nodrm+stx_line_nodrm+stx_line_nodrmF#ÿA8ÙÄB ÊGEMc¬B¢º*?1×Ô?OzEB¢          Dëûî    Ah•C4»<â0=¿<Âğ            line_nodrm+stx_line_nodrm  ?Û"J­£;Ú@p¯|„µÜÆ27-Jun-2019 22:08:12.996D¬ZTAÎı™@ÄÑqF4/­Aù;Œ?#Œç<#×
-AöÌÍ        E‰zBWó?i<#×
-B          DçBA˜”@\¼C•óà<)J<7‰                BœF<Hœ<Òoú                line_nodrm+stx_line_nodrm+stx_line_nodrmFVA) ®BErâE*Y4B¢m?Rd`>ÚÊxB¢          D„®    Ah˜ÛBúì=£e=ÂD<œ)R            line_nodrm+stx_line_nodrm  ?Û,”³€Ël@q<PHğ27-Jun-2019 22:09:03.784DÔÇBAÉv´@Üw‚F:ğÎAø}â?@W@<#×
-AöÌÍ        EœÄBiû?W«V<#×
-B          E#ÜrA/j
-@Œ:HCvFÈ<$Ÿ</`                B§‹</ <Ê¶Û                line_nodrm+stx_line_nodrm+stx_line_nodrmDÁ»¬A>®BA¸µEVã5B¢n<?Q8>?_k?B¢          D³ÄÁ    BC.C6ç&<Æ­Ì=‘=IZ            line_nodrm+stx_line_nodrm  ?Û1ã§Ú¤ı@qÄÌç¯¸27-Jun-2019 22:09:50.854D{LAş2î@¼I®FMü°AùS>?4¯<#×
-AöÌÍ        DğQB}?Y¥Ş<#×
-B          D‹Î@:ÔR@(C™¶}<¨’</P                Bˆ”<²º<Öå                line_nodrm+stx_line_nodrm+stx_line_nodrmEû¨A+âĞBE‘ME%½B¢9/?R}?üYB¢          D\PÛ    AV ÷BüHÑ<Ñ!V="·½<¸wÔ            line_nodrm+stx_line_nodrm  ?ÚêéîEÃY@q&è	Ô•27-Jun-2019 22:10:45.195D¬ZTAÑÃ@ÄÑqF-®¡AùA+?#r<#×
-AöÌÍ        E ©]B,”?lQ<#×
-B          Dİ?«Acõ@TÙC‘¸P<+Ü<;¸H                B˜¥<¤†f<İÄz                line_nodrm+stx_line_nodrm+stx_line_nodrmEFÄ7ANÂÉB>n;E9¡B¢¬ ?QÇE?§;aB¢          DœsÂ    AåòC&•=9—=;Z=V[”            line_nodrm+stx_line_nodrm  ?Û?¦Şüz:@qù#¢œx27-Jun-2019 22:11:29.348D›jAÑüA	F-„AùY‡?"n<#×
-AöÌÍ        Eç$B7F?eå/<#×
-B          EäA¸A¡"C‘<-Ïx<;                B¦W<ŸRÒ<Ô°
-                line_nodrm+stx_line_nodrm+stx_line_nodrmEWhÒANÂÉB>n;EUCB¢©ª?:]ß?ºÚB¢          D™Å¤    AÇquC;%<ëqE=#=1+            line_nodrm+stx_line_nodrm  ?Û«`kz¢@qv®}Vm27-Jun-2019 22:12:13.838EWÜAÉÛÔ@±ºF?Aøm!?9â;<#×
-AöÌÍ        Eş…B/?UÊ8<#×
-B          EA@ËyØ@RrCƒH¥<Iä}<r»É                B¥™;<œİ5<Ï¾p                line_nodrm+stx_line_nodrm+stx_line_nodrmEwğVANÂÉB>n;EDVfB¢ È?H ?¨=EB¢          D\    AÂ^C2Ûí==7R=UZ¶            line_nodrm+stx_line_nodrm  ?Úö×bR°@pıT,<í27-Jun-2019 22:12:49.580Db+„A/âÒAÅ5EDk"AøŸ@?Şw<#×
-AöÌÍ        C"|ÁBÎ³?úJ<#×
-B          F ¾3D…ñC›UšBx·°<Æt.<ôs|                Añ¿~=‚
-˜=²î/                line_nodrm+stx_line_nodrm+stx_line_nodrmCO~ñAgE]B9j+CÛÓÕB¢W:>üQÛ?h·­B¢          C e    B§~B¡b|=}=ªç‹=Æî«            line_nodrm+stx_line_nodrm  ?Û%|‘K@q»3üPH27-Jun-2019 22:13:29.534CÀôB9(ÉB=“|Da„BA÷î?$%ğ<#×
-AöÌÍ        BÈñÙB[‚?XUF<#×
-B          Hb|F†-	G Bhš<Åñ‰=7îœ                A²‡=²¯>^î                line_nodrm+stx_line_nodrm+stx_line_nodrmEEr†AB´AÓ­"ClñB¢3?•ú>smŒB¢          Edõ    @¸k3B6ê=ˆTÙ=ºa=f            line_nodrm+stx_line_nodrm 	 ?ÛC·õfI@pĞéùrG27-Jun-2019 22:14:26.578DfAMÈAná¸D}e¤Aù2g?,ô<#×
-AöÌÍ        CCB¤a?9j4<#×
-B          F;~ñC»ÌBÎX†B‹¼ş:ƒ<y<ıÅt                AÛ±=š‘¿=Âmâ                line_nodrm+stx_line_nodrm+stx_line_nodrmDKÈ"A4!B@¾ĞCgB¡ñ?64~>Ê%_B¢          C’õ”    B nBd*=’ñD=×›=9±            line_nodrm+stx_line_nodrm 
- ?Û=)V:Ÿ8@q2Œç¯¸27-Jun-2019 22:15:18.992BÆ(
-A!¼ıAÆ"Db‚VAø©;?,e<#×
-AöÌÍ        C"¥ĞB›3?oûh<#×
-B          Fê‚^EëæEnDnBb@q<ÖT=Ï‹                A˜-=—Ãg=º§İ                line_nodrm+stx_line_nodrm+stx_line_nodrmDb†ËA0MôB3£C¶8˜B¢1G?M®?,ğœB¢          Dx¸    A¨á¨BtÅp={èô=¸’]=†            line_nodrm+stx_line_nodrm  ?Úøœ^o÷à@qe·´¢3œ27-Jun-2019 22:16:28.798EWÜAÑUZ@±ºF9l2AøŠK?5ñK<#×
-AöÌÍ        E`ÛB8¹?_ÇŠ<#×
-B          DÒ©ï@š ¢@#€C~Ûì<Å<*Fã                B¢VÚ<«y<äª                line_nodrm+stx_line_nodrm+stx_line_nodrmEóÇA6]—BClIEcnB¢Ä
-?OŒç@ ´ B¢          EDÙf    AîFD³b>*sM=F_ş?r=é            line_nodrm+stx_line_nodrm   	?Ú«XşÒ@r6t¼j27-Jun-2019 22:17:15.623DìkDAÑ[¸@êKæF.˜ÊAø€;?>(.<#×
-AöÌÍ        Dì€…Bl¶?`€H<#×
-B          DÚ+z@ïx	@yñRCl™ò<t<*Z                Bš:Y<º½<û ×                line_nodrm+stx_line_nodrm+stx_line_nodrmEka–A;œ¡BBYpEèB£e9?Aß}@ãB¢          E™=    AúŒD9Ş>JNF=@òØ?H‚            line_nodrm+stx_line_nodrm  	?Ú±_ˆü“d@rVÕÏªÎ27-Jun-2019 22:18:01.905DìkDAÙwz@êKæF&¹Aøˆú?HV|<#×
-AöÌÍ        Dè{àBgÏ?X>Ğ<#×
-B          DØÔu@èG@†ÇóC`u.<¥†<? ]                BoÁ<½k¬=è·                line_nodrm+stx_line_nodrm+stx_line_nodrmE©I A-4çBELE=Ã	B¢ì9?t 2@Gœ{B¢          Eeg…    Aò¶ËDè?>~)=o)	?§ûn            line_nodrm+stx_line_nodrm  	?Ú¯ÌáÅ‚V@qöõY³Ğ}27-Jun-2019 22:18:51.709EïªAÓd@ºÎÂF ¾½Aø©Ä?L3e<#×
-AöÌÍ        DïŞB`Z?ek¤<#×
-B          D¿sF@ŠÓ?úPCZı<´<JX                B™Äö<¿<=èá                line_nodrm+stx_line_nodrm+stx_line_nodrmF	F*A2ºBCh8El#jB¡¨¨?{Ù?ĞûşB¢          DñàG    A…}üCjc=ï·=_´é=®r            line_nodrm+stx_line_nodrm  	?Ú Y×Ç@r«”•*™27-Jun-2019 22:19:39.195EïªAÌ^ÕA^BFEÉAøi^?AáÈ<#×
-AöÌÍ        E2‰B¡?N¥»<#×
-B          E% LA"~x@©ôC
-×<Ö <%è·                B´9-<Ÿ7œ<Ñìr                line_nodrm+stx_line_nodrm+stx_line_nodrmF’A2ºBDJéEP¸hB¢A–?xÅ?ÃvğB¢          E·d    A‰ CN;‡= †=MAY=ØR            line_nodrm+stx_line_nodrm  	?Ú²ái<¼@r{w1Å27-Jun-2019 22:20:27.662E"&AÍúÆ@Äå»FLšAøŠñ?4@½<#×
-AöÌÍ        E%CBt?P‡„<#×
-B          Dâeª@–[y@ öC‡ÄZ<á<–Ò                B°ôÇ<x:<ÍÈ¹                line_nodrm+stx_line_nodrm+stx_line_nodrmEQ¥ŸA>®BA¸µEfÀ:B¢á?j’©@4qB¢          E>º¾    B)˜gCëÕb=ìÄÿ=GÛı?/Â]            line_nodrm+stx_line_nodrm  	?Úã`‘Ÿ@rİ}¿H€27-Jun-2019 22:21:08.258DÔÇBAÕ¬k@Üw‚F;ÿAøxÚ?<{H<#×
-AöÌÍ        EBKí?Vš<#×
-B          Dì 2A^¸@w«[C{$<ŠÉ</Š"                B­`<
-2<Íû…                line_nodrm+stx_line_nodrm+stx_line_nodrmE­:AB´BAEqŞºB¢Ä•?]Ÿ @,tB¢          E)Uº    A©%DØ²>i*5=3ö£?wÁM            line_nodrm+stx_line_nodrm  	?Û.Œ… ¾@r“¬ô!-27-Jun-2019 22:21:53.543EWÜAÎ=t@ù©ªFGfAøxÁ?9e8<#×
-AöÌÍ        EúzBlË?SBÿ<#×
-B          E$“ÊA&‘@¥’ğCƒ<+<$Áh                Bªy0<¨ƒx<à9                line_nodrm+stx_line_nodrm+stx_line_nodrmEÄ³ğASôßB=^	E†EĞB¢´Á?D3ı@ZËB¢          E%Qè    A‘eŒDü@=ŞJÄ='0u?/‹            line_nodrm+stx_line_nodrm  	?Ú•ÈSÁH4@r.0:û~‘27-Jun-2019 22:22:33.901Cf3AŸƒ}AxŠDWóAø·?/İŸ<#×
-AöÌÍ        Cx‰Bq?2­<#×
-B          Eƒû…CsÃC&=bBWO‰<Ä•İ<ğÛj                AÄ¢¨=›˜A=Ò%·                line_nodrm+stx_line_nodrm+stx_line_nodrmDbk;A.¬BDÿ=D6½B¢nC>Ä]?€AFB¢          C¶át    BBàÚ€=VÊM=¨Ğ=º             line_nodrm+stx_line_nodrm  	?Ú€Œ‚Yáô@rMn.±Ä327-Jun-2019 22:23:33.805CÀôA±¬ZA>¯DuNAøeÖ?$én<#×
-AöÌÍ        CI9ÂBNá?%ıÀ<#×
-B          E •mB 4“B)ÕtBv€<Æä<ñƒÀ                Aä„C=n ³=œJù                line_nodrm+stx_line_nodrm+stx_line_nodrm>Â'WAgE]B9j+CíZ×B¢ƒÈ?IÄ?© B¢          C·*j    GÂ‡BŸ	=Í-=¤ƒè=Ì›¼            line_nodrm+stx_line_nodrm 	 	?Ú
-¢q›@r"îæ1ø¡27-Jun-2019 22:24:25.709C”}AŸ+ŞArNDh›!AøG;?*cP<#×
-AöÌÍ        Bı±®B‡?VxÚ<#×
-B          Ez¶YCqeÚCc¿Bi¾İ<Ì³<ú5‘                AùØ=®!%=íµ“                line_nodrm+stx_line_nodrm+stx_line_nodrmBşà„AŒYWB/L·CÀ_B¢I™?@§?Ä¢B¢          C¬Ù    C2.BqŒ…=°±U=ÚÀH>'¥            line_nodrm+stx_line_nodrm 
- 	?Úš²M]@r¬<ìÀ27-Jun-2019 22:25:16.753DK4A.L#AÏKDa±@Aø Y?Ò<#×
-AöÌÍ        C"³åBĞL?&—ò<#×
-B          F¡=xD#ä¤C¼;§Bwn<Âùf<ò5                 AÖí(=¶|=ÅÌz                line_nodrm+stx_line_nodrm+stx_line_nodrm@«_uAŒYWB/L·CöÃóB¢‚İ?uó?¾ªMB¢          C¬U©    EUQBÂ¸?=€_=Æ>o6K            line_nodrm+stx_line_nodrm  	?Ú»Då^³@r^gl‹C–27-Jun-2019 22:25:54.273EWÜAÈš_@ù©ªFGH#Aø}Š?:ÃÇ<#×
-AöÌÍ        E¬îBge?cQ;<#×
-B          E&U{A*g@¨ÇC‚4×<<Vª                B¡n<­a”<é´Ö                line_nodrm+stx_line_nodrm+stx_line_nodrmE)DªA2ºBDJéE0àOB¢O-?]¡½?LşNB¢          DåàÎ    B.¦)CB+<ÚÅ.=(Èó=,cØ            line_nodrm+stx_line_nodrm   
-?ÛN˜‡œA@q§K]Ìcñ27-Jun-2019 22:26:42.692EH/:A¯6TA$†FFDAøŠ{?87l<#×
-AöÌÍ        E4B`©?MW!<#×
-B          EìˆAœ¬@ä'Cƒ7”<]ª<$2}                B²„¿<–áu<Ãr/                line_nodrm+stx_line_nodrm+stx_line_nodrmB’'¢A`$ÔB:ßETInB¢e«?gœ?‚´|B¢          DÂÍ¦    DˆıC+R<ÜY;= æ*=evz            line_nodrm+stx_line_nodrm  
-?Ûœù jn3@r$íBÃÉï27-Jun-2019 22:27:19.410DìkDAÎeÖ@÷Î^FC¼AøL?:Ç‘<#×
-AöÌÍ        Eá„BP?U˜—<#×
-B          E mŸA2ä—@´vÖCŸ1<Š«<#;;                B§â<£Ö­<Ú                line_nodrm+stx_line_nodrm+stx_line_nodrmA­&AAŒYWB/L·E\aøB¢a²?Eæğ?]­B¢          DxO    E"¼/Cõ<¼‚—=(<ôn¿            line_nodrm+stx_line_nodrm  
-?Û‘>Eş@q¶Z…‡“Ş27-Jun-2019 22:27:54.141D¿€tA×‚@Ğ(F3(Aø…e?F "<#×
-AöÌÍ        EüRB®;?ròî<#×
-B          DÌÑï@íFC@t~cCl'–<ü<6”ú                B™&U<·¿<õÂk                line_nodrm+stx_line_nodrm+stx_line_nodrmE9.]A2ºBDJéEEDfB¢7Ñ?[e°??mB¢          D±>M    AÌH–C_,<Âƒ
-=	K‹<øcŞ            line_nodrm+stx_line_nodrm  
-?ÛN"¢Â7H@q“Vğ¹27-Jun-2019 22:28:43.167DÔÇBAÍDo@àìaFJkAø{Ç?8vv<#×
-AöÌÍ        Eß.BZ?J-o<#×
-B          Dş#öAl·@€åC„zç< ÙÙ<××                B·!4<¯~<·Ÿø                line_nodrm+stx_line_nodrm+stx_line_nodrmA™d‘ASôßB=^	EvÅB¢j›?>æ7?‡XB¢          DÒy"    E C>$<±£"<ûÕğ=fÂi            line_nodrm+stx_line_nodrm  
-?ÛT:ê·™_@r²° Äœ27-Jun-2019 22:29:26.149DìkDAÀoÌA jFJ‹:Aøk?:É<#×
-AöÌÍ        EBÏBDû?\Lı<#×
-B          EÌG$BAAŒHKCƒ{J<ÿ½<"éë                B¥C¡<¢`-<ÍùÕ                line_nodrm+stx_line_nodrm+stx_line_nodrmE*.ÔAgE]BTSE3ÂÔB¢=V?I3F?bB¢          DÀÆû    AS9Bş&{<ò†a=Y~<Z”            line_nodrm+stx_line_nodrm  
-?ÛYİÁç–}@qy+C,¥27-Jun-2019 22:30:05.135DÔÇBAĞâ@Üw‚F9ë8Aø÷?>‘÷<#×
-AöÌÍ        Eÿ¹Bpz?T§<#×
-B          DÚñ@÷ @gb!Cu£Â<Ê´<&·                Bªµ¢<œ94<Êoœ                line_nodrm+stx_line_nodrm+stx_line_nodrmBH]bA¢È‚B&E‘ÎB£8é?C8÷@E£”B¢          E ¯a    D­|˜CÚ`|=×½= ŠÃ?$o—            line_nodrm+stx_line_nodrm  
-?ÛœAÆ†b@r\W>«627-Jun-2019 22:30:40.848D$â{Aÿo'@ÔßF>{˜AøäK?7/<#×
-AöÌÍ        DÛïÏBE`?f§º<#×
-B          DŞQA"ÂÃA$ã CŒ<z-<9/                 B‡<¼B”=é‰                line_nodrm+stx_line_nodrm+stx_line_nodrmEÑ4A;œ¡BBYpE9‘~B¢KS?MKª?`5ŠB¢          D‘Â    AmÖuC%Ø<äÂˆ=2ö=8S            line_nodrm+stx_line_nodrm  
-?Û[†Hƒı@q\Ûqu"27-Jun-2019 22:31:32.372C”}A¸‚7A0JZDcí(Aø|„? Ê|<#×
-AöÌÍ        CjJBÌ?9…À<#×
-B          E$-»Bæ)PB_N^Bo]<Ïvy=ÄÊ                A­ƒ™=œ™\=Ç,Æ                line_nodrm+stx_line_nodrm+stx_line_nodrmCÇ|AYº¿B1uC«kƒB¢mÇ? í8?€ôFB¢          DsL    AÍ-BŠä—=– Ş=ÅÎ3=İX            line_nodrm+stx_line_nodrm  
-?Û2ü¬i@qa‰Ş Ò27-Jun-2019 22:32:25.776CÀôAºË¦A*á.D|îaAøŠ³?K	<#×
-AöÌÍ        C?Bûş?"ˆc<#×
-B          DØéĞBt&AB3GB„+¡<´Qû<İç¬                Aàb?=q6=¢cE                line_nodrm+stx_line_nodrm+stx_line_nodrm>–·IAYº¿B</˜CÅ²ãB¢E­?
-@?\[ŒB¢          C”u    G!OCB…­>Ç5=£Œ=ğMâ            line_nodrm+stx_line_nodrm 	 
-?Û2Öìá@q×Sİ—ö+27-Jun-2019 22:33:18.220DK4A.L#AÏ3ØD€c[Aø…Ğ?S¶<#×
-AöÌÍ        C	¬'Büü?I<É<#×
-B          F¬‚(D.Ñ^CÊİ\Bˆ z<³-š<Ü·•                A°C=¬Â‘=èéÅ                line_nodrm+stx_line_nodrm+stx_line_nodrmDa[tA0MôB:¬C€0AB¢,-?—+>ôúB¢          CG“â    A€%B8R=’K*=ÄÅ²=aRJ            line_nodrm+stx_line_nodrm 
- 
-?ÛY§Tm@@q˜ıp£×
-27-Jun-2019 22:34:09.557D$â{AŸş@ÿì=D…ôƒAøÅ?é»<#×
-AöÌÍ        B¹kçBõÍ?D#<#×
-B          E³†BwÈA’i%B†;_<¿şÄ<ø |                AŒ4
-=Ó³>
-ËV                line_nodrm+stx_line_nodrm+stx_line_nodrmDFClA.¬AåÿkC´QuB¢qø?ò?‹7@B¢          D•zÆ    A0	½B{=•¶o=·V=ßöU            line_nodrm+stx_line_nodrm  
-?Ûqm*¥Æ@qcç ù	l27-Jun-2019 22:35:02.395DìkDAÔº@êKæF;¸PAøz-?K<#×
-AöÌÍ        EEBT?cc<#×
-B          E!şA)…š@©oÃCrÉ<zª<AlC                B¡ò<¯ÎF<ò
-l                line_nodrm+stx_line_nodrm+stx_line_nodrmE:MANÂÉB>n;E€Y>B¢ñİ?{l—@</sB¢          E-2#    B<ÚD#>AĞf={¤;?g—Ù            line_nodrm+stx_line_nodrm   ?Ûz‘–•Ù@r y=Ùc27-Jun-2019 22:35:46.881EWÜAÌÓ‡@ê 4FHhÜAøwì?=Ô¨<#×
-AöÌÍ        EĞfBu?W©\<#×
-B          EiA\@|çEC‚%<ì<7ğ                BªL¾<¡l<ÔË,                line_nodrm+stx_line_nodrm+stx_line_nodrmD{AŒYWB/L·E˜ÑúB¡ÚT?‡”¶?ÍûwB¢          DÁÓ=    CCcËÀ=œ}=(Ò=lpç            line_nodrm+stx_line_nodrm  ?Û›V2;¼o@s–Ov`27-Jun-2019 22:36:23.410EïªAÆ»ı@ãAFB,çAø…??=»<#×
-AöÌÍ        E	ÚB”[?[G<#×
-B          E'¹A
-#“@k'?C~}<o'<#Ç                B¥í<£¬ß<Ö:&                line_nodrm+stx_line_nodrm+stx_line_nodrmDó^Ao0 B7ËLEa`/B¢0¸?›„?ÅeNB¢          D÷ø    Bû.ªCK¿=½Û=fãˆ=ºğ            line_nodrm+stx_line_nodrm  ?Û¨çv¯Š@ràkC,¥27-Jun-2019 22:36:59.299EWÜAËpÜ@ù©ªFDz(AøˆÕ?B»¶<#×
-AöÌÍ        E§¡Beœ?Uv<#×
-B          E ìA#îQ@½êC}\<-<%ÃÑ                B¯Ü<œ'V<Ì´”                line_nodrm+stx_line_nodrm+stx_line_nodrmEzàAB´BAEEB¡÷ˆ?˜¼Å?º¶.B¢          EY    BÎ”CB‡İ=!+Q={ÊZ=ÃäÎ            line_nodrm+stx_line_nodrm  ?Û•¢”›@rÌš27-Jun-2019 22:37:44.007DìkDAÑß@êKæF8P°Aø†’?@0Q<#×
-AöÌÍ        E'¸B|Y?bü<#×
-B          E©ëA!˜È@ m²CtÔ<v0<3Ÿø                B¢^y<­õ<ëu”                line_nodrm+stx_line_nodrm+stx_line_nodrmBİÒ…Ao0 B7ËLEgŞÉB¡†[?œö×?ÄÀ²B¢          DØ8    DRÀC'!#=w«=A‰¿=Š¤e            line_nodrm+stx_line_nodrm  ?ÛlïícEJ@rŞR½<627-Jun-2019 22:38:25.544E"&AĞÇ@Äå»F;oAø?7Ò<#×
-AöÌÍ        Dùe!Bd	?S4&<#×
-B          DàÙ†@–#Ë@ÑCí€<¡Û<(m#                B¢öD<®6»<èí‘                line_nodrm+stx_line_nodrm+stx_line_nodrmE…w¾A;œ¡BBYpERÍŠB¢oÙ?Z7Œ?¥5-B¢          Dô&š    AÓ•“CE—İ<èıñ='W±= )            line_nodrm+stx_line_nodrm  ?ÛlØ{W@rz×§†Â'27-Jun-2019 22:39:07.490DÔÇBAÓ½Ï@Üw‚F@CæAø‡
-?7£Â<#×
-AöÌÍ        E8QBcy?U¾×<#×
-B          DÅ.à@à}a@[ebC€–<‡l<‘                B£(#<¤Ã3<Ö©_                line_nodrm+stx_line_nodrm+stx_line_nodrmE2	oAJµB?c5EcÌB¢Ä?]v‡?­ÂÔB¢          Dö¶ç    B#ï)C`s<Õp%=.[R=º­            line_nodrm+stx_line_nodrm  ?Û´=‰ÎJ{@rŸ’T`ªe27-Jun-2019 22:39:49.272DìkDAÎÊ,@êKæF2NnAøƒô?=›3<#×
-AöÌÍ        E»yBu5?Tö<#×
-B          E%[A
-}@@„k±Cp[’<
-÷<*µŞ                B¦—<£¯z<Öv×                line_nodrm+stx_line_nodrm+stx_line_nodrmC8‡¢AYº¿B</˜EUG+B¢S?M¯?]>cB¢          D§âS    CºC,v"<Å¨= =hH            line_nodrm+stx_line_nodrm  ?Û‡Y%5C¯@qØn—Oß27-Jun-2019 22:40:30.637Cf3A–“AwîwD=ìAøU*?O»ğ<#×
-AöÌÍ        C6óB –?^Ty<#×
-B          E†	C“_TCŒ´B8wö<õ„Á=Ç                A±OÚ=‹“Ÿ=»ïö                line_nodrm+stx_line_nodrm+stx_line_nodrm>‡JœASôßB=^	DE1<B¥Yv?
-ˆ¥@¾ktB¢          DS*\    Gú™¾CËy?@=ÉxX@"ş            line_nodrm+stx_line_nodrm  ?Ûªhô¶â@rF"‚@·€27-Jun-2019 22:41:27.115DK4AojAŸò\Dv±Aø¶o?È<#×
-AöÌÍ        CB|B¼Œ>ã™<#×
-B          F6hãCˆiCFBƒjX<¼ c<éÍı                B‘Ç=Yk¥=šzŸ                line_nodrm+stx_line_nodrm+stx_line_nodrm?UxA€á÷B3ş$D6ÏB¢¯V?R(@€B¢          CÁ˜x    F¹{>Bìô»>Ì"=£J*?,Ô¦            line_nodrm+stx_line_nodrm 	 ?Ûh‹Ú”5­@rµø7´¢427-Jun-2019 22:42:07.182CÂ¾øAh£A­½ïD4­Aø~>?"±k<#×
-AöÌÍ        CMíÖB_V?©3<#×
-B          F<ÚED(¹C¾¢Bt³Ú<³İI<Û[‰                Aí`=`/B=’ó•                line_nodrm+stx_line_nodrm+stx_line_nodrm?µ“Awı#B5şTCõâOB¢i?DÙ?”4B¢          CßÊ    Fÿ’ßBŒ9+=tz =–²I=©ÍÕ            line_nodrm+stx_line_nodrm 
- ?Û®W–¿Ê†@rgÊŒL˜27-Jun-2019 22:42:51.721D´AjÀÀA¢+cDh_€Aø†ñ?$í<#×
-AöÌÍ        C"íB?0O<#×
-B          F%OCÊWšCWáqBl8 <ÇÃ<ôÖw                AÆMÃ=‰Ÿ=¹5†                line_nodrm+stx_line_nodrm+stx_line_nodrm>Â'WAgE]B9j+CÌŠ—B¢j—?ˆ?xá·B¢          CÀ2Ò    G#ÀİBİ“=œ>=·¹°=û¼            line_nodrm+stx_line_nodrm  ?Û’}E¥ü~@r	şß¤?æ27-Jun-2019 22:43:38.263D¿€tA×*¥@Ğ(F(ÅòAø‡æ?LùK<#×
-AöÌÍ        DıfBs+?_ K<#×
-B          DÁ@å ’@YÚÒC^R)<&<A…¤                BœÑr<­ã[<æÂ9                line_nodrm+stx_line_nodrm+stx_line_nodrmBjAšBB)zEgB£$§?]í@)5B¢          E ÆW    EváC¼È=©D{=I è>äà            line_nodrm+stx_line_nodrm   ?Ûq—×¿@qÓ‡+27-Jun-2019 22:44:15.230D¬ZTAÓC@ÄÑqF3RzAøx®?E•<#×
-AöÌÍ        Eô˜Br{?]C<#×
-B          DÊì@õÉP@M’Cl¼<FL<5
-š                B¼<¤Õ<<Ô”                line_nodrm+stx_line_nodrm+stx_line_nodrmEA>UASôßB=^	EqÏÆB¢ç®?g™é@-­gB¢          E*    Bd¶C¼Áä> <´=@a?/¡            line_nodrm+stx_line_nodrm  ?Ûoó­â%ú@r^¸Që…27-Jun-2019 22:44:56.790EWÜAÇPÕA3×F4íıAø…?>i<#×
-AöÌÍ        Dó­³Br|?`é<#×
-B          EoÈA–nøA(0ƒCp2<
-6ó<(&²                B›.<´df<ô&ç                line_nodrm+stx_line_nodrm+stx_line_nodrmE¥dA4!BCáuET B¢v?KpÔ?¢IB¢          Dç[T    A«>C? <Õ®=Õ=‘U÷            line_nodrm+stx_line_nodrm  ?Ûmü\İP©@re)“àß27-Jun-2019 22:45:42.609EWÜAÓEĞ@±ºF2éhAø—Ì?@v2<#×
-AöÌÍ        E 0Bxè?\¬,<#×
-B          Dº‰N@Š‘µ?ëÚ‹CoİL<Â<2\                BŸnb<«`ı<á”Ï                line_nodrm+stx_line_nodrm+stx_line_nodrmE	?ÊANÂÉB>n;E{êÛB¢í?X÷¥@!¡+B¢          Euğ„    BqDr2>ôŸ==í?^7Ş            line_nodrm+stx_line_nodrm  ?ÛjËF»@r5Hšu%27-Jun-2019 22:46:21.984EWÜAÊï»@ù©ªF+»7Aøƒ²?AOn<#×
-AöÌÍ        Dç·B\G?bâ<#×
-B          EÂíA!‚@¢ó„Cc </;ÙÓk                B–¤Í<¼İ@=XT                line_nodrm+stx_line_nodrm+stx_line_nodrmE=ÙA`$ÔB:ßEc7B£/~?wm@„M°B¢          E6‰³    B[„ùDAo…>š‡D=NÛ?×4ù            line_nodrm+stx_line_nodrm  ?Û@¢‡~äâ@r´%œàv27-Jun-2019 22:47:00.032D›jB£ÙAšİºF'§AøºÁ?@ù`<#×
-AöÌÍ        DÄ|3B*?v†1<#×
-B          F‹&Bw‘!C‹×CbØ<*d<7şJ                Bpç<Ë±=Í                line_nodrm+stx_line_nodrm+stx_line_nodrmF^A+âĞBE‘ME ÜnB¢1L?iPÇ?5»B¢          D_Æ    AP¥ıBÕ8P<÷=Cæÿ<­Á            line_nodrm+stx_line_nodrm  ?Û§"X¼Z@qt²{²şÅ27-Jun-2019 22:47:48.992DÔÇBAÎJ@Üw‚F0=xAø‹í?6n<#×
-AöÌÍ        DìûìBW	?]‰•<#×
-B          DæAÅy@nésCqÌ< 2<$Pô                B—³<±~™<éFô                line_nodrm+stx_line_nodrm+stx_line_nodrmD¤Ì§Awı#B5şTEa¾B¢ºW?_–¹@B¢          Dõ“w    BzVHC®‚	=™Œ=4ÈS>å)•            line_nodrm+stx_line_nodrm  ?ÛpyåŸ+ª@rfè	Ô•27-Jun-2019 22:48:27.491DìkDAË¥¢@ãÒ|F#"òAøˆş?@¢ı<#×
-AöÌÍ        Dì’ŞBZ"?Y¬<#×
-B          E#|A%†@‹TC`ê¦<”<>ˆ†                Bšd£<°ó<éfÌ                line_nodrm+stx_line_nodrm+stx_line_nodrmE“kA8ÙÄBBêEw·™B¢ä¸?LŸÃ@,ˆüB¢          EÒ1    AÒÚC¼ƒ:=˜ÿ|=8KY>øåÖ            line_nodrm+stx_line_nodrm  ?ÛB Æ´…@rW)ùrG27-Jun-2019 22:49:11.219CõZAÃ»)A$åD^æ~AøF]?22<#×
-AöÌÍ        C,–ôBo{?-}Õ<#×
-B          DŒ©B×CB$aBoÒ	<½¢u<ã-?                AÅÔk=tß›=Âi                line_nodrm+stx_line_nodrm+stx_line_nodrm>OğªAEàVB@?°CÍœ½B¢VÜ?°ğ?sö{B¢          C¶—Ü    G•ğÑB“=€E¼=¯#û=×"J            line_nodrm+stx_line_nodrm  ?Û ¸l*Ì@qÕ«ÓÃa27-Jun-2019 22:50:08.261CÀôAÂJAE˜Db3 AøV(?$o~<#×
-AöÌÍ        C
-ôBÏ?@	<#×
-B          D¶HB8œA¨k÷Bmy<ĞK=”                A½J?=—n-=ÎŞb                line_nodrm+stx_line_nodrm+stx_line_nodrm?4A“ïB,!D Õ«B¢Šu>ğ4D?º.ÁB¢          CÏ    EşÎÈB¹=ˆÓ©=Ÿ°4>^:            line_nodrm+stx_line_nodrm 	 ?ÛEˆ M@q™…m\ú­27-Jun-2019 22:50:53.333CÂ¾øA¶ÏTA/ñºDHQAøÄ¨?0½<#×
-AöÌÍ        C29"B­Ì?Ö‹<#×
-B          Dö1YBfV¼Añ˜—BUø#<æ¦=                Aå¿w=y{Å=¨Ş                line_nodrm+stx_line_nodrm+stx_line_nodrm>`÷¾AJµB?c5CÚbßB¢f«?(E¬?ºı|B¢          CÅ$ì    G“ÜwB•Ì›=Œ)=»i)>2òa            line_nodrm+stx_line_nodrm 
- ?ÛC•$İ@r‰7KÆ¨27-Jun-2019 22:51:43.643Cû½A¡10An30D\pôAøyë?%W<#×
-AöÌÍ        Cİ_BÿÖ?)è"<#×
-B          E`œ×C?\ÌBĞ–²Be«Ç<ÍYT<ûV“                A´‰u=“r=ÄÊc                line_nodrm+stx_line_nodrm+stx_line_nodrmC£ÓäANÂÉB>n;C¼«ùB¢zŠ?!o?¨véB¢          CØõH    Bœ¶~B¸Ô=¾ã=Ş8S>{”[            line_nodrm+stx_line_nodrm  ?ÛLLß¬£b@rZ•µsê³27-Jun-2019 22:52:34.103D¿€tAÒé¿@ô³“F"ó›Aø…ô?KÖ\<#×
-AöÌÍ        Dıt)B|?WK±<#×
-B          E!*rAX‚@ÙÓîCZ<™¿<L,                B Rù<«Š<åÍ                line_nodrm+stx_line_nodrm+stx_line_nodrmBjAšBB)zEuQXB£k>?^? @_&B¢          EaÑ    EC×D(Ã>„v=Mq ?Åo¶            line_nodrm+stx_line_nodrm   ?ÛS.{= @qù²° Äœ27-Jun-2019 22:53:09.678CÂ¾øB	Û&@:"F,Ç'Aøá)?Aÿ—<#×
-AöÌÍ        DÉÎ³B4Ë?€^<#×
-B          C®¬ú@
-AD@ èïCg?<)Z<Hì¤                Bjy×<Ûæô=®Å                line_nodrm+stx_line_nodrm+stx_line_nodrmEá¨ÁA6]—B3ÑÆE½ƒB¢¨?ƒÜÕ?!ÕB¢          Døv    A9Ÿ¶BÀ’í<şöø=Lî<º¤»            line_nodrm+stx_line_nodrm  ?Û\¢˜Eİ@qXíBÃÉï27-Jun-2019 22:54:09.193DìkDAÒ,i@êKæF(dmAøv?K²ø<#×
-AöÌÍ        DósB_¾?a¦¦<#×
-B          Dø‚AÓU@Œ¾C`<œ<<y                B›³<¸$b<û€                line_nodrm+stx_line_nodrm+stx_line_nodrmA­&AAŒYWB/L·E€ÔB¢ú1?>ü@øÔB¢          Dı&‡    EmCÉî†=®‘=.†d>Ãc            line_nodrm+stx_line_nodrm  ?Û0¤ãy·|@q¾è>BZî27-Jun-2019 22:54:43.848D¿€tAÙˆ>@Ğ(F'9Aø‘G?R‡M<#×
-AöÌÍ        DíÙB‹Ã?g>Ş<#×
-B          DÇFò@ì&Õ@a½CYè[<=ƒ<MÔ·                B•8Z<ºã<úàã                line_nodrm+stx_line_nodrm+stx_line_nodrmBRdA«û;B"ZQE1‹B¢è?”+œ@15B¢          Er/×    DÑÕ‘DÚM>	™!=˜®?`!¹            line_nodrm+stx_line_nodrm  ?ÛwYò»@rÌcñA27-Jun-2019 22:55:21.915D¬ZTAÓ@ÄÑqFÂ¾Aø…¸?B¡<#×
-AöÌÍ        DäÂ}Bxe?_Îr<#×
-B          DÓğK@ızM@dåøCXß=<D9<>+·                B“¾³<´b–<éCK                line_nodrm+stx_line_nodrm+stx_line_nodrmEpïA0MôBD©ÒEçåB¢*°?`ÌC?/>˜B¢          D‚Ïb    AŠ2øBİ:<èÀ='c0= ;’            line_nodrm+stx_line_nodrm  ?Û\9¼º0@q‡ä%®æ227-Jun-2019 22:56:09.309D¬ZTAÕ`÷@ïK§F%MŸAønê?EH<#×
-AöÌÍ        Dà™¸Bm°?^bî<#×
-B          Døş¼A9‚@¹mCa¤<<>£                B“Ì…<·Î<ôpî                line_nodrm+stx_line_nodrm+stx_line_nodrmD¨ÍjA6]—BClIE&X÷B¢Nä?Uª?ZcèB¢          D²ÊØ    B‹j<C®U<æl¹=/AÚ=+y            line_nodrm+stx_line_nodrm  ?ÛFÜ]cˆf@q©%ıŠÚº27-Jun-2019 22:56:58.455E"&AÂŠvA
-i½F±‡Aø£?G‚à<#×
-AöÌÍ        DìÂB=~?WH<#×
-B          EjhAUh2@ÒÙdCZ=<ƒH<;ş:                B«U<·µã<û{:                line_nodrm+stx_line_nodrm+stx_line_nodrmEh=—A0MôBD©ÒE/ B¢†?j,â?—ˆşB¢          Dêa-    AåöØC!:‡<ï<=3v=ªÑ9            line_nodrm+stx_line_nodrm  ?Û3‡	VÁ@r3˜_ö”27-Jun-2019 22:57:44.877DìkDAÈ ˜@ãÒ|FãİAø‘Ê?[ÛÑ<#×
-AöÌÍ        Dİ… B]K?i»‘<#×
-B          Et’Ap‰8@Ã|:CBŞS<6h:<u0q                BU<Å}=
-ª                line_nodrm+stx_line_nodrm+stx_line_nodrmBRdA«û;B"ZQE8!SB¢çK?Š<œ@¹B¢          Ednn    D«?=D­‚>B_<=gpA?€ñ#            line_nodrm+stx_line_nodrm  ?ÛJıTT+@rWOß;27-Jun-2019 22:58:22.218D$â{A+”¶AÙ8^D@ÂÓAø71?Û‡<#×
-AöÌÍ        BâdBÊA>ê®i<#×
-B          F¨Ş¸D]~DòBw¨)<õòÑ=yã                AĞùu=µ^=½Ÿt                line_nodrm+stx_line_nodrm+stx_line_nodrmDï6óAo0 AÜæîCI¥îB¡ôˆ?,¨r>ˆµrB¢          DÂ1k    A|®B^F= V‚=Ü–=9à            line_nodrm+stx_line_nodrm  ?ÛN¨Ú<÷@pûWö+jè27-Jun-2019 22:59:05.657DK4A.L#AÏ&®DMÇAøĞ?N!<#×
-AöÌÍ        CäBx"?N<#×
-B          F²…†D5wñCÍù+BkL<ÒÅM=ã                AØ7^=Œ^º=Á                line_nodrm+stx_line_nodrm+stx_line_nodrm@Ï´íAB´BÃÅCçw/B¢aˆ>ó/`?`!ÓB¢          Cÿ”F    D«öõB™ü	=r¦6=‘äÎ=“1ü            line_nodrm+stx_line_nodrm 	 ?Û5;K/©;@q§¹#¢œx27-Jun-2019 22:59:44.008CÂ¾øA¾h"A1DAT"AøÂo?*_¥<#×
-AöÌÍ        Bæ˜_BÂ/?p!<#×
-B          Dº#KB¯ÃAwyBW<ëOŒ=Ö                A”l$=×Q]>~É                line_nodrm+stx_line_nodrm+stx_line_nodrm?0•’A€á÷B3ş$CÕ®AB¢@h?	6ù?^×B¢          C’Ã§    FyY.B7İ=€Õ=Ğé=µEÆ            line_nodrm+stx_line_nodrm 
- ?ÛU6“:@qĞä÷eı‹27-Jun-2019 23:00:31.548Cû½AÁ;A€HD5kAø©?Fë:<#×
-AöÌÍ        BïåIBßš?Gr<#×
-B          D±ô©BO‰âAàË“B=}8= Ğ=&                A¢û=´G÷=şš                line_nodrm+stx_line_nodrm+stx_line_nodrm?×à®AYº¿B</˜C¸ìGB¢k?+5?‰ÇB¢          CĞí    F B¤B ¤=ˆñ|=¸ />ü            line_nodrm+stx_line_nodrm  ?Û5*„8…@rSt¼j27-Jun-2019 23:01:22.520D¿€tAÏéà@ÿ7F-BìAøé?@],<#×
-AöÌÍ        DøjûB9Â?WM<#×
-B          E*ûAJ¶¥@ÎØCR{e<â;Æö                B#É<©uÊ<ß#*                line_nodrm+stx_line_nodrm+stx_line_nodrmBÍ‡AYº¿B</˜E:¥ÒB¢O?cÑK?\ÃNB¢          D¨m    D-½CWÆ<Ô¿ş=¶=oD(            line_nodrm+stx_line_nodrm   ?Ûo\¯-•@qÒB\(ö27-Jun-2019 23:02:05.824DìkDAÍ·=AÓ}F/¸ôAø‹S?;>^<#×
-AöÌÍ        E;{Bd­?[¤<#×
-B          E	A4=z@À‡OCmğÎ<	ÑÃ<'>ø                B nĞ<ª±¸<âµ                line_nodrm+stx_line_nodrm+stx_line_nodrm@§¼¸AŒYWB/L·E}ãsB¢Å’?=æ&@
-B½B¢          EÖ    F†¤ÖCÙÜ=és=Ê½?
-;            line_nodrm+stx_line_nodrm  ?Û¦¬§“W`@r /·éù27-Jun-2019 23:02:43.435E"&AÅ<)A
-i½FñA÷Û?@\<#×
-AöÌÍ        EåBNú?9<#×
-B          Eo³AX¸@ÍŒ„Co„4<J°â<{‡                B²Êj<’DT<Äº                line_nodrm+stx_line_nodrm+stx_line_nodrmEÚûÛA`$ÔAè—EA.œB¢Àõ?HjR?Åó´B¢          EŠr    @ögC-#´=2iŒ=8å=¢™I            line_nodrm+stx_line_nodrm  ?Û²ªâ—9m@q¸ -à27-Jun-2019 23:03:17.309E^m/A¢HáA"ŞJF$FAø‡Ó?PÂ<#×
-AöÌÍ        D÷Ë}Bkñ?T†ş<#×
-B          FE}BmAXKCY:“<E…<LØÿ                BŸ®<®b<êZ÷                line_nodrm+stx_line_nodrm+stx_line_nodrmA­&AAŒYWB/L·EW†*B£Œ?i›@O‘B¢          E…lÜ    EÆŞDjÏ>=éÛ=[Á
-?‹ÓD            line_nodrm+stx_line_nodrm  ?ÛŸDÔEg@rº’£S27-Jun-2019 23:03:50.410DÔÇBAÊíAt;F/l‚Aø…®?>vğ<#×
-AöÌÍ        E	õ˜BT ?O{<#×
-B          E=8AX^AZCk§0<1¸<,Ëü                Bª&<ß}<Ï9Í                line_nodrm+stx_line_nodrm+stx_line_nodrmBD?}Ao0 B7ËLE3òB¢B-?_Kå?s™"B¢          D”4    D•¦4C|¶<Ùg¢=#Fò=QñÓ            line_nodrm+stx_line_nodrm  ?Û b
-·'@rQÑN;Í27-Jun-2019 23:04:29.811DÔÇBAÊ¤t@Ö£ÖF2ßAøˆ.?;ÔÆ<#×
-AöÌÍ        DóBˆÒ?b‚&<#×
-B          E«¾A!Na@ŠğŸCpj?<
-Òˆ<+Åg                B–×`<°ù³<í„M                line_nodrm+stx_line_nodrm+stx_line_nodrmA±9ASôßB=^	E:ƒB¢LŒ?V;İ?^9B¢          D™ä‹    EY‘VCdÌ<Ïh=î»=Pšs            line_nodrm+stx_line_nodrm  ?Û”ìİ@qåÁ½¥27-Jun-2019 23:05:14.780D›jAÎù‘@¶}F#_2Aø‹Ã?I[<#×
-AöÌÍ        Dâ€ÌBŠM?tÙ¸<#×
-B          DÙƒ©AÀš@Y–NCZk<y<;a[                B‰Ô<»;ö<ô¤                 line_nodrm+stx_line_nodrm+stx_line_nodrmBÕBÇAŒYWB/L·ET¤KB¢½Y?7K?Ù-B¢          D·N    D	ÈCI3·=¬= ¤=«Ä“            line_nodrm+stx_line_nodrm  ?Û¦¬§“W`@q ¡@N¥27-Jun-2019 23:05:53.140EïªAÁ“@ï÷®F"U…Aø‡Ê?Fz“<#×
-AöÌÍ        E%òBX÷?Nõ<#×
-B          EBÔ.A)Õb@³»C[»<Om<5€                B¥‘<¤<×"                line_nodrm+stx_line_nodrm+stx_line_nodrmA;ÖHAwı#B5şTE6ÓB¢Oí?e4ò?{ÂhB¢          D¦´
-    E°+C-\<ÛC=%=hÿº            line_nodrm+stx_line_nodrm  ?ÛÉª@r1&éxÕ27-Jun-2019 23:06:30.979EWÜA†kª@ÖëãDUSüAøÇ[?ô%<#×
-AöÌÍ        C0jB_?M"¿<#×
-B          F±^½BXâA>SUBqfb<Ïü=»ª                A¤@„=•Kø=Ãø›                line_nodrm+stx_line_nodrm+stx_line_nodrmC˜£A;œ¡BBYpC€*ÕB¢,²?'vó?9½´B¢          Cyüc    BxƒÑB6u8=œ×m=á5r= Ái            line_nodrm+stx_line_nodrm  ?Û©Ñöy}@qºR¼£27-Jun-2019 23:07:07.204DK4A.L#AÏJD2Aøœ&?	·ü<#×
-AöÌÍ        C'ùBBV¦?Ø¿<#×
-B          F]ŒDÓÚC¸zBŠH<¯\}<Õt‚                AäAÛ=€l®=¯¶                line_nodrm+stx_line_nodrm+stx_line_nodrm>á%~Ao0 B7ËLCõsB¢xo>òïø?ˆ; B¢          C¸kî    FÿØB¥~Ç=bíI=‘„$=µe            line_nodrm+stx_line_nodrm 	 ?Û”Ù@x–@r1Íƒä&27-Jun-2019 23:07:46.381D´A)ajAåF³Dqh]Aøoå?)±<#×
-AöÌÍ        C &7B"„?.Œ™<#×
-B          F¯ıD“ÿD6×Bk‡±<ÅS.<ïCî                AÄC=‡—±=µŞ˜                line_nodrm+stx_line_nodrm+stx_line_nodrm?™œÍA†PhB/]óDLıûB£È›>ÔÂS@•oIB¢          CÑ    F>ÚqC(¹¾=Ùø==£“Š?íp            line_nodrm+stx_line_nodrm 
- ?Ûi3 @|È@r’Ü(õÂ27-Jun-2019 23:08:30.596CÂ¾øA¬J–AH:@D@5fAø.?F=<#×
-AöÌÍ        C1xB«>àÃ,<#×
-B          E+lBµ*NBA®Bv>ş=ÿÃ=#aƒ                B ñ=@~¨=‡Ö                line_nodrm+stx_line_nodrm+stx_line_nodrmDoŸ"AgE]B9j+C64FB¡Ş(?Aj­>XôªB¢          C(É    Aú‘Bwİ=œìH>ÿ<ıÚ{            line_nodrm+stx_line_nodrm  ?Ûq2rC{@pù¢h	Ô•27-Jun-2019 23:09:15.488DìkDAÍ-ì@êKæF;çîAø|O??=$<#×
-AöÌÍ        DıïBV“?l<#×
-B          E6"A¸@˜ªCvs<	OM<'Ñ                B™ºR<¸¦'<ı\¹                line_nodrm+stx_line_nodrm+stx_line_nodrmAŞx	A«û;B"ZQE’ÏtB£LU?T @aÛlB¢          Eƒ    E17AD½‹>8vö<¬I/?„0S            line_nodrm+stx_line_nodrm   ?Úò”İr6~@rCa@O27-Jun-2019 23:09:48.552DÔÇBAËË@Üw‚FC¸AøuE?@†s<#×
-AöÌÍ        E
-AB…»?_5<#×
-B          E×—A"íÛ@‰¡C~ği<ÁĞ<*c½                B¤
-S<¤&<ÕJt                line_nodrm+stx_line_nodrm+stx_line_nodrmD21ASôßB=^	EŠ=ÓB£#j?>ç‡@6ÚûB¢          EG‹®    C4Æ·D˜„>+âi=» ?hÂ            line_nodrm+stx_line_nodrm  ?Û±şë@qş¡|ÚQ27-Jun-2019 23:10:31.100D¿€tAÎÆ•@ÿ7FE}qAøng?==c<#×
-AöÌÍ        Eí©B\!?[&<#×
-B          E#È¦Ag4@à‘9CM}<6¦<&ÂX                BªÒÛ<M<Í)                line_nodrm+stx_line_nodrm+stx_line_nodrmAÆq^ANÂÉB>n;EpÍB¢Wô?AŠ²?[]B¢          DªqÈ    EAœ<CD2<²y,=Nõ=$É            line_nodrm+stx_line_nodrm  ?Û8‚'@q¯Æ
-¦L027-Jun-2019 23:11:16.172DìkDAĞ£@êKæF:öôAøxX?DÒï<#×
-AöÌÍ        Eö4BK?Va<#×
-B          E™®A@»Ctjª<Vº</?                B¨ùŞ<¦…~<İ)}                line_nodrm+stx_line_nodrm+stx_line_nodrmE <æA;œ¡BBYpE–Ö³B¢ßå?9…@«B¢          E1'    AÆC÷/q=ñm"=K?*Ğ6            line_nodrm+stx_line_nodrm  ?Úçp½}¯@rO®æ1ø¡27-Jun-2019 23:12:00.668DìkDAĞ¸@ÍEvF4µ8Aø|)?By’<#×
-AöÌÍ        EOËBgN?Zrk<#×
-B          Dõ0"@ã_Ñ@I{Cqxç<ÓË<5T&                B¦èR<§"b<Ü0®                line_nodrm+stx_line_nodrm+stx_line_nodrmDè¬0A;œ¡BBYpEF8XB¢P“?MyÊ?\dB¢          D¾‚‘    B>‰qC.<Ò&Z=%2=MR             line_nodrm+stx_line_nodrm  ?ÚÄ.˜™¿Y@q‡V“27-Jun-2019 23:12:47.225DìkDAÏbµ@êKæF9;Aø|1?>©‘<#×
-AöÌÍ        EX#BI9?S¿<#×
-B          EÔÑAÛÉ@¨Cu¥Q<
-ôµ<*™%                B¨®İ<¦3<Ü0"                line_nodrm+stx_line_nodrm+stx_line_nodrmE"ˆìA>®BA¸µE’“|B¢ğ+?'k÷@ğ=B¢          E l    BhÉCÖI—=†½=
-í>Ëå´            line_nodrm+stx_line_nodrm  ?ÚÛø¹º¡Q@r¬VÕÏ«27-Jun-2019 23:13:30.994D¿€tAÑ¯v@Ğ(F@)Aøx?>Ò<#×
-AöÌÍ        E	/«BM.?]"N<#×
-B          Dé¯sAEB@m‹»C}zO<	Û <+Àv                B¤à±<¤÷´<ÖÉf                line_nodrm+stx_line_nodrm+stx_line_nodrmE	Š»AEàVB@?°EY×óB¢_?Euu?ƒGB¢          DÂ«‘    BSC?è	<ÇÉ5=òN=?_T            line_nodrm+stx_line_nodrm  ?Úº'®š²@qÒn±Ä2Ê27-Jun-2019 23:14:12.985DÔÇBAÏÒœ@Üw‚F/RAøuD?Dú½<#×
-AöÌÍ        E²¤B?–?S]g<#×
-B          Dò³A³P@€<¿CiŒw<eã<2«o                B¥Ë€<§º<ÜŸ‰                line_nodrm+stx_line_nodrm+stx_line_nodrmBUÊ”AÁ¨B… Eƒ˜B£B?dá@Wé¥B¢          E $õ    D“y4DŒ¹>Ô==ı?iºA            line_nodrm+stx_line_nodrm  ?ÚÅ°xÙ/²@ršu%F27-Jun-2019 23:14:45.705C¯FÀAËYí@™VDIŒåAù?CIW<#×
-AöÌÍ        C–7Bò?q¾P<#×
-B          D‘ƒëA„4@ÌâABO…<ÿ‡b=-:g                A™ø{=±”i>şß                line_nodrm+stx_line_nodrm+stx_line_nodrm@Œ+!ASôßB"JCŒHwB¢b?oä³?,QB¢          D·    EU–±B\Nƒ=Ía>«â>4’$            line_nodrm+stx_line_nodrm  ?Ú²ò03¤r@qÇ¡G®{27-Jun-2019 23:15:41.590Db+„A/âÒAã'DŒ'DAø˜Y?ë<#×
-AöÌÍ        C=KÊB$ç?»U<#×
-B          F¿9›D;í>Cï4	B•kŞ<¥œ5<Ê                 AöeL=p˜=£”|                line_nodrm+stx_line_nodrm+stx_line_nodrm>Â'WAgE]B9j+C¶:IB¢>:?t9?S¥­B¢          C§£í    G”¹BV‹<=‰&û=¦CÇ=z~Á            line_nodrm+stx_line_nodrm 	 ?Û9m	Ö¶@qÓ;˜Çâ‚27-Jun-2019 23:16:26.332DK4A.L#AÏñÖDˆÅ©Aøƒ%?3
-<#×
-AöÌÍ        C:¦ƒBO|?&æ<#×
-B          FŸCD"ÃC»4çBŠï2<±Y<Öû                AàË™=Š5=®ÊJ                line_nodrm+stx_line_nodrm+stx_line_nodrmE†¡6AJµA¦N†DQaB¢h>ç¢¢?|ô¤B¢          Eèã    @ÀXÍC˜“=X¸Õ=¥†=7o‹            line_nodrm+stx_line_nodrm 
- ?Ú«¼±Ì–F@r»£n.²27-Jun-2019 23:17:11.697CÀôA•M\A…‡VD„•'Aø„Ë?h<#×
-AöÌÍ        C#™B?GNW<#×
-B          E!"C†y¨Cu³B„ûT<³Oq<ÓÉ«                A³õz=•ÈG=Èà.                line_nodrm+stx_line_nodrm+stx_line_nodrmDTEtAgE]B5îWCífB¢H­>ì‘?xˆB¢          C ½O    Aä¡B¶ÈÏ=~Ñ=®Iİ=¼eK            line_nodrm+stx_line_nodrm  ?ÚÄÅ—Ne¿@r›OùrGE27-Jun-2019 23:18:00.853E"&AÃ‘²AÚ‚F<[^Aøo˜?K¶¢<#×
-AöÌÍ        Eğ3B^Á?ZÓ<#×
-B          Eoù/AaáA@äFCqxK<Ô<. \                Bªœâ<¥•’<àa‚                line_nodrm+stx_line_nodrm+stx_line_nodrmDšsA>®BA¸µEÆ;QB¢5T?]V2?Ø‘B¢          DÀ¡‘    B‹C‘oX<ÖWÉ=
-Ic=2fş            line_nodrm+stx_line_nodrm   ?Û­ÕÀ­@så`A‰27-Jun-2019 23:18:42.873E"&AÅjÕA ñFBó%AøØ?BôÍ<#×
-AöÌÍ        E
-@µBgª?[É„<#×
-B          EFŠA([»@œ=cC{<<%ûò                B§p<¦1i<Ş¼                line_nodrm+stx_line_nodrm+stx_line_nodrm?ªi|Awı#B5şTE[¢„B¡È2?—	î?Â¢B¢          DãmÂ    GÙ²ßC7M=1 A=qˆº=ñ‹            line_nodrm+stx_line_nodrm  ?ÛÜÎ¢âa@rúÎŠqŞj27-Jun-2019 23:19:22.088DÔÇBAÔb @Üw‚FAí”Aøâ?@GŞ<#×
-AöÌÍ        ELÇBQn?XÆ<#×
-B          E lƒAı@‡øC|Õ$<
-éq<.|i                B¨­I<¡–1<Õ°Ô                line_nodrm+stx_line_nodrm+stx_line_nodrmD·YAB´BAENÊEB¡ÈC?i?¾‚mB¢          E=ˆ    BË–C0Yï=!ŒC=gˆ=ªš³            line_nodrm+stx_line_nodrm  ?ÛğñoC…@råÒ:)Çz27-Jun-2019 23:20:06.868DÔÇBAÔê@Üw‚F9ˆÑAø‰ü?Fc#<#×
-AöÌÍ        EABi?cIì<#×
-B          DÙzL@÷¤*@q«ECqV¬<äœ<1‹%                B¤<¦hÎ<İ3ã                line_nodrm+stx_line_nodrm+stx_line_nodrmCòYÃA8ÙÄBBêF€¥B¢¦O?,¨?åúLB¢          DŸW2    C]ôCÆ‰f<Àd<á«y=fØ            line_nodrm+stx_line_nodrm  ?Û—5;K/©@s)úáG®27-Jun-2019 23:20:52.758DÔÇBAÑÙï@Üw‚F0.Aøƒß?CZ¸<#×
-AöÌÍ        Dş”ÁBb?]¤<#×
-B          EURA2²@Œï¤Ck/[<¯ª<8yÈ                B
-š<­úN<ê(´                line_nodrm+stx_line_nodrm+stx_line_nodrmEÊ‹ÕAB´BAEf²÷B¢t#?KàN?º £B¢          DâíX    AŠ·óC\‘–<êã­=#W£=’"Ø            line_nodrm+stx_line_nodrm  ?Ûz_A®öù@r±' ù	l27-Jun-2019 23:21:36.245EWÜAÌğ1@ù©ªF=¶*Aø†´?7µj<#×
-AöÌÍ        E
-8nB-?H{<#×
-B          EšéA	¦L@€C}à <^Q<7O                B®ß9<›^<Ëß€                line_nodrm+stx_line_nodrm+stx_line_nodrmDøk’AYº¿B</˜ETùB¢jÅ?r×ã?¨PïB¢          Dêõ=    BNñÓC1Å<úh=%µ=|Ë            line_nodrm+stx_line_nodrm  ?ÛÚÄç%>@r¬.cŠ	27-Jun-2019 23:22:16.150EWÜAÌY5@ù©ªF@kAø„ü?8MÆ<#×
-AöÌÍ        E#óBx*?VdÈ<#×
-B          EœAßr@”®ïCµ¿<YÄ<â                B§¢æ<¤W<ÙQr                line_nodrm+stx_line_nodrm+stx_line_nodrmFI~A'ÀBFMFïûB¢n ?
-™?B¢          D?ƒ    A@„ÂCßEË<¤!ò<ÊH<™8„            line_nodrm+stx_line_nodrm  ?Û¢­>’@s!Ô,<í27-Jun-2019 23:23:06.012EWÜAË\@½[cF7¥Aøj?E(+<#×
-AöÌÍ        E…¸Bo®?`°´<#×
-B          E ®L@Çm@”Coãu<‡<.¡û                Bœ—5<©ıé<Ş¯S                line_nodrm+stx_line_nodrm+stx_line_nodrm?C9áA†PhB1ÅEˆ2B¢’Q?–õ\@cD¸B¢          E7»    H@Dš‡>xVq=[Ñ·?¢J‡            line_nodrm+stx_line_nodrm  ?Û›]9—@rßÄg8~27-Jun-2019 23:23:42.360D{LA1¦°AÙÕHDKo¾Aøª…?'¿<#×
-AöÌÍ        C1“B;\? óN<#×
-B          FÂuƒD&£¬CÊÆhB].<İJ§=
-áË                AÔN8=’È=ÍLÁ                line_nodrm+stx_line_nodrm+stx_line_nodrmC}áIAÎ,»AqDe(B¢ÏÇ?6Í?ófB¢          F>…    B¥½7C!â]=Å {=ªìí>Ê            line_nodrm+stx_line_nodrm  ?Û¢xåÄë@sQIŞ Ò27-Jun-2019 23:24:19.843C”}A¿jÅA#;™Dl¯úAøŒ‘?(>ø<#×
-AöÌÍ        C&«"B%4?3E|<#×
-B          D¤ÊzB\y	AîŞ>Bjt¨<ÅÌz<òjà                AÄY„=†!=´´                line_nodrm+stx_line_nodrm+stx_line_nodrmAœ¯yAwı#B3tnCÅ· B¢&ˆ?H4 ?Ò®oB¢          C§Å²    D>ØêBïã=·Ğè=è%Š>.±Z            line_nodrm+stx_line_nodrm 	 ?ÛµZÀ?ö@s:^5?}27-Jun-2019 23:25:10.539D$â{A+”¶AÛ¡D†zAø?(û<#×
-AöÌÍ        C,YÀBòW?0H<#×
-B          FªÇ Da¦#DÏ¹B…¸<¯òã<Ôq                AË‹å=„ôv=³ Ğ                line_nodrm+stx_line_nodrm+stx_line_nodrmB­•aA>®BA¸µD	ÈB¢ŠO>ôuœ?½ï^B¢          C»öß    CY˜„BÎ c=nG¸=¡*Í=ûO            line_nodrm+stx_line_nodrm 
- ?Û¨.‡ÒÇ¹@r½Y™™™š27-Jun-2019 23:25:56.239DK4A.L#AÏjDw÷’AøzÙ?B£<#×
-AöÌÍ        C-H±BI²?ª<#×
-B          F¼iÏD?§sCÙè{ByÛì<À8Ô<ïfW                Aæ¦Q={q(=«S                line_nodrm+stx_line_nodrm+stx_line_nodrm?µ“Awı#B&K2CØEB¢=N?K²æ?Ò¬B¢          CÛ™1    FòØáB˜?=·i3>|ÿ>L•            line_nodrm+stx_line_nodrm  ?Û¶ş.n¨T@rúfšÔ,=27-Jun-2019 23:26:38.803D¿€tAĞÀË@Û F2¸ÁAø?>)E<#×
-AöÌÍ        Eî*Bj?Q#É<#×
-B          Dõ ùAJ»@ˆâ}Cor<·~<,N½                B¥‘<¤<Î<–                line_nodrm+stx_line_nodrm+stx_line_nodrmC»BAŒYWB/L·E‚íB£T¬?I}q@KÿB¢          E/är    CÉµD
-ò÷>GPó=-™|?‹K@            line_nodrm+stx_line_nodrm   ?ÛÙº`ú@rp™è>B[27-Jun-2019 23:27:15.941EïªAÍ‘@ºÎÂF9ÔÁAøœ/?4Nî<#×
-AöÌÍ        E©›B7+?M§¸<#×
-B          Dã|û@‚¬?şù˜C}i%<P<"õ9                B¦O< n<Îg¿                line_nodrm+stx_line_nodrm+stx_line_nodrmAŸkAgE]B9j+EOÃùB¢hÕ?P×Ï?sB¢          D«m:    EPı®C30<Ê-Î=Cå={q¨            line_nodrm+stx_line_nodrm  ?Û½‹ç)oe@r%ûçl‹D27-Jun-2019 23:27:54.282DìkDAÍ M@êKæF5—¦Aø‘!?9’F<#×
-AöÌÍ        Eê=Br¡?KÌ—<#×
-B          Dñˆ›At·@yÀ"Cu </V<! ¿                B¨Ü<%<Í%O                line_nodrm+stx_line_nodrm+stx_line_nodrmB.ñA8ÙÄBBêE;>xB¢WÔ?a=n?‡‰B¢          DÓİV    EcTC&Ö<ÔV»=…¿=k&¤            line_nodrm+stx_line_nodrm  ?Ûö Û­:`@rNn±Ä2Ê27-Jun-2019 23:28:38.475DìkDAÌùİ@ãÒ|F0ÉzAø†+?>N¶<#×
-AöÌÍ        E—-BU?T9ı<#×
-B          Eğ9A[›@w™öCm¯”<JL<+-·                B¥#W<¢²V<Ôñ,                line_nodrm+stx_line_nodrm+stx_line_nodrmBWµPA“ïB,!E„¨B£Ğ?=?=@2‘½B¢          Dğ©É    DŸÒğC÷¢4>§Ô=!h?+,€            line_nodrm+stx_line_nodrm  ?Û´¢3œ¿@r€*JŒM27-Jun-2019 23:29:12.984DÔÇBAĞBQ@ëG{F<@RAø‚ı?: -<#×
-AöÌÍ        EeÙB‹ı?Tã<#×
-B          E¦kA#ëü@ tBC{J<¨™<%Ò¯                B¦¼<¡¯<ÕÌ                line_nodrm+stx_line_nodrm+stx_line_nodrmDM¿AEàVB;åsFÀ<B¢É?/W)?ùIÄB¢          D¡    B–Ä•CŞ¿n<çÉ÷<ıû=´ßÅ            line_nodrm+stx_line_nodrm  ?Û§C¦GıÆ@sHŠqŞi­27-Jun-2019 23:29:54.481D¿€tAÎïU@Ğ(F5×˜AøŒÃ?? <#×
-AöÌÍ        DûªB£¤?lŒ”<#×
-B          Däí
-A¼n@kXHCpœ×<­Š<)è                B”öÌ<¯ª(<â`L                line_nodrm+stx_line_nodrm+stx_line_nodrmFW"A*²ˆBEÏ’E!†ZB¢Gå?@Ï?¾0B¢          Dd÷ı    AGÌ¢CÃM<Û¾¼=+¾<¹}            line_nodrm+stx_line_nodrm  ?ÛôÄüó@q­çÕfÏB27-Jun-2019 23:30:44.716DÔÇBAÏ|Ó@Üw‚F:&Aø¸?4><#×
-AöÌÍ        DıÍ³BW¥?V³Ù<#×
-B          DÍ"@ê@]l©C{G¦<´ú<q                BŸH&<¥²½<Ø ¤                line_nodrm+stx_line_nodrm+stx_line_nodrm@³Ù°A¢È‚B&EÃ¡B£~?9ç@4˜oB¢          D÷rˆ    F8\CË¾‰=ùª·=ç?z            line_nodrm+stx_line_nodrm  ?ÛòoÅå@r~©*027-Jun-2019 23:31:18.944DÔÇBAÈ{4@Û(ÚFŒFAø•€?[İ<#×
-AöÌÍ        DÊÀ9Bn—?pÜÆ<#×
-B          E³eA+²ÿ@•¶.C>ÁP<$éØ<T|Ó                B„zu<ÏØá=ßU                line_nodrm+stx_line_nodrm+stx_line_nodrmE†ìAJµB?c5E2+€B¢oÊ?iV–?«¤B¢          DÜİe    A¹@ÊC-ı¼<ö‰h=<Å=ªäJ            line_nodrm+stx_line_nodrm  ?Û«§¹c@r–¹¦µ27-Jun-2019 23:32:03.273C”}A¶”÷A4raDj¢¤Aø`—? ò<#×
-AöÌÍ        C‰ Ba\??f<#×
-B          DòÁ
-B°ÂBB9`Bo†»<ÅP<ó>œ                A±BE=–Ş=Éíl                line_nodrm+stx_line_nodrm+stx_line_nodrm>`÷¾AJµB?c5Ce(B¢K?h¤r?vÊìB¢          CŞ‘»    G³+BB\›=À¹> 0´=ì|û            line_nodrm+stx_line_nodrm  ?Û¬Äïˆ¹x@r9g8~27-Jun-2019 23:33:00.418DK4A.L#AêµDplªAø ?¬À<#×
-AöÌÍ        C/$;Bìö?N<#×
-B          FÀƒDX]ŞDÂ#B~Äº<º»(<ä²                Aå¸Ì=wÇ=§ T                line_nodrm+stx_line_nodrm+stx_line_nodrm>u‡ANÂÉB>n;CóÚmB¢äø?„”@BKB¢          D FN    G²ÆjC(I†>6=ßdİ?¿4Ê            line_nodrm+stx_line_nodrm 	 ?ÛÖs>»ır@r¦ìô!-27-Jun-2019 23:33:45.810DK4A.L#AĞˆDiDAø á?Å3<#×
-AöÌÍ        C'CŠBö?3<#×
-B          F¦O÷D)ÇìCÁñBwà<ÂG±<ïX°                AæD=}á==¬ú¯                line_nodrm+stx_line_nodrm+stx_line_nodrm?…kgASôßB=^	C³ÜgB¢[Ô?«ó?fØB¢          C¤Ãe    FL£¦BpT=‰-V=¹È‰=±Èç            line_nodrm+stx_line_nodrm 
- ?Û´ör2M@qÿ_Ø­«Ÿ27-Jun-2019 23:34:30.308CğjXA=†AŞÜºDjû‚AøÀ3?J <#×
-AöÌÍ        C'åBú1?3ğI<#×
-B          F‰OwDy.DNqBx	„<¸Y½<ÛaŞ                A¼€v=‰3=·J³                line_nodrm+stx_line_nodrm+stx_line_nodrm@’U×A¶3—B+vDU¡B¢å¢?„³@4W:B¢          C°¡j    EŞ¤CR:s>Éö=ËV´?ç(            line_nodrm+stx_line_nodrm  ?ÛõQPT¬*@rûÁò×s27-Jun-2019 23:35:12.590DÔÇBAÒ=W@ÃÁïFQ™ïAø„f?9-€<#×
-AöÌÍ        ES:Bz ?Pnÿ<#×
-B          DÃ‡¿@Â	›@(”VC‡å<=<êd                Bµá<’6<¹úß                line_nodrm+stx_line_nodrm+stx_line_nodrmA‰ÈÈAwı#B3”Eò`wB¢Ñ?7ÂÈ?÷ B¢          Dƒë    E-CÂ©Š<ÜA¿=MÛ=Vİ†            line_nodrm+stx_line_nodrm   ?ÛAøDIÜ@s+Ô¼27-Jun-2019 23:35:50.084DìkDAÎÄf@êKæF<3@Aøƒ·?;àÆ<#×
-AöÌÍ        EjBkU?L@<#×
-B          E=OAî@†³Cz]§<fè<';¡                B­ıØ<›‰Ü<É                line_nodrm+stx_line_nodrm+stx_line_nodrmF0bA8ÙÄBFTEíaÅB¢z†?v”?£LÜB¢          DãÍ×    @é•ôCÀ²<¹Ë<á½ <¾            line_nodrm+stx_line_nodrm  ?Ûkã}é9ë@st¼j~ú27-Jun-2019 23:36:31.369DÔÇBAÕş@À»1F'0	Aø€’?K•i<#×
-AöÌÍ        E&­Bx‡?aÀİ<#×
-B          DĞ¸=@Ê°ô@,‰‚C_Ü<lÅ<Hµ„                B‚Ü<¬Î<âÚö                line_nodrm+stx_line_nodrm+stx_line_nodrmE¿'^Ao0 AÍ›ƒE¼‚ãB¢²Q?HhD?ñ{B¢          Eşe    A*]Cš•®<şĞ=$¹K=bk›            line_nodrm+stx_line_nodrm  ?ÛS´²ú“¯@sÛûçl‹D27-Jun-2019 23:37:07.564D¬ZTAÎÆV@á¸œF*¾ Aø{©?QÁ<#×
-AöÌÍ        Dû5wBxz?le%<#×
-B          EÉAL;•@±l9C\Ú<ds<F1I                B•ı¢<±»e<ì´š                line_nodrm+stx_line_nodrm+stx_line_nodrmFA'ÀB€¢E± gB¢?Iª°? [ƒB¢          E;áO    @ãHCŠØó<è”=*<À†Î            line_nodrm+stx_line_nodrm  ?Ûq†U7	@sá)“àß27-Jun-2019 23:38:01.611D¿€tAÓv@Ğ(F2I+AøzE?9ş×<#×
-AöÌÍ        E *PBDw?VÃæ<#×
-B          DÑrü@ô á@X˜MCsb¨<XN<,ÃÑ                B ½s<¦Š*<×o                line_nodrm+stx_line_nodrm+stx_line_nodrmDş²šAŒYWB/L·E˜B¡ø?h©(?ĞıüB¢          D¢ÎÉ    B HCbyÒ=™=Sq=L’†            line_nodrm+stx_line_nodrm  ?Û6½+o“@ræl"h	Õ27-Jun-2019 23:38:41.858DÔÇBAÓKk@Ö£ÖF-ÌAøƒ?:Ó<#×
-AöÌÍ        Dÿ úB]Æ?Sö<#×
-B          DËÿÕ@àA@R@ÑCn@í< ~<,P†                B¡Úc<§9Â<ÙÅa                line_nodrm+stx_line_nodrm+stx_line_nodrmE…F¿A>®BA¸µEXK'B¢R?Q8­?°µ¸B¢          DÜ:e    AÑ@ C5_ =ï=yù=‚ƒ            line_nodrm+stx_line_nodrm  ?ÛpŞlïí@r“]Ìcñ27-Jun-2019 23:39:27.314D¿€tAÍ„<@Ğ(F2EAø…›?;DÉ<#×
-AöÌÍ        EU9Bƒ­?T:³<#×
-B          DêßA¤&@^ ´Cp ë<
-d<)Ê:                B¡ÖÏ< —;<Ìµq                line_nodrm+stx_line_nodrm+stx_line_nodrmEâé@AYº¿A†ßTF ƒFB¢ÌP?-áğ?îôB¢          HL    B"¯CÄ{<Ê<îï«=4¬¦            line_nodrm+stx_line_nodrm  ?Ûuû.ßç\@sÁwKÆ§ğ27-Jun-2019 23:40:08.865EWÜAÀnW@òxFÕxAø¼?ICt<#×
-AöÌÍ        DîóëBb½?_+ü<#×
-B          E>ÀA;p	@œ;CUû@<6<:Û                B˜<²òŞ<ë4„                line_nodrm+stx_line_nodrm+stx_line_nodrmBÎ1AEàVB@?°EØPûB¢Î?=PD?ïQ‰B¢          DÈŠ    Do:sC‹#â<Ğ®º=»i=]Ê            line_nodrm+stx_line_nodrm  ?Û‹7 G@s}Â@·€427-Jun-2019 23:40:50.694C”}AÅJÖA8‘DYáAø„C?#™I<#×
-AöÌÍ        C#şœB2?"®]<#×
-B          D‡tB$AªÕ²BfÙ_<ÑqÈ=âŠ                AĞº‡=?#=°7                line_nodrm+stx_line_nodrm+stx_line_nodrmD˜8Awı#AĞÕ¾DÏ¸B¢u¤?9hù?˜OB¢          DÉVu    A@|_B±Sš=¥æ’=Ø¸=:Y            line_nodrm+stx_line_nodrm  ?ÛG0@9«ó@s¬B@·€427-Jun-2019 23:41:43.451DK4A.L#AÏ8Ds”ıAø¢ğ?ŒH<#×
-AöÌÍ        CE¢:B>÷<#×
-B          FªÔ©D-ˆŠCÅ•By"[<ÃÀ<ğ	                B°=Yùb=”k                line_nodrm+stx_line_nodrm+stx_line_nodrmCè\AYº¿B8*DilÙB¢—[>Ğ÷Ã?¯HB¢          CŠ=ô    C®OC>C'=ªÈD=Ÿ&V>®«3            line_nodrm+stx_line_nodrm 	 ?Û)‚<…Â@shfÁ½¥27-Jun-2019 23:42:26.651B²\[AÓÓ3AdHD8|]Aø\?F)Ä<#×
-AöÌÍ        BáVbB¤?h‚ö<#×
-B          D0^wBB5B;›2<ÿ{=&7ª                A‹!Ç=ªÄº=òğ                line_nodrm+stx_line_nodrm+stx_line_nodrmCÓìçA†PhB1ÅD	ÖvB¢—é?óÔ?ëÊB¢          C™Ö@    B@ĞBìª”=³ö€=å >Düğ            line_nodrm+stx_line_nodrm 
- ?Û+ı´Ì%@s*³g ù27-Jun-2019 23:43:28.114CÂ¾øAjAŒèZDo´íAøp?µ<#×
-AöÌÍ        BÀ9Bİÿ?TÓ<#×
-B          E¾ˆXC‹X¨CbB}|Q<ºŸ<à~¥                Aa	=Ò$>^                line_nodrm+stx_line_nodrm+stx_line_nodrmEzäAJµA³?DèSŠB¢ŠŞ>2ñ—?‡DìB¢          EŒ/_    @¡ÅDl‹¨=gÚ-=³„ì;ˆûG            line_nodrm+stx_line_nodrm  ?Ûn?x»Ó€@si“&Á¾27-Jun-2019 23:44:20.830DìkDAÑñË@êKæF=DfAø‡Q?8éí<#×
-AöÌÍ        E.B]µ?Uv<#×
-B          Dët&@ş@^¤C}&¹<#è<#”                B¥œ<§Nè<İZE                line_nodrm+stx_line_nodrm+stx_line_nodrmEjæ[AEàVB@?°EhöB¢×Ş?P¨$@Q,B¢          E(Âë    AùWCâ·=Ú'•=3çã?›%            line_nodrm+stx_line_nodrm   ?ÛX[á¨&$@rbˆšu%27-Jun-2019 23:45:03.982DìkDAÊ+SAHBF9ÚĞAø„º?7q†<#×
-AöÌÍ        E#5BsÈ?VG~<#×
-B          E=Í¶Ax€iA‡‡Cyl<Ü< Y°                B¤'Í<§Ó<Ü3Û                line_nodrm+stx_line_nodrm+stx_line_nodrmD®ÊhAwı#B5şTER@B¢n±?V‰?œxªB¢          DÂyN    BP½AC8šŠ<àçÁ=—É=ƒãT            line_nodrm+stx_line_nodrm  ?ÛQGñ0Yd@rP©*027-Jun-2019 23:45:40.672D¿€tAÒnn@Ğ(FBv÷Aøˆè?;cı<#×
-AöÌÍ        Eé¶Bm÷?Wsa<#×
-B          Då±’AÜd@sšC·:<?›<%ğ,                B¬½S<™U<Ç<                line_nodrm+stx_line_nodrm+stx_line_nodrmA­&AAŒYWB/L·E†ê?B£Z?Cš[@B¢          E!7    E‡Î‚D/—>¼=49?8›å            line_nodrm+stx_line_nodrm  ?Û£Â‡è@rS×Á½¥27-Jun-2019 23:46:19.473EWÜAÇÜJ@àvhFQ yAø‚ñ?>‡²<#×
-AöÌÍ        EB[è?Zè<#×
-B          E$!PAĞ&@{¥$C…Š<†<%N                B®BÎ<›J<ÊJ                line_nodrm+stx_line_nodrm+stx_line_nodrmE¾ÌùA>®BA¸µEY$1B¢&7?‡a?ÂÀB¢          E…ƒ    A½CMÓ«=L¼=YÓa=²is            line_nodrm+stx_line_nodrm  ?ÛJ˜ª†Pç@r¿9	k¹Œ27-Jun-2019 23:47:01.752EïªAÉì=A^BFA¾AøŒt?4»u<#×
-AöÌÍ        E	0İBp·?J¬Û<#×
-B          E# µA Û@©ÏyCN‡<Îû<üY                B®¹L< 8<Óüº                line_nodrm+stx_line_nodrm+stx_line_nodrmEãšA'ÀBFME=$B¢Sò?Mâ(?HB¢          D¼€­    A©®ôC ò<ÔÒ4=#S= ˆñ            line_nodrm+stx_line_nodrm  ?Û…@FA,ñ@qÀ‚Ş Ñ·27-Jun-2019 23:47:53.725EWÜAË³lAfÙF<LGAø‚8?8…^<#×
-AöÌÍ        E– BmÖ?NNT<#×
-B          E'$êA<ŸÊ@ÔRûC{‹5<“<ç~                B¨á†<§(^<Şœê                line_nodrm+stx_line_nodrm+stx_line_nodrmE0 AEàVB@?°EFgB¡­è?ÕN?Ã °B¢          E )K    B=vC&pC=!
-÷=Y'Ö=¸UÙ            line_nodrm+stx_line_nodrm  ?Û/<B¦n@rÁñ©ûç27-Jun-2019 23:48:37.664EWÜAÄ^@ÙWFHrAø|›?6è'<#×
-AöÌÍ        E£+Bfù?Vè%<#×
-B          E0›AsB@i`¼C„´–<ÍÀ<¦|                B¥ß=<Ÿ¯‚<Ìİ%                line_nodrm+stx_line_nodrm+stx_line_nodrmE-h)AYº¿B</˜EŠ KB¢Ğd?MÊ‹@xB¢          E¾›    BÚECñrB=Ö“<=8x>î÷?            line_nodrm+stx_line_nodrm  ?Û[‘÷è÷@rsĞ|„¶27-Jun-2019 23:49:17.953EïªAÀ¶S@ô+°FU§Aø~T?7E<#×
-AöÌÍ        ExÙBx ?U–Š<#×
-B          Ei­›AJ »@£N'CkS3<eÏ;§õj                B¯ÓJ<š<ÇQï                line_nodrm+stx_line_nodrm+stx_line_nodrmEMYêAwı#B5şTEyª4B¡Ç?“7;?Ã¢)B¢          Díó–    BGC>{6=Å0=G =ŠCœ            line_nodrm+stx_line_nodrm  ?Û 1Î¯%@rÄC¯·é27-Jun-2019 23:49:55.327D$â{ACŒAÛè DaIAø¢?´M<#×
-AöÌÍ        C¾/Bf?**é<#×
-B          FŸwsDO±ÀD7'Br8-<Æ½&<ñšH                A½7q=œÅ§=Öı"                line_nodrm+stx_line_nodrm+stx_line_nodrmA/›A«û;B"ZQD±B¢ ?BüÙ?ËŒB¢          Cš“Œ    DjùBˆP.=ôã=¬Á}=Õl}            line_nodrm+stx_line_nodrm  ?Ûô8K¡@rÔ -à27-Jun-2019 23:50:37.769D73ÓA,Ş AÕ®´DaÕSAø–K?!@,<#×
-AöÌÍ        CZÍB[?àÓ<#×
-B          F°¡šDMFCíÙ”Bmq<Ìf<şi;                BÌÊ=O@Î=‰’´                line_nodrm+stx_line_nodrm+stx_line_nodrmC‡‚AšBB)zCÓıB¢X°?N•º?ÍáB¢          C½vÃ    CUıB‹›4=M¯=óP>‚\            line_nodrm+stx_line_nodrm 	 ?Û;©q@r²qu27-Jun-2019 23:51:19.370D73ÓA,Ş AÕXªDä„Aø‰á?
-AC<#×
-AöÌÍ        C/q+B³?(Iµ<#×
-B          F¨É.DCwCåd$BŠt¡<¯bë<Õ8Ù                AÕéÜ=ƒÊŠ=±äª                line_nodrm+stx_line_nodrm+stx_line_nodrmC?6A>®BA¸µCö¶mB¢fo>èøÕ?ˆ)B¢          CÏ    BåC&B¸&Ï=fü6=}`=³ø%            line_nodrm+stx_line_nodrm 
- ?Û>h›Œ¹@rQ4êK27-Jun-2019 23:52:05.347D73ÓA,Ş AÓ™D^ØEAø¨q?(€ì<#×
-AöÌÍ        C7›ÊBí=>ğ_<#×
-B          F£T-D;İ#CÚjWBdK|<Ïiş<ş›Q                B¤D=]gp=˜¶†                line_nodrm+stx_line_nodrm+stx_line_nodrm>ıWÎAo0 B7ËLCî8B¢t¤?r?’ëeB¢          CÔht    GûBD=tçb=š³e=»T            line_nodrm+stx_line_nodrm  ?Û‡B_ !@rJÒòä27-Jun-2019 23:52:46.332DìkDAñ€¤BLöF-A7A÷cõ?4õ4<#×
-AöÌÍ        D·qB{ÿ?vùF<#×
-B          H¬İXD²?E¿ş[Csk<\º<‘€                Bï·<ÜÉ
-=‰ğH                line_nodrm+stx_line_nodrm+stx_line_nodrmFI~A'ÀBE4©E¨iB¢;Ô?rš>±æãB¢          DˆÔD    AR±èB¼R¤=@ã=*+<a            line_nodrm+stx_line_nodrm   ?Û#5.Í@pÌL~($27-Jun-2019 23:53:35.467DÔÇBB5JAi´İFGggAø³ñ?@l;<#×
-AöÌÍ        DíD=By?Yf<#×
-B          F&]TBL#B³l1C€f<®<2>F                B“m<³ıÀ<î‚X                line_nodrm+stx_line_nodrm+stx_line_nodrmEğ-A2ºBDJéE%8ÂB¢.ï?\ä1?"Ü B¢          DLb    AZ¥ñBóPn<Ñ¬=&e`<­            line_nodrm+stx_line_nodrm  ?Û ¼¾aÏÿ@qVY™™™š27-Jun-2019 23:54:19.301EïªAà ËA÷Œ@F9*A÷‡N?+¤#<#×
-AöÌÍ        D_B˜¢?~6ü<#×
-B          HË¥D¹Y_EpW,C‚àn<uU<„<E                BğL®= ·ì=¶	                line_nodrm+stx_line_nodrm+stx_line_nodrmF¾ùA0MôBAG,Dû5@B¢F?`­÷>u§B¢          D†ë    AL kBÍ6[=«=+KÅ<˜ß¢            line_nodrm+stx_line_nodrm  ?Û.ÌÈ›@pÊ”É…ğo27-Jun-2019 23:55:02.186Db+„A:4@¿ñqEİÚ™A÷ÆF?FÇŒ<#×
-AöÌÍ        DEÄBë¡?ËCş<#×
-B          LC\ÖH=İĞFïÄßCÍ´<’Kã=(                B®Š„>XÆ>—Uí                line_nodrm+stx_line_nodrm+stx_line_nodrmF@ÄA*²ˆBC°…E QB¢´ï?X.<?5„fB¢          D–£x    Aˆ€øC w×=—°=I<ãY8            line_nodrm+stx_line_nodrm  ?Û'™¡ıj@p´½¥27-Jun-2019 23:55:55.940EWÜAãÕı@ó2(FDãA÷ĞG?Md4<#×
-AöÌÍ        DñÀøBªÒ?@£<#×
-B          ExúA³Ä@¸šØCjZ5<Dóu<›®õ                B¬` <¤%…=œ¦                line_nodrm+stx_line_nodrm+stx_line_nodrmEñ#2ANÂÉB/°®E'¨øB¢ÄË?cAğ?Â¸B¢          DßoX    AüfCÅê=ù=pT=9Ä¤            line_nodrm+stx_line_nodrm  ?Û-Ówá¸í@pê¢‚@·€27-Jun-2019 23:56:36.752EWÜAÎ.¾@òxEå ÿAö,[?ç¢<#×
-AöÌÍ        D—c‰Bd£?@EY<#×
-B          EQIAB@’pHC30`<Á(<Eôû                BP¢è<¥$A<ñR                line_nodrm+stx_line_nodrm+stx_line_nodrm@(øA†PhB1ÅE…ÖB£d?8S?ùãÌB¢          DŒ©&    FÍ<C8’<Ù²r<ÕÕ=Èe˜            line_nodrm+stx_line_nodrm  ?Û;©q@pR\¾ß¤27-Jun-2019 23:57:06.988EïªAÚ’vAü^0F,âñA÷Œ?17õ<#×
-AöÌÍ        D™ŠUB§Å?zã<#×
-B          HÙ
-DËÛùEmªjCwS‹<)<ŒŒ|                Bİ»¹= 9=‡¥¡                line_nodrm+stx_line_nodrm+stx_line_nodrmF
-ÈA.¬BB9ıEÈ¸B¢h¢?]&>ÖÅğB¢          D†Ro    ALheBØÇ=´G=!f<¾            line_nodrm+stx_line_nodrm  ?ÛQ½aõ¾^@pĞ@IQƒ27-Jun-2019 23:57:50.866D¿€tAÏâ@ÊÆ§F—AøíX?>¶L<#×
-AöÌÍ        Dò3!B.H?†E<#×
-B          Dò?yAiÂ@…#Cƒ_4<EE,<_`•                B‰ëÖ<Äğk=–                line_nodrm+stx_line_nodrm+stx_line_nodrmEƒşğANÂÉB>n;EAØ
-B¢­‘?Pô,? BB¢          D®u    AØÓ	C-ğ=…Q=A÷“=E(j            line_nodrm+stx_line_nodrm  ?Û–AöE@q€·€4n27-Jun-2019 23:58:34.594C”}A¨fáA•œD,–Aû¢?»"<#×
-AöÌÍ        BäÿÖBw[?¥<#×
-B          E;rBÀÓABÓ>BYãU=ÛŞ=Z¯                A^Y>	D~>Sı                line_nodrm+stx_line_nodrm+stx_line_nodrm?tªAŒYWB/L·C²_0B¢c:?3Ğ?½²	B¢          C’`”    F4ÜgBbt=Ä =Öl>A4            line_nodrm+stx_line_nodrm  ?Úßa$FE@qùXbN27-Jun-2019 23:59:27.187D{LA1¦°A¿3&Ds*Aø¡ñ?âÆ<#×
-AöÌÍ        CXhBµP>æF™<#×
-B          F˜ímCê0Cy«¤B|_<Å;¤<÷œ‹                B·=Oõµ=uÁ-                line_nodrm+stx_line_nodrm+stx_line_nodrmC2‡¦Ao0 AÎÑCÌ’B¢dX?_é?lvB¢          Dšv    B‡§B„ÅO=†m{=¨ĞC=dè            line_nodrm+stx_line_nodrm 	 ?ÛÿCA0@qjVÕÏªÎ28-Jun-2019 00:00:06.102Cß`A"bh@ˆK:C¹/Añ<6?{"“<#×
-AöÌÍ        B¸–1B
-`ˆ?TK<#×
-B          LŒ…oG†(VG›J^B£ş=Å¡ê>-‘                AT|ø=×y=öĞ                line_nodrm+stx_line_nodrm+stx_line_nodrm@¼¸A€á÷BøPDB¢8ò>Ü^Í?µüB¢          C­°m    D˜drBìÀ|=Æ„ñ=¯#Ì>Ëó]            line_nodrm+stx_line_nodrm 
- ?Úù¨Íê>@p*ò×s28-Jun-2019 00:01:09.912C:XNA±DFANøDÒ/Aú©‚?"ğ¾<#×
-AöÌÍ        B®ÛBŠ?)õi<#×
-B          EÀ‚C%&BÃ½)BI_<Ò1\=•                A†ğ=¦æq>|¢                line_nodrm+stx_line_nodrm+stx_line_nodrmDEØ§AgE]B9-ÕCŒéB¢Î?¶İ>ÀÈÎB¢          C‚İ.    B¾¶BWEp=½]_=éij=IL            line_nodrm+stx_line_nodrm  ?ÛTŠ›ÏÕ@p}màq28-Jun-2019 00:02:01.226C¯FÀA0½O@_¼EDAëJ7?çN®<#×
-AöÌÍ        Dm­¥BˆÓ?eİ@<#×
-B          L÷ÔGÂWF»ïDFß>‹¿˜>¹ÜV                Bƒ’=@^n=0n                 line_nodrm+stx_line_nodrm+stx_line_nodrmF#ÿA8ÙÄAÊJŸEWolB Cœ?<@ÏhB¢          FPĞ‡    A"[ÃCxeg=I¡=K">,f'            line_nodrm+stx_line_nodrm   ?ÛS.{= @p"8l"h
-28-Jun-2019 00:03:04.212EWÜAËŒ@±ºE×{PAüö?m!<#×
-AöÌÍ        DŸ{FB€ ?(PL<#×
-B          E?@ºx/@[êC5ŸX<»<PS‹                B„5g<¸šÆ=
-v(                line_nodrm+stx_line_nodrm+stx_line_nodrmF+A2ºA±µEx5ÉB£±¶?%5?ï4B¢          G&d    A“éC±¹=,’=,^á=«(H            line_nodrm+stx_line_nodrm  ?Û<Ä¬lÚõ@p3¶E¡Ë28-Jun-2019 00:03:48.844DÔÇBAÊCAw3FÊ¡Aù?-Æª<#×
-AöÌÍ        DæÎ¬B_D?gµ\<#×
-B          E0¡êAc¹Ô@èw$C|+<<|<R`ş                B‘ï<²C•<÷Ü                line_nodrm+stx_line_nodrm+stx_line_nodrm?lÎQAwı#B5şTE+K”B¢û?lÖ”?ò]ªB¢          Dºq    G¦@¤C(.=d;=X¸'=óT            line_nodrm+stx_line_nodrm  ?Û-
-$F0f@qúáG®28-Jun-2019 00:04:28.660DÔÇBAÍ®û@ü89EVF.AùÎF?[c|<#×
-AöÌÍ        D–ú7B)?îš<#×
-B          F"ÙTB^I$Aí9»BÇ}Ç<k=6¡h                Bª†Ê=,¨=1¸$                line_nodrm+stx_line_nodrm+stx_line_nodrmEâ(ÔASôßA¤àşE(¿BŸºé?b§«?ıMÈB¢          G1    A±eêC9ûĞ=ILo=l¹>¼            line_nodrm+stx_line_nodrm  ?ÚúP“–JZ@oàK)^28-Jun-2019 00:05:07.520D¿€tAÛHB˜IF şEA÷Ê?/†"<#×
-AöÌÍ        D‘
-/B¸	?…÷<#×
-B          I(µE§ìÙFµ*Cjì5</<ŒW                Bÿ/s=
-]C=Ÿ&                line_nodrm+stx_line_nodrm+stx_line_nodrmFQÊA2ºBA SEêB¢'?N¹`?šbB¢          D•hÂ    A}}[Bıñ=¤“=<9/<É·            line_nodrm+stx_line_nodrm  ?Û?àGÓÔ@pÏÉk¹Œ~28-Jun-2019 00:05:51.422CØ`ıBı¬B9&ÙE¬ÚAü§Û?,Úş<#×
-AöÌÍ        D‰Õ®BÌt?O˜o<#×
-B          H¡$E#—G
-HÀCş—<k÷ª<££¦                BPO<ïæ=C$ø                line_nodrm+stx_line_nodrm+stx_line_nodrmFÜ3A2ºA•¹ZEgÕB£Â¢?7	?ìZB¢          H ßš    BˆCb¶\=#]=&"$=Èr–            line_nodrm+stx_line_nodrm  ?ÛR"Ã‚¡@p ^ Ñ·28-Jun-2019 00:06:44.915CğjXA.`@ed›Eeñ‡AğÏV?tŠ;<#×
-AöÌÍ        Dw÷B
-¾}?aê×<#×
-B              9D:uÂ"<‡}iB‡ÔäBšP*                =¡ƒBô+B9RÌ                line_nodrm+stx_line_nodrm+stx_line_nodrmEÔ{‰A`$ÔA§ıÅE-yB¡nŸ? ?ù¼ÓB¢          FîÌd    A Cš$4=’f=?f=²Ÿ            line_nodrm+stx_line_nodrm  ?ÛM7Á7mU@p6İIQ‚ª28-Jun-2019 00:07:45.837EWÜAÉ»Ñ@òxFÅAø5•?BÄË<#×
-AöÌÍ        Dßk¶BIŸ?S_<#×
-B          E=ôAú@‹cCkÏl<J@ì<rş                B—šÿ<µZÑ<ıĞ                line_nodrm+stx_line_nodrm+stx_line_nodrmEgTSANÂÉB;v¾E.ÿB¢°l?R‹?°¼ğB¢          D¨Çö    AãóC"°4=¹†=^;$=œQÑ            line_nodrm+stx_line_nodrm  ?ÛÎRŞÊ%@pÿs×Ûõ28-Jun-2019 00:08:24.762BÜ&ÌAº0@òşóDC&îAøÜ€?¯I<#×
-AöÌÍ        CŠ©B8†?‹¶<#×
-B          D£¾B¼ ôBIBK<øôa=-ñ                A…Y:=Ÿt>>Ù~                line_nodrm+stx_line_nodrm+stx_line_nodrmE%ANÂÉAÍ˜¬C’@vB¡ûİ?!¡H>É=²B¢          E'Q&    AŞFB.k=†e5=µĞğ=>Ë¯            line_nodrm+stx_line_nodrm  ?Û’·ş¯@qºû~‘ 28-Jun-2019 00:09:24.674D$â{AÖÇ	@sK$CŸD‘AøÈò?	¦è<#×
-AöÌÍ        C4Ñ«B>íIG<#×
-B          DLu @ †(@—Aî_‘==4£Ã                Bî=7–=Ë                line_nodrm+stx_line_nodrm+stx_line_nodrmE>=AšBAt½¦D2«@B¢”ˆ>ØêÛ?ÅfşB¢          G|½p    AâCI³€=ß=ès>—ØÆ            line_nodrm+stx_line_nodrm 	 ?ÛNT÷©i@oGŠqŞi­28-Jun-2019 00:10:06.309BÆ(
-A&2IBC’ŞC¡Aü&Æ?¦·<#×
-AöÌÍ        B›$gBQ‹?•<#×
-B          IñHxoHyÅBH ­>,
->*’m                Aİ¥‡>©²¨?2L                line_nodrm+stx_line_nodrm+stx_line_nodrmA–z³AJµA0C»\DB£™?!Ê?àoÌB¢          Fød    DøàlB³;=·8S=Ò5µ>SwÖ            line_nodrm+stx_line_nodrm 
- ?Û;ÉêpL@p¨%ıŠÚº28-Jun-2019 00:11:18.258CO	ğAhñÇA€£‰D<
-wAùS§?É<#×
-AöÌÍ        CXÌB¦8?…ò<#×
-B          FlID1ÒúC˜ùHB[ğ)=¨İ:ÿ#                AŒ¿<=ªß•>ÊÀ                line_nodrm+stx_line_nodrm+stx_line_nodrmD&ÚFA8ÙÄBBêCszŸB¢
-?!F>§ÔùB¢          CX¨    B³ìBŸ=ƒö§=ÃÔŒ=;èˆ            line_nodrm+stx_line_nodrm  ?Û3eˆU@qîHè§28-Jun-2019 00:12:14.821DìkDAù3“A÷ÙzFGì¢A÷L…?2X«<#×
-AöÌÍ        DÉ¨ÓBm½?|O<#×
-B          HœâxDnGE¥³ÏC‰İ<g:<„™0                C—E<ØÛ=‰À4                line_nodrm+stx_line_nodrm+stx_line_nodrmFI~A'ÀBEÈËE/œB¢‹2?^-¦?"Ç¢B¢          D¥÷/    AÚMCö3=‚ù=3!<½N£            line_nodrm+stx_line_nodrm   ?Û3¹jğ8ã@pĞ(§æ›28-Jun-2019 00:13:04.461D‹›±ABŒæ@ŒÎvE›ÉÿAû"?fHh<#×
-AöÌÍ        D–ÕvB¸m?~¸.<#×
-B          L7­G•UîF^¢C›ú=\=è}                BWU=$­s=,a?                line_nodrm+stx_line_nodrm+stx_line_nodrmFëóA(ª6BBB>EI‚ÄB¢æQ?Hş„?k$+B¢          D—t„    Ax¯ÄC(c<ö"Z=/ü<ÕNÌ            line_nodrm+stx_line_nodrm  ?Û•øÛI@p¦8†YK28-Jun-2019 00:13:57.847D›jAÒ²Ã@éîôF?³Aù>Æ?-H6<#×
-AöÌÍ        E!kBH@?v#Î<#×
-B          EkA[”@ÍÆåCš©Ù<-¢ô<;Mñ                B§Œg<˜è<Ñ:H                line_nodrm+stx_line_nodrm+stx_line_nodrmF–‰A2ºB@¢•E))uB¢%Û?[`Å>àÛ•B¢          D‚0"    A^·IBõ!L<ÄŸK=é<wá¡            line_nodrm+stx_line_nodrm  ?Û%ålÖÂğ@q0ØDĞ28-Jun-2019 00:14:47.594EWÜAÑ$ğ@òV¸F*,Aø{Ö?A“C<#×
-AöÌÍ        EPBb¬?]<#×
-B          E§hAY+@”‘ŞCİÈ<;Ì­<^£À                B²…Ğ<›şé<Ùâ                line_nodrm+stx_line_nodrm+stx_line_nodrmEÑJCASôßB5tEPâ*B¢ŸA?Rp?œP]B¢          Dë¾7    A“ğC2A1<õäˆ=>c=Th            line_nodrm+stx_line_nodrm  ?Û7!Õ<İ×@qP©*028-Jun-2019 00:15:22.446DÔÇBAŞö@¿ãFa°AøšP?8mš<#×
-AöÌÍ        E#çB2_?Oß¢<#×
-B          DßAƒ@ÑÏ@D„C »<<&U§                B¼Øx<”?È<¹¾1                line_nodrm+stx_line_nodrm+stx_line_nodrmEàƒ›A2ºBDJéEIÊÎB¢6¸?IsÀ?/duB¢          DLé    Au
-C¢<Ç›=‹á<½‘            line_nodrm+stx_line_nodrm  ?Úü´=Š@qa­BÃÉï28-Jun-2019 00:16:07.594D‹›±BdÅA&ZŞFC€·A÷¹?<õ°<#×
-AöÌÍ        E$´B¯Ä?@CË<#×
-B          E6Ã%AL€ÎAâ“CÒ8<&³ş<m…@                B¸ìá<ƒ¾‹<å#'                line_nodrm+stx_line_nodrm+stx_line_nodrmFšÏA2ºBB7+Eò B¢V?dûÙ>¯J#B¢          Dnï°    A;ÿxBÕ73<Ğz=˜<c}            line_nodrm+stx_line_nodrm  ?Ûì O*à@pãñŞi­C28-Jun-2019 00:16:56.088D›jB[¶A dF`~lA÷Ä	?2³V<#×
-AöÌÍ        E¡ÑBz¹?J-±<#×
-B          Eftf@äÃ$B1MC›‰p<”N<SW:                B É¸<‘øá=]                line_nodrm+stx_line_nodrm+stx_line_nodrmEE@ıAJµB$¤2Ep¼ûB¢àf?MÑŒ?¿÷EB¢          DÉa›    AÁùÊC?g<âf3=.Ş¡=&VL            line_nodrm+stx_line_nodrm  ?ÛÊ’_éu@pİ>«6z28-Jun-2019 00:17:36.266EïªAÄ)÷A.çuFCé¬A÷Ì½?7²9<#×
-AöÌÍ        E9‹OBî?8­ñ<#×
-B          E®‘1AØrA}`C¥^ä</Ûæ<Oz                BÒ8L<€ß<©ÉH                line_nodrm+stx_line_nodrm+stx_line_nodrmE”¦)ANÂÉB6ü1Ejx:B¢±4?FA®?« fB¢          DË{    A·ßCHCD<ï½=.¾j=?XÏ            line_nodrm+stx_line_nodrm  ?Úòbˆ‹T\@pî“@N¤©28-Jun-2019 00:18:11.440C¯FÀA¬ÕmALMFDƒªAømŒ?-Ş‚<#×
-AöÌÍ        C.Á°B¨»?6(<#×
-B          EìeB¾¶
-BLf	BvÏœ<Ã»<ïZD                AË)8=‡Üƒ=µJ5                line_nodrm+stx_line_nodrm+stx_line_nodrmC¬CƒANÂÉB>n;C¿ĞB¢N?)x?iu¤B¢          CÎ/    B‘BDÊ=‹İ=ÍGl=ìÊõ            line_nodrm+stx_line_nodrm  ?ÚÑáÃóà@q°œ¬1'28-Jun-2019 00:19:02.802D$â{A+”¶AöË¾DaÙAøzé?'Ú´<#×
-AöÌÍ        C0Ù”Bú?MVa<#×
-B          FäóñD¥D^OŒBóx<¶«<ß:9                A¿+§=™I=ÂG                line_nodrm+stx_line_nodrm+stx_line_nodrmA„É›AB´B}ÏCÛ=lB¢GÖ?¸{?L%iB¢          DQ    D Bƒm=x†@=œw=®eš            line_nodrm+stx_line_nodrm 	 ?ÛÊ’_éu@q‡:’£S28-Jun-2019 00:19:50.402Bô—2AáQ$@Ôb
-DF AøÀ.?òD<#×
-AöÌÍ        CxÎBL	?u69<#×
-B          Cü–3AéA¿AqçËB–È&<®9¨<Ùë                A“/è=š‚|=Øß                line_nodrm+stx_line_nodrm+stx_line_nodrmD†”0AYº¿B</˜C0"B¡öÙ?#×ÿ>¬öÍB¢          C>À    AÉ2]B0;=Ñ?=À§=*àó            line_nodrm+stx_line_nodrm 
- ?ÚïõÆÁ@qI{J#:28-Jun-2019 00:20:54.054Bô—2AÀ˜öA½´D‰"Aø~^?"w<#×
-AöÌÍ        C+|ÌBËè?ƒ…<#×
-B          D¼¢#BòEBBoG™BO0<·õ<ã8Ã                AŸ3j= q£=Ğ™>                line_nodrm+stx_line_nodrm+stx_line_nodrmDSNÓA-4çB,?ÕC]B¢3C?-pç? ~¢B¢          CÊëH    A¼Õ,B;†ï=œUâ=ß"5=nb            line_nodrm+stx_line_nodrm  ?Ûß°Õ‚@q~ÂŞ Ñ·28-Jun-2019 00:22:01.716EWÜAË%ÿ@àb(FA˜Aø}`?Eï<#×
-AöÌÍ        EqBaA?_ô®<#×
-B          E3àA!‡—@à%Czé-<oó<3<Ñ                B©ÅC<¡ÑÜ<ÙnG                line_nodrm+stx_line_nodrm+stx_line_nodrmD…@ÉA†PhB1ÅE`l5B¢Z?˜§@ËÌB¢          E¶å    B³avCÌ¬!>YÍ=Oàr?W            line_nodrm+stx_line_nodrm   ?Û b
-·'@rÈ8 -à28-Jun-2019 00:22:37.617DÔÇBAÌC@¶QF@¬£Aø‰ø??NA<#×
-AöÌÍ        E#8Bmo?s’<#×
-B          EÔ.@ó­"@4˜cC|ªÕ<	qÓ<.                B™W<ªÓ{<ÚÃ®                line_nodrm+stx_line_nodrm+stx_line_nodrmFÒA) ®BFE<diB¢C\?=3Õ?$7–B¢          Dp%“    A[½ıC/‘<ÈÒé=Íe<²86            line_nodrm+stx_line_nodrm  ?Ûˆ±Ù+€@q•›ÚQÎ28-Jun-2019 00:23:30.183DÔÇBAÒ;ö@Üw‚F=%íAøƒĞ?@:	<#×
-AöÌÍ        E’îB}Y?WØ¶<#×
-B          Dø½A	Ó×@†¡Cx¥[<	Èö<+E                B­J‘<œÒ<Îz÷                line_nodrm+stx_line_nodrm+stx_line_nodrmEf€GANÂÉB>n;Efô‡B¢nA?]>?¸_dB¢          Dåe©    Aò /COA–<ÖWe="ºO=”Óe            line_nodrm+stx_line_nodrm  ?Û¢Y[»èy@r¹N!–R½28-Jun-2019 00:24:12.213EWÜAÎ ~@ù©ªF6kVAø}c?D&ü<#×
-AöÌÍ        EaAB[‰?N¶0<#×
-B          E"TAs@™[JCnVo<\I<,ÂÃ                B´ª$<˜©ˆ<È¨w                line_nodrm+stx_line_nodrm+stx_line_nodrmA8CAJµB?c5E0ğ¾B¢Dm?m=b?O˜¸B¢          DÌÙ    EãgBúq<İñó=!vÎ=İ            line_nodrm+stx_line_nodrm  ?Û‰Åæÿ}ú@qºÿåÉ28-Jun-2019 00:24:55.368D¿€tAÏÔØ@÷z=F/ïAøy²?>Cì<#×
-AöÌÍ        EnÛBL?Q²[<#×
-B          Dıü
-A1"@°åšClZ<
-ç<*
-·                B¤ƒ<¡Xz<Ñ¤                line_nodrm+stx_line_nodrm+stx_line_nodrmE^A'ÌdBFgrElRB¢xŠ?F¬¢?‡-£B¢          DÖ     BF±TCFz¿<ÆG½=w¨=TÉó            line_nodrm+stx_line_nodrm  ?Û‘`4Pj@r(ó¶E¡Ë28-Jun-2019 00:25:49.851DÔÇBAÒ)@Üw‚F4‰uAø?; ç<#×
-AöÌÍ        DşŒ}B}Z?Oğ<#×
-B          DôfÀAø@€ñ½CrÀô<
-ø­<+Y                B£Z]<¥S<Ú‡                line_nodrm+stx_line_nodrm+stx_line_nodrmA°éPAÁ¨B… E›MÄB£ Â?;{@/eB¢          DæÆ    EÑöD
-V½=¢<æ={¶? Ä            line_nodrm+stx_line_nodrm  ?Û˜•›^–@r†9¦µ28-Jun-2019 00:26:21.946EïªAÎí@ºÎÂF3:Aø˜Œ?4p<#×
-AöÌÍ        Eà{BW›?GmM<#×
-B          DÔè8@”t«?ø
-rCy8Ñ<T\<&—                B«=Ó<œdõ<É“                line_nodrm+stx_line_nodrm+stx_line_nodrmAa…†A€á÷B3ş$EUcÍB¢Rˆ?CRl?JÛB¢          D«;„    E‹´ÅC ûÉ<¾)=&­<ä¤ö            line_nodrm+stx_line_nodrm  ?Û¶»%}@qÖŸ!-w228-Jun-2019 00:26:55.962DÔÇBAÈ!QAt;F$?ïAøyõ??±ı<#×
-AöÌÍ        Dê†Bkè?[ f<#×
-B          E8&;Az¬Ä@ó•–Ca§¶<~><1Ã;                B—£û<°Ëç<éßd                line_nodrm+stx_line_nodrm+stx_line_nodrmD|¬UA†PhB1ÅE„E&B£f#?kÔë@vKHB¢          EñN    B¥Œ9DN²>8\F=?Bú?•%F            line_nodrm+stx_line_nodrm  ?Ûˆ êáŠÊ@r¦¹Œ~($28-Jun-2019 00:27:32.789Db+„A/âÒAÆ¥DLHAø©#?%=<#×
-AöÌÍ        C|Bs?/fµ<#×
-B          F­DCrC¦[JB_<Ûüµ=
-–                A½-ª=¥È•=êÄ                line_nodrm+stx_line_nodrm+stx_line_nodrmCõ…uA6]—BClIC™B¢rÅ?:5?„º/B¢          Cï%Ş    BhzsBp‘ =®VÉ=õõ}>á°            line_nodrm+stx_line_nodrm  ?Ûp\‰n@r'óMj28-Jun-2019 00:28:19.566DfA*l=AÇÛ Dq7ÄAør ?â4<#×
-AöÌÍ        C=¥•Bİ?	3•<#×
-B          FŒÁyD>8˜CÏaBy¥r<½1<äa†                AôİÔ=_ Š=“p                line_nodrm+stx_line_nodrm+stx_line_nodrm>`÷¾AJµB?c5CÒzãB¢S–?
-ø?aÄËB¢          C¦ü    G{³YB‚¹·=o@¼=šˆÆ=Ôn            line_nodrm+stx_line_nodrm 	 ?Û\¿ôw5Â@qÓûµt28-Jun-2019 00:29:05.762DK4A.L#AÏDPAø¹Œ?.+<#×
-AöÌÍ        C?$÷B­>ÿh<#×
-B          F¦1 D)$„CÁ2ËBY€0<İ¾=	¶˜                B`t=_4=–VZ                line_nodrm+stx_line_nodrm+stx_line_nodrmC3åBAB´BACÉÔõB¢]N?¯?‘¬5B¢          Cü,s    C½‰B‡_¹=…‚w=¸S=Û“Í            line_nodrm+stx_line_nodrm 
- ?Û€™“š|@rXÆ¸ºÇ28-Jun-2019 00:29:52.506CØ`ıA'™%AÓ{ÿDiÔFAø—-?’b<#×
-AöÌÍ        CûĞBÊi?=I<#×
-B          FŸª|D›ÕŞD1=BnÕò<Àc”<çK                A®>1=•#=È“¢                line_nodrm+stx_line_nodrm+stx_line_nodrmC'ƒA0MôBD©ÒCÕ¥ÁB¢q$?:¾?‘CB¢          CôÔ'    CMRBBeÛ={ËÁ=¬ùş=Öeš            line_nodrm+stx_line_nodrm  ?Û«Úıï…@rX‰Ô•+28-Jun-2019 00:30:47.373D¬ZTA×)@ÄÑqF:ÀÎAø‹·?@aÔ<#×
-AöÌÍ        E ˜UBgğ?lÂÂ<#×
-B          D¿ÍC@éÆ•@Q†CuêP<Î<1sy                B™<¯ÛD<ã{                line_nodrm+stx_line_nodrm+stx_line_nodrmEàƒ›A2ºBDJéE"xÒB¢#Ê?U[“?/øfB¢          D‡õ    AjúCØ@<à´W=/~$<Òº‘            line_nodrm+stx_line_nodrm   ?Ûm†ìë¯@q›W>«628-Jun-2019 00:31:36.955D¿€tAÓOš@Ğ(F4{éAøü?:Şæ<#×
-AöÌÍ        E'Bƒs?P­5<#×
-B          D«Û=@Î=I@E[Cq—6</<#5™                B§.<J<Ë£~                line_nodrm+stx_line_nodrm+stx_line_nodrmAvä¯AYº¿B</˜ETÇzB¢e??b7?ˆŞØB¢          DÎÄ‡    E–„C*wH<ÑÑf=DÈ=n¯—            line_nodrm+stx_line_nodrm  ?Û—Ì9ÿÖ@r-İ}¿H€28-Jun-2019 00:32:21.146D›jB*ø$A\Œ«F:v£Aøçf?1œ¨<#×
-AöÌÍ        D¯ebB'õ?‚Ä¦<#×
-B          F<äŸBêA×BĞèpC}œ‚<ª$<-ÜŠ                BN‚d<à"e<ı.¯                line_nodrm+stx_line_nodrm+stx_line_nodrmEğLAJµB?c5EBB¢{?>!?†ä$B¢          D›m    A øyC)Z÷<æä(=#L= 03            line_nodrm+stx_line_nodrm  ?Û£v’-”@qd.cŠ	28-Jun-2019 00:33:06.045EWÜAÄµ÷Ac’F,n©Aø˜?D6F<#×
-AöÌÍ        Dæ©aB&§?lo<#×
-B          E©eAÁßâA>‘
-Cf¿<î0<;¤;                BŞ±<Âƒ%=ı+                line_nodrm+stx_line_nodrm+stx_line_nodrmBµúƒA¢È‚B&EJ…wB¢¾ï?W$ø?ÎnœB¢          D—Ï    Cõ§XC&\Æ=¸=(g=‘øC            line_nodrm+stx_line_nodrm  ?Ûja©É“@q{ê³g ù28-Jun-2019 00:33:38.099EWÜAĞG@ÜœF|+A÷ßè?2“«<#×
-AöÌÍ        DéOBĞu?>Şˆ<#×
-B          Ej§A	óÏ@}ûC~Ï<5gÅ<oîò                B£={<—¶G<ûà                line_nodrm+stx_line_nodrm+stx_line_nodrmFI~A'ÀBBl#E ¥ßB¢[?`uÜ>—kiB¢          DŒ¨7    A<´B¿’•<ŞàØ=!²û<aú˜            line_nodrm+stx_line_nodrm  ?Û„#Ï€Ü@pú(Xy=Ù28-Jun-2019 00:34:29.273D¿€tAĞ>Š@ÑMÒF7¿ÀAø†£?7¾Ø<#×
-AöÌÍ        Dı¤2Bx ?_šM<#×
-B          DÎŞØ@óÆš@c_dCv¯I<Ğ<!šï                B›§	<ª<¡<Ú”Š                line_nodrm+stx_line_nodrm+stx_line_nodrmE×9áA'ÀBFME0iRB¢B$?BÅ6?,8@B¢          D‘H%    ARKNCbŸ<Åt=†÷<Ìâ½            line_nodrm+stx_line_nodrm  ?Û…¸Që…@q–‡+28-Jun-2019 00:35:21.587DìkDAË"èA
-ÑtF;õªAø†ö?7˜<#×
-AöÌÍ        EÒ¢Bsº?PÑµ<#×
-B          EAÊ™Aohô@û’¬C|ë_<«<"_ë                B¦Îø<£=”<×z5                line_nodrm+stx_line_nodrm+stx_line_nodrmEéÇA.¬BDÿ=E+ïóB¢Q°?A%?5~B¢          D‰sc    AKCüß<ÔÌ=Õ<Ì¹            line_nodrm+stx_line_nodrm  ?Û²ãâ“@qº„M28-Jun-2019 00:36:08.740EïªAÎíw@ºÎÂF0.6Aø›c?<Ë^<#×
-AöÌÍ        E—ùBx¬?N«N<#×
-B          DÖp@–0Ù?ÿ™Co¼<µ<,ùr                Bª2,<Â=<Î£_                line_nodrm+stx_line_nodrm+stx_line_nodrm@ÕRâAYº¿B</˜EFòB¢=\?[ÇB?jµ´B¢          DµšÇ    FˆÔB×Ê <½k<†•	=1İ;            line_nodrm+stx_line_nodrm  ?Û¢ğZpŞ@r9rGE928-Jun-2019 00:36:47.638D73ÓA,Ş AÕ·ıD?}Aù<g?†‘<#×
-AöÌÍ        BåÊñB4?PÅQ<#×
-B          FÆQ3DeÅDû9B‚ğf=Û=‘î                A\=¶k·>k•                line_nodrm+stx_line_nodrm+stx_line_nodrmCêİAEàVB@?°C–¢şB¢©?&wÁ?âB¢          C¢,z    B=ÁBjò;=·»$> ³Æ>	½Ğ            line_nodrm+stx_line_nodrm  ?Û›ºÜ	€²@q(Ø­«Ÿ28-Jun-2019 00:37:33.191DK4A.L#AË.áDhgAø®L?‘N<#×
-AöÌÍ        C/û”B?p­<#×
-B          F«ÒÔD+ÃC½ãBvX<ÆÀ“<÷                A÷¾–=p¸¼=¤V                line_nodrm+stx_line_nodrm+stx_line_nodrmCÉ]AAB´BACŸ¨‹B¢3–?/æÔ?e“{B¢          CÎÜS    BnÁXBUTÿ=Ød­=ÕIÕ=àD›            line_nodrm+stx_line_nodrm 	 ?Û<O;§uû@qæi“àß28-Jun-2019 00:38:19.770Db+„A1¸£AønÅD‚õrAø¢ó?·<#×
-AöÌÍ        C8=B'ñ? ‰ƒ<#×
-B          Gi¯D“=DG£BË*<¯Tb<‘¨C                AÑ¸=#)=ÇC                line_nodrm+stx_line_nodrm+stx_line_nodrmCŸ•æA>®BA¸µC¹O¼B¢#?WŒ?ZêB¢          C·,æ    B•±B…ã=<=¾8[=Æû            line_nodrm+stx_line_nodrm 
- ?Û\9¼º0@qÑ:’£28-Jun-2019 00:39:04.985D{LA1¦°AÀQDhcAø¦%?”><#×
-AöÌÍ        CI/EBVù? š`<#×
-B          F—¿ÌCéoÈC|ã¬B„Ğ0<ºÄÿ<ç™š                B4æ=^T=–¤7                line_nodrm+stx_line_nodrm+stx_line_nodrmBãA€á÷B3ş$C¡‘FB¢yü?*N6?x*B¢          C¦ë2    CIDB]å=°ÏÅ=Ñ}{>=•ù            line_nodrm+stx_line_nodrm  ?ÛÌĞşŠ´ú@r¬‹C•28-Jun-2019 00:39:43.864DìkDAÏõ0@êKæF5_UAøI?8ùª<#×
-AöÌÍ        EBq—?Uı<#×
-B          Dí%´A @‚=&Cvne<uµ<$wK                B¥ÆN<¦.<Ùı                line_nodrm+stx_line_nodrm+stx_line_nodrmFI/A+âĞBE‘ME¹êİB¢?+¸Q?š°ûB¢          D‡º?    A1ğC™p4<ÊóÊ=•8<ösß            line_nodrm+stx_line_nodrm   ?ÛP~”Ğİ@róëíúCş28-Jun-2019 00:40:31.708D¿€tAÏş@Ğ(F8«}AøC?<H<#×
-AöÌÍ        E
-´B¶?X<#×
-B          DØÛc@ü°}@[ÓCv§³<†µ<%Îü                B¦õ<{<Ê™«                line_nodrm+stx_line_nodrm+stx_line_nodrmA…4AgE]B9j+EXù›B¢eº?Fù?~n”B¢          D§ã
-    E‡©sC7êÄ<ÔBŒ= =L¹·            line_nodrm+stx_line_nodrm  ?ÛU>S!æ@qÿ(>BZî28-Jun-2019 00:41:13.453DÔÇBAÍgl@Üw‚F:àşAø‡?8.Ü<#×
-AöÌÍ        E§BI¼?Sz&<#×
-B          E XNAØÉ@x.C{}Y<Ky<$db                B¤Öù<¡ÿÓ<Ğñ                line_nodrm+stx_line_nodrm+stx_line_nodrmDœ¢A*²ˆBD‹óF«´B¢Ğğ? à?ú…ÇB¢          D”ì    B>²áCêÄ<à<ò,µ=¥–ã            line_nodrm+stx_line_nodrm  ?Û>7Åi+@s9ç»/ìW28-Jun-2019 00:42:00.967DÔÇBAÓ@¢2ãF+ãùAø”Ÿ?Bï·<#×
-AöÌÍ        EÿBv1?^Û—<#×
-B          D±C5@‘ÕK?é&ËCg<YÃ<7Q¶                BA<¦O›<Ö{ò                line_nodrm+stx_line_nodrm+stx_line_nodrmDà½†AgE]B9j+Eß«B£k?[Gš@GÇ=B¢          EÂ‹    BeÇOD¬>êX=>`?h"À            line_nodrm+stx_line_nodrm  ?Û%_5½@rvì¥zxl28-Jun-2019 00:42:40.410EWÜAÄ*@ù©ªFBgHAø‰'?6ş<#×
-AöÌÍ        EFB^?N¾&<#×
-B          E<yåA<³@¥ÕåC€ƒT<[<|
-                B©z<Ÿ±ì<Ï%l                line_nodrm+stx_line_nodrm+stx_line_nodrmE eA`$ÔB:ßE[w‘B¢Z:?^¸ê?º€œB¢          DÉYL    B3C>¾{<è­Œ=!¾o=µn            line_nodrm+stx_line_nodrm  ?Û>ÿP3@rœÄĞ©*28-Jun-2019 00:43:17.512DÔÇBAÌî@õÄF<¬ÏAø€ê?2Åó<#×
-AöÌÍ        E‰(B?O h<#×
-B          DûÀAöÈ@#]CQ< Á:<ƒ                B©Œ <3<Ì¥                 line_nodrm+stx_line_nodrm+stx_line_nodrmB–3A†PhB1ÅE¤B¡óà?nº˜?ÓTiB¢          DšZ    DdıCZ7U<ö ="E=SZğ            line_nodrm+stx_line_nodrm  ?Ûq \1Y@rúuöı!ÿ28-Jun-2019 00:43:55.604D¿€tAÎU¾@ç7åF2”ÍAøv??Fı<#×
-AöÌÍ        DÿgBv?XL<#×
-B          DúÈA"£@—J©Coo<
-õ„<*                BŸ[<§]y<Ùš¬                line_nodrm+stx_line_nodrm+stx_line_nodrmB¡ÎoA“ïB,!Ee§B¢Ğh?ffä@FB¢          DÃ7›    D2ûµCMö=ğ†“=.[p?J)            line_nodrm+stx_line_nodrm  ?Û@ÔÜeÇ@rœ‚\(ö28-Jun-2019 00:44:33.257DìkDAÌìÀ@êKæF2‡3Aø†u?<ÕÙ<#×
-AöÌÍ        E“ªBmX?R¨ü<#×
-B          E júA
-?F@‡4uCo!<	Äñ<&
-š                B¨ <¢E<ÔàÌ                line_nodrm+stx_line_nodrm+stx_line_nodrmDÜújAgE]B9j+E§şB£†?__<@‚/B¢          E‚    BbêD\ì>n ¶=Qat?šÍ            line_nodrm+stx_line_nodrm  ?ÛV†’’>@r†_¤?åÉ28-Jun-2019 00:45:13.244Cf3AÑğ5@úWDAñ!Aø=T?3`<#×
-AöÌÍ        CKŠ€B+?{=<#×
-B          D=H¤AÚ[Ai}aBOÚU<ßÙ\=Ùş                AîØê=g"¯=œ™                line_nodrm+stx_line_nodrm+stx_line_nodrmDV‘¿A€á÷B(vËC“cĞB¡ˆá?h+?™fB¢          C¿¥î    AÀpB6éz=æh€>İG> –)            line_nodrm+stx_line_nodrm  ?Û?éúÚı@rÖÍƒä&28-Jun-2019 00:46:02.077DfA*l=Aà\‘D\•İAøsz?!£-<#×
-AöÌÍ        C53¢B+Ò>şë˜<#×
-B          Fº&—DŠÎ»D(â2Bgºa<Ì ”<û?                AûR­=^]×=”rw                line_nodrm+stx_line_nodrm+stx_line_nodrm>Â'WAgE]B9j+C¯DÆB¢†Å?;V?¶ŒB¢          CÂÕ    G(e˜Bs~ó=¾Í=Öj>€3            line_nodrm+stx_line_nodrm 	 ?Ûhß½jY:@rJW§†Â28-Jun-2019 00:46:45.821D73ÓA,Ş AÕB0Dy»}Aø¢y?"1<#×
-AöÌÍ        Bû§JBJÙ?0ù<#×
-B          F¯ûdDKçbCîVBx
-¶<ÁL±<ìâ                Aµ¨§=§&m=è{ã                line_nodrm+stx_line_nodrm+stx_line_nodrmBèd]A`$ÔB7÷àDE»B¢¡K>ï”Í?Â\B¢          Cæ3Ó    C0äıB»MM=ú–	9Æ>ÚĞ            line_nodrm+stx_line_nodrm 
- ?Û4µr£Œ@s;ÃÉîËû28-Jun-2019 00:47:30.213D´A)ajAå?¬Dm;Aøè?=E<#×
-AöÌÍ        C-,(B$?šÖ<#×
-B          FlcD…|MD'W}B|şm<¹<Ü…                AÖ¨“=x=£ZO                line_nodrm+stx_line_nodrm+stx_line_nodrm@Æ~A4!BCáuC¨¤B¢Œ?)@k?†îŠB¢          CâÂÇ    EzÃB_ı±=½–=¼(\=®eo            line_nodrm+stx_line_nodrm  ?ÛUŠv'•@r%Š	Ş28-Jun-2019 00:48:19.427E"&A×@z@Äå»F(šAø¹O??"<#×
-AöÌÍ        DïåÀB|?ar5<#×
-B          D¾=k@m“@!-Ci~Ú<Vª<<ÇŠ                Bœ¹Ö<À¼=5X                line_nodrm+stx_line_nodrm+stx_line_nodrm@•"/A`$ÔB:ßEïgİB£	ö?S_º@/İ|B¢          DÌV    F¢RŞD’=£qZ=*âø>Üš            line_nodrm+stx_line_nodrm   ?Û@³Nv…˜@s"i­BÃÊ28-Jun-2019 00:48:58.260DìkDAĞÔ@êKæF*‹~Aø„í?C+<#×
-AöÌÍ        DèKBpn?Zğ<#×
-B          DìùĞA ¨`@„]\Cep<ŸD<0|×                B˜ÖI<·%ƒ<ö’                line_nodrm+stx_line_nodrm+stx_line_nodrmB*º­AŒYWB/L·E^ğB£2?r¤8@C˜ßB¢          E2Ø    E(äDIt>`Ÿá=KÊ]?¢¨À            line_nodrm+stx_line_nodrm  ?Ûr´R‚ƒÓ@rjš¹õY´28-Jun-2019 00:49:37.289DìkDAÍÿ @êKæF1AAø†F?;tÛ<#×
-AöÌÍ        DüŒçBhº?`Â-<#×
-B          E )…A
-ŒÛ@‰-¨Co3ª<
-*V<'²À                BœĞ¢<°Kµ<ì ”                line_nodrm+stx_line_nodrm+stx_line_nodrmEyiSASôßB=^	EF«B¢l²?]_Œ?³ÃØB¢          DÔ›ù    AÂ­6C@ÇÍ=O=0‹£= 62            line_nodrm+stx_line_nodrm  ?ÛZê1a¡Ü@r–)xÔıô28-Jun-2019 00:50:18.803EWÜAÃõY@òxFìfAø‚Ö?O<#×
-AöÌÍ        DåÑBN€?\’¥<#×
-B          EHóøAD.>@¨1şCSÎ|<ç|<EYv                B–+/<·ø<ö¸ü                line_nodrm+stx_line_nodrm+stx_line_nodrmD|cAwı#B5şTEKœùB£‹p?zÑ@iB¢          E[¬    BüåqDP >–q”=m‹˜?ØcN            line_nodrm+stx_line_nodrm  ?ÛM&ú?ÌŸ@r!Œ/ƒ{J28-Jun-2019 00:50:54.947DìkDA×c @©àF)7xAøŸŞ?Anª<#×
-AöÌÍ        DæeõB–3?q¦â<#×
-B          D¼{@’4º@§Cgìh<ôe<@                B<Ä[r=£¹                line_nodrm+stx_line_nodrm+stx_line_nodrm?4A“ïB,!E˜hÆB£Âù?_?¤@¨[]B¢          E'ò%    G“µoDhÚÃ>Ås==D_@	sº            line_nodrm+stx_line_nodrm  ?Û}ú â~@r’4ğØDĞ28-Jun-2019 00:51:32.112DÔÇBA×‰@Üw‚F.mAø‚²?B²Ò<#×
-AöÌÍ        Dú‡KBhh?Mœ—<#×
-B          DÊç*@ä:@c"Cjz <Äì<6‘´                B¥<§€w<İAW                line_nodrm+stx_line_nodrm+stx_line_nodrmDÜ^cA€á÷B3ş$EÊrGB¢Ãå?@’_?í
-ªB¢          DŠC¤    B,5XC©Q±<ïÏg=„=2(            line_nodrm+stx_line_nodrm  ?Ûd{ª›I@s/€IQƒ28-Jun-2019 00:52:08.139DìkDAÑ:'@êKæF4èŒAø‰ê?6¦<#×
-AöÌÍ        EiÔBU‘?GÅ”<#×
-B          Dá-@ó,ú@x.CwQà<è˜<#^Œ                B«:Ÿ< ˜¼<Ò+W                line_nodrm+stx_line_nodrm+stx_line_nodrmC^AÁ¨B… E€úB£TÁ?J²W@\‹/B¢          Dàó    C®oğCüD>8fy=4Bg?{º2            line_nodrm+stx_line_nodrm  ?Ûjrd¡jH@rFã¢œwš28-Jun-2019 00:52:41.049D¿€tAÎÉ@ÊÆ§F%.Aø{õ?DÙC<#×
-AöÌÍ        E¨B†w?Wt<#×
-B          DüÄ£AHS@_8C`Ï_<Ï<=¾                B¡¸y<¢C><ÏÄ*                line_nodrm+stx_line_nodrm+stx_line_nodrmBÏ˜A¶3—B+vE2¤ÁB¢Ã?u‹6@02B¢          EÌ    D ÔC°ö+=ã­r=Pb?/Ï            line_nodrm+stx_line_nodrm  ?Û7—FBĞ@r&ĞË)^28-Jun-2019 00:53:16.008CO	ğA»9§A*Í›DD«AøbA?<˜<#×
-AöÌÍ        C0ª§Bè?5s<#×
-B          DÖ\B¶ëÈB:UBHèÅ<ì€i=x6                AÆöv=…h=©$                line_nodrm+stx_line_nodrm+stx_line_nodrm>Şî
-AgE]B9j+DQ lB£á>ıÑ@”5B¢          DÊÛ    GWkXC|¦µ?t	=¡fX@Hä            line_nodrm+stx_line_nodrm  ?ÛHõ<WŸ#@r™6”Fs‚28-Jun-2019 00:54:08.396CÂ¾øA«íuAGÍóDƒB
-Aø|H?3`<#×
-AöÌÍ        C3ÃBÇ
-?Äb<#×
-B          E;[›BÅ—…BU‰%B…íÆ<¯ªÚ<Økó                AéÊå=„õ=¶÷ü                line_nodrm+stx_line_nodrm+stx_line_nodrmC^A8ÙÄBBêCÌ,B¢GY?m÷?Uï&B¢          C¹°    BùryB†•=„ = 8Ø=ù            line_nodrm+stx_line_nodrm 	 ?ÛFw³•Ä"@qÕC,¥zx28-Jun-2019 00:54:56.652D73ÓA,Ş AÑD”D×Aø•†?/I<#×
-AöÌÍ        C=£B@v?&s<#×
-B          F a	D6lCÑÜİB•ŠY<¡„ë<ÂìÜ                AŞ^Ç=x+=¦†O                line_nodrm+stx_line_nodrm+stx_line_nodrmD³JiASôßA×ËC­ÈêB¡ì?>ßÎ?S‰õB¢          Dç?    A,|€BIf¤=±SÄ=Õ:ğ=ªŠO            line_nodrm+stx_line_nodrm 
- ?ÛiÊõ#-@rõHÎp:û28-Jun-2019 00:55:41.769DfA*l=Aß 	DXìùAøp?1:º<#×
-AöÌÍ        C-:·B£H?xn<#×
-B          F¦>TDvéÕDóBZ±±<Öi|=1                Aâ×£=r·<=¡ä                line_nodrm+stx_line_nodrm+stx_line_nodrmCb&AYº¿B</˜DÉB£a?Çú@R„B¢          D À    C1Ñ&C+aÌ>œç@=Än?àÁ9            line_nodrm+stx_line_nodrm  ?ÛJ˜ª†Pç@r¡»˜Çã28-Jun-2019 00:56:26.631D¿€tAØâ=@Ğ(F"ó›AøW?G†1<#×
-AöÌÍ        DèÓîB¬?ZbÌ<#×
-B          D¯›8@Ğ> @LIaC\`=<nŞ<?bÒ                B˜Í;<³ºw<îÔ¬                line_nodrm+stx_line_nodrm+stx_line_nodrmEWÓ/A8ÙÄBBêEŠ™3B£(ê?@Œ@L®B¢          Dü
-    AæSUCó¼û>âa=.ùˆ?/ï±            line_nodrm+stx_line_nodrm   ?Û_Ô{í·(@ràÄ›¥ã28-Jun-2019 00:57:10.292DìkDAĞñ•@©àF'EAøô?AÑ‡<#×
-AöÌÍ        Dö°B~ë?j½U<#×
-B          DÇ}B@1@’ÅCdáV<"<75¼                B•M‚<³«‚<ñy                line_nodrm+stx_line_nodrm+stx_line_nodrmFWÿAB´A®_êE¾I‹B¢Â3?VŒ?Ş”rB¢          FãH    AlË£C4“<ÿFu=rö=""ş            line_nodrm+stx_line_nodrm  ?ÛMğMÛU&@s¤(§æ›28-Jun-2019 00:57:51.886DÔÇBAÑ›é@Üw‚F(ÅAø†`?@³;<#×
-AöÌÍ        Dù,zBg?Q¬@<#×
-B          DÉ^Ú@åí¿@h›_CcÆ«<;<-Ó÷                B¡o<©ºV<ß®;                line_nodrm+stx_line_nodrm+stx_line_nodrmEÆ¬AEàVB@?°EO6PB¡·j?•f ?Åï¸B¢          Dø~Ê    BymVC1#=İB=e_¥=¤£¶            line_nodrm+stx_line_nodrm  ?ÛJ«Ñª‚@rÕ­úCş]28-Jun-2019 00:58:36.207EïªAĞ]|@ºÎÂF!Ú¥Aø¡£?=Ó<#×
-AöÌÍ        Dæ¦<B\?Y†è<#×
-B          D×O˜@—®‰@ùFCb~„<.ñ<8qß                B™Gş<¸>d<ùXİ                line_nodrm+stx_line_nodrm+stx_line_nodrmE4vAYº¿B</˜E,½PB¢bi?j4ò?£MËB¢          DÒ‰    B/@C#!^<ôQL=8Eû= »            line_nodrm+stx_line_nodrm  ?Û%ÃŞç„@rOàŞÒˆÎ28-Jun-2019 00:59:17.326EWÜAÏS1@ù©ªF,©LAøJ?C“ƒ<#×
-AöÌÍ        E’ëB„»?Zw<#×
-B          E`Aõe@œjşCgcÑ<ó<2Æ                B£Æ<­‡<é¦Ö                line_nodrm+stx_line_nodrm+stx_line_nodrmE6l°ANÂÉB>n;Eh¾B¢ï?lIQ@3Ó€B¢          E(å¦    B!uQDè >;ù=CÉ?„            line_nodrm+stx_line_nodrm  ?Û6ÍòfºI@rÁTÉ…ğ28-Jun-2019 00:59:58.790D¬ZTAÎ¯ì@é¢F-×7Aøvš?@9ù<#×
-AöÌÍ        DóşxB‹?[f<#×
-B          E]…A=äÓ@«âCjÎ<~¦<0Òå                B™×Ê<«w<Şm                line_nodrm+stx_line_nodrm+stx_line_nodrmBjAšBB)zEgq#B£\?L[•@@B¢          Dê\ç    DÙCsı=ÍHå=#OÄ>öèŞ            line_nodrm+stx_line_nodrm  ?Û@öjUp@r8HË’28-Jun-2019 01:00:36.617D¬ZTAÖÜÏ@ÄÑqF*•ÍAø‚S?=Êˆ<#×
-AöÌÍ        EBz?S‚„<#×
-B          D¨@ÏÅ&@:ª»ChÄ5<<2”7                B£[<¢f	<ĞÄ2                line_nodrm+stx_line_nodrm+stx_line_nodrm@A€á÷B3ş$E=á›B¢T§?œ‚R@6îªB¢          D×…    F~rCµ¥>mÊ=PÌ?GZ"            line_nodrm+stx_line_nodrm  ?Û=:2?î@rÇÙ³Ğ|…28-Jun-2019 01:01:17.349EWÜAÒ/
-@±ºF$¬´Aø ?C6<#×
-AöÌÍ        Dí_¸Bo~?\<#×
-B          D®é@ƒÛx?İ\C`wÃ<	T<:QY                Bš¦<³‹D<ì#¶                line_nodrm+stx_line_nodrm+stx_line_nodrmE÷xnAJµA¢U·E¥IB¢×G?f²?î‘ÍB¢          G]J    A¼ËŠC…á=¯Z=)‘®=…ÁÔ            line_nodrm+stx_line_nodrm  ?ÛÈ–İ&·@s+:’£28-Jun-2019 01:01:59.322C¯FÀAÃ¹àA ªDù>Aøó)?K,¼<#×
-AöÌÍ        CšyB}~?/–<#×
-B          DŸBAõ·nAn% B4·=Ö$=@7Ø                AÅM¦=›Æì=ÜUğ                line_nodrm+stx_line_nodrm+stx_line_nodrm@lA¢È‚B&D{B¤¿x?GÇAnB¢          D9R    F+@hCÀC	?é>>!ÓA,C©            line_nodrm+stx_line_nodrm  ?Úà!p“@rpWÁ½¥28-Jun-2019 01:02:44.582CØ`ıA'™%AÓª˜Dw¥ùAøˆü?&‰g<#×
-AöÌÍ        C&?nB?(û?<#×
-B          F†èXDƒœ3D‘ôBp'<¿E<â;7                AÈüµ=€Èø=¨                line_nodrm+stx_line_nodrm+stx_line_nodrm?UxA€á÷B3ş$C¦0B¢“Ã?6³}?¨PöB¢          CÅ•î    FÙßßBk_=¤Š=Ø>p            line_nodrm+stx_line_nodrm 	 ?Û;ûXÑRn@rpÇ+J28-Jun-2019 01:03:31.176DfA*l=AßÑ’Dk½WAø|ı?N€<#×
-AöÌÍ        C	{B'™?6.É<#×
-B          F®%DÊ™D ›BqÙQ<Ã5<ìÒè                A´Èú=›l}=Óît                line_nodrm+stx_line_nodrm+stx_line_nodrmE9¢"AgE]Aª­eDìB¢`æ?,Ä?bø2B¢          E‡Óv    @ÄBØëÀ=æz=º-ò=wàÂ            line_nodrm+stx_line_nodrm 
- ?Û>»ıq°G@s<64ê28-Jun-2019 01:04:15.692DfA*l=AÇÏºD|®¤AøoË?¦®<#×
-AöÌÍ        C lBé?
-Ÿï<#×
-B          FŠÍTD;kRCÍ(ŠB‰2Ê<¯ÓÑ<Ó-t                AÓHT=‹Ôp=½”^                line_nodrm+stx_line_nodrm+stx_line_nodrmD½;ÈAEàVA¦åŞDºÕB¢ç?:s?¦BÀB¢          EÚù    A†[-B Êv=ƒÀ(= Hİ=…Cr            line_nodrm+stx_line_nodrm  ?ÚıüÁr&@rÓá-w128-Jun-2019 01:04:59.610E"&AÃ¯ì@ãÑFM$Aøƒ{?9 »<#×
-AöÌÍ        EısBPã?SÔ?<#×
-B          E=†QA&@pxÿC…]Š<Êª<‘[                B°¨Œ<D§<ÎDR                line_nodrm+stx_line_nodrm+stx_line_nodrmCOG0AYº¿B</˜E4÷ÌB¢D?rú;?]™íB¢          Dªú·    C©2BBğ¢z<Öƒ´=ê.=n¼            line_nodrm+stx_line_nodrm   ?Û-^Sô@qÀÒ:)Çz28-Jun-2019 01:05:32.768D¬ZTB†rAUğãFFYvAù S?-yç<#×
-AöÌÍ        DÂ/iB.'?|É†<#×
-B          FV\A›³iB¤MC‡_Ó<VÃ<0                BnÁe<Øê=.óİ                line_nodrm+stx_line_nodrm+stx_line_nodrmEõ*A*²ˆBEÏ’EâxB¢;Y?R<ü?vB¢          D?ò    A<ŸüB÷eÑ<Øm÷=&¸œ<˜Ñ+            line_nodrm+stx_line_nodrm  ?Û±m@qFWOß;28-Jun-2019 01:06:21.552D¿€tAÏ›Ş@Ğ(F*!rAø…
-?CW[<#×
-AöÌÍ        EõVB]?Z*<#×
-B          Då‡¦AS_@bPCd™4<s<5}-                B¡1‘<¢ï<Ò)Á                line_nodrm+stx_line_nodrm+stx_line_nodrmBäJ0Awı#B5şTE0>ÌB¢\]?_ß.?XñÁB¢          D©#    DâCXx<Ùç§=$´=c>o            line_nodrm+stx_line_nodrm  ?Ûƒùdo@qÔZu%F28-Jun-2019 01:07:00.976CÂ¾øAÚlA@ò F%ÂtAøŸ?Rr¡<#×
-AöÌÍ        DæêB>ò?…=i<#×
-B          Eˆ¶B=>åAÆKCU°8<Äˆ<Mr`                B…*2<Åª=‘“                line_nodrm+stx_line_nodrm+stx_line_nodrmEarAEàVB@?°E›B¢^?Z™?PLõB¢          D²}    A¿èBçÔ'=WE=2E]=Dc
-            line_nodrm+stx_line_nodrm  ?Û.Œ… ¾@qxúáG®28-Jun-2019 01:07:54.831D¿€tAÓo@Ğ(F#¬#Aøz“?A	]<#×
-AöÌÍ        EtBq?Xîk<#×
-B          DÇAS@é~@U’½CaÓû<é¯<7&›                B˜[U<ªß<Ÿl                line_nodrm+stx_line_nodrm+stx_line_nodrmAŸkAgE]B9j+EF»úB¢`?Z…?e•½B¢          Dì‰    E4‘ÁCl=EvÖ=ı²=x‹ö            line_nodrm+stx_line_nodrm  ?Û<Õsd{«@qÊƒä%®æ28-Jun-2019 01:08:37.000DÔÇBAÏ×\At;F0úAø5?5»Ğ<#×
-AöÌÍ        E ãBfg?EE<#×
-B          EšºALyš@ßÌCrµT<oP<%                Bªó< ˜¶<ÑFq                line_nodrm+stx_line_nodrm+stx_line_nodrmDŠÆA>®BA¸µE;è¶B¢D ?X
-¯?^TtB¢          D¸jå    C0æC<ˆ’=
-P=91=a¯            line_nodrm+stx_line_nodrm  ?Û¿Â"O@q´—Xâe28-Jun-2019 01:09:22.013D¿€tAÑÇ³@Ğ(F)y÷Aøˆz?@{£<#×
-AöÌÍ        Dğ¸BIC?X”Â<#×
-B          DÄ:z@é È@U¦ÕCdõ<ø</6p                BšR"<­vE<â›º                line_nodrm+stx_line_nodrm+stx_line_nodrmB¡òAYº¿B</˜E>÷B¢wŞ?W©,?uµB¢          D£¬    D¦9»C`O<Óä¢= —?=bl1            line_nodrm+stx_line_nodrm  ?ÛYÿOÖ×é@qñá-w128-Jun-2019 01:10:05.359DK4B Ù@Ü*±F>AøÌ{?<<#×
-AöÌÍ        DµµŠBª?`à <#×
-B          D…@ß†•AšğC]=è<º6<I«U                B{™ç<Õkx=Â…                line_nodrm+stx_line_nodrm+stx_line_nodrmE1A;œ¡BBYpE…ÕB¢aZ?I¢å?i ‘B¢          Dä¹    A¢[åCoÁ<ş“4==)!=)íã            line_nodrm+stx_line_nodrm  ?Û$…†”@qXs333328-Jun-2019 01:10:57.243CÀôAËÜ¦A;W—D/ó!A÷Ü¹?'HT<#×
-AöÌÍ        C«BY?)-Ê<#×
-B          DÈÉ×Bh4eB.WuBiÄ=!=>®7                A¢lÍ=ˆfc=±ù                line_nodrm+stx_line_nodrm+stx_line_nodrmBºãAŒYWB/L·CııSB¢p>ß6?°Î¿B¢          C•ºT    CÕ”BÁº;=¢É= \D=wjÏ            line_nodrm+stx_line_nodrm  ?Û¤¬ó²@pì\ú¬Ùè28-Jun-2019 01:11:45.495BÜ&ÌA¹¼ZAq³DxÖLAø|£?.©<#×
-AöÌÍ        C'(öB­G?b_­<#×
-B          DÊ-êCêWBSÖBy™J<¸Êû<ßÛÕ                A¨&º=Š¶)=±r                line_nodrm+stx_line_nodrm+stx_line_nodrmD;PâAB´BÏËDæ3B¢[>>¿=³?DÅ¶B¢          D¶     A€Ê¨BÚˆ‘=Rô	=H/=fÃÑ            line_nodrm+stx_line_nodrm 	 ?ÛBöÕ®@qxÙ‡+28-Jun-2019 01:12:46.201B²\[A¾XZA"ìD_Ì»Aø²Â?2C<#×
-AöÌÍ        C ÍBìİ?~ÀC<#×
-B          E ‡ØCnL­BåŞ²B\nü<Ö<Í=ç/                AŒÂ=±5µ=âõ´                line_nodrm+stx_line_nodrm+stx_line_nodrmCş³2A2ºBDJéC­ÿ–B¢AÇ? =E?5ˆB¢          Ch¦    BGDB„÷=…}h=½¯ =o>            line_nodrm+stx_line_nodrm 
- ?Û%RC™³@qt–“u28-Jun-2019 01:13:55.511D73ÓA_¼‰A¥QQDt#ÍAø¡¼?!V<#×
-AöÌÍ        CDZËB Á?€‡<#×
-B          FEâ*C´RC?C¦B±<½=)<è?ô                BHq=c_Ö=š+                line_nodrm+stx_line_nodrm+stx_line_nodrmAe‚BAEàVB@?°CQ	B¢7Ó?ep5?Xv™B¢          C°²l    DŞÀÃB¬ş=ÀWÁ>r=àjà            line_nodrm+stx_line_nodrm  ?Û+©Ñöy@q›ò{²şÅ28-Jun-2019 01:14:42.991D¿€tAÒgA,BF.‰bAù– ?#X°<#×
-AöÌÍ        EofBOÖ?añ"<#×
-B          EåßANÜÏ@â¥‚Cia<0Ói<@”œ                B¥56<˜á¢<ÎR‰                line_nodrm+stx_line_nodrm+stx_line_nodrmEÄª´A;œ¡BBYpE2+çB¢•?UÔ?eyB¢          D¬S    A‹Î+C³†<ÿ(Y=?_Ø=B             line_nodrm+stx_line_nodrm   ?Û)^š@qDĞ©28-Jun-2019 01:15:27.915EWÜAÈg=@ù©ªF?ô3AøvW?8ò¾<#×
-AöÌÍ        E¹&B^w?TÚ¢<#×
-B          E"3ÜA%@ YC€|<¦<¬                B¬Œ<Ÿš<Ò:'                line_nodrm+stx_line_nodrm+stx_line_nodrm@­ÂANÂÉB>n;ETãÆB¢`}?Nf
-?aÓTB¢          DÌhÆ    Fp	sCz3=ÿi=‰b=i«            line_nodrm+stx_line_nodrm  ?Û;u!L¾@qÂ ëíúD28-Jun-2019 01:16:12.149Db+„B.Ò>AÀ®F@Õ7AùÊ?6ÌÁ<#×
-AöÌÍ        D»™‚BW?z<#×
-B          GI¢ßD_}%D˜÷ëC€ó<®<1-¨                BO…<èhÙ=?2,                line_nodrm+stx_line_nodrm+stx_line_nodrmEù±˜A+âĞBE‘MEL”B¢<Õ?\Q?
-VBB¢          DTqõ    AZêABêOò<Ü»”=2 ó<»¬'            line_nodrm+stx_line_nodrm  ?ÛNëö]¿Ï@qS–‡+28-Jun-2019 01:17:02.801D73ÓB‰@ÎëF5·ŞAùd:?*Gî<#×
-AöÌÍ        DÏ“ãB–¾?bEì<#×
-B          DKfİ@Äu@ÓzøC…˜ê<”Æ<=¶                B~Ü<À=ç= ğ                line_nodrm+stx_line_nodrm+stx_line_nodrmFÓ>A'ÀBFMDú†B¢#¼?fK->ä“ØB¢          Dw    A‚¢˜BÇ.=Ò=H&ü<³K            line_nodrm+stx_line_nodrm  ?Û‚4"F|@qG/iDg828-Jun-2019 01:18:01.377D73ÓAü(@¥yF6/¤Aø¤B?>Ÿs<#×
-AöÌÍ        DôfªBLJ?^O<#×
-B          D@t/S@>>CrH <ÁÊ<97½                B™–<³T<ááÒ                line_nodrm+stx_line_nodrm+stx_line_nodrmEûúA) ®BFE>ïB¢&Ç?V‡o?)"ºB¢          Dpœ0    AQ(kBù˜‚<ß.û=0ÏÜ<áì!            line_nodrm+stx_line_nodrm  ?Û9K{(•J@ql–R½<628-Jun-2019 01:18:58.499DìkDAÆàÿA•‡F1¯¢Aø¾ì?:†m<#×
-AöÌÍ        Då.(B]«?f¨J<#×
-B          EÇ9AğçWA`2äCqŸŒ<†J<<Üb                B‘j<ÀäÈ<ûPh                line_nodrm+stx_line_nodrm+stx_line_nodrmEÿŠPA*²ˆBEÏ’EUÑB¢%Ê?ià(?¢«B¢          DY®7    AX#~BÜ$q<ø 2=G£¯<ÅÃ*            line_nodrm+stx_line_nodrm  ?ÛnP?³t6@qot!-w28-Jun-2019 01:19:46.643D¿€tAÑœJ@Ğ(F'ãáAøŒÊ?AÛ±<#×
-AöÌÍ        Dóê5B¤l?f-‰<#×
-B          DË/«@ğ‡Û@[»ÖCbÕ¿<²P<2w×                B–ÉX<±Ü<ë±À                line_nodrm+stx_line_nodrm+stx_line_nodrmE>Ì‡ANÂÉB>n;EÌjB£Kà?TŞ@dÙVB¢          EA$Æ    B':D6Şï>‚ñß=D¨…?±âı            line_nodrm+stx_line_nodrm  ?Ûfèleƒè@rs ªdÂø28-Jun-2019 01:20:31.158D¬ZTAĞ®æAW®fFîÔAùx-?4Äç<#×
-AöÌÍ        DÃœÎBVu?uu¶<#×
-B          F†ÆB´â¨B†‰ìCo‡ö<)sù<W"!                BjeÃ<Ğ¶L=©À                line_nodrm+stx_line_nodrm+stx_line_nodrmE˜Ì¬A6]—BClIEu³B¢s?tX"?zzB¢          D’"–    AÜæòBğ,=îX=pÛ¸=)>h            line_nodrm+stx_line_nodrm  ?ÛdIU´g{@q@s¶E¡Ë28-Jun-2019 01:21:19.052CØ`ıA™ÌAKƒáDV¡}AøŠÇ?(.­<#×
-AöÌÍ        Bp1—Bl?Rñ<#×
-B          F)hfC£¦ACÜ8Bj®ÿ<Ügl=70:                A‚ñ»>v¡>£b¶                line_nodrm+stx_line_nodrm+stx_line_nodrmDœŒPA8ÙÄB=O$CXHuB¡ıÙ?Lút>ŒëyB¢          CÒré    AùNßBq^=ŸŸZ>S’=HÇ            line_nodrm+stx_line_nodrm  ?Û&áY-™@p×æšÔ,28-Jun-2019 01:22:13.562Cû½AŸtOAoÑD}'¢Aø|ÿ?ˆ™<#×
-AöÌÍ        C8,ÓBş—?-.<#×
-B          EY@C:ÃBÎŒ†B‚{ <³³<Õ÷v                AĞC=u¡=ŸÓ¤                line_nodrm+stx_line_nodrm+stx_line_nodrm>XıCA0MôB=a>Cís)B¢>>ô“?Y“ÊB¢          B¿¦ù    F‚Ÿ9B˜M‘=_q»=šyê<˜Â            line_nodrm+stx_line_nodrm 	 ?ÛNÒõÜ@q¡2-V28-Jun-2019 01:23:09.426D´AšÊÎ@í$Ds™MAù{±>õIÄ<#×
-AöÌÍ        CıÿB,=?A$)<#×
-B          E›¼äBf2£ArÒB™]=<ÍN¸= £!                Ašˆ¢=„8(=œ”r                line_nodrm+stx_line_nodrm+stx_line_nodrmD‹JòAYº¿Aµ&ÔC­vEB¢ey?&˜?’òúB¢          DÜ©    @îoBƒŒ±=•3j=Åà=§«ø            line_nodrm+stx_line_nodrm 
- ?ÛeË5ó×Ô@q.1Ä2ÊX28-Jun-2019 01:23:55.921C”}AÀ¶A"”üDFAøn¹?,¶<#×
-AöÌÍ        CfbBF>Ô;•<#×
-B          DœãBMúAÛñPBUÂ’<á1è=¿¨                BÁü=2=p+N                line_nodrm+stx_line_nodrm+stx_line_nodrm?µ“Awı#B5şTC)rB¢"0?-XÖ?S"gB¢          CœPy    FÀ’HBaÑ­=¡®.=ÑÕÙ=µøV            line_nodrm+stx_line_nodrm  ?ÛZÈ£r`p@qÏîHè§28-Jun-2019 01:24:43.979D¬ZTAÏğ-@ïK§F*N!Aø_U?K÷Û<#×
-AöÌÍ        Dş$&BPÉ?bå><#×
-B          E)pdAwè@ßxÁCaÎÑ<â„<Iw                 B›J<®)/<æ–³                line_nodrm+stx_line_nodrm+stx_line_nodrmE]ş©ANÂÉB>n;El²¸B£c'?r©—@p¸oB¢          E;û÷    BDˆë>\z=_Ÿ­?£è            line_nodrm+stx_line_nodrm   ?ÚêÙ'N"£@r9He”¯O28-Jun-2019 01:25:28.861EïªAÍcŸ@ºÎÂF0š±Aøš?>çq<#×
-AöÌÍ        Dú|òBq¸?`íÚ<#×
-B          DùRÜ@­d·@CmÕ9<c¯<0¬                B›öç<±³Ô<ğ?±                line_nodrm+stx_line_nodrm+stx_line_nodrmEAyTANÂÉB>n;EMI•B¢»ø?jÍ¨@	"®B¢          E“œ    BÏÉC¬£=—z=E²>íÛ!            line_nodrm+stx_line_nodrm  ?Û,@Ğª§ß@r@Éº^5?28-Jun-2019 01:26:09.323D¿€tAËÆ6@Û¾ËF4ÓAør$?CÔI<#×
-AöÌÍ        DõƒBˆ”?fš6<#×
-B          EucA1Q@“f Cn¬ <øk<3„Ù                B–J±<°í<çÛK                line_nodrm+stx_line_nodrm+stx_line_nodrmD¶wANÂÉB>n;EDÃJB¢[i?YÇ^?u.”B¢          D¯¬a    B@à:C,Hé<ÔX=!>q=\
-ş            line_nodrm+stx_line_nodrm  ?Û:ÿ°NçÅ@qçø†YJõ28-Jun-2019 01:26:52.387D¿€tAÒÆ±@Ğ(F.
-Aø{i?I›“<#×
-AöÌÍ        E5‹Byô?U¢r<#×
-B          D÷şßAB@r¿{Cf]Ğ<—<C‰3                B¤±<¤¡H<ÖL                line_nodrm+stx_line_nodrm+stx_line_nodrmC#“A«û;B"ZQE^%ÌB¢¾Œ?vP|@ø¹B¢          EŞ    Cçğ}CË4=ÛíÁ=?Û,?^Ú            line_nodrm+stx_line_nodrm  ?ÚåŠ2ôI@r—§†Â'28-Jun-2019 01:27:28.265E4*ªAÄ’XAu}F.­Aø}á?AÖ<#×
-AöÌÍ        E=vB]§?GS¼<#×
-B          E{6‘AZZ¹@çUHCl‰û<3H<1Êò                B¯ï<§º<àóQ                line_nodrm+stx_line_nodrm+stx_line_nodrmEëÃ_A2ºBDJéEJq&B¢_?_­’?´¬†B¢          EŠ`    AäÓCVñp<ôÑ	=@-”=¹MG            line_nodrm+stx_line_nodrm  ?ÛVO—íÈ@ry6”Fs‚28-Jun-2019 01:28:11.258DìkDAÏ®@êKæF>òAøz¶?8/³<#×
-AöÌÍ        EğBf^?Y¦ö<#×
-B          DıqÛA“@ŠBHC~SP<5B< Ã                B¥‚<¨Öæ<áhÂ                line_nodrm+stx_line_nodrm+stx_line_nodrmF¬A'ÀB:ˆ˜E»°B¢†¦?C!è?!‹B¢          Dµ‘ı    Aa
-aC—±<åŸ=(ƒ<ÅÓ8            line_nodrm+stx_line_nodrm  ?Úû	 :2+@sF•ÏªÍŸ28-Jun-2019 01:29:02.105EïªAÌşˆA_*F0­vAø‡a?8Ç—<#×
-AöÌÍ        Dïb£BlR?X<#×
-B          E#‚ºAD‘@¤î¦Crø<µ[<*vú                BŸ>˜<·á’<ú6p                line_nodrm+stx_line_nodrm+stx_line_nodrmBÇÔ:AÎ,»B[•E…ÒøB£´?b‚¶@†;&B¢          E6–x    D@ùFD:ò>…ÍÚ=?za?Îª            line_nodrm+stx_line_nodrm  ?Úóõ/Âek@qô [À28-Jun-2019 01:29:32.480DÔÇBAÍ!Ã@à”aF/’eAø€ ?Ab·<#×
-AöÌÍ        E-¯B`4?Yvb<#×
-B          E8JA Õ@Œ´¶CkXŞ<Š<3ø˜                B¡áÇ<¨3È<Û»Ö                line_nodrm+stx_line_nodrm+stx_line_nodrmEŞ$òA'ÀBFMEDYŒB¢i|?\;?¥ÄTB¢          E şz    A—î¡CJDñ= 	—=;üi=“¸?            line_nodrm+stx_line_nodrm  ?ÚğZpŞU@rL€hÛ‹¬28-Jun-2019 01:30:24.916C'¸oAÑ€È@â	DCkvAú´.>÷“<#×
-AöÌÍ        Cø`B)Ç?ewõ<#×
-B          DÎÂAÜ—A_Í8BX<÷ˆŠ=C                 A“Dº=˜»Ì=ÎØ§                line_nodrm+stx_line_nodrm+stx_line_nodrmDŸ)AEàVB8ÃCAF}B¢E?HvÄ>ğÈEB¢          C¾ñª    AÍnÓB¬’=ÂÖ>Çi=˜;            line_nodrm+stx_line_nodrm  ?Úµ'»0@q~($x28-Jun-2019 01:31:22.599Db+„A/âÒAÈºbDnÆ,Aø£É?÷f<#×
-AöÌÍ        C.ŠB2+?vŞ<#×
-B          F´¥ED œ C²AB‘î<Ä½<õ{                Aæh•=„Ùi=¶EA                line_nodrm+stx_line_nodrm+stx_line_nodrm>©ìáA`$ÔB:ßDq™B¢ÕF?µÉ@I´B¢          CÃ„,    G9‰`C	0b=Ùzã=²ìê?*Ãç            line_nodrm+stx_line_nodrm 	 ?ÚµÃ›Ë£@rcrÊW§‡28-Jun-2019 01:32:05.106Cf3A§-;AX{cDoG+Aø¤á?p®<#×
-AöÌÍ        Bè¿ŸBw?DÖ<#×
-B          E”ıC,TCBx*B<Íÿa=º                A
-=©O=İ                line_nodrm+stx_line_nodrm+stx_line_nodrmCe†şA6]—B*¨rCÑiB¢S„>î³å?\pÏB¢          Cñc    BB¯­Bèì=náÂ=«T=aÏæ            line_nodrm+stx_line_nodrm 
- ?ÚÉ)ªu\@q?yõY³Ğ28-Jun-2019 01:33:03.603D73ÓA€rA€¤ÕD&è²Aø?È,<#×
-AöÌÍ        Cª>BÌà>Ûù<#×
-B          FÇ9C: ÄB¸›;?L½›={ô=)×•                B Tõ=_ë’=I§                line_nodrm+stx_line_nodrm+stx_line_nodrmDLå€ANÂÉB>n;CvùAB¢E?‰>¹lUB¢          CkÚÉ    Aôc°B?ËÑ=™Ç=Ğ1=9Ù\            line_nodrm+stx_line_nodrm  ?Ú«ÿÍ«@pÙ—§†Â'28-Jun-2019 01:33:45.857CÀôAÑş^@š±E­§Aò»æ?=+ğ<#×
-AöÌÍ        D¢}ÔB
-Æ¥?PX„<#×
-B          EZÀB‡ŸAPKCæ<s£)<Ä{ù                Bftv<íí‰=9Õ                line_nodrm+stx_line_nodrm+stx_line_nodrmE÷?˜AJµAÑ‰qE‹[?B¡†ä?%¹?ö‰9B¢          FCqñ    AAéNC¨*"=
-Ó¡=Pîª=œ¡E            line_nodrm+stx_line_nodrm   ?Û€ìúi¾
-@pL!aä÷f28-Jun-2019 01:34:38.830D´A)â @iŒ:E›gAò ?Wf<#×
-AöÌÍ        DŒ·B
-­M?Kt<#×
-B              8ÏÙZ:G¢–<W$iBªI¡BÇeÄ                <ğ¤B:_öBqû¸                line_nodrm+stx_line_nodrm+stx_line_nodrmCàâAÁ¨A¤İûE„™UB¡ü2?1Ë@õíB¢          E»?Û    B§µPC–ëÌ='ìE=E]€>ô            line_nodrm+stx_line_nodrm  ?ÛGÇ>îRY@p<Š=p£×28-Jun-2019 01:35:31.313D‹›±A@Ê@”5zE–kAúLè?fx<#×
-AöÌÍ        Dsš½B8?‘.›<#×
-B          Lû˜G¸–FRæC¯Ø<Û|Ş=/                BjB=q-z=Zö&                line_nodrm+stx_line_nodrm+stx_line_nodrmFûêA8ÙÄAË…EX¥ÈB£ëà?U8­?åbB¢          GŸ_    AŞ[<CT='L=BFA=Å            line_nodrm+stx_line_nodrm  ?Û…aÔ0n]@pÀo²-28-Jun-2019 01:36:19.685E4*ªAÏGm@Ğ³E:z8Aùdà?t°%<#×
-AöÌÍ        Dº-=B[r?Å¢<#×
-B          F v"AÜÙ AI'ôC)D<•sc=%                BÀ-<¸õ\=+Zô                line_nodrm+stx_line_nodrm+stx_line_nodrmEÒ±ÖAB´A¢#XDğ
-`BŸ?¬«r?êÖB¢          G=Û    By¬C)°–=¢ğ­=İ<¿>R™N            line_nodrm+stx_line_nodrm  ?Ûw¯d9Ö@pZîc 28-Jun-2019 01:36:58.520D$â{A4¿Ç@uj¤E¤êiAüL‰?T×Õ<#×
-AöÌÍ        D
-ãBçÅ?TÕÖ<#×
-B          N59ƒG¤9ÆEå»ÜC¾¥=;Èº=a‰³                BN¥=	‚Ÿ=±•                line_nodrm+stx_line_nodrm+stx_line_nodrmE²IsAB´A»æE†ü0B£ûf?/±?ôZ4B¢          FÌêC    AÁÈCˆÌÔ=k=2.´=ª4            line_nodrm+stx_line_nodrm  ?Û‹½8SL@p±†¸ºÇ28-Jun-2019 01:37:49.040D´B$¶€B¼'EÄAüfw?3\³<#×
-AöÌÍ        D¨2sBkƒ?Lèi<#×
-B          HfDEÿêFxïCW<x!¨<·È`                BkbI<Ìø=8âô                line_nodrm+stx_line_nodrm+stx_line_nodrmEã'GAJµA’+œEš³B£èa?ƒs?şÖ)B¢          GÚ¹Ê    B8C§L<=°,= =İgo            line_nodrm+stx_line_nodrm  ?Ûˆü“cõs@p¥{J#:28-Jun-2019 01:38:36.443CØ`ıA2n@ 
-÷E¾9Aì/Ş@&„<#×
-AöÌÍ        D‚…¨BG?ct<#×
-B          LLTHªqÜGeD32>Ç÷>¹™                B;lB=•¾†=T…©                line_nodrm+stx_line_nodrm+stx_line_nodrmFA;œ¡A’] EFåqBŸæ??iÀí@ÄB¢          H
-^T    B[aCQ×={¦Q=St>Xş            line_nodrm+stx_line_nodrm  ?ÛŠÁè£@p*ŒcñA 28-Jun-2019 01:39:37.873DÔÇBAÑßû@³!FÜ«Aø’ã?mÖ@<#×
-AöÌÍ        DàğVB?©Õ<#×
-B          ENaA ·@AåC@%Ğ<BRù<ˆ                B†ÿ*<Ó¯°=±^                line_nodrm+stx_line_nodrm+stx_line_nodrmEêJnASôßAŞ$E˜¨B¢ÃÏ?tâ7?ívB¢          F]    AP™TCŒ¨z=!.=bSN=3âá            line_nodrm+stx_line_nodrm  ?Ûslß&k¥@mÃ:^5?}28-Jun-2019 01:40:19.466CÀôAÆC¬@÷nCÆÇIAùh`?K	e<#×
-AöÌÍ        B§ÿBbE?ø<#×
-B          DÀqßB'à»AšÁÃAÌ³.=¦=Œ                AĞNµ>*ÿä>K­                line_nodrm+stx_line_nodrm+stx_line_nodrmD$‡¦Awı#AºŠ´DT<B£†>°ıĞ@šŠB¢          Eô­Û    B”uÕCëPã=¬ü.> ùD?-TŠ            line_nodrm+stx_line_nodrm  ?Ûµsê³h@oÇxFÜ]28-Jun-2019 01:41:07.235CÀôAÆËè@ùÆCÊJ•Aù˜?A	Â<#×
-AöÌÍ        Bè5„BÒ@>Æ[1<#×
-B          DãH<BH¢ Aº6ÌAÔ^G=.@=»°                B
-qR=Úş=÷‚Ü                line_nodrm+stx_line_nodrm+stx_line_nodrmEÉ@A¢È‚AyàSCômB£ë?ˆ?ÿ¼ÏB¢          FóüÄ    AßqRC8>Fi¬>#iû?w8/            line_nodrm+stx_line_nodrm 	 ?ÛB Æ´…@oïÅÖ8†Y28-Jun-2019 01:41:53.488CÂ¾øA5\©@^IÏCÈ5•Aïà5?|h±<#×
-AöÌÍ        B± 0B	¥?lc½<#×
-B              9´w¶:ï¶â=qGA¥kœAÊÕö                =ûn¿A'»A^®Ì                line_nodrm+stx_line_nodrm+stx_line_nodrm@ƒ«^A-4çA&Cµ÷jB¡.¾? 4?ã˜~B¢                  7Ænø=5ĞşA94Aä–A*t            line_nodrm+stx_line_nodrm 
- ?Ûe©Oğ@p8cñA \28-Jun-2019 01:43:10.253D›jAÄğ~@‘ZC­6ªAú¡¸?‹<#×
-AöÌÍ        C Ä|B{ÿ?"ğ@<#×
-B          EFôsA4˜…@oAëı6=ı-=€¬â                Aµ¦M=¡¬6>rÓ                line_nodrm+stx_line_nodrm+stx_line_nodrmDVmçA¢È‚A²*D(xB£ç>ìÁr@"ğB¢          F²Í    B}MóC~Ú>p»>„R?°ÕL            line_nodrm+stx_line_nodrm  ?Û†Òíx=ÿ@pbMÒò28-Jun-2019 01:43:51.126                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                

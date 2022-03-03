@@ -2,36 +2,39 @@
 ; Description :
 ;   Procedure to write SAS L2 data to a file
 ;
-; Syntax      : write_aspect_solution, data [, filename=filename] 
+; Syntax      : write_aspect_solution, data, filename [, /quiet]
 ;
-; Inputs      : a data structure containing timestamps, signal, input FITS header and derived aspect solution
+; Inputs      : 
+;     data      = a data structure containing timestamps, signal, input FITS header and derived aspect solution
+;     filename  = output file name, including full absolute path
 ;
 ; Output      : None.
 ; 
 ; Optional keyword:
-;     filename  = output filename; if not given, it's built from the input filename.
 ;     quiet     = if set, don't display information messages
 ;
 ; History   :
 ;   2021-06-17 - FSc: initial version
 ;   2021-08-09 - FSc: renamed from write_L2_data to write_aspect_solution
+;   2021-11-15 - FSc: removed common block "config"
 ;
 ; Example:
-;   write_aspect_solution, data
+;   write_aspect_solution, data, '/path/to/L2_files/aspect_20210101.fits'
 ;
 ;-
 
-pro write_aspect_solution, data, filename=filename, quiet=quiet
-  common config   ; contains the output directory
+pro write_aspect_solution, data, filename, quiet=quiet
 
-  if not keyword_set(filename) then begin
-    in_name = sxpar(data.primary,'FILENAME')
-    if strmid(in_name, 0, 20) eq 'solo_L1_stix-hk-maxi' then $
-      filename = 'solo_L2_stix_aspect' + strmid(in_name, 20, strlen(in_name)-20) else $
-      filename = 'solo_L2_stix_aspect_v00.fits'
+  if n_params() lt 2 then message,'  SYNTAX:  write_aspect_solution, data, filename [, /quiet]
+
+  ; Test that output directory exists
+  out_dir = file_dirname(filename)
+  result = file_test(out_dir)
+  if not result then begin
+    message,"  ERROR: Directory "+out_dir+" not found."
   endif
 
-  ; Update keywords with L2-relevant keywords
+  ; Update keywords with L2-relevant values
   primary = data.primary
   sxaddpar, primary, 'FILENAME', filename
   sxaddpar, primary, 'LEVEL', 'L2'
@@ -50,20 +53,21 @@ pro write_aspect_solution, data, filename=filename, quiet=quiet
   sxaddpar, primary, 'KERN_ORB', ker_orbit, " SPICE orbit kernel", before='HISTORY'
   sxaddpar, primary, 'KERN_CLK', ker_clock, " SPICE clock kernel", before='HISTORY'
   
-  ; add pipeline version to history
+  ; Add current version of the SAS pipeline to history
+  sas_version = getenv('SAS_VERSION')
   sxaddhist, "Aspect data processed with SAS_pipeline ver. " + sas_version, primary
 
   ; Ready to create the output file
-  fxwrite, out_dir+filename, primary
+  fxwrite, filename, primary
   fxbhmake, header, n_elements(data.utc), 'DATA'
   fxbaddcol, col1, header, data.utc[0], 'TIME', 'UTC'
   fxbaddcol, col2, header, data.y_srf[0], 'Y_SRF', tunit='arcsec'
   fxbaddcol, col3, header, data.z_srf[0], 'Z_SRF', tunit='arcsec'
-  fxbcreate, unit, out_dir+filename, header
+  fxbcreate, unit, filename, header
   fxbwritm, unit, ['TIME','Y_SRF','Z_SRF'], data.utc, data.y_srf, data.z_srf
   fxbfinish, unit
 
   if not keyword_set(quiet) then $
-    print, "L2 data successfully written to file: " + out_dir+filename
+    print, "L2 data successfully written to file: " + filename
   
 end
