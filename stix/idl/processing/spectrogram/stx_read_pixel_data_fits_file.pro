@@ -72,8 +72,10 @@
 ; :history:
 ;    25-Jan-2021 - ECMD (Graz), initial release
 ;    19-Jan-2022 - Andrea (FHNW), Added the correction of the duration time array when reading the L1 FITS files for OSPEX
-;    22-Feb-2022 - ECMD (Graz), documented, improved handling of alpha and non-alpha files, altered duration shift calculation 
-;    
+;    22-Feb-2022 - ECMD (Graz), documented, improved handling of alpha and non-alpha files, altered duration shift calculation
+;    28-Feb-2022 - ECMD (Graz), fixed issue reading sting rcr values for level 1 files 
+;
+;
 ;-
 pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
   control_header= control_header, energy_str = energy, energy_header = energy_header, t_axis = t_axis, e_axis = e_axis, $
@@ -126,7 +128,7 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
     duration = (data.timedel)[0:-2]
     time_bin_center = (data.time)[0:-2]
     control_index = (data.control_index)[0:-2]
-    
+
   endif else begin
 
     counts = data.counts
@@ -136,7 +138,7 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
     duration = (data.timedel)
     time_bin_center = (data.time)
     control_index = data.control_index
-    
+
   endelse
 
 
@@ -153,7 +155,7 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
   endif
 
   if ~keyword_set(alpha) then begin
-    rcr =  (data.rcr.typecode)[0] eq 7 ? fix((data.rcr).substring(-1)) : (data.rcr)
+    rcr =  ((data.rcr).typecode) eq 7 ? fix(strmid(data.rcr,0,1,/reverse_offset)) : (data.rcr)
     data =  rep_tag_value(data, rcr, 'RCR')
   endif else begin
     rcr = data.rcr
