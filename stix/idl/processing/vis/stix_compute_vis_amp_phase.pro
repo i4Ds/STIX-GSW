@@ -195,19 +195,19 @@ FUNCTION stix_compute_vis_amp_phase,sci_file,bkg_file,tr_flare,er_flare,$
 
 CASE 1 OF
    (tr_flare[1] LT anytim('1-Jan-2021 00:00:00')): BEGIN
-            f_elut = loc_file( 'elut_table_20200519.csv', path = getenv('STX_VIS_DEMO') )
+            f_elut = loc_file( 'elut_table_20200519.csv', path = concat_dir( concat_dir('SSW_STIX','dbase'),'detector') )
     END
     
    (tr_flare[1] GT anytim('1-Jan-2021 00:00:00')) AND (tr_flare[1] LT anytim('24-Jun-2021 00:00:00')): BEGIN
-            f_elut = loc_file( 'elut_table_20201204.csv', path = getenv('STX_VIS_DEMO') )
+            f_elut = loc_file( 'elut_table_20201204.csv', path = concat_dir( concat_dir('SSW_STIX','dbase'),'detector') )
     END
     
    (tr_flare[1] GT anytim('24-Jun-2021 00:00:00')) AND (tr_flare[1] LT anytim('9-Dec-2021 00:00:00')): BEGIN
-            f_elut = loc_file( 'elut_table_20210625.csv', path = getenv('STX_VIS_DEMO') )
+            f_elut = loc_file( 'elut_table_20210625.csv', path = concat_dir( concat_dir('SSW_STIX','dbase'),'detector') )
    END
    
    (tr_flare[1] GT anytim('9-Dec-2021 00:00:00')): BEGIN
-            f_elut = loc_file( 'elut_table_20211209.csv', path = getenv('STX_VIS_DEMO') )
+            f_elut = loc_file( 'elut_table_20211209.csv', path = concat_dir( concat_dir('SSW_STIX','dbase'),'detector') )
     END
 ENDCASE
 

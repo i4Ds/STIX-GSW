@@ -340,7 +340,7 @@ function stx_vis_clean, vis, niter = niter, image_dim = image_dim_in, pixel = pi
   this_rsun=0.0
   this_B0=0.0
   this_L0=0.0
-  this_roll_angle = stx_get_roll_angle(this_time[0])
+  this_roll_angle = stx_get_roll_angle_temp(this_time[0])
   this_roll_center = [0.,0.]
   ;; Mapcenter corrected for Frederic's mean shift values
   this_xc = vis[0].xyoffset[0] + 26.1
