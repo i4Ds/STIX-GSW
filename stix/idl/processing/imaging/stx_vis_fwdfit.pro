@@ -119,6 +119,16 @@ vis_source2map, srcstrout, xyoffset, image_out, $
 
 map_out = make_map( image_out, dx=pixel_size, dy= pixel_size, xc = xyoffset[0], yc= xyoffset[0] )
 
+this_time_range=stx_time2any(vis[0].time_range,/vms)
+
+;; Mapcenter corrected for Frederic's mean shift values
+map_out.xc = vis[0].xyoffset[0] + 26.1
+map_out.yc = vis[0].xyoffset[1] + 58.2
+
+;; Roll angle correction
+roll_angle = stx_get_roll_angle_temp(this_time_range[0])
+map_out.roll_angle = roll_angle
+
 return, map_out
 end
  

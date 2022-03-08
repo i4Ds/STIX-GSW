@@ -19,8 +19,7 @@ function stx_vis_fwdfit_pso, type, vis, $
   fitsigmas =fitsigmas, $
   seedstart = seedstart
   
-  ; stix view
-  
+  ; stix view  
   this_vis = vis
   this_vis.xyoffset[0] = vis.xyoffset[1]
   this_vis.xyoffset[1] = - vis.xyoffset[0]
@@ -249,9 +248,12 @@ function stx_vis_fwdfit_pso, type, vis, $
   fwdfit_pso_map.ID = 'STIX VIS_PSO '+this_estring+': '
   fwdfit_pso_map.dx = pixel[0]
   fwdfit_pso_map.dy = pixel[1]
+
+  this_time_range = stx_time2any(vis[0].time_range,/vms)
+  
   fwdfit_pso_map.xc = vis[0].xyoffset[0]
-  fwdfit_pso_map.yc = vis[0].xyoffset[1]
-  this_time_range   = stx_time2any(vis[0].time_range,/vms)
+  fwdfit_pso_map.yc = vis[0].xyoffset[1]  
+
   fwdfit_pso_map.time = anytim((anytim(this_time_range[1])+anytim(this_time_range[0]))/2.,/vms)
   fwdfit_pso_map.DUR  = anytim(this_time_range[1])-anytim(this_time_range[0])
   ;eventually fill in radial distance etc
@@ -292,11 +294,17 @@ function stx_vis_fwdfit_pso, type, vis, $
   undefine, param_opt
   
   ;rotate map to heliocentric view
-  fwdfit_pso__map=fwdfit_pso_map
-  fwdfit_pso__map.data=rotate(fwdfit_pso_map.data,1)
-  
+  fwdfit_pso__map = fwdfit_pso_map
+  fwdfit_pso__map.data = rotate(fwdfit_pso_map.data,1) 
+    
+  ;; Mapcenter corrected for Frederic's mean shift values
+  fwdfit_pso__map.xc = vis[0].xyoffset[0] + 26.1
+  fwdfit_pso__map.yc = vis[0].xyoffset[1] + 58.2
 
+  ;; Roll angle correction
+  roll_angle = stx_get_roll_angle_temp(this_time_range[0])
+  fwdfit_pso__map.roll_angle = roll_angle
   
 return, fwdfit_pso__map
+
 end
-  

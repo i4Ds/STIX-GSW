@@ -171,9 +171,12 @@ this_estring=strtrim(fix(energy_range[0]),2)+'-'+strtrim(fix(energy_range[1]),2)
 em_map.ID = 'STIX EM '+this_estring+': '
 em_map.dx = pixel[0]
 em_map.dy = pixel[1]
-em_map.xc = mapcenter[0]
-em_map.yc = mapcenter[1]
+
+;em_map.xc = mapcenter[0]
+;em_map.yc = mapcenter[1]
+
 em_map.time = anytim((anytim(time_range[1])+anytim(time_range[0]))/2.,/vms)
+
 em_map.DUR = anytim(time_range[1])-anytim(time_range[0])
 ;eventually fill in radial distance etc
 add_prop,em_map,rsun=0.
@@ -183,6 +186,14 @@ add_prop,em_map,L0=0.
 ;rotate map to heliocentric view
 em__map=em_map
 em__map.data=rotate(em_map.data,1)
+
+;; Mapcenter corrected for Frederic's mean shift values
+em__map.xc = mapcenter[0] + 26.1
+em__map.yc = mapcenter[1] + 58.2
+
+;; Roll angle correction
+roll_angle = stx_get_roll_angle_temp(time_range[0])
+em__map.roll_angle = roll_angle
 
 return,em__map
 

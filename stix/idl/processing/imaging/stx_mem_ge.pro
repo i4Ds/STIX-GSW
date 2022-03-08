@@ -15,9 +15,9 @@ FUNCTION stx_mem_ge,vis,imsize,pixel,silent=silent, total_flux=total_flux, perce
   mem_ge_map.ID = 'STIX MEM_GE '+this_estring+': '
   mem_ge_map.dx = pixel[0]
   mem_ge_map.dy = pixel[1]
-  mem_ge_map.xc = vis[0].xyoffset[0]
-  mem_ge_map.yc = vis[0].xyoffset[1]
+  
   this_time_range=stx_time2any(vis[0].time_range,/vms)
+     
   mem_ge_map.time = anytim((anytim(this_time_range[1])+anytim(this_time_range[0]))/2.,/vms)
   mem_ge_map.DUR = anytim(this_time_range[1])-anytim(this_time_range[0])
   ;eventually fill in radial distance etc
@@ -28,6 +28,15 @@ FUNCTION stx_mem_ge,vis,imsize,pixel,silent=silent, total_flux=total_flux, perce
   ;rotate map to heliocentric view
   mem__ge_map=mem_ge_map
   mem__ge_map.data=rotate(mem_ge_map.data,1)
+  
+  ;; Mapcenter corrected for Frederic's mean shift values
+  mem__ge_map.xc = vis[0].xyoffset[0] + 26.1
+  mem__ge_map.yc = vis[0].xyoffset[1] + 58.2
+
+  ; Roll angle correction
+  roll_angle = stx_get_roll_angle_temp(this_time_range[0])
+  mem__ge_map.roll_angle = roll_angle
+  
 
   return,mem__ge_map
 
