@@ -17,7 +17,7 @@ FUNCTION stx_bproj,vis,imsize,pixel,silent=silent,uni=uni
   this_time_range=stx_time2any(vis[0].time_range,/vms)
 
   ;eventually fill in radial distance etc
-  add_prop,bp_map,rsun=0.
+  add_prop,bp_map,rsun=stx_get_rsun_temp(this_time_range[0])
   add_prop,bp_map,B0=0.
   add_prop,bp_map,L0=0.  
   

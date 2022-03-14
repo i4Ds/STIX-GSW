@@ -337,7 +337,7 @@ function stx_vis_clean, vis, niter = niter, image_dim = image_dim_in, pixel = pi
   this_estring=strtrim(fix(this_energy_range[0]),2)+'-'+strtrim(fix(this_energy_range[1]),2)+' keV'
   
   ; Map parameters
-  this_rsun=0.0
+  this_rsun=stx_get_rsun_temp(this_time[0])
   this_B0=0.0
   this_L0=0.0
   this_roll_angle = stx_get_roll_angle_temp(this_time[0])

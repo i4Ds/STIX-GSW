@@ -21,7 +21,7 @@ FUNCTION stx_mem_ge,vis,imsize,pixel,silent=silent, total_flux=total_flux, perce
   mem_ge_map.time = anytim((anytim(this_time_range[1])+anytim(this_time_range[0]))/2.,/vms)
   mem_ge_map.DUR = anytim(this_time_range[1])-anytim(this_time_range[0])
   ;eventually fill in radial distance etc
-  add_prop,mem_ge_map,rsun=0.
+  add_prop,mem_ge_map,rsun=stx_get_rsun_temp(this_time_range[0])
   add_prop,mem_ge_map,B0=0.
   add_prop,mem_ge_map,L0=0.
   

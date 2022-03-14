@@ -257,7 +257,7 @@ function stx_vis_fwdfit_pso, type, vis, $
   fwdfit_pso_map.time = anytim((anytim(this_time_range[1])+anytim(this_time_range[0]))/2.,/vms)
   fwdfit_pso_map.DUR  = anytim(this_time_range[1])-anytim(this_time_range[0])
   ;eventually fill in radial distance etc
-  add_prop,fwdfit_pso_map,rsun=0.
+  add_prop,fwdfit_pso_map,rsun=stx_get_rsun_temp(this_time_range[0])
   add_prop,fwdfit_pso_map,B0=0.
   add_prop,fwdfit_pso_map,L0=0.
   

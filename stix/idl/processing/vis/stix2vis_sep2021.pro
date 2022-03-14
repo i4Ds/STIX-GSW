@@ -70,13 +70,15 @@ FUNCTION stix2vis_sep2021, path_sci_file, time_range, energy_range, mapcenter, p
   vis.obsvis = ampobs[subc_index] * complex(cos(phase[subc_index] * !dtor), sin(phase[subc_index] * !dtor))
 
   ; Add phase factor for shifting the mapcenter
-  phase_mapcenter = -2 * !pi * (mapcenter[1] * vis.u - mapcenter[0] * vis.v )
+  this_mapcenter = mapcenter - [26.1,58.2] ; Subtract Frederic's mean shift values
+  
+  phase_mapcenter = -2 * !pi * (this_mapcenter[1] * vis.u - this_mapcenter[0] * vis.v )
   vis.obsvis *= complex(cos(phase_mapcenter), sin(phase_mapcenter))
 
   ; Set uncertainty on the visibility amplitudes
   vis.sigamp = sigamp[subc_index]
 
-  vis.xyoffset = mapcenter
+  vis.xyoffset = this_mapcenter
 
   ;sam: add time range
   time_l = stx_construct_time(time=time_range[0])

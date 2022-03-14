@@ -20,7 +20,7 @@ set_data = read_csv(loc_file( 'roll_angle_value.csv', path = getenv('STX_VIS_DEM
 
 if (anytim(this_time) lt anytim(set_data.field1[0])) or (anytim(this_time) gt anytim(set_data.field1[-1])) then begin
   
-  message, 'No roll angle information, time must be between June 1 2020 and February 21 2022.'
+  message, 'No roll angle information, time must be between June 1 2020 and March 10 2022.'
 
 endif else begin
   
