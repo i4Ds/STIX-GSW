@@ -114,7 +114,7 @@ pro stix_display_amplutide_vs_resolution, ampobs, sigamp
   plot_oo,(1./res32)^2,ampobs,psym=1,xtitle='1/resolution^2',ytitle='amplitudes',yrange=[min(ampobs),max(ampobs+sigamp)],yst=1,/nodata,$
     title='Visibility amplitudes vs resolution',xrange=[2d-5,1d-1],xsty=1
   oplot,(1./res32)^2,ampobs,psym=1,color=color,symsize=this_ss,thick=th3
-  err_plot,(1./res32)^2,(ampobs-sigamp)>0.001,ampobs+sigamp,color=color,thick=th3,width=1d-13
+  errplot,(1./res32)^2,(ampobs-sigamp)>0.001,ampobs+sigamp,color=color,thick=th3,width=1d-13
 
 end
 

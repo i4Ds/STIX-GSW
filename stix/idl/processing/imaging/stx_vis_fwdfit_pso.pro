@@ -256,10 +256,6 @@ function stx_vis_fwdfit_pso, type, vis, $
 
   fwdfit_pso_map.time = anytim((anytim(this_time_range[1])+anytim(this_time_range[0]))/2.,/vms)
   fwdfit_pso_map.DUR  = anytim(this_time_range[1])-anytim(this_time_range[0])
-  ;eventually fill in radial distance etc
-  add_prop,fwdfit_pso_map,rsun=stx_get_rsun_temp(this_time_range[0])
-  add_prop,fwdfit_pso_map,B0=0.
-  add_prop,fwdfit_pso_map,L0=0.
   
   if ~keyword_set(silent) then begin    
     
@@ -300,10 +296,13 @@ function stx_vis_fwdfit_pso, type, vis, $
   ;; Mapcenter corrected for Frederic's mean shift values
   fwdfit_pso__map.xc = vis[0].xyoffset[0] + 26.1
   fwdfit_pso__map.yc = vis[0].xyoffset[1] + 58.2
+  
+  data = stx_get_l0_b0_rsun_roll_temp(this_time_range[0])
 
-  ;; Roll angle correction
-  roll_angle = stx_get_roll_angle_temp(this_time_range[0])
-  fwdfit_pso__map.roll_angle = roll_angle
+  fwdfit_pso__map.roll_angle    = data.ROLL_ANGLE
+  add_prop,fwdfit_pso__map,rsun = data.RSUN
+  add_prop,fwdfit_pso__map,B0   = data.B0
+  add_prop,fwdfit_pso__map,L0   = data.L0
   
 return, fwdfit_pso__map
 

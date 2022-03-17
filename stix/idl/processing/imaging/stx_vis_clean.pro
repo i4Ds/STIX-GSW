@@ -219,7 +219,7 @@ function stx_vis_clean, vis, niter = niter, image_dim = image_dim_in, pixel = pi
     ;change of display September 4, 2021
     if keyword_set( plot ) and (iter mod nmap eq 0) then begin
       pmulti = !p.multi
-      loadct,5
+      loadct,5,/silent
       ;!p.multi = [0, 2, 1]
       ;plot_image, dmap
       ;cleaned_map_iter = convol( clean_map, clean_beam, /norm, /center, /edge_zero)
@@ -337,10 +337,13 @@ function stx_vis_clean, vis, niter = niter, image_dim = image_dim_in, pixel = pi
   this_estring=strtrim(fix(this_energy_range[0]),2)+'-'+strtrim(fix(this_energy_range[1]),2)+' keV'
   
   ; Map parameters
-  this_rsun=stx_get_rsun_temp(this_time[0])
-  this_B0=0.0
-  this_L0=0.0
-  this_roll_angle = stx_get_roll_angle_temp(this_time[0])
+  
+  data = stx_get_l0_b0_rsun_roll_temp(this_time[0])
+  
+  this_rsun        = data.RSUN
+  this_B0          = data.B0
+  this_L0          = data.L0
+  this_roll_angle  = data.ROLL_ANGLE
   this_roll_center = [0.,0.]
   ;; Mapcenter corrected for Frederic's mean shift values
   this_xc = vis[0].xyoffset[0] + 26.1

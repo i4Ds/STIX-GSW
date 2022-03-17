@@ -178,10 +178,6 @@ em_map.dy = pixel[1]
 em_map.time = anytim((anytim(time_range[1])+anytim(time_range[0]))/2.,/vms)
 
 em_map.DUR = anytim(time_range[1])-anytim(time_range[0])
-;eventually fill in radial distance etc
-add_prop,em_map,rsun=stx_get_rsun_temp(time_range[0])
-add_prop,em_map,B0=0.
-add_prop,em_map,L0=0.
 
 ;rotate map to heliocentric view
 em__map=em_map
@@ -191,9 +187,12 @@ em__map.data=rotate(em_map.data,1)
 em__map.xc = mapcenter[0]; + 26.1
 em__map.yc = mapcenter[1]; + 58.2
 
-;; Roll angle correction
-roll_angle = stx_get_roll_angle_temp(time_range[0])
-em__map.roll_angle = roll_angle
+data = stx_get_l0_b0_rsun_roll_temp(time_range[0])
+
+em__map.roll_angle    = data.ROLL_ANGLE
+add_prop,em__map,rsun = data.RSUN
+add_prop,em__map,B0   = data.B0
+add_prop,em__map,L0   = data.L0
 
 return,em__map
 

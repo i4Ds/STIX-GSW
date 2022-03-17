@@ -171,7 +171,7 @@ chs2=1.
 plot_map,clean_map[0],charsize=chs2,title='CLEAN'
 plot_map,mem_ge_map,charsize=chs2,title='MEM_GE'
 plot_map,em_map,charsize=chs2,title='EM'
-plot_map,vis_fwdfit_pso_map,charsize=chs2,title='VIS_FVWDFIT_PSO'
+plot_map,vis_fwdfit_pso_map,charsize=chs2,title='VIS_FWDFIT_PSO'
 
 
 

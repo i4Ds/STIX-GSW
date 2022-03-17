@@ -5,7 +5,7 @@ FUNCTION stx_mem_ge,vis,imsize,pixel,silent=silent, total_flux=total_flux, perce
   ;
   ; 10-Sep-2021: Paolo Massa: first version
   
-  default, percent_lambda, 0.02
+  default, percent_lambda, stx_mem_ge_percent_lambda(stx_vis_get_snr(vis))
   default, silent, 0
 
   if ~keyword_set(total_flux) then total_flux=vis_estimate_flux(vis, imsize[0]*pixel[0], silent=silent) ;estimate of the total flux of the image
@@ -20,10 +20,6 @@ FUNCTION stx_mem_ge,vis,imsize,pixel,silent=silent, total_flux=total_flux, perce
      
   mem_ge_map.time = anytim((anytim(this_time_range[1])+anytim(this_time_range[0]))/2.,/vms)
   mem_ge_map.DUR = anytim(this_time_range[1])-anytim(this_time_range[0])
-  ;eventually fill in radial distance etc
-  add_prop,mem_ge_map,rsun=stx_get_rsun_temp(this_time_range[0])
-  add_prop,mem_ge_map,B0=0.
-  add_prop,mem_ge_map,L0=0.
   
   ;rotate map to heliocentric view
   mem__ge_map=mem_ge_map
@@ -33,11 +29,13 @@ FUNCTION stx_mem_ge,vis,imsize,pixel,silent=silent, total_flux=total_flux, perce
   mem__ge_map.xc = vis[0].xyoffset[0] + 26.1
   mem__ge_map.yc = vis[0].xyoffset[1] + 58.2
 
-  ; Roll angle correction
-  roll_angle = stx_get_roll_angle_temp(this_time_range[0])
-  mem__ge_map.roll_angle = roll_angle
+  data = stx_get_l0_b0_rsun_roll_temp(this_time_range[0])
   
-
+  mem__ge_map.roll_angle    = data.ROLL_ANGLE
+  add_prop,mem__ge_map,rsun = data.RSUN
+  add_prop,mem__ge_map,B0   = data.B0
+  add_prop,mem__ge_map,L0   = data.L0
+  
   return,mem__ge_map
 
 END
