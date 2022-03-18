@@ -291,7 +291,7 @@ function stx_vis_clean, vis, niter = niter, image_dim = image_dim_in, pixel = pi
   print, "End of while loop"
 
   ;Convolve with a clean beam
-  clean_sources_map = clean_map
+  clean_sources_map = clean_map /  pixel^2
   clean_map = convolve(clean_map, clean_beam/total(clean_beam)) / pixel^2
   ;clean_map = convol( clean_map, clean_beam, /norm, /center, /edge_zero) / pixel^2 ;add pixel^2 to make it per arcsecond^2
   resid_map = dmap / total(clean_beam) / pixel^2

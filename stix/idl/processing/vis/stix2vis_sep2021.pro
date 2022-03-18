@@ -39,7 +39,7 @@ FUNCTION stix2vis_sep2021, path_sci_file, time_range, energy_range, mapcenter, p
 
   default, xy_flare, [0., 0.]
   default, subc_index, stix_label2ind(['10a','10b','10c','9a','9b','9c','8a','8b','8c','7a','7b','7c',$
-    '6a','6b','6c','5a','5b','5c','4a','4b','4c','3a','3b','3c'])
+                                       '6a','6b','6c','5a','5b','5c','4a','4b','4c','3a','3b','3c'])
   default, pixels, 'TOP+BOT'
 
   mapcenter = float(mapcenter)
