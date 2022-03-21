@@ -3,6 +3,7 @@ function vis_FWDFIT_PSO_SOURCE2MAP, srcstr, type=type, pixel=pixel, imsize=mapsi
   default, pixel, [1., 1.]
   default, mapsize, [128, 128]
   default, xyoffset, [0., 0.]
+  default, type, 'circle'
 
   ; Define the map and its axes.
   data    = FLTARR(mapsize[0],mapsize[1])

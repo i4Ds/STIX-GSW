@@ -118,8 +118,8 @@ v = v[subc_index]
 phase_corr = phase_corr[subc_index]
 
 ;;;;;;;;;;;;
-
-XYOFFSET=[mapcenter[1], -mapcenter[0]]
+this_mapcenter = mapcenter - [26.1,58.2] ; Subtract Frederic's mean shift values
+XYOFFSET=[this_mapcenter[1], -this_mapcenter[0]]
 
 ; Creation of the matrix 'H' used in the EM algorithm
 H = stx_map2pixelabcd_matrix(imsize, pixel, u, v, phase_corr, xyoffset = XYOFFSET, SUMCASE = 1)
@@ -171,18 +171,28 @@ this_estring=strtrim(fix(energy_range[0]),2)+'-'+strtrim(fix(energy_range[1]),2)
 em_map.ID = 'STIX EM '+this_estring+': '
 em_map.dx = pixel[0]
 em_map.dy = pixel[1]
-em_map.xc = mapcenter[0]
-em_map.yc = mapcenter[1]
+
+;em_map.xc = mapcenter[0]
+;em_map.yc = mapcenter[1]
+
 em_map.time = anytim((anytim(time_range[1])+anytim(time_range[0]))/2.,/vms)
+
 em_map.DUR = anytim(time_range[1])-anytim(time_range[0])
-;eventually fill in radial distance etc
-add_prop,em_map,rsun=0.
-add_prop,em_map,B0=0.
-add_prop,em_map,L0=0.
 
 ;rotate map to heliocentric view
 em__map=em_map
 em__map.data=rotate(em_map.data,1)
+
+;; Mapcenter corrected for Frederic's mean shift values
+em__map.xc = mapcenter[0]; + 26.1
+em__map.yc = mapcenter[1]; + 58.2
+
+data = stx_get_l0_b0_rsun_roll_temp(time_range[0])
+
+em__map.roll_angle    = data.ROLL_ANGLE
+add_prop,em__map,rsun = data.RSUN
+add_prop,em__map,B0   = data.B0
+add_prop,em__map,L0   = data.L0
 
 return,em__map
 
