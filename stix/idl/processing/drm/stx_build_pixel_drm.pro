@@ -73,10 +73,10 @@ function stx_build_pixel_drm, ct_energy_edges, pixel_mask, ph_energy_edges = ph_
   endif
 
   ;get array of areas (in cm^2) of each pixel in each detector
-  ss = stx_construct_subcollimator()
-  pixel_areas = ss.det.pixel.area
+  subc_str = stx_construct_subcollimator()
+  pixel_areas = subc_str.det.pixel.area
 
-  rcr_factor =  rcr_area/(ss.det.area)[0]
+  rcr_factor =  rcr_area/(subc_str.det.area)[0]
 
   ph_energy_edges =  get_uniq( [ph_energy_edges,ct_energy_edges],epsilon=0.0001)
 
