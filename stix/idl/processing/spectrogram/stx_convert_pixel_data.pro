@@ -210,6 +210,19 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
 
   find_changes, rcr, index, state, count=count
 
+  ; ************************************************************
+  ; ******************** TEMPORARY FIX *************************
+  ; Temporarily creation of the no_attenuation keyword in order
+  ; to avoid attenuation of the fitted curve for the case
+  ; we want to fit the spectrum with the BKG detector.
+  if keyword_set(no_attenuation) then begin
+    rcr = rcr*0.
+    index = 0
+    state = 0
+  endif
+  ; ************************************************************
+  ; ************************************************************
+
   ;add the rcr information to a specpar structure so it can be incuded in the spectrum FITS file
   specpar = { sp_atten_state :  {time:ut_rcr[index], state:state} }
 
