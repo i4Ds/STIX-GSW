@@ -30,3 +30,9 @@ Fantastic of you to decide to support our development effort. The following line
 6. Once you are happy with your work - step 2: Create an upstream pull request.
 7. At this point, we will review your pull requirest and may get back to you with questions or feedback.
 8. Once we are happy with your work, we'll merge your pull request and close it. Thanks ;)
+
+
+## Running the IDL STIX ground analysis software
+
+* If you are looking to run the "standard" STIX IDL GSW, then please visit the official [SolarSoftware documentation](https://www.mssl.ucl.ac.uk/surf/sswdoc/).
+* If you are looking to run the GitHub STIX IDL GSW version with your local SSW environment for development purposes, please use the STIX IDL utility `stx_gsw_github_development`.
