@@ -13,7 +13,7 @@ Did you find a bug in the code? Did you encounter an issue or a particularity? O
 
 * The subject: One line giving a short intro to your issue. Try to be explicit rather than vague.
 * The problem (short): What is not working? What is the expected behavior? What is it you think is missing? Etc. Keep it short. It's just a teaser.
-* Environment: What IDL version are you running? What is your local GSW version (`stix_gsw_version` can help you)? What is your operating system? Etc.
+* Environment: What IDL version are you running? What is your local GSW version (`stx_gsw_version` can help you)? What is your operating system? Etc.
 * Details: Give all the necessary details to describe the problem or your feature. List the files you used here too.
 * Example code: If possible, send us the commands to reproduce the issue.
 
