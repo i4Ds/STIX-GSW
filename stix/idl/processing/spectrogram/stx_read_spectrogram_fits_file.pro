@@ -7,9 +7,9 @@
 ;       stx_read_spectrogram_fits_file
 ;
 ; :description:
-;    This procedure reads all extensions of a STIX science data x-ray compaction level 4 (spectrogram data) FITS file and converts them to 
-;    IDL structures. The header information for the primary HDU and subsequent extensions is also returned. 
-;   
+;    This procedure reads all extensions of a STIX science data x-ray compaction level 4 (spectrogram data) FITS file and converts them to
+;    IDL structures. The header information for the primary HDU and subsequent extensions is also returned.
+;
 ; :categories:
 ;    spectroscopy, io
 ;
@@ -24,10 +24,10 @@
 ;
 ;
 ; :keywords:
-; 
+;
 ;    energy_shift : in, optional, type="float", default="0."
 ;               Shift all energies by this value in keV. Rarely needed only for cases where there is a significant shift
-;               in calibration before a new ELUT can be uploaded.  
+;               in calibration before a new ELUT can be uploaded.
 ;
 ;    alpha : in, type="boolean", default="0"
 ;            Set if input file is an alpha e.g. L1A
@@ -39,40 +39,40 @@
 ;               an output float value;
 ;
 ;    data_str : out, type="structure"
-;              The header of the primary HDU of the spectrogram data file 
+;              The header of the primary HDU of the spectrogram data file
 ;
 ;    data_header : out, type="string array", default="string array"
-;              The header of the data extention of the spectrogram data file 
+;              The header of the data extention of the spectrogram data file
 ;
 ;    data_str : out, type="structure"
-;              The contents of the data extension of the spectrogram data file 
+;              The contents of the data extension of the spectrogram data file
 ;
 ;    control_header : out, type="string array"
-;                The header of the control extension of the spectrogram data file 
-;               
+;                The header of the control extension of the spectrogram data file
+;
 ;    control_str : out, type="structure"
-;               The contents of the control extension of the spectrogram data file 
-;               
+;               The contents of the control extension of the spectrogram data file
+;
 ;    energy_header : out, type="string array"
 ;               The header of the energies extension of the spectrogram data file
-;               
+;
 ;    energy_str : out, type="structure"
-;              The contents of the energies extension of the spectrogram data file 
+;              The contents of the energies extension of the spectrogram data file
 ;
 ;    t_axis : out, type="stx_time_axis structure",
-;               The time axis corresponding to the observation data 
-;               
+;               The time axis corresponding to the observation data
+;
 ;    e_axis : out, type="stx_energy_axis structure "
-;              The energy axis corresponding to the observation data 
-;              
+;              The energy axis corresponding to the observation data
+;
 ;    shift_duration : in, type="boolean", default="1"
 ;                     Shift all time bins by 1 to account for FSW time input discrepancy prior to 09-Dec-2021.
 ;                     N.B. WILL ONLY WORK WITH FULL TIME RESOUTION DATA WHICH IS USUALLY NOT THE CASE FOR SPECTROGRAM DATA.
 ;
 ; :history:
 ;    18-Jun-2021 - ECMD (Graz), initial release
-;    22-Feb-2022 - ECMD (Graz), documented, improved handling of alpha and non-alpha files, fixed duration shift issue 
-;    
+;    22-Feb-2022 - ECMD (Graz), documented, improved handling of alpha and non-alpha files, fixed duration shift issue
+;
 ;-
 pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
   control_header= control_header, energy_str = energy, energy_header = energy_header, t_axis = t_axis, e_axis = e_axis, $
@@ -209,18 +209,19 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   if alpha then begin
     rcr = tag_exist(data, 'rcr') ? data.rcr :replicate(control.rcr, n_time)
   endif else begin
-    rcr = (data.rcr.typecode)[0] eq 7 ? fix((data.rcr).substring(-1)) : (data.rcr)
+    rcr =  ((data.rcr).typecode) eq 7 ? fix(strmid(data.rcr,0,1,/reverse_offset)) : (data.rcr)
   endelse
+
 
   ; create time object
   stx_time_obj = stx_time()
   stx_time_obj.value =  anytim(hstart_time , /mjd)
   start_time = stx_time_add(stx_time_obj, seconds = time_shift)
 
-  if ~keyword_set(alpha) then begin
-    t_start = stx_time_add( start_time,  seconds = [ time_bin_center/10. - duration/20. ] )
-    t_end   = stx_time_add( start_time,  seconds = [ time_bin_center/10. + duration/20. ] )
-    t_mean  = stx_time_add( start_time,  seconds = [ time_bin_center/10. ] )
+  if ~keyword_set(alpha) then begin ; 25-Mar-22 (ECMD) time and timedel in L1 files are now in centiseconds 
+    t_start = stx_time_add( start_time,  seconds = [ time_bin_center/100 - duration/200 ] )
+    t_end   = stx_time_add( start_time,  seconds = [ time_bin_center/100 + duration/200 ] )
+    t_mean  = stx_time_add( start_time,  seconds = [ time_bin_center/100 ] )
   endif else begin
     t_start = stx_time_add( start_time,  seconds = [ time_bin_center - duration/2. ] )
     t_end   = stx_time_add( start_time,  seconds = [ time_bin_center + duration/2. ] )

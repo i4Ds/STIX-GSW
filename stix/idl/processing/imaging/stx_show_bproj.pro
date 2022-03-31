@@ -18,7 +18,8 @@ if not keyword_set(pixel) then pixel=[1.,1.]
 
 ;make bprojection for each
 for i=0,vdim-1 do begin
-  this_bmap=stx_bproj(this_vis[i],imsize,pixel,silent=silent)
+  vis_bpmap, this_vis[i],  MAP = map, BP_FOV = imsize[0]*pixel[0], PIXEL = pixel[0]
+  this_bmap = make_map(rotate(map,1))
   if i eq 0 then sbmap=this_bmap else sbmap=[sbmap,this_bmap]
 endfor
 
@@ -34,10 +35,12 @@ sbmap0.data[0,0]=max(sbmap.data)
 ;make bproj for coarsed 3, then add next 3 
 ;nat and uni
 for i=0,vdim/3-1 do begin
-  this_bmap=stx_bproj(this_vis[0:(i+1)*3-1],imsize,pixel,silent=silent)
+  vis_bpmap, this_vis[0:(i+1)*3-1],  MAP = map, BP_FOV = imsize[0]*pixel[0], PIXEL = pixel[0]
+  this_bmap = make_map(rotate(map,1))
   if i eq 0 then bmap_nat=this_bmap else bmap_nat=[bmap_nat,this_bmap]
   ;same for uni
-  this_bmap=stx_bproj(this_vis[0:(i+1)*3-1],imsize,pixel,silent=silent,/uni)
+  vis_bpmap, this_vis[0:(i+1)*3-1],  MAP = map, BP_FOV = imsize[0]*pixel[0], PIXEL = pixel[0],/uni
+  this_bmap = make_map(rotate(map,1))
   if i eq 0 then bmap_uni=this_bmap else bmap_uni=[bmap_uni,this_bmap]
 endfor
 

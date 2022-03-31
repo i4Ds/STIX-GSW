@@ -24,8 +24,9 @@ path_sci_file = data_folder + 'solo_L1_stix-sci-xray-l1-1178428688_20200607T2137
 path_bkg_file = data_folder + 'solo_L1_stix-sci-xray-l1-1178451984_20200607T225959-20200607T235900_V01.fits' ; Path of the background L1 fits file
 time_range = ['7-Jun-2020 21:39:00', '7-Jun-2020 21:42:49'] ; Time range to consider
 energy_range = [6,10]       ; Energy range to consider (keV)
-xy_flare = [-1650, -800]  ; CFL solution (heliocentric, north up). Needed for the visibility phase calibration
-mapcenter = [-1640, -750] ; Coordinates of the center of the map to reconstruct (heliocentric, north up)
+mapcenter = [-1625, -700] ; Coordinates of the center of the map to reconstruct (quasi-heliocentric)
+xy_flare = mapcenter      ; Location of the map (quasi-heliocentric). Needed for the visibility phase calibration
+
 
 ;;;;;;;;;; CONSTRUCT VISIBILITY STRUCTURE
 
@@ -35,11 +36,11 @@ mapcenter = [-1640, -750] ; Coordinates of the center of the map to reconstruct 
 ;                             '6a','6b','6c','5a','5b','5c','4a','4b','4c','3a','3b','3c'])
 
 ; Create the visibility structure filled with the measured data
-vis=stix2vis_sep2021(path_sci_file, path_bkg_file, time_range, energy_range, mapcenter, $
-                     subc_index=subc_index, xy_flare=xy_flare, pixels=pixels)
+vis=stix2vis_sep2021(path_sci_file, time_range, energy_range, mapcenter, path_bkg_file=path_bkg_file, $
+  subc_index=subc_index, xy_flare=xy_flare, pixels=pixels)
 ; in 'stix2vis_sep2021':
 ; - avoid the plots by setting the keyword /silent
-; - select the detector pixels (to use for computing the visibilities) by setting the keyword 'pixels' equal to 
+; - select the detector pixels (to use for computing the visibilities) by setting the keyword 'pixels' equal to
 ;   'TOP', 'BOT' or 'TOP+BOT' (top row pixels, bottom row pixels, or top+bottom pixels, respectively).
 ;   Default is 'TOP+BOT'
 
@@ -60,7 +61,7 @@ pixel     = [2.,2.]       ; pixel size in arcsec
 ; it throws an error
 stx_show_bproj,vis,imsize=imsize,pixel=pixel,out=bp_map,scaled_out=scaled_out
 ;
-; - Window 0: each row corresponds to a different resolution (from top to bottom, label 10 to 3). The first three 
+; - Window 0: each row corresponds to a different resolution (from top to bottom, label 10 to 3). The first three
 ;             columns refer to label 'a', 'b' and 'c'; the last column is the  sum of the first three.
 ; - Window 2: Natural weighting (first row) and uniform weighting (second row). From left to right, backprojection
 ;             obtained starting from subcollimators 10 and subsequently adding subcollimators with finer resolution
@@ -119,7 +120,7 @@ pause
 ;*************************************** Expectation Maximization ************************************************
 
 ; EM is a count-based method, therefore it starts from the countrates recorded by the detector pixels
-data = stix_compute_vis_amp_phase(path_sci_file,path_bkg_file,anytim(time_range),energy_range, xy_flare=xy_flare, /silent)
+data = stix_compute_vis_amp_phase(path_sci_file,anytim(time_range),energy_range, xy_flare=xy_flare,bkg_file=path_bkg_file, /silent)
 
 em_map = stx_em(data.RATE_PIXEL,energy_range,time_range,IMSIZE=imsize,PIXEL=pixel,$
   MAPCENTER=mapcenter,xy_flare=xy_flare, WHICH_PIX=pixels)
@@ -170,7 +171,7 @@ chs2=1.
 plot_map,clean_map[0],charsize=chs2,title='CLEAN'
 plot_map,mem_ge_map,charsize=chs2,title='MEM_GE'
 plot_map,em_map,charsize=chs2,title='EM'
-plot_map,vis_fwdfit_pso_map,charsize=chs2,title='VIS_FVWDFIT_PSO'
+plot_map,vis_fwdfit_pso_map,charsize=chs2,title='VIS_FWDFIT_PSO'
 
 
 

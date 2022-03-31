@@ -114,7 +114,7 @@ pro stix_display_amplutide_vs_resolution, ampobs, sigamp
   plot_oo,(1./res32)^2,ampobs,psym=1,xtitle='1/resolution^2',ytitle='amplitudes',yrange=[min(ampobs),max(ampobs+sigamp)],yst=1,/nodata,$
     title='Visibility amplitudes vs resolution',xrange=[2d-5,1d-1],xsty=1
   oplot,(1./res32)^2,ampobs,psym=1,color=color,symsize=this_ss,thick=th3
-  err_plot,(1./res32)^2,(ampobs-sigamp)>0.001,ampobs+sigamp,color=color,thick=th3,width=1d-13
+  errplot,(1./res32)^2,(ampobs-sigamp)>0.001,ampobs+sigamp,color=color,thick=th3,width=1d-13
 
 end
 
@@ -151,15 +151,17 @@ end
 ;           10-jan-2022, added keyword "shift_by_one"
 ;
 ;-
-FUNCTION stix_compute_vis_amp_phase,sci_file,bkg_file,tr_flare,er_flare,$
-  xy_flare=xy_flare,no_trans=no_trans,pixels=pixels,silent=silent,shift_by_one=shift_by_one
+FUNCTION stix_compute_vis_amp_phase,sci_file,tr_flare,er_flare,bkg_file=bkg_file,$
+  xy_flare=xy_flare,no_trans=no_trans,pixels=pixels,silent=silent,shift_by_one=shift_by_one, subc_index=subc_index
 
   ;note: deadtime correction assumes 12.5d-6 and ignores double triggers (that is ok for the June 7 flare, but not necessarily for Nov 2020 flares)
   default, silent, 0
   default, pixels, 'TOP+BOT'
+  default, subc_index, stix_label2ind(['10a','10b','10c','9a','9b','9c','8a','8b','8c','7a','7b','7c',$
+                                       '6a','6b','6c','5a','5b','5c','4a','4b','4c','3a','3b','3c'])
 
   stix_l1_read,sci_file,spec_all=spec_all,dspec_all=dspec_all,rspec_all=rspec_all,drspec_all=drspec_all,$
-              time_spec=time_spec,e0=e0,e1=e1,ee=ee,ddee=ddee,live32=live32,shift_by_one=shift_by_one
+    time_spec=time_spec,e0=e0,e1=e1,ee=ee,ddee=ddee,live32=live32,shift_by_one=shift_by_one
 
   ;data is now in the following variables
   ;SPEC_ALL        FLOAT     = Array[45, 32, 12, 32]  = [time, det, pix, energy]
@@ -170,20 +172,30 @@ FUNCTION stix_compute_vis_amp_phase,sci_file,bkg_file,tr_flare,er_flare,$
   ;E0              DOUBLE    = Array[32]
   ;E1              DOUBLE    = Array[32]
   ;EE              DOUBLE    = Array[32]
-
+  
+  if keyword_set(bkg_file) then begin
   ;background is taken after the flare
   stix_l1_read,bkg_file,spec_all=spec_all_bkg,dspec_all=dspec_all_bkg,rspec_all=rspec_all_bkg,drspec_all=drspec_all_bkg,$
-               time_spec=time_spec_bkg,time_dur=time_dur_bkg,e0=e0,e1=e1,ee=ee,ddee=ddee,live32=live32_bkg
+    time_spec=time_spec_bkg,time_dur=time_dur_bkg,e0=e0,e1=e1,ee=ee,ddee=ddee,live32=live32_bkg
   ;same format
   ;SPEC_ALL_BKG   FLOAT     = Array[1, 32, 12, 32] = [time, det , pix, energy]
 
   if n_elements(time_dur_bkg) gt 1 then message, "Backgroung file has more than one time bin"
-
+  
+  endif else begin
+  spec_all_bkg = fltarr(1,32,12,32)
+  dspec_all_bkg = fltarr(1,32,12,32)
+  rspec_all_bkg = fltarr(1,32,12,32)
+  live32_bkg = fltarr(32)+1.
+  time_dur_bkg = 1.
+  endelse
+  
   ; list of indices for time range
   tr_flare=anytim(tr_flare)
   tlist=where( (time_spec ge tr_flare(0)) AND (time_spec le tr_flare(1)) )
   ;same for energy range
   elist=where( (ee ge er_flare(0)) AND (ee le er_flare(1)) )
+  n_en=n_elements(elist)
   ;title for plot
   if ~silent then range_title=strmid(anytim(tr_flare(0),/vms),0,11)+' '+strmid(anytim(tr_flare(0),/vms),12,8)+'-'+$
     strmid(anytim(tr_flare(1),/vms),12,8)+'UT & '+strtrim(fix(er_flare(0)),2)+'-'+strtrim(fix(er_flare(1)),2)+' keV'
@@ -193,23 +205,24 @@ FUNCTION stix_compute_vis_amp_phase,sci_file,bkg_file,tr_flare,er_flare,$
   ;correction should be done depending on the spectral shape
   ;here the lazy way: simply correct for actual bin size
 
+  ;07-Mar-22 changed due to new loaction of ELUT tables 
 CASE 1 OF
    (tr_flare[1] LT anytim('1-Jan-2021 00:00:00')): BEGIN
-            f_elut = loc_file( 'elut_table_20200519.csv', path = getenv('STX_VIS_DEMO') )
+            f_elut = loc_file( 'elut_table_20200519.csv', path = concat_dir( concat_dir('SSW_STIX','dbase'),'detector') )
     END
     
    (tr_flare[1] GT anytim('1-Jan-2021 00:00:00')) AND (tr_flare[1] LT anytim('24-Jun-2021 00:00:00')): BEGIN
-            f_elut = loc_file( 'elut_table_20201204.csv', path = getenv('STX_VIS_DEMO') )
+            f_elut = loc_file( 'elut_table_20201204.csv', path = concat_dir( concat_dir('SSW_STIX','dbase'),'detector') )
     END
     
    (tr_flare[1] GT anytim('24-Jun-2021 00:00:00')) AND (tr_flare[1] LT anytim('9-Dec-2021 00:00:00')): BEGIN
-            f_elut = loc_file( 'elut_table_20210625.csv', path = getenv('STX_VIS_DEMO') )
+            f_elut = loc_file( 'elut_table_20210625.csv', path = concat_dir( concat_dir('SSW_STIX','dbase'),'detector') )
    END
    
    (tr_flare[1] GT anytim('9-Dec-2021 00:00:00')): BEGIN
-            f_elut = loc_file( 'elut_table_20211209.csv', path = getenv('STX_VIS_DEMO') )
+            f_elut = loc_file( 'elut_table_20211209.csv', path = concat_dir( concat_dir('SSW_STIX','dbase'),'detector') )
     END
-ENDCASE
+  ENDCASE
 
   stx_read_elut, gain, offset, str4096, elut_filename = f_elut, scale1024=0, ekev_a = ekev
   ;ekev=[energy edges, pixel, det], only includes science energy bins, not 0 and last
@@ -222,53 +235,76 @@ ENDCASE
   ;RSPEC_ALL       FLOAT     = Array[45, 32, 12, 32]
   this_bin_size_switch=fltarr(32,12,30)
   for i=0,29 do for j=0,11 do this_bin_size_switch(*,j,i)=this_bin_size(i,j,*)
-  spec_all_k=spec_all
-  dspec_all_k=dspec_all
-  spec_all_bkg_k=spec_all_bkg
-  for i=0,n_elements(time_spec)-1 do begin
-    spec_all_k(i,*,*,1:30)=spec_all(i,*,*,1:30)/this_bin_size_switch
-    dspec_all_k(i,*,*,1:30)=dspec_all(i,*,*,1:30)/this_bin_size_switch
-  endfor
-  spec_all_bkg_k(0,*,*,1:30)=spec_all_bkg(0,*,*,1:30)/this_bin_size_switch
+
+  ;calculate total counts for each detector
+  if n_elements(elist) eq 1 then begin
+    cts_tot=total(total(spec_all(tlist,subc_index,0:7,elist),3),1)
+    cts_bkg=total(total(spec_all_bkg(0,subc_index,0:7,elist),3),1)/time_dur_bkg*(tr_flare(1)-tr_flare(0))
+  endif else begin
+    cts_tot=total(total(total(spec_all(tlist,subc_index,0:7,elist),4),3),1)
+    cts_bkg=total(total(total(spec_all_bkg(0,subc_index,0:7,elist),4),3),1)/time_dur_bkg*(tr_flare(1)-tr_flare(0))
+  endelse
+  
+  if ~silent then begin
+  print
+  print
+  print,'total counts in image:     '+strtrim(total(cts_tot),2)
+  print,'background counts:         '+strtrim(total(cts_bkg),2)
+  print,'above background:          '+strtrim(total(cts_tot)-total(cts_bkg),2)
+  print,'total to background:       '+strtrim(total(cts_tot)/total(cts_bkg),2)
+  print
+  print
+  endif
+
+
+  
+  ;; Sum  counts in time and energy
+  if n_en eq 1 then begin
+
+    this_r=reform(total(spec_all(tlist,*,*,elist),1))
+    this_dr=sqrt(total(dspec_all(tlist,*,*,elist)^2,1))
+    this_bkg=reform(spec_all_bkg(*,*,*,elist))
+    this_dbkg=sqrt(reform(dspec_all_bkg(*,*,*,elist)^2))   
+    this_bin_size_summed=this_bin_size_switch(*,*,elist)
+
+  endif else begin
+
+    this_r=total(total(spec_all(tlist,*,*,elist),4),1)
+    this_dr=sqrt(total(total(dspec_all(tlist,*,*,elist)^2,4),1))
+    this_bkg=reform(total(spec_all_bkg(*,*,*,elist),4))
+    this_dbkg=sqrt(reform(total(dspec_all_bkg(*,*,*,elist)^2,4)))
+    this_bin_size_summed = total(this_bin_size_switch(*,*,elist),3)
+    
+  endelse
+  
+  this_r  = this_r / this_bin_size_summed
+  this_dr = this_dr / this_bin_size_summed
+  this_bkg = this_bkg / this_bin_size_summed
+  this_dbkg = this_dbkg / this_bin_size_summed
+  
 
   this_lt = n_elements(tlist) gt 1? total(live32[*,tlist],2) : reform(live32[*,tlist])
   this_lt_bkg = reform(live32_bkg)
   this_en_range = total(ddee(elist))
   n_pix=12
-  n_en=n_elements(elist)
-  
-  ;get rates  averaged over selected time and energy range: output = rate [det,pix]
-  if n_en eq 1 then begin
-    
-    this_r=reform(total(spec_all(tlist,*,*,elist),1))
-    this_dr=sqrt(total(dspec_all(tlist,*,*,elist)^2,1))
-    this_bkg=reform(total(spec_all_bkg(*,*,*,elist),1))
-    
-    
-  endif else begin
-    
-    this_r=total(total(spec_all(tlist,*,*,elist),4),1)
-    this_dr=sqrt(total(total(dspec_all(tlist,*,*,elist)^2,4),1))
-    this_bkg=total(total(spec_all_bkg(*,*,*,elist),4),1)
-    
-  endelse
-  
-  ; Make the units per sec and per keV
+
+  ; Make units per sec 
   for j=0,n_pix-1 do begin
 
-    this_r(*,j)   = this_r(*,j)/(this_lt * this_en_range)
-    this_dr(*,j)  = this_dr(*,j)/(this_lt * this_en_range)
-    this_bkg(*,j) = this_bkg(*,j)/(this_lt_bkg * this_en_range)
-
+    this_r(*,j)   = this_r(*,j) / this_lt 
+    this_dr(*,j)  = this_dr(*,j) / this_lt
+    this_bkg(*,j) = this_bkg(*,j) / this_lt_bkg 
+    this_dbkg(*,j) = this_dbkg(*,j) / this_lt_bkg 
+  
   endfor
 
   ; Display countarate
   if ~silent then stix_display_countrate, elist, tlist, time_spec, rspec_all, rspec_all_bkg, range_title
 
+  
   ;subtract background
   this_rb=this_r-this_bkg
-  ;assume background subtraction is perfect
-  this_drb=this_dr
+  this_drb=sqrt(this_dr^2. + this_dbkg^2.)
 
   ;GRID TRANSMISSION
   if not keyword_set(no_trans) then begin
@@ -292,7 +328,7 @@ ENDCASE
       this_drb(i,*)=this_drb(i,*)/this_gtrans(i)/ 4.
     endfor
   endif
-  
+
   ; indices for summing pixels
   case pixels of
 
@@ -313,22 +349,22 @@ ENDCASE
   ; Sum counts
   countrate = reform(this_rb, 32, 4, 3)
   countrate = n_elements( pixel_ind ) eq 1 ? reform(countrate[*, *, pixel_ind , *]) : total( countrate[*, *, pixel_ind, *], 3 )
-  
+
   subc_str = stx_construct_subcollimator()
   eff_area = subc_str.det.pixel.area
   eff_area = reform(transpose(eff_area), 32, 4, 3)
   eff_area = n_elements( pixel_ind ) eq 1 ? reform(eff_area[*, *, pixel_ind , *]) : total(eff_area[*,*,pixel_ind], 3)
   ;eff_area = total(eff_area[*,*,pixel_ind], 3)
-  
+
   ; To make the units: counts s^-1 keV^-1 cm^-2
-  countrate = countrate/eff_area 
+  countrate = countrate/eff_area
 
   ; Compute count errors
   countrate_error = reform(this_drb, 32, 4, 3)
   countrate_error = n_elements( pixel_ind ) eq 1 ? reform(countrate_error[*, *, pixel_ind , *]) : sqrt(total( countrate_error[*, *, pixel_ind, *]^2, 3 ))
 
   countrate_error = countrate_error/eff_area
-  
+
   ; Compute C-A and D-B
   vis_cmina = countrate(*,2) - countrate(*,0)
   vis_dminb = countrate(*,3) - countrate(*,1)
@@ -358,7 +394,7 @@ ENDCASE
   gcorr = phase_cal.field2
   ; Apply grid correction
   phase += gcorr
-  
+
   ; Phase correction
   phase_cal = read_csv(loc_file( 'PhaseCorrFactors.csv', path = getenv('STX_VIS_DEMO')), header=header, table_header=tableheader, n_table_header=3 )
   phase_corr = phase_cal.field2
@@ -375,8 +411,9 @@ ENDCASE
     rate_pixel: this_rb, $
     rate_pixel_error: this_drb, $
     tr_flare: tr_flare, $
-    er_flare: er_flare}
-
+    er_flare: er_flare,$
+    cts_tot: cts_tot, $
+    cts_bkg: cts_bkg}
 
   if ~silent then begin
     ; display observed moire pattern for each detector

@@ -46,7 +46,7 @@ default, level, 1
 
   ntimes = n_elements(spectrogram.time_axis.time_start)
   nenergies = (spectrogram.counts.dim)[0]
-  det_used = where(spectrogram.detector_mask eq 1, ndet)
+  det_used = where(spectrogram.detector_mask eq 1, ndet) + 1 ; stx_livetime_fraction expects detector number in the range 1 - 32 
 
 
   case level of

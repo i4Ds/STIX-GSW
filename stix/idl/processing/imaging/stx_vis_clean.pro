@@ -93,7 +93,7 @@
 ; 05-sep-2021  Säm changed output to map structures (clean image, bproj map, residual map, component map, and clean image without residuals)
 ; 06-sep-2021  Säm renamed updated procedure to clean_stix_sep2021.pro
 ; 09-nov-2021  Säm and Paolo: update convolution step for make it faster
-; 10-jan-2022  Paolo: changed beam width definition (from sigma to FWHM). 
+; 10-jan-2022  Paolo: changed beam width definition (from sigma to FWHM).
 ;              Default value is now estimated from the subcollimators resolution by using 'vis_sigma_clean_beam'
 ; 20-jan-2022  Säm and Paolo: added box_map keyword
 ;-
@@ -138,10 +138,10 @@ function stx_vis_clean, vis, niter = niter, image_dim = image_dim_in, pixel = pi
   first_time=1
   image_dim = image_dim_in[0]
   image_dim = image_dim / 2 *2 + 1 ;forces odd image_dim
-  
+
   ;realize the dirty map and build a psf at the center, use odd numbers of pixels to center the map
   weight_used = vis_spatial_frequency_weighting( vis, spatial_frequency_weight, UNIFORM_WEIGHTING = uniform_weighting )
-  
+
   weight_beam = vis_spatial_frequency_weighting( vis, spatial_frequency_weight, UNIFORM_WEIGHTING = uniform_weighting )
   ;convolving beam FWHM in asec: default estimated from the subcollimators' resolution
   default, beam_width, vis_sigma_clean_beam(vis, spatial_frequency_weighting = weight_beam) * 2. * sqrt(2 * alog(2))
@@ -158,18 +158,18 @@ function stx_vis_clean, vis, niter = niter, image_dim = image_dim_in, pixel = pi
 
   ;new Sep 4, 2021: select clean boxes interactively if set_clean_boxes is set
   if keyword_set(set_clean_boxes) then begin
-      ;select box in rotated image
-      ;new Dec 19, 2021: use input map (needs to be coreg to clean_map) instead of backprojection to select clean components
-      if keyword_set(box_map) then begin
-        if n_elements(box_map.data) ne n_elements(rotate(dmap0,1)) then begin
-          print,'box map has wrong dimensions: needs to be coreg to clean output map'
-          stop
-        endif
-        this_image=box_map.data
-      endif else begin
-        ;default is bproj map
-        this_image=rotate(dmap0,1)
-      endelse
+    ;select box in rotated image
+    ;new Dec 19, 2021: use input map (needs to be coreg to clean_map) instead of backprojection to select clean components
+    if keyword_set(box_map) then begin
+      if n_elements(box_map.data) ne n_elements(rotate(dmap0,1)) then begin
+        print,'box map has wrong dimensions: needs to be coreg to clean output map'
+        stop
+      endif
+      this_image=box_map.data
+    endif else begin
+      ;default is bproj map
+      this_image=rotate(dmap0,1)
+    endelse
     clean_box_r=hsi_select_box(this_image,separation=separation,list=plist,nop=nop)
     ;rotate back and selected pixel list
     this_image=this_image*0
@@ -219,7 +219,7 @@ function stx_vis_clean, vis, niter = niter, image_dim = image_dim_in, pixel = pi
     ;change of display September 4, 2021
     if keyword_set( plot ) and (iter mod nmap eq 0) then begin
       pmulti = !p.multi
-      loadct,5
+      loadct,5,/silent
       ;!p.multi = [0, 2, 1]
       ;plot_image, dmap
       ;cleaned_map_iter = convol( clean_map, clean_beam, /norm, /center, /edge_zero)
@@ -289,9 +289,9 @@ function stx_vis_clean, vis, niter = niter, image_dim = image_dim_in, pixel = pi
     test = iter lt niter
   endwhile
   print, "End of while loop"
-  
+
   ;Convolve with a clean beam
-  clean_sources_map = clean_map
+  clean_sources_map = clean_map /  pixel^2
   clean_map = convolve(clean_map, clean_beam/total(clean_beam)) / pixel^2
   ;clean_map = convol( clean_map, clean_beam, /norm, /center, /edge_zero) / pixel^2 ;add pixel^2 to make it per arcsecond^2
   resid_map = dmap / total(clean_beam) / pixel^2
@@ -305,7 +305,7 @@ function stx_vis_clean, vis, niter = niter, image_dim = image_dim_in, pixel = pi
   ;Säm: TBD, but it seems to me that there is no need to convolve the residual map with the clean beam. for now I use clean_map+resid_map
   ;clean_image = noresid ? clean_map : clean_map + convol( resid_map, clean_beam, /norm, /center, /edge_zero)
   clean_image=clean_map+resid_map
-  
+
   info_struct = { $
     image: clean_image, $
     iter: iter, $
@@ -333,34 +333,47 @@ function stx_vis_clean, vis, niter = niter, image_dim = image_dim_in, pixel = pi
   this_time= stx_time2any(vis[0].time_range,/vms)
   this_time_avg=anytim(average(anytim(this_time)),/vms)
   this_duration = anytim(this_time[1])-anytim(this_time[0])
-  this_estring=strtrim(fix(vis[0].energy_range[0]),2)+'-'+strtrim(fix(vis[0].energy_range[1]),2)+' keV'
-  ;rsun to be added
-  this_rsun=0.0
+  this_energy_range = vis[0].energy_range
+  this_estring=strtrim(fix(this_energy_range[0]),2)+'-'+strtrim(fix(this_energy_range[1]),2)+' keV'
+  
+  ; Map parameters
+  
+  data = stx_get_l0_b0_rsun_roll_temp(this_time[0])
+  
+  this_rsun        = data.RSUN
+  this_B0          = data.B0
+  this_L0          = data.L0
+  this_roll_angle  = data.ROLL_ANGLE
+  this_roll_center = [0.,0.]
+  ;; Mapcenter corrected for Frederic's mean shift values
+  this_xc = vis[0].xyoffset[0] + 26.1
+  this_yc = vis[0].xyoffset[1] + 58.2
 
-  out0 = make_map( rotate(clean_image,1), dx = pixel[0], dy = pixel[0], $
-    xcen = vis[0].xyoffset[0],ycen = vis[0].xyoffset[1],  units = 'photons cm!u-2!n asec!u-2!n s!u-1!n',$
-    image_alg = 'vis_clean', id = 'STIX CLEAN '+this_estring+': ', beam_size = beam_width, $
-    time = this_time_avg, dur = this_duration, erange=strtrim(fix(vis[0].energy_range[0]),2)+'-'+strtrim(fix(vis[0].energy_range[1]),2)+' keV', energy_range=vis[0].energy_range, rsun=this_rsun, L0=0., B0=0.  )
+  ; CLEAN MAP
+  out0 = make_map(rotate(clean_image,1), dx = pixel[0], dy = pixel[0],  units = 'photons cm!u-2!n asec!u-2!n s!u-1!n keV!u-1!n',$
+                  image_alg = 'vis_clean', id = 'STIX CLEAN '+this_estring+': ', xcen=this_xc, ycen=this_yc, beam_size = beam_width, $
+                  time = this_time_avg, dur = this_duration, erange=strtrim(fix(vis[0].energy_range[0]),2)+'-'+strtrim(fix(vis[0].energy_range[1]),2)+' keV', $
+                  energy_range=vis[0].energy_range, rsun=this_rsun, L0=this_L0, B0=this_B0, roll_angle=this_roll_angle, roll_center=this_roll_center)
 
-  out1 = make_map( rotate(bproj_map,1), dx = pixel[0], dy = pixel[0], $
-    xcen = vis[0].xyoffset[0], ycen = vis[0].xyoffset[1],  units = 'photons cm!u-2!n asec!u-2!n s!u-1!n',$
-    image_alg = 'vis_pb', id = 'STIX BPROJ '+this_estring+': ', beam_size = beam_width, $
-    time = this_time_avg, dur = this_duration, erange=strtrim(fix(vis[0].energy_range[0]),2)+'-'+strtrim(fix(vis[0].energy_range[1]),2)+' keV', energy_range=vis[0].energy_range, rsun=this_rsun, L0=0., B0=0.  )
-
-  out2 = make_map( rotate(resid_map,1), dx = pixel[0], dy = pixel[0], $
-    xcen = vis[0].xyoffset[0], ycen = vis[0].xyoffset[1],  units = 'photons cm!u-2!n asec!u-2!n s!u-1!n',$
-    image_alg = 'vis_clean', id = 'CLEAN RESIDUAL '+this_estring+': ', beam_size = beam_width, $
-    time = this_time_avg, dur = this_duration, erange=strtrim(fix(vis[0].energy_range[0]),2)+'-'+strtrim(fix(vis[0].energy_range[1]),2)+' keV', energy_range=vis[0].energy_range, rsun=this_rsun, L0=0., B0=0.  )
-
-  out3 =make_map( rotate(clean_sources_map,1), dx = pixel[0], dy = pixel[0], $
-    xcen = vis[0].xyoffset[0], ycen = vis[0].xyoffset[1],  units = 'photons cm!u-2!n asec!u-2!n s!u-1!n',$
-    image_alg = 'vis_clean', id = 'CLEAN components '+this_estring+': ', beam_size = beam_width, $
-    time = this_time_avg, dur = this_duration, erange=strtrim(fix(vis[0].energy_range[0]),2)+'-'+strtrim(fix(vis[0].energy_range[1]),2)+' keV', energy_range=vis[0].energy_range, rsun=this_rsun, L0=0., B0=0.  )
-
-  out4 =make_map( rotate(clean_map,1), dx = pixel[0], dy = pixel[0], $
-    xcen = vis[0].xyoffset[0], ycen = vis[0].xyoffset[1],  units = 'photons cm!u-2!n asec!u-2!n s!u-1!n',$
-    image_alg = 'vis_clean', id = 'CLEAN convolved '+this_estring+': ', beam_size = beam_width, $
-    time = this_time_avg, dur = this_duration, erange=strtrim(fix(vis[0].energy_range[0]),2)+'-'+strtrim(fix(vis[0].energy_range[1]),2)+' keV', energy_range=vis[0].energy_range, rsun=this_rsun, L0=0., B0=0. )
+  out1 = make_map( rotate(bproj_map,1), dx = pixel[0], dy = pixel[0],  units = 'photons cm!u-2!n asec!u-2!n s!u-1!n keV!u-1!n',$
+                  image_alg = 'vis_pb', id = 'STIX BPROJ '+this_estring+': ', xcen=this_xc, ycen=this_yc, beam_size = beam_width, $
+                  time = this_time_avg, dur = this_duration, erange=strtrim(fix(vis[0].energy_range[0]),2)+'-'+strtrim(fix(vis[0].energy_range[1]),2)+' keV', $
+                  energy_range=vis[0].energy_range, rsun=this_rsun, L0=this_L0, B0=this_B0, roll_angle=this_roll_angle, roll_center=this_roll_center)
+                  
+  out2 = make_map( rotate(resid_map,1), dx = pixel[0], dy = pixel[0],  units = 'photons cm!u-2!n asec!u-2!n s!u-1!n keV!u-1!n',$
+                  image_alg = 'vis_clean', id = 'CLEAN RESIDUAL '+this_estring+': ', xcen=this_xc, ycen=this_yc, beam_size = beam_width, $
+                  time = this_time_avg, dur = this_duration, erange=strtrim(fix(vis[0].energy_range[0]),2)+'-'+strtrim(fix(vis[0].energy_range[1]),2)+' keV', $
+                  energy_range=vis[0].energy_range, rsun=this_rsun, L0=this_L0, B0=this_B0, roll_angle=this_roll_angle, roll_center=this_roll_center)
+                  
+  out3 =make_map( rotate(clean_sources_map,1), dx = pixel[0], dy = pixel[0],  units = 'photons cm!u-2!n asec!u-2!n s!u-1!n keV!u-1!n',$
+                  image_alg = 'vis_clean', id = 'CLEAN components '+this_estring+': ', xcen=this_xc, ycen=this_yc, beam_size = beam_width, $
+                  time = this_time_avg, dur = this_duration, erange=strtrim(fix(vis[0].energy_range[0]),2)+'-'+strtrim(fix(vis[0].energy_range[1]),2)+' keV', $
+                  energy_range=vis[0].energy_range, rsun=this_rsun, L0=this_L0, B0=this_B0, roll_angle=this_roll_angle, roll_center=this_roll_center)
+                  
+  out4 =make_map( rotate(clean_map,1), dx = pixel[0], dy = pixel[0], units = 'photons cm!u-2!n asec!u-2!n s!u-1!n keV!u-1!n' ,$
+                  image_alg = 'vis_clean', id = 'CLEAN convolved '+this_estring+': ', xcen=this_xc, ycen=this_yc, beam_size = beam_width, $
+                  time = this_time_avg, dur = this_duration, erange=strtrim(fix(vis[0].energy_range[0]),2)+'-'+strtrim(fix(vis[0].energy_range[1]),2)+' keV', $
+                  energy_range=vis[0].energy_range, rsun=this_rsun, L0=this_L0, B0=this_B0, roll_angle=this_roll_angle, roll_center=this_roll_center)
 
   if keyword_set(plot) then begin
     window,6,xsize=5*this_disp,ysize=2*this_disp
@@ -374,7 +387,7 @@ function stx_vis_clean, vis, niter = niter, image_dim = image_dim_in, pixel = pi
     plot_map,out2,/per,/over,level=[50]
     plot_map,out2,charsize=chs2,dmin=this_dmin,dmax=this_dmax
     plot_map,out2,/per,/over,level=[50]
-    
+
     peak_residual=strmid(strtrim(max(out2.data)/max(out1.data)*100.,2),0,4)+'%'
     xyouts,0.065,0.23,'peak residual at '+peak_residual,/normal,charsize=2
   endif

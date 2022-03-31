@@ -24,7 +24,7 @@
 ;-
 function stx_gsw_version 
 
-date_updated = '24-Feb-2022'
+date_updated = '25-Mar-2022'
 
 version = 'The STIX IDL Ground Software was last updated on - ' + date_updated
 
