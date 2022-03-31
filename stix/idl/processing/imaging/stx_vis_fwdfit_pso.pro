@@ -19,6 +19,8 @@ function stx_vis_fwdfit_pso, type, vis, $
   fitsigmas =fitsigmas, $
   seedstart = seedstart
   
+  phi= max(abs(vis.obsvis))
+  
   ; stix view  
   this_vis = vis
   this_vis.xyoffset[0] = vis.xyoffset[1]
@@ -28,14 +30,26 @@ function stx_vis_fwdfit_pso, type, vis, $
     'circle': begin
       
       default, param_opt, ['fit', 'fit', 'fit', 'fit']
+      default, lower_bound, [0.1*phi, -100., -100., 1.]
+      default, upper_bound, [1.5*phi, 100., 100., 100.]
       
-      if n_elements(param_opt) ne 4 then begin
+      if (n_elements(param_opt) ne 4) or (n_elements(lower_bound) ne 4) or (n_elements(upper_bound) ne 4) then begin
+        UNDEFINE, lower_bound
+        UNDEFINE, upper_bound
         UNDEFINE, param_opt
         message, 'Wrong number of elements of lower bound, upper bound or parameter mask'
       endif
       
       this_param_opt = param_opt
-            
+      this_upper_bound = upper_bound
+      this_lower_bound = lower_bound
+
+      this_upper_bound[1] = upper_bound[2]
+      this_upper_bound[2] = - lower_bound[1]
+      
+      this_lower_bound[1] = lower_bound[2]
+      this_lower_bound[2] = - upper_bound[1]
+                  
       flag=1
       Catch, theError
       IF theError NE 0 THEN BEGIN
@@ -67,13 +81,25 @@ function stx_vis_fwdfit_pso, type, vis, $
     'ellipse': begin    
       
       default, param_opt, ['fit', 'fit', 'fit', 'fit', 'fit', 'fit']
+      default, lower_bound, [0.1*phi,  1., -5., 0., -100., -100.]
+      default, upper_bound, [1.5*phi, 100., 5., 1., 100., 100.]
       
-      if n_elements(param_opt) ne 6 then begin
+      if (n_elements(param_opt) ne 6) or (n_elements(lower_bound) ne 6) or (n_elements(upper_bound) ne 6) then begin
+        UNDEFINE, lower_bound
+        UNDEFINE, upper_bound
         UNDEFINE, param_opt
         message, 'Wrong number of elements of lower bound, upper bound or parameter mask'
       endif
-      
+            
       this_param_opt = param_opt
+      this_upper_bound = upper_bound
+      this_lower_bound = lower_bound
+      
+      this_upper_bound[4] = upper_bound[5]
+      this_upper_bound[5] = - lower_bound[4]
+
+      this_lower_bound[4] = lower_bound[5]
+      this_lower_bound[5] = - upper_bound[4]
       
       flag=1
       Catch, theError
@@ -113,17 +139,34 @@ function stx_vis_fwdfit_pso, type, vis, $
       ON_IOError, y_stix_e
       ; Cause type conversion error.
       if flag then this_param_opt[5] = string(- double(param_opt[4]))
+      
     end
 
     'multi': begin
       default, param_opt, ['fit', 'fit', 'fit', 'fit', 'fit', 'fit', 'fit', 'fit']
+      default, lower_bound, [0.,  0.1*phi, 0.,  0.1*phi, -100., -100., -100., -100.]
+      default, upper_bound, [100., 1.5*phi, 100., 1.5*phi, 100., 100., 100., 100.]
       
-      if n_elements(param_opt) ne 8 then begin
+      if (n_elements(param_opt) ne 8) or (n_elements(lower_bound) ne 8) or (n_elements(upper_bound) ne 8) then begin
+        UNDEFINE, lower_bound
+        UNDEFINE, upper_bound
         UNDEFINE, param_opt
         message, 'Wrong number of elements of lower bound, upper bound or parameter mask'
       endif
       
       this_param_opt = param_opt
+      this_upper_bound = upper_bound
+      this_lower_bound = lower_bound
+      
+      this_upper_bound[4] = upper_bound[5]
+      this_upper_bound[5] = - lower_bound[4]
+      this_upper_bound[6] = upper_bound[7]
+      this_upper_bound[7] = - lower_bound[6]
+
+      this_lower_bound[4] = lower_bound[5]
+      this_lower_bound[5] = - upper_bound[4]
+      this_lower_bound[6] = lower_bound[7]
+      this_lower_bound[7] = - upper_bound[6]
       
       flag=1
       Catch, theError
@@ -181,13 +224,25 @@ function stx_vis_fwdfit_pso, type, vis, $
 
     'loop': begin
       default, param_opt, ['fit', 'fit', 'fit', 'fit', 'fit', 'fit', 'fit']
+      default, lower_bound, [0.1*phi,  1., -5., 0., -100., -100., -180.]
+      default, upper_bound, [1.5*phi, 100., 5., 1., 100., 100., 180.]
       
-      if n_elements(param_opt) ne 7 then begin
+      if (n_elements(param_opt) ne 7) or (n_elements(lower_bound) ne 7) or (n_elements(upper_bound) ne 7) then begin
+        UNDEFINE, lower_bound
+        UNDEFINE, upper_bound
         UNDEFINE, param_opt
         message, 'Wrong number of elements of lower bound, upper bound or parameter mask'
       endif
       
       this_param_opt = param_opt
+      this_upper_bound = upper_bound
+      this_lower_bound = lower_bound
+      
+      this_upper_bound[4] = upper_bound[5]
+      this_upper_bound[5] = - lower_bound[4]
+
+      this_lower_bound[4] = lower_bound[5]
+      this_lower_bound[5] = - upper_bound[4]
       
       flag=1
       Catch, theError
@@ -233,7 +288,7 @@ function stx_vis_fwdfit_pso, type, vis, $
   
   
   param_out = vis_fwdfit_pso(type, this_vis, $
-    lower_bound = lower_bound, upper_bound = upper_bound, $
+    lower_bound = this_lower_bound, upper_bound = this_upper_bound, $
     param_opt = this_param_opt, $
     n_birds = n_birds, tolerance = tolerance, maxiter = maxiter, $
     uncertainty = uncertainty, $
@@ -257,37 +312,46 @@ function stx_vis_fwdfit_pso, type, vis, $
   fwdfit_pso_map.time = anytim((anytim(this_time_range[1])+anytim(this_time_range[0]))/2.,/vms)
   fwdfit_pso_map.DUR  = anytim(this_time_range[1])-anytim(this_time_range[0])
   
-  if ~keyword_set(silent) then begin    
-    
+  if ~keyword_set(silent) then begin
+
     PRINT
     PRINT, 'COMPONENT    TYPE          FLUX       FWHM MAX    FWHM MIN      Angle     X loc      Y loc      Loop FWHM'
     PRINT, '                         cts/s/keV     arcsec      arcsec        deg      arcsec     arcsec        deg   '
     PRINT
-    nsrc = N_ELEMENTS(srcstr)
-    FOR n = 0, nsrc-1 DO BEGIN
-      
-      ; heliocentric view
-      x_new = srcstr[n].srcy - this_vis[0].xyoffset[1]
-      y_new = srcstr[n].srcx - this_vis[0].xyoffset[0]
-      
-      srcstr[n].srcx        = - x_new + vis[0].xyoffset[0]
-      srcstr[n].srcy        = y_new + vis[0].xyoffset[1]
-
-      srcstr[n].SRCPA += 90.
-      
-      temp        = [ srcstr[n].srcflux,srcstr[n].srcfwhm_max,  srcstr[n].srcfwhm_min, $
-                      srcstr[n].srcpa, srcstr[n].srcx, srcstr[n].srcy, srcstr[n].loop_angle]
-      PRINT, n+1, srcstr[n].srctype, temp, FORMAT="(I5, A13, F13.2, 1F13.1, F12.1, 2F11.1, F11.1, 2F12.1)"
-
-      temp        = [ fitsigmas[n].srcflux,fitsigmas[n].srcfwhm_max, fitsigmas[n].srcfwhm_min, $
-                      fitsigmas[n].srcpa, fitsigmas[n].srcy, fitsigmas[n].srcx, fitsigmas[n].loop_angle]
-      PRINT, ' ', '(std)', temp, FORMAT="(A7, A11, F13.2, 1F13.1, F12.1, 2F11.1, F11.1, 2F12.1)"
-      PRINT, ' '
-    endfor
 
   endif
+
+  nsrc = N_ELEMENTS(srcstr)
+  FOR n = 0, nsrc-1 DO BEGIN
+
+    ; heliocentric view
+    x_new = srcstr[n].srcy - this_vis[0].xyoffset[1]
+    y_new = srcstr[n].srcx - this_vis[0].xyoffset[0]
+
+    ;; Center of the sources corrected for Frederic's mean shift values
+    srcstr[n].srcx        = - x_new + vis[0].xyoffset[0] + 26.1
+    srcstr[n].srcy        = y_new + vis[0].xyoffset[1]  + 58.2
+
+    srcstr[n].SRCPA += 90.
+
+    if ~keyword_set(silent) then begin
+
+    temp        = [ srcstr[n].srcflux,srcstr[n].srcfwhm_max,  srcstr[n].srcfwhm_min, $
+      srcstr[n].srcpa, srcstr[n].srcx, srcstr[n].srcy, srcstr[n].loop_angle]
+    PRINT, n+1, srcstr[n].srctype, temp, FORMAT="(I5, A13, F13.2, 1F13.1, F12.1, 2F11.1, F11.1, 2F12.1)"
+
+    temp        = [ fitsigmas[n].srcflux,fitsigmas[n].srcfwhm_max, fitsigmas[n].srcfwhm_min, $
+      fitsigmas[n].srcpa, fitsigmas[n].srcy, fitsigmas[n].srcx, fitsigmas[n].loop_angle]
+    PRINT, ' ', '(std)', temp, FORMAT="(A7, A11, F13.2, 1F13.1, F12.1, 2F11.1, F11.1, 2F12.1)"
+    PRINT, ' '
+
+    endif
+
+  endfor
   
   undefine, param_opt
+  undefine, upper_bound
+  undefine, lower_bound
   
   ;rotate map to heliocentric view
   fwdfit_pso__map = fwdfit_pso_map
