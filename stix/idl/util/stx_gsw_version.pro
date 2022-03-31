@@ -7,26 +7,29 @@
 ;       stx_gsw_version
 ;
 ; :description:
-;    This function is a way of determining update status of the STIX IDL Ground Software repistiory. 
+;    This function is a way of determining update status of the STIX IDL Ground Software repository.
 ;
 ; :categories:
-;    util 
+;    util
 ;
 ; :returns:
-;    a string giving the date the STIX IDL Ground Software was last updated.
+;    a string giving the STIX IDL Ground Software version.
 ;
 ; :examples:
-;    date = stx_gsw_version()
+;    version = stx_gsw_version()
 ;
 ; :history:
 ;    24-Feb-2022 - ECMD (Graz), initial release
+;    31-Mar-2022 - ECMD (Graz), Changed from date to version number
 ;
 ;-
-function stx_gsw_version 
+function stx_gsw_version
 
-date_updated = '25-Mar-2022'
+  version_file = loc_file( 'VERSION.txt', path = getenv('SSW_STIX'))
+  readcol, version_file, current_version, format = 'a', /silent
 
-version = 'The STIX IDL Ground Software was last updated on - ' + date_updated
+  version_string = 'The current STIX Ground Software version is - ' + current_version
+  print, version_string
 
-return, date_updated
+  return, current_version
 end
