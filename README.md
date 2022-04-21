@@ -15,6 +15,8 @@ Did you find a bug in the code? Did you encounter an issue or a particularity? O
 * The problem (short): What is not working? What is the expected behavior? What is it you think is missing? Etc. Keep it short. It's just a teaser.
 * Environment: What IDL version are you running? What is your local GSW version (`stx_gsw_version` can help you)? What is your operating system? Etc.
 * Details: Give all the necessary details to describe the problem or your feature. List the files you used here too.
+* Screenshots: Add additional screenshots that help understand the problem.
+* Files: Add files that could help reproduce the issue.
 * Example code: If possible, send us the commands to reproduce the issue.
 
 Once you submit your issue, we will have a look and assign all the essential tags and people to it. We may also leave a few follow-up questions for you, so don't forget to check back with your issue from time to time.
