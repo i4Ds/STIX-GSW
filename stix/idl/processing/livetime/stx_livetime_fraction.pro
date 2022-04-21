@@ -1,11 +1,12 @@
 ;+
 ; :Categories:
 ;   STIX imaging and spectroscopy
+;   
 ; :Name:
-;   STX_livetime_fraction
+;   stx_livetime_fraction
+;   
 ; :Examples:
 ;   livetime_fraction = stx_livetime_fraction( triggergram, det_select, tau_array = tau_array )
-;
 ;
 ; :Categories:
 ;   STIX imaging and spectroscopy
@@ -20,6 +21,7 @@
 ;    ADG_IDX         INT       Array[16]  ;accumulator id's 1-16
 ;    T_AXIS          STRUCT    -> <Anonymous> Array[1];     stx time_axis structure
 ;   Det_select - sub-collimator numbers, 1-32
+;   
 ; :Description:
 ;   28-Apr-13 gh
 ;
@@ -100,7 +102,7 @@
 ;
 ;    Counted Triggers  Probability Input photon rate Probability    Dead time      Reported
 ;    /s                of trigger  ph/s              of single hit  fraction       events/s/det
-;  
+;
 ;    100               0.9993      100               0.9997          0.0010        50
 ;    1,000             0.9934      1,007             0.9970          0.0096        498
 ;    5,000             0.9675      5,168             0.9846          0.0473        2,462
@@ -114,16 +116,20 @@
 ;    150,000           0.3716      403,685           0.2979          0.8893        22,341
 ;    200,000           0.2671      748,684           0.1058          0.9717        10,582
 ;    300,000           0.1381      2,172,823         0.0015          0.9998        221
-;    
+;
 ; :File_comments:
 ;   Uses a default Tau, deadtime per event, of 9.6 microseconds. This may need to
-;   change based on tests of the Caliste detectors.c
+;   change based on tests of the Caliste detectors.
+;   
 ; :Author:
 ;   richard.schwartz@nasa.gov
+;   
 ; :History:
 ;   29-april-2013, created
 ;   18-april-2015, richard.schwartz@nasa.gov, major revision
 ;   03-dec-2018,   ECMD (Graz), change of calculation including eta and tau
+;   03-mar-2022,   ECMD (Graz), update of eta and tau values and definition tau is now only readout time
+;   21-apr-2022,   ECMD (Graz), added pileup correction parameter 
 ;
 ;-
 function stx_livetime_fraction, triggergram,  det_select, tau_array = tau_array,  eta_array=eta_array, error=error
@@ -131,10 +137,12 @@ function stx_livetime_fraction, triggergram,  det_select, tau_array = tau_array,
   error = 1
   adg_sc = stx_adg_sc_table()
   default, det_select, indgen(32)+1
-  
+
   ntrig  = (size(/dimension, triggergram.triggerdata ))[0]
-  default, tau_array, 11e-6 + fltarr(ntrig) ;11 microseconds readout time per event
-  default, eta_array,  3.91e-6 + fltarr(ntrig) ;3.91 microseconds latency time per event
+  default, tau_array, 10.1e-6 + fltarr(ntrig) ;10.1 microseconds readout time per event
+  default, eta_array, 2.63e-6 + fltarr(ntrig) ;2.63 microseconds latency time per event
+
+  beta = stx_pileup_corr_parameter() ; get estimate of pileup correction parameter 
 
   idx_select = ( adg_sc[ where_arr( adg_sc.sc, det_select ) ] ).adg_idx ;these are the agd id needed (1-16)
   test_triggers = where_arr( triggergram.adg_idx, idx_select, /notequal, test_forzero ) ;which triggers to use
@@ -146,12 +154,10 @@ function stx_livetime_fraction, triggergram,  det_select, tau_array = tau_array,
   duration = transpose( rebin( triggergram.t_axis.duration, ndt, ntrig ))
   tau_rate =   rebin( tau_array, ntrig, ndt ) / duration
   eta_rate = rebin( eta_array, ntrig, ndt ) / duration
-  nin = triggergram.triggerdata / (1. -  triggergram.triggerdata *tau_rate)
-  livetime_fraction = exp( - eta_rate*nin) /(1. + tau_rate* nin)
+  nin = triggergram.triggerdata / (1. -  triggergram.triggerdata *(tau_rate+eta_rate))
+  livetime_fraction = exp( -1.*beta*eta_rate*nin) /(1. + (tau_rate+eta_rate)* nin)
   result = livetime_fraction[ ix_fordet[sort((where_arr( adg_sc.sc, det_select,/map ))[where_arr( adg_sc.sc, det_select)])], * ]
   error = 0
   return, result
-
+  
 end
-
-
