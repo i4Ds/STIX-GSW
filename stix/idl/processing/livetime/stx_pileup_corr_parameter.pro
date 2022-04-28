@@ -7,9 +7,10 @@
 ;       stx_pileup_corr_parameter
 ;
 ; :description:
-;    This function estimates the fractional area of a single large pixel compared with the rest of the detector 
-;    group. It can be used in estimatiming the probablity that two photons hit a given large pixel and a different
-;    pixel in the same group resuling in anti-coincidence rejection (if different) or pileup (if the same).
+; This function estimates the fractional area of a single large pixel compared with the rest of the detector
+; group. It can be used in estimating the probability that when two photons are detected in the same group if
+; the first hits a given large pixel that the second hits different pixel resulting in anti-coincidence rejection.
+; Otherwise if both hit the same pixel pileup will occur.
 ;    Limitiations: This assumes uniform illumination over the detector pair 
 ;    This ignores the possiblity of the first hit being a small pixel 
 ;    
