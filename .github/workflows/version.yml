@@ -51,10 +51,10 @@ jobs:
         git config --local user.email "test@github.com"
         git config --local user.name "GitHub Action test"
         git add VERSION.txt
-        git commit -m "Update VERSION.txt"
-
+        git commit --amend --no-edit
     - name: Push changes # push the output folder to your repo
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         branch: ${{ github.ref }}
+        force: true
