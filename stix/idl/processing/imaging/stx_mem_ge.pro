@@ -1,4 +1,4 @@
-FUNCTION stx_mem_ge,vis,imsize,pixel,silent=silent, total_flux=total_flux, percent_lambda=percent_lambda
+FUNCTION stx_mem_ge,vis,imsize,pixel,aux_data,silent=silent, total_flux=total_flux, percent_lambda=percent_lambda
 
   ; wrapper around MEM_GE
   ; output map structure has north up
@@ -25,16 +25,24 @@ FUNCTION stx_mem_ge,vis,imsize,pixel,silent=silent, total_flux=total_flux, perce
   mem__ge_map=mem_ge_map
   mem__ge_map.data=rotate(mem_ge_map.data,1)
   
-  ;; Mapcenter corrected for Frederic's mean shift values
-  mem__ge_map.xc = vis[0].xyoffset[0] + 26.1
-  mem__ge_map.yc = vis[0].xyoffset[1] + 58.2
+  ; Correct mapcenter:
+  ; - if 'aux_data' contains the SAS solution, then we read it and we correct tha map center accordingly
+  ; - if 'aux_data' does not contain the SAS solution, then we apply an average shift value to the map center
+  mapcenter_corr_factors = read_csv(loc_file( 'Mapcenter_correction_factors.csv', path = getenv('STX_VIS_DEMO') ), $
+    header=header, table_header=tableheader, n_table_header=1 )
+  if ~aux_data.Z_SRF.isnan() and ~aux_data.Y_SRF.isnan() then begin
+    ; coor_mapcenter = SAS solution + discrepancy factor
+    coor_mapcenter = [aux_data.Y_SRF, -aux_data.Z_SRF] + [mapcenter_corr_factors.FIELD3, mapcenter_corr_factors.FIELD4]
+  endif else begin
+    coor_mapcenter = [mapcenter_corr_factors.FIELD1,mapcenter_corr_factors.FIELD2]
+  endelse
+  mem__ge_map.xc = vis[0].xyoffset[0] + coor_mapcenter[0]
+  mem__ge_map.yc = vis[0].xyoffset[1] + coor_mapcenter[1]
 
-  data = stx_get_l0_b0_rsun_roll_temp(this_time_range[0])
-  
-  mem__ge_map.roll_angle    = data.ROLL_ANGLE
-  add_prop,mem__ge_map,rsun = data.RSUN
-  add_prop,mem__ge_map,B0   = data.B0
-  add_prop,mem__ge_map,L0   = data.L0
+  mem__ge_map.roll_angle    = aux_data.ROLL_ANGLE
+  add_prop,mem__ge_map,rsun = aux_data.RSUN
+  add_prop,mem__ge_map,B0   = aux_data.B0
+  add_prop,mem__ge_map,L0   = aux_data.L0
   
   return,mem__ge_map
 
