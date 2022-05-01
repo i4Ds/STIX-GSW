@@ -16,7 +16,7 @@
 ;  energy_range: array containing lower and upper bound of the energy range to consider
 ;  mapcenter: coordinates of center of the map to reconstruct (heliocentric, north up).
 ;             Needed for adding the correct shift to the visibility phases.
-;
+;  aux_data: structure containing the SAS solution (if available for the considered time)
 ;
 ; OUTPUTS:
 ;   visibility structure corresponding to a given time range and a given energy range
@@ -31,10 +31,10 @@
 ; HISTORY: September 2021: wrapper around Paolo's first script
 ;          10-jan-2022, added keyword "shift_by_one"
 ;          26-jan-2022, xy_flare and mapcenter are cast as float array
-;
+;          01-may-2022, aux_data keyword added
 ;-
 
-FUNCTION stix2vis_sep2021, path_sci_file, time_range, energy_range, mapcenter, path_bkg_file=path_bkg_file, $
+FUNCTION stix2vis_sep2021, path_sci_file, time_range, energy_range, mapcenter, aux_data, path_bkg_file=path_bkg_file, $
   xy_flare=xy_flare, subc_index=subc_index, pixels=pixels, silent=silent, shift_by_one=shift_by_one
 
   default, xy_flare, [0., 0.]
@@ -69,8 +69,19 @@ FUNCTION stix2vis_sep2021, path_sci_file, time_range, energy_range, mapcenter, p
   ; Compute real and imaginary part of the visibility
   vis.obsvis = ampobs[subc_index] * complex(cos(phase[subc_index] * !dtor), sin(phase[subc_index] * !dtor))
 
-  ; Add phase factor for shifting the mapcenter
-  this_mapcenter = mapcenter - [26.1,58.2] ; Subtract Frederic's mean shift values
+  ; Correct mapcenter:
+  ; - if 'aux_data' contains the SAS solution, then we read it and we correct tha map center accordingly
+  ; - if 'aux_data' does not contain the SAS solution, then we apply an average shift value to the map center
+  mapcenter_corr_factors = read_csv(loc_file( 'Mapcenter_correction_factors.csv', path = getenv('STX_VIS_DEMO') ), $
+                           header=header, table_header=tableheader, n_table_header=1 )
+  if ~aux_data.Z_SRF.isnan() and ~aux_data.Y_SRF.isnan() then begin
+    ; coor_mapcenter = SAS solution + discrepancy factor
+    coor_mapcenter = [aux_data.Y_SRF, -aux_data.Z_SRF] + [mapcenter_corr_factors.FIELD3, mapcenter_corr_factors.FIELD4]
+  endif else begin
+    coor_mapcenter = [mapcenter_corr_factors.FIELD1,mapcenter_corr_factors.FIELD2]
+  endelse
+  ; Correct the mapcenter
+  this_mapcenter = mapcenter - coor_mapcenter
   
   phase_mapcenter = -2 * !pi * (this_mapcenter[1] * vis.u - this_mapcenter[0] * vis.v )
   vis.obsvis *= complex(cos(phase_mapcenter), sin(phase_mapcenter))
