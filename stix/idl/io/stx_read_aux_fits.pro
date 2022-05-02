@@ -79,6 +79,10 @@ function stx_read_aux_fits, fits_path, time_in, primary_header = primary_header,
   RSUN = data[ind_min].spice_disc_size
   ;Roll angle (degrees)
   ROLL_ANGLE = data[ind_min].ROLL_ANGLE_RPY[0]
+  ;Pitch (arcsec)
+  PITCH = data[ind_min].ROLL_ANGLE_RPY[1] * 3600.
+  ;Yaw (arcsec)
+  YAW = data[ind_min].ROLL_ANGLE_RPY[2] * 3600.
   ;L0 (degrees)
   L0 = data[ind_min].solo_loc_carrington_lonlat[0]
   ;B0 (degrees)
@@ -88,6 +92,8 @@ function stx_read_aux_fits, fits_path, time_in, primary_header = primary_header,
               Z_SRF: Z_SRF, $
               RSUN: RSUN, $
               ROLL_ANGLE: ROLL_ANGLE, $
+              PITCH: PITCH, $
+              YAW: YAW, $
               L0: L0, $
               B0: B0}
               

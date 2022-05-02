@@ -78,7 +78,7 @@ FUNCTION stix2vis_sep2021, path_sci_file, time_range, energy_range, mapcenter, a
     ; coor_mapcenter = SAS solution + discrepancy factor
     coor_mapcenter = [aux_data.Y_SRF, -aux_data.Z_SRF] + [mapcenter_corr_factors.FIELD3, mapcenter_corr_factors.FIELD4]
   endif else begin
-    coor_mapcenter = [mapcenter_corr_factors.FIELD1,mapcenter_corr_factors.FIELD2]
+    coor_mapcenter = [mapcenter_corr_factors.FIELD1,mapcenter_corr_factors.FIELD2] + [aux_data.YAW, aux_data.PITCH]
   endelse
   ; Correct the mapcenter
   this_mapcenter = mapcenter - coor_mapcenter
