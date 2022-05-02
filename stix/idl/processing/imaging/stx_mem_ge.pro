@@ -34,7 +34,7 @@ FUNCTION stx_mem_ge,vis,imsize,pixel,aux_data,silent=silent, total_flux=total_fl
     ; coor_mapcenter = SAS solution + discrepancy factor
     coor_mapcenter = [aux_data.Y_SRF, -aux_data.Z_SRF] + [mapcenter_corr_factors.FIELD3, mapcenter_corr_factors.FIELD4]
   endif else begin
-    coor_mapcenter = [mapcenter_corr_factors.FIELD1,mapcenter_corr_factors.FIELD2]
+    coor_mapcenter = [mapcenter_corr_factors.FIELD1,mapcenter_corr_factors.FIELD2] + [aux_data.YAW, aux_data.PITCH]
   endelse
   mem__ge_map.xc = vis[0].xyoffset[0] + coor_mapcenter[0]
   mem__ge_map.yc = vis[0].xyoffset[1] + coor_mapcenter[1]
