@@ -5,8 +5,8 @@ name: Version
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 on:
-  pull_request_target:
-
+  push:
+    branches: master
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -23,27 +23,9 @@ jobs:
         persist-credentials: false
         fetch-depth: 0
 
-    # Test echo commit and or tag
-    - name: Branch
-      if: ${{ github.ref_type == 'branch'}}
-      run: |
-        echo ${{github.ref_type}}
-        echo ${GITHUB_SHA::8}
-        echo "VERSION=$(echo ${GITHUB_SHA::8})" >> $GITHUB_ENV
-
-
-    # Test echo commit and or tag
-    - name: Tag
-      if: ${{ github.ref_type == 'tag' }}
-      run: |
-        echo ${{github.ref_type}}
-        echo ${GITHUB_REF}
-        echo "VERSION=$(echo ${GITHUB_REF#refs/tags/})" >> $GITHUB_ENV
-        
-
     # Update file
     - name: Update file
-      run: echo ${{ env.VERSION }} > VERSION.txt
+      run: git describe > VERSION.txt
 
     # Git status
     - name: Add Chnages
@@ -57,4 +39,3 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         branch: ${{ github.ref }}
-        force: true
