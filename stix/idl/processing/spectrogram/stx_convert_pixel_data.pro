@@ -62,7 +62,7 @@
 ;                               
 ;-
 pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, time_shift = time_shift, energy_shift = energy_shift, distance = distance, $
-  flare_location= flare_location, ospex_obj = ospex_obj, det_ind = det_ind, pix_ind = pix_ind, shift_duration = shift_duration
+  flare_location= flare_location, ospex_obj = ospex_obj, det_ind = det_ind, pix_ind = pix_ind, shift_duration = shift_duration, no_attenuation=no_attenuation
 
   if n_elements(time_shift) eq 0 then begin
     message, 'Time shift value not set using default value of 0 [s].', /info
@@ -209,6 +209,22 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   ut_rcr = stx_time2any(t_axis.time_end)
 
   find_changes, rcr, index, state, count=count
+
+  ; ************************************************************
+  ; ******************** TEMPORARY FIX *************************
+  ; ***** Andrea: 2022-April-05
+  ; Temporarily creation of the no_attenuation keyword in order
+  ; to avoid attenuation of the fitted curve. This is useful for 
+  ; obtaining thermal fit parameters with the BKG detector in the 
+  ; case the attenuator is inserted. We tested it with the X 
+  ; class flare on 2021-Oct-26 and it works nicely.
+  if keyword_set(no_attenuation) then begin
+    rcr = rcr*0.
+    index = 0
+    state = 0
+  endif
+  ; ************************************************************
+  ; ************************************************************
 
   ;add the rcr information to a specpar structure so it can be incuded in the spectrum FITS file
   specpar = { sp_atten_state :  {time:ut_rcr[index], state:state} }
