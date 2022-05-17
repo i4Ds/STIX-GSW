@@ -72,13 +72,14 @@ FUNCTION stix2vis_sep2021, path_sci_file, time_range, energy_range, mapcenter, a
   ; Correct mapcenter:
   ; - if 'aux_data' contains the SAS solution, then we read it and we correct tha map center accordingly
   ; - if 'aux_data' does not contain the SAS solution, then we apply an average shift value to the map center
-  mapcenter_corr_factors = read_csv(loc_file( 'Mapcenter_correction_factors.csv', path = getenv('STX_VIS_DEMO') ), $
-                           header=header, table_header=tableheader, n_table_header=1 )
+  readcol, loc_file( 'Mapcenter_correction_factors.csv', path = getenv('STX_VIS_DEMO') ), $
+    avg_shift_x, avg_shift_y, offset_x, offset_y
   if ~aux_data.Z_SRF.isnan() and ~aux_data.Y_SRF.isnan() then begin
     ; coor_mapcenter = SAS solution + discrepancy factor
-    coor_mapcenter = [aux_data.Y_SRF, -aux_data.Z_SRF] + [mapcenter_corr_factors.FIELD3, mapcenter_corr_factors.FIELD4]
+    coor_mapcenter = [aux_data.Y_SRF, -aux_data.Z_SRF] + [offset_x, offset_y]
   endif else begin
-    coor_mapcenter = [mapcenter_corr_factors.FIELD1,mapcenter_corr_factors.FIELD2] + [aux_data.YAW, aux_data.PITCH]
+    ; coor_mapcenter = average SAS solution + spacecraft pointing measurement
+    coor_mapcenter = [avg_shift_x,avg_shift_y] + [aux_data.YAW, aux_data.PITCH]
   endelse
   ; Correct the mapcenter
   this_mapcenter = mapcenter - coor_mapcenter
