@@ -16,9 +16,12 @@ pro stix_display_countrate, elist, tlist, time_spec, rspec_all, rspec_all_bkg, r
 
   ;plot to display what range was selected
   this_e=3
-  loadct,5
+  loadct,5, /silent
+  device, Window_State=win_state
+  if not win_state[2] then window,2,xsize=520,ysize=400
+  wset,2
+
   if n_elements(time_spec) gt 1 then begin
-    window,2,xsize=520,ysize=400
     clearplot
     if n_elements(elist) ne 1 then begin
       utplot,time_spec,total(total(total(rspec_all(*,g01_10,*,elist),4),3),2),psym=10,ytitle='STIX count rate [s!U-1!N]',title=range_title
@@ -51,7 +54,10 @@ pro stix_display_moire_pattern,this_r,this_rb,this_dr,range_title
     res32,res10,o32,g03_10,g01_10,g_plot,l_plot
 
   loadct,5
-  window,0,xsize=900,ysize=800
+  device, Window_State=win_state
+  if not win_state[0] then window,0,xsize=900,ysize=800
+  wset,0
+  
   clearplot
   xmargin=0.08
   ymargin_top=0.12
@@ -105,8 +111,10 @@ pro stix_display_amplutide_vs_resolution, ampobs, sigamp
     res32,res10,o32,g03_10,g01_10,g_plot,l_plot
 
   color=122
-
-  window,3,xsize=520,ysize=400,xpos=0,ypos=40
+  device, Window_State=win_state
+  if not win_state[3] then window,3,xsize=520,ysize=400,xpos=0,ypos=40
+  wset,3
+  
   clearplot
   ;shift display for bottom pixel to avoid overlap
   this_ff=1.1
