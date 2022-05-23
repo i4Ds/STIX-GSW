@@ -35,13 +35,13 @@ stx_read_aux_fits, fits_path, aux_data=aux_data_str
 
 ;************** Get the indices corresponding to the considered time range
 this_time_range = anytim(time_range)
-time_data       = aux_data_str.TIME_UTC
+time_data       = anytim(aux_data_str.TIME_UTC)
 
 ;; CHECK: if the considered time interval is not contained in the time range of the aux_data structure, then throw an error
-if this_time_range[0] lt min(anytim(time_data)) or $
-   this_time_range[1] lt min(anytim(time_data)) or $
-   this_time_range[0] gt max(anytim(time_data)) or $
-   this_time_range[1] gt max(anytim(time_data)) then $
+if this_time_range[0] lt min(time_data) or $
+   this_time_range[1] lt min(time_data) or $
+   this_time_range[0] gt max(time_data) or $
+   this_time_range[1] gt max(time_data) then $
    message, "The aux fits file does not contain information for the considered time range."
 
 time_ind = where((time_data ge this_time_range[0]) and (time_data le this_time_range[1]))
