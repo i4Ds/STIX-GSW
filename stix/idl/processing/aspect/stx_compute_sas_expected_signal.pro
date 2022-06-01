@@ -5,7 +5,7 @@
 ;
 ; Category    : simulation / analysis
 ;
-; Syntax      : compute_sas_expected_signal, xoff, yoff, solrad, arm, signal
+; Syntax      : stx_compute_sas_expected_signal, xoff, yoff, solrad, arm, signal
 ;
 ; Inputs      :
 ;   xoff/yoff = vectors (fn. of time) of Sun position in SAS frame [m]
@@ -26,7 +26,7 @@
 ;   2021-12-16, FSc : pass name (with absolute path) of file with description of apertures as argument
 ;
 ;-
-pro compute_sas_expected_signal, xoff, yoff, solrad, arm, aperfile, dx=dx, signal
+pro stx_compute_sas_expected_signal, xoff, yoff, solrad, arm, aperfile, dx=dx, signal
   ; set default values for keywords
   if not keyword_set(dx) then dx = 1e-6   ; linear resolution for computation
   
