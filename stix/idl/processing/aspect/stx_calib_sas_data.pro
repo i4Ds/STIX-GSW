@@ -21,9 +21,9 @@
 ;   2021-06-21, FSc: added optional calibration factor
 ;   2021-11-15 - FSc: removed common block "config"
 ;   2022-01-28 - FSc (AIP): adapted to STX_ASPECT_DTO structure
-;
+;   2022-04-21, FSc (AIP) : changed name from "calib_sas_data" to "stx_calib_sas_data"
 ;-
-pro calib_sas_data, data, calibfile, factor=factor
+pro stx_calib_sas_data, data, calibfile, factor=factor
 
   default, factor, 1.
   
@@ -43,7 +43,9 @@ pro calib_sas_data, data, calibfile, factor=factor
   V_base = 0.06018  ; [V]
   R_m = 51100.      ; [Ohmn]
   ; Process only measurements at 64s cadence
-  ind_ok = where(abs(data.duration-64.) lt 0.1,nb_ok)
+;  ind_ok = where(abs(data.duration-64.) lt 0.1,nb_ok)
+  ; increased tolerance to 0.5 s - FSc, 2022-02-15
+  ind_ok = where(abs(data.duration-64.) lt 0.5,nb_ok)
   nb_rows = n_elements(data)
   if nb_ok lt nb_rows then begin
     print,nb_rows - nb_ok,format='(" CALIB_SAS_DATA Warning: Found",I5," entries with wrong duration.")'

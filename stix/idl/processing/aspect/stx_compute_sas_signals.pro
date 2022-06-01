@@ -1,9 +1,9 @@
 ;+
 ; Description :
 ;   This function computes the expected SAS signals for all four arms, given vectors of X/Y-offsets
-;   (in the SAS frame) and corresponding UTC times.
+;   (in the SAS frame) and solar image radii 
 ;
-; Syntax      : result = compute_sas_signals(xoff, yoff, in_UTC, aperfile, dx=dx, quiet=quiet)
+; Syntax      : result = stx_compute_sas_signals(xoff, yoff, in_UTC, aperfile, dx=dx, quiet=quiet)
 ;
 ; Inputs      :
 ;   xoff/yoff = vectors (fn. of time) of Sun position in SAS frame [m]
@@ -26,17 +26,17 @@
 ;   2022-01-28, FSc : use solrad instead of in_UTC as input; return only the 4xN array of signals
 ;
 ;-
-function compute_sas_signals, xoff, yoff, solrad, aperfile, dx=dx, quiet=quiet
+function stx_compute_sas_signals, xoff, yoff, solrad, aperfile, dx=dx, quiet=quiet
   default, dx, 1.e-6
   
   if not keyword_set(quiet) then print,"Computing signal arm A..."
-  compute_sas_expected_signal,xoff,yoff,solrad,0, aperfile, sigA, dx=dx
+  stx_compute_sas_expected_signal,xoff,yoff,solrad,0, aperfile, sigA, dx=dx
   if not keyword_set(quiet) then print,"Computing signal arm B..."
-  compute_sas_expected_signal,xoff,yoff,solrad,1, aperfile, sigB, dx=dx
+  stx_compute_sas_expected_signal,xoff,yoff,solrad,1, aperfile, sigB, dx=dx
   if not keyword_set(quiet) then print,"Computing signal arm C..."
-  compute_sas_expected_signal,xoff,yoff,solrad,2, aperfile, sigC, dx=dx
+  stx_compute_sas_expected_signal,xoff,yoff,solrad,2, aperfile, sigC, dx=dx
   if not keyword_set(quiet) then print,"Computing signal arm D..."
-  compute_sas_expected_signal,xoff,yoff,solrad,3, aperfile, sigD, dx=dx
+  stx_compute_sas_expected_signal,xoff,yoff,solrad,3, aperfile, sigD, dx=dx
 
   result = transpose([[sigA],[sigB],[sigC],[sigD]])/1.e9
   return, result

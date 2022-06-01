@@ -1,11 +1,11 @@
 ;+
 ; Description :
-;   Procedure to smooth the data by a factor two. The size of the resulting arrays is half the
-;   size of the input data.
+;   Procedure to smooth the STIX Aspect data by a factor two. The size of the resulting arrays
+;   is half the size of the input data.
 ;
 ; Category    : analysis
 ;
-; Syntax      : smooth_data, data
+; Syntax      : stx_smooth_sas_data, data
 ;
 ; Inputs      :
 ;   data      = a structure as returned by read_sas_data
@@ -16,13 +16,15 @@
 ;
 ; History     :
 ;   2020-05-14, F. Schuller (AIP) : created
-;   2020-06-01, FSc : add /double for times
-;   2020-09-18, FSc : changed input from keyword to variable
-;   2021-10-21, FSc : corrected computation of UTC strings
-;   2021-12-16, FSc : use IDL's rebin instead of "my_smooth"
-;   2022-01-28, FSc (AIP) : adapted to STX_ASPECT_DTO structure;
+;   2020-06-01, FSc (AIP) : add /double for times
+;   2020-09-18, FSc (AIP) : changed input from keyword to variable
+;   2021-10-21, FSc (AIP) : corrected computation of UTC strings
+;   2021-12-16, FSc (AIP) : use IDL's rebin instead of "my_smooth"
+;   2022-01-28, FSc (AIP) : adapted to STX_ASPECT_DTO structure
+;   2022-02-15, FSc (AIP) : fixed issue related to integration with STIXcore
+;   2022-04-21, FSc (AIP) : changed name from "smooth_data" to "stx_smooth_sas_data"
 ;-
-pro smooth_data, data
+pro stx_smooth_sas_data, data
   nb = n_elements(data)
   new_dim = nb/2
   
@@ -55,8 +57,8 @@ pro smooth_data, data
     
   ; build new array of data structures
   for i=0,new_dim-1 do begin
-    a = { $
-         cha_diode0: new_sigA[i], cha_diode1: new_sigB[i], chb_diode0: new_sigC[i], chb_diode1: new_sigD[i], $
+    ; FSc, 2022-02-15: use anonymous structure here to be independant of changes made to STX_ASPECT_DTO on STIXcore side
+    a = {cha_diode0: new_sigA[i], cha_diode1: new_sigB[i], chb_diode0: new_sigC[i], chb_diode1: new_sigD[i], $
          time: new_utc[i], duration: new_dura[i], spice_disc_size: new_rsol[i], y_srf: new_y[i], z_srf: new_z[i], $
          calib: new_cal[i], error: new_err[i]}
     if i eq 0 then data = [a] else data = [data, a]
