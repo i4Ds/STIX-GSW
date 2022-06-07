@@ -30,17 +30,21 @@ FUNCTION stx_mem_ge,vis,imsize,pixel,aux_data,silent=silent, total_flux=total_fl
   ; - if 'aux_data' does not contain the SAS solution, then we apply an average shift value to the map center
   readcol, loc_file( 'Mapcenter_correction_factors.csv', path = getenv('STX_VIS_DEMO') ), $
     avg_shift_x, avg_shift_y, offset_x, offset_y
-  if ~aux_data.Z_SRF.isnan() and ~aux_data.Y_SRF.isnan() then begin
+  if ~aux_data.X_SAS.isnan() and ~aux_data.Y_SAS.isnan() then begin
     ; coor_mapcenter = SAS solution + discrepancy factor
-    coor_mapcenter = [aux_data.Y_SRF, -aux_data.Z_SRF] + [offset_x, offset_y]
+    stx_pointing = [aux_data.X_SAS, aux_data.Y_SAS] + [offset_x, offset_y]
   endif else begin
     ; coor_mapcenter = average SAS solution + spacecraft pointing measurement
-    coor_mapcenter = [avg_shift_x,avg_shift_y] + [aux_data.YAW, aux_data.PITCH]
+    stx_pointing = [avg_shift_x,avg_shift_y] + [aux_data.YAW, aux_data.PITCH]
   endelse
-  mem__ge_map.xc = vis[0].xyoffset[0] + coor_mapcenter[0]
-  mem__ge_map.yc = vis[0].xyoffset[1] + coor_mapcenter[1]
+  
+  ; Compute the mapcenter
+  this_mapcenter = vis[0].xyoffset + stx_pointing
 
-  mem__ge_map.roll_angle    = aux_data.ROLL_ANGLE
+  mem__ge_map.xc = this_mapcenter[0]
+  mem__ge_map.yc = this_mapcenter[1]
+  mem__ge_map=rot_map(mem__ge_map,-aux_data.ROLL_ANGLE,rcenter=[0.,0.])
+  mem__ge_map.ROLL_ANGLE = 0.
   add_prop,mem__ge_map,rsun = aux_data.RSUN
   add_prop,mem__ge_map,B0   = aux_data.B0
   add_prop,mem__ge_map,L0   = aux_data.L0
