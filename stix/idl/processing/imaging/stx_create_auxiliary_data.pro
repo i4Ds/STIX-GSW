@@ -49,8 +49,8 @@ time_ind = where((time_data ge this_time_range[0]) and (time_data le this_time_r
 ;************* Compute the average of the values of interest over the considered time range
 
 ; Aspect solution
-Y_SRF = average(aux_data_str[time_ind].Y_SRF)
-Z_SRF = average(aux_data_str[time_ind].Z_SRF)
+X_SAS = average(aux_data_str[time_ind].Y_SRF)
+Y_SAS = -average(aux_data_str[time_ind].Z_SRF)
 
 ;Apparent solar radius (arcsec)
 RSUN = average(aux_data_str[time_ind].spice_disc_size)
@@ -71,8 +71,8 @@ L0 = average(aux_data_str[time_ind].solo_loc_carrington_lonlat[0])
 B0 =average(aux_data_str[time_ind].solo_loc_carrington_lonlat[1])
 
 
-aux_data = {Y_SRF: Y_SRF, $
-            Z_SRF: Z_SRF, $
+aux_data = {X_SAS: X_SAS, $
+            Y_SAS: Y_SAS, $
             RSUN: RSUN, $
             ROLL_ANGLE: ROLL_ANGLE, $
             PITCH: PITCH, $

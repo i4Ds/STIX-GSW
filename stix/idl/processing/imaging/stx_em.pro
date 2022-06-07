@@ -35,10 +35,11 @@
 ;             -the xyoffset 
 ;             -the detector used
 ;             -the summation of the counts recorded by the pixels.
+;          June 2022, Massa P., 'aux_data' added
 ;             
 ;CONTACT: massa.p@dima.unige.it
 
-FUNCTION stx_em,countrates,energy_range,time_range,IMSIZE=imsize,PIXEL=pixel,MAPCENTER=mapcenter, WHICH_PIX=which_pix, $
+FUNCTION stx_em,countrates,energy_range,time_range,aux_data,IMSIZE=imsize,PIXEL=pixel,MAPCENTER=mapcenter, WHICH_PIX=which_pix, $
   subc_index=subc_index, MAXITER=maxiter, TOLERANCE=tolerance, SILENT=silent, MAKEMAP=makemap, XY_FLARE=xy_flare
 
 default, which_pix, 'TOP+BOT'
@@ -118,7 +119,34 @@ v = v[subc_index]
 phase_corr = phase_corr[subc_index]
 
 ;;;;;;;;;;;;
-this_mapcenter = mapcenter - [26.1,58.2] ; Subtract Frederic's mean shift values
+; Correct mapcenter:
+; - if 'aux_data' contains the SAS solution, then we read it and we correct tha map center accordingly
+; - if 'aux_data' does not contain the SAS solution, then we apply an average shift value to the map center
+readcol, loc_file( 'Mapcenter_correction_factors.csv', path = getenv('STX_VIS_DEMO') ), $
+  avg_shift_x, avg_shift_y, offset_x, offset_y
+if ~aux_data.X_SAS.isnan() and ~aux_data.Y_SAS.isnan() then begin
+  ; coor_mapcenter = SAS solution + discrepancy factor
+  stx_pointing = [aux_data.X_SAS, aux_data.Y_SAS] + [offset_x, offset_y]
+endif else begin
+  ; coor_mapcenter = average SAS solution + spacecraft pointing measurement
+  stx_pointing = [avg_shift_x,avg_shift_y] + [aux_data.YAW, aux_data.PITCH]
+endelse
+
+; Compute the mapcenter
+;this_mapcenter = mapcenter - stx_pointing
+
+roll_angle = aux_data.ROLL_ANGLE * !dtor
+
+this_xy_flare = xy_flare
+this_xy_flare[0] = cos(roll_angle)  * xy_flare[0] + sin(roll_angle) * xy_flare[1] - stx_pointing[0]
+this_xy_flare[1] = -sin(roll_angle) * xy_flare[0] + cos(roll_angle) * xy_flare[1] - stx_pointing[1]
+
+; Correct the mapcenter
+this_mapcenter = mapcenter
+this_mapcenter[0] = cos(roll_angle)  * mapcenter[0] + sin(roll_angle) * mapcenter[1] - stx_pointing[0]
+this_mapcenter[1] = -sin(roll_angle) * mapcenter[0] + cos(roll_angle) * mapcenter[1] - stx_pointing[1]
+
+
 XYOFFSET=[this_mapcenter[1], -this_mapcenter[0]]
 
 ; Creation of the matrix 'H' used in the EM algorithm
@@ -172,8 +200,6 @@ em_map.ID = 'STIX EM '+this_estring+': '
 em_map.dx = pixel[0]
 em_map.dy = pixel[1]
 
-;em_map.xc = mapcenter[0]
-;em_map.yc = mapcenter[1]
 
 em_map.time = anytim((anytim(time_range[1])+anytim(time_range[0]))/2.,/vms)
 
@@ -183,16 +209,15 @@ em_map.DUR = anytim(time_range[1])-anytim(time_range[0])
 em__map=em_map
 em__map.data=rotate(em_map.data,1)
 
-;; Mapcenter corrected for Frederic's mean shift values
-em__map.xc = mapcenter[0]; + 26.1
-em__map.yc = mapcenter[1]; + 58.2
 
-data = stx_get_l0_b0_rsun_roll_temp(time_range[0])
+em__map.xc = this_mapcenter[0] + stx_pointing[0]
+em__map.yc = this_mapcenter[1] + stx_pointing[1]
 
-em__map.roll_angle    = data.ROLL_ANGLE
-add_prop,em__map,rsun = data.RSUN
-add_prop,em__map,B0   = data.B0
-add_prop,em__map,L0   = data.L0
+em__map=rot_map(em__map,-aux_data.ROLL_ANGLE,rcenter=[0.,0.])
+em__map.ROLL_ANGLE = 0.
+add_prop,em__map,rsun = aux_data.RSUN
+add_prop,em__map,B0   = aux_data.B0
+add_prop,em__map,L0   = aux_data.L0
 
 return,em__map
 

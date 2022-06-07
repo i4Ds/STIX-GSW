@@ -1,4 +1,4 @@
-PRO stx_show_bproj,this_vis,imsize=imsize,pixel=pixel,out=out,scaled_out=scaled_out
+PRO stx_show_bproj,this_vis,aux_data,imsize=imsize,pixel=pixel,out=out,scaled_out=scaled_out
 
 
 ; calucates bprojection maps for each subcollimator and plots result on screen
@@ -20,6 +20,8 @@ if not keyword_set(pixel) then pixel=[1.,1.]
 for i=0,vdim-1 do begin
   vis_bpmap, this_vis[i],  MAP = map, BP_FOV = imsize[0]*pixel[0], PIXEL = pixel[0]
   this_bmap = make_map(rotate(map,1))
+  this_bmap=rot_map(this_bmap,-aux_data.ROLL_ANGLE,rcenter=[0.,0.])
+  this_bmap.ROLL_ANGLE = 0.
   if i eq 0 then sbmap=this_bmap else sbmap=[sbmap,this_bmap]
 endfor
 
@@ -37,10 +39,14 @@ sbmap0.data[0,0]=max(sbmap.data)
 for i=0,vdim/3-1 do begin
   vis_bpmap, this_vis[0:(i+1)*3-1],  MAP = map, BP_FOV = imsize[0]*pixel[0], PIXEL = pixel[0]
   this_bmap = make_map(rotate(map,1))
+  this_bmap=rot_map(this_bmap,-aux_data.ROLL_ANGLE,rcenter=[0.,0.])
+  this_bmap.ROLL_ANGLE = 0.
   if i eq 0 then bmap_nat=this_bmap else bmap_nat=[bmap_nat,this_bmap]
   ;same for uni
   vis_bpmap, this_vis[0:(i+1)*3-1],  MAP = map, BP_FOV = imsize[0]*pixel[0], PIXEL = pixel[0],/uni
   this_bmap = make_map(rotate(map,1))
+  this_bmap=rot_map(this_bmap,-aux_data.ROLL_ANGLE,rcenter=[0.,0.])
+  this_bmap.ROLL_ANGLE = 0.
   if i eq 0 then bmap_uni=this_bmap else bmap_uni=[bmap_uni,this_bmap]
 endfor
 

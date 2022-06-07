@@ -44,9 +44,33 @@ FUNCTION stix2vis_sep2021, path_sci_file, time_range, energy_range, mapcenter, a
 
   mapcenter = float(mapcenter)
   xy_flare  = float(xy_flare)
+  
+  ; Correct mapcenter:
+  ; - if 'aux_data' contains the SAS solution, then we read it and we correct tha map center accordingly
+  ; - if 'aux_data' does not contain the SAS solution, then we apply an average shift value to the map center
+  readcol, loc_file( 'Mapcenter_correction_factors.csv', path = getenv('STX_VIS_DEMO') ), $
+    avg_shift_x, avg_shift_y, offset_x, offset_y
+  if ~aux_data.X_SAS.isnan() and ~aux_data.Y_SAS.isnan() then begin
+    ; stx_pointing = SAS solution + discrepancy factor
+    stx_pointing = [aux_data.X_SAS, aux_data.Y_SAS] + [offset_x, offset_y]
+  endif else begin
+    ; stx_pointing = average SAS solution + spacecraft pointing measurement
+    stx_pointing = [avg_shift_x,avg_shift_y] + [aux_data.YAW, aux_data.PITCH]
+  endelse
+  
+  roll_angle = aux_data.ROLL_ANGLE * !dtor
+  
+  this_xy_flare = xy_flare
+  this_xy_flare[0] = cos(roll_angle)  * xy_flare[0] + sin(roll_angle) * xy_flare[1] - stx_pointing[0]
+  this_xy_flare[1] = -sin(roll_angle) * xy_flare[0] + cos(roll_angle) * xy_flare[1] - stx_pointing[1]
+  
+  ; Correct the mapcenter
+  this_mapcenter = mapcenter
+  this_mapcenter[0] = cos(roll_angle)  * mapcenter[0] + sin(roll_angle) * mapcenter[1] - stx_pointing[0]
+  this_mapcenter[1] = -sin(roll_angle) * mapcenter[0] + cos(roll_angle) * mapcenter[1] - stx_pointing[1]
 
   ;;;;;;;;;; make amplitudes and phases
-  data = stix_compute_vis_amp_phase(path_sci_file,anytim(time_range),energy_range, xy_flare=xy_flare,bkg_file=path_bkg_file, $
+  data = stix_compute_vis_amp_phase(path_sci_file,anytim(time_range),energy_range, xy_flare=this_xy_flare,bkg_file=path_bkg_file, $
     pixels=pixels, silent=silent, shift_by_one=shift_by_one, subc_index=subc_index)
 
 
@@ -68,21 +92,6 @@ FUNCTION stix2vis_sep2021, path_sci_file, time_range, energy_range, mapcenter, a
 
   ; Compute real and imaginary part of the visibility
   vis.obsvis = ampobs[subc_index] * complex(cos(phase[subc_index] * !dtor), sin(phase[subc_index] * !dtor))
-
-  ; Correct mapcenter:
-  ; - if 'aux_data' contains the SAS solution, then we read it and we correct tha map center accordingly
-  ; - if 'aux_data' does not contain the SAS solution, then we apply an average shift value to the map center
-  readcol, loc_file( 'Mapcenter_correction_factors.csv', path = getenv('STX_VIS_DEMO') ), $
-    avg_shift_x, avg_shift_y, offset_x, offset_y
-  if ~aux_data.Z_SRF.isnan() and ~aux_data.Y_SRF.isnan() then begin
-    ; coor_mapcenter = SAS solution + discrepancy factor
-    coor_mapcenter = [aux_data.Y_SRF, -aux_data.Z_SRF] + [offset_x, offset_y]
-  endif else begin
-    ; coor_mapcenter = average SAS solution + spacecraft pointing measurement
-    coor_mapcenter = [avg_shift_x,avg_shift_y] + [aux_data.YAW, aux_data.PITCH]
-  endelse
-  ; Correct the mapcenter
-  this_mapcenter = mapcenter - coor_mapcenter
   
   phase_mapcenter = -2 * !pi * (this_mapcenter[1] * vis.u - this_mapcenter[0] * vis.v )
   vis.obsvis *= complex(cos(phase_mapcenter), sin(phase_mapcenter))
