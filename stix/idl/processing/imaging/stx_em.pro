@@ -102,13 +102,6 @@ eff_area = subc_str.det.pixel.area
 eff_area = reform(transpose(eff_area), 32, 4, 3)
 eff_area = n_elements( pixel_ind ) eq 1 ? reform(eff_area[*, *, pixel_ind , *]) : total(eff_area[*,*,pixel_ind], 3)
 
-; To make the units: counts s^-1 keV^-1 cm^-2
-countrates = countrates/eff_area
-this_gtrans = stix_gtrans32_test_sep_2021(xy_flare)
-for i=0,31 do begin
-  countrates(i,*)=countrates(i,*) * this_gtrans(i) * 4.
-endfor
-countrates = countrates[subc_index, *]
 
 uv = stx_uv_points_giordano()
 u = -uv.u * subc_str.phase
@@ -148,6 +141,16 @@ this_mapcenter[1] = -sin(roll_angle) * mapcenter[0] + cos(roll_angle) * mapcente
 
 
 XYOFFSET=[this_mapcenter[1], -this_mapcenter[0]]
+
+; To make the units: counts s^-1 keV^-1 cm^-2
+countrates = countrates/eff_area
+this_gtrans = stix_gtrans32_test_sep_2021(this_xy_flare)
+for i=0,31 do begin
+  countrates(i,*)=countrates(i,*) / this_gtrans(i) / 4.
+endfor
+countrates = countrates[subc_index, *]
+
+
 
 ; Creation of the matrix 'H' used in the EM algorithm
 H = stx_map2pixelabcd_matrix(imsize, pixel, u, v, phase_corr, xyoffset = XYOFFSET, SUMCASE = 1)
