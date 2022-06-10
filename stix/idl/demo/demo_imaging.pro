@@ -138,17 +138,17 @@ pause
 
 ;*************************************** VIS_FWDFIT ************************************************
 
-type='ellipse'
+configuration = 'ellipse'
 
 ; Comments:
-; 1) use the keyword 'param_opt' to fix some of the parameters (and fit the remaining ones);
+; 1) use the keyword srcin to fix some of the parameters (and fit the remaining ones);
 ;    Please, see the header of the FWDFIT-PSO procedure for details
 ; 2) 'srcstrout_pso' is a structure containing the values of the optimized parameters
 ; 3) 'fitsigmasout_pso' is a structure containing the uncertainty on the optimized parameters
 ; 4) set /uncertainty for computing an estimate of the uncertainty on the parameters
 
-vis_fwdfit_pso_map = stx_vis_fwdfit_pso(type, vis,  param_opt=param_opt, imsize=imsize, pixel=pixel, $
-  srcstr = srcstrout_pso, fitsigmas=fitsigmasout_pso, /uncertainty)
+vis_fwdfit_pso_map = stx_vis_fwdfit_pso(configuration, vis,  imsize=imsize, pixel=pixel, $
+                                        srcstr = srcstrout_pso, fitsigmas=fitsigmasout_pso, /uncertainty)
 
 loadct, 5
 window, 0
