@@ -23,10 +23,10 @@ data_folder = getenv('SSW_STIX') + '/idl/processing/imaging/data/'
 path_sci_file = data_folder + 'solo_L1_stix-sci-xray-l1-1178428688_20200607T213708-20200607T215208_V01.fits' ; Path of the science L1 fits file
 path_bkg_file = data_folder + 'solo_L1_stix-sci-xray-l1-1178451984_20200607T225959-20200607T235900_V01.fits' ; Path of the background L1 fits file
 aux_fits_file = data_folder + 'solo_L2_stix-aux-auxiliary_20200607_V01.fits' ; Path of the auxiliary L2 fits file
-time_range = ['7-Jun-2020 21:39:00', '7-Jun-2020 21:42:49'] ; Time range to consider
-energy_range = [6,10]       ; Energy range to consider (keV)
-mapcenter = [-1575, -780] ; Coordinates of the center of the map to reconstruct (Heliocentric)
-xy_flare = mapcenter      ; Location of the map (quasi-heliocentric). Needed for the visibility phase calibration
+time_range    = ['7-Jun-2020 21:39:00', '7-Jun-2020 21:42:49'] ; Time range to consider
+energy_range  = [6,10]       ; Energy range to consider (keV)
+mapcenter     = [-1575, -780] ; Coordinates of the center of the map to reconstruct (Heliocentric)
+xy_flare      = mapcenter      ; Location of the map (quasi-heliocentric). Needed for the visibility phase calibration
 
 
 ;;;;;;;;;; CONSTRUCT VISIBILITY STRUCTURE
