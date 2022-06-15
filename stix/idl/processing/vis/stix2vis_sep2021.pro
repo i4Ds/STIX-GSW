@@ -82,7 +82,7 @@ FUNCTION stix2vis_sep2021, path_sci_file, time_range, energy_range, mapcenter, a
   ; Phase projection correction
   L1 = 550.
   L2 = 47.
-  phase -= xy_flare[1] * 360. * !pi / (180. * 3600. * 8.8) * (L2 + L1/2.)
+  phase -= this_xy_flare[1] * 360. * !pi / (180. * 3600. * 8.8) * (L2 + L1/2.)
 
   ; Construct visibility structure
   subc_str = stx_construct_subcollimator()
