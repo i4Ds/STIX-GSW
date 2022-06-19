@@ -111,22 +111,7 @@ v = v[subc_index]
 
 phase_corr = phase_corr[subc_index]
 
-;;;;;;;;;;;;
-; Correct mapcenter:
-; - if 'aux_data' contains the SAS solution, then we read it and we correct tha map center accordingly
-; - if 'aux_data' does not contain the SAS solution, then we apply an average shift value to the map center
-readcol, loc_file( 'Mapcenter_correction_factors.csv', path = getenv('STX_VIS_DEMO') ), $
-  avg_shift_x, avg_shift_y, offset_x, offset_y
-if ~aux_data.X_SAS.isnan() and ~aux_data.Y_SAS.isnan() then begin
-  ; coor_mapcenter = SAS solution + discrepancy factor
-  stx_pointing = [aux_data.X_SAS, aux_data.Y_SAS] + [offset_x, offset_y]
-endif else begin
-  ; coor_mapcenter = average SAS solution + spacecraft pointing measurement
-  stx_pointing = [avg_shift_x,avg_shift_y] + [aux_data.YAW, aux_data.PITCH]
-endelse
-
-; Compute the mapcenter
-;this_mapcenter = mapcenter - stx_pointing
+stx_pointing = aux_data.stx_pointing
 
 roll_angle = aux_data.ROLL_ANGLE * !dtor
 
