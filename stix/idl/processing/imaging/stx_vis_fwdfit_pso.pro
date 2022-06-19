@@ -212,6 +212,7 @@ function stx_vis_fwdfit_pso, configuration, vis, $
 
   this_time_range = stx_time2any(vis[0].time_range,/vms)
 
+
   fwdfit_pso_map.time = anytim((anytim(this_time_range[1])+anytim(this_time_range[0]))/2.,/vms)
   fwdfit_pso_map.DUR  = anytim(this_time_range[1])-anytim(this_time_range[0])
   
@@ -260,8 +261,9 @@ function stx_vis_fwdfit_pso, configuration, vis, $
   FOR n = 0, nsrc-1 DO BEGIN
     
     ; heliocentric view
-    x_new = srcstr[n].srcy - this_vis[0].xyoffset[1]
+    x_new = -(srcstr[n].srcy - this_vis[0].xyoffset[1])
     y_new = srcstr[n].srcx - this_vis[0].xyoffset[0]
+
 
     ;; Center of the sources corrected for Frederic's mean shift values
     srcstr[n].srcx        = - x_new + vis[0].xyoffset[0] + 26.1
@@ -285,8 +287,9 @@ function stx_vis_fwdfit_pso, configuration, vis, $
 
   endfor
   
+
   if warning_conf then begin
-    
+
     print, ' '
     print, ' '
     print, 'Warning: for this configuration it is not possible to compute the uncertainty on the parameters. '

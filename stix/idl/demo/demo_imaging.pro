@@ -32,12 +32,11 @@ xy_flare      = mapcenter      ; Location of the map (quasi-heliocentric). Neede
 ;;;;;;;;;; CONSTRUCT VISIBILITY STRUCTURE
 
 ; Create a structure containing auxiliary data to use for image reconstruction
-; - X_SAS: X coordinate of the SAS solution in arcsec (if available)
-; - Y_SAS: Y coordinate of the SAS solution in arcsec (if available)
+; - STX_POINTING: X and Y coordinates of STIX pointing (arcsec, SOLO_SUN_RTN coordinate frame). 
+;                 It is derived from the SAS solution (if available) or from the spacecraft pointing 
+;                 (plus average SAS solution)
 ; - RSUN: apparent radius of the Sun in arcsec
 ; - ROLL_ANGLE: spacecraft roll angle in degrees
-; - PITCH: pitch coordinate of the spacecraft pointing in arcsec
-; - YAW: yaw coordinate of the spacecraft pointing in arcsec
 ; - L0: Heliographic longitude in degrees
 ; - B0: Heliographic latitude in degrees
 aux_data = stx_create_auxiliary_data(aux_fits_file, time_range)
@@ -97,7 +96,7 @@ pause
 
 niter  = 200    ;number of iterations
 gain   = 0.1    ;gain used in each clean iteration
-nmap   = 20   ;only every 20th integration is shown in plot
+nmap   = 1      ;only every 20th integration is shown in plot
 
 ;Output are 5 maps
 ;index 0: CLEAN map

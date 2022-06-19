@@ -25,21 +25,8 @@ FUNCTION stx_mem_ge,vis,imsize,pixel,aux_data,silent=silent, total_flux=total_fl
   mem__ge_map=mem_ge_map
   mem__ge_map.data=rotate(mem_ge_map.data,1)
   
-  ; Correct mapcenter:
-  ; - if 'aux_data' contains the SAS solution, then we read it and we correct tha map center accordingly
-  ; - if 'aux_data' does not contain the SAS solution, then we apply an average shift value to the map center
-  readcol, loc_file( 'Mapcenter_correction_factors.csv', path = getenv('STX_VIS_DEMO') ), $
-    avg_shift_x, avg_shift_y, offset_x, offset_y
-  if ~aux_data.X_SAS.isnan() and ~aux_data.Y_SAS.isnan() then begin
-    ; coor_mapcenter = SAS solution + discrepancy factor
-    stx_pointing = [aux_data.X_SAS, aux_data.Y_SAS] + [offset_x, offset_y]
-  endif else begin
-    ; coor_mapcenter = average SAS solution + spacecraft pointing measurement
-    stx_pointing = [avg_shift_x,avg_shift_y] + [aux_data.YAW, aux_data.PITCH]
-  endelse
-  
   ; Compute the mapcenter
-  this_mapcenter = vis[0].xyoffset + stx_pointing
+  this_mapcenter = vis[0].xyoffset + aux_data.stx_pointing
 
   mem__ge_map.xc = this_mapcenter[0]
   mem__ge_map.yc = this_mapcenter[1]

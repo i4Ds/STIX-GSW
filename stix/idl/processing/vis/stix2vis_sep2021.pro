@@ -35,7 +35,7 @@
 ;-
 
 FUNCTION stix2vis_sep2021, path_sci_file, time_range, energy_range, mapcenter, aux_data, path_bkg_file=path_bkg_file, $
-  xy_flare=xy_flare, subc_index=subc_index, pixels=pixels, silent=silent, shift_by_one=shift_by_one
+  xy_flare=xy_flare, subc_index=subc_index, pixels=pixels, silent=silent, shift_by_one=shift_by_one, use_sas=use_sas
 
   default, xy_flare, [0., 0.]
   default, subc_index, stix_label2ind(['10a','10b','10c','9a','9b','9c','8a','8b','8c','7a','7b','7c',$
@@ -45,18 +45,7 @@ FUNCTION stix2vis_sep2021, path_sci_file, time_range, energy_range, mapcenter, a
   mapcenter = float(mapcenter)
   xy_flare  = float(xy_flare)
   
-  ; Correct mapcenter:
-  ; - if 'aux_data' contains the SAS solution, then we read it and we correct tha map center accordingly
-  ; - if 'aux_data' does not contain the SAS solution, then we apply an average shift value to the map center
-  readcol, loc_file( 'Mapcenter_correction_factors.csv', path = getenv('STX_VIS_DEMO') ), $
-    avg_shift_x, avg_shift_y, offset_x, offset_y
-  if ~aux_data.X_SAS.isnan() and ~aux_data.Y_SAS.isnan() then begin
-    ; stx_pointing = SAS solution + discrepancy factor
-    stx_pointing = [aux_data.X_SAS, aux_data.Y_SAS] + [offset_x, offset_y]
-  endif else begin
-    ; stx_pointing = average SAS solution + spacecraft pointing measurement
-    stx_pointing = [avg_shift_x,avg_shift_y] + [aux_data.YAW, aux_data.PITCH]
-  endelse
+  stx_pointing = aux_data.stx_pointing
   
   roll_angle = aux_data.ROLL_ANGLE * !dtor
   
