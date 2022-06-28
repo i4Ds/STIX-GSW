@@ -72,36 +72,7 @@ pro stx_read_aux_fits, fits_path, aux_data=aux_data, primary_header = primary_he
   aux_data.solo_loc_carrington_dist   = data.solo_loc_carrington_dist
   aux_data.solo_loc_heeq_zxy          = data.solo_loc_heeq_zxy
   aux_data.roll_angle_rpy             = data.roll_angle_rpy
-  
-;  ;Select the time closer to 'time_in'
-;  dummy_min = min(abs(anytim(time_data) - anytim(time_in)), ind_min)
-;  
-;  
-;  
-;  ; Aspect solution
-;  Y_SRF = data[ind_min].Y_SRF
-;  Z_SRF = data[ind_min].Z_SRF
-;  ;Apparent solar radius (arcsec)
-;  RSUN = data[ind_min].spice_disc_size
-;  ;Roll angle (degrees)
-;  ROLL_ANGLE = data[ind_min].ROLL_ANGLE_RPY[0]
-;  ;Pitch (arcsec)
-;  PITCH = data[ind_min].ROLL_ANGLE_RPY[1] * 3600.
-;  ;Yaw (arcsec)
-;  YAW = data[ind_min].ROLL_ANGLE_RPY[2] * 3600.
-;  ;L0 (degrees)
-;  L0 = data[ind_min].solo_loc_carrington_lonlat[0]
-;  ;B0 (degrees)
-;  B0 = data[ind_min].solo_loc_carrington_lonlat[1]
-;  
-;  aux_data = {Y_SRF: Y_SRF, $
-;              Z_SRF: Z_SRF, $
-;              RSUN: RSUN, $
-;              ROLL_ANGLE: ROLL_ANGLE, $
-;              PITCH: PITCH, $
-;              YAW: YAW, $
-;              L0: L0, $
-;              B0: B0}
+
               
 
 end

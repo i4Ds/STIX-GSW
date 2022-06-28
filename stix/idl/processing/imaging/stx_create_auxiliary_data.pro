@@ -73,7 +73,9 @@ L0 = average(aux_data_str[time_ind].solo_loc_carrington_lonlat[0])
 ;B0 (degrees)
 B0 =average(aux_data_str[time_ind].solo_loc_carrington_lonlat[1])
 
-
+;; Rotate YAW and PITCH by roll angle (for passing from SOLO_SUN_RTN to the spacecraft reference frame)
+ROT_YAW   = YAW * cos(ROLL_ANGLE * !dtor) + PITCH * sin(ROLL_ANGLE * !dtor)
+ROT_PITCH = -YAW * sin(ROLL_ANGLE * !dtor) + PITCH * cos(ROLL_ANGLE * !dtor)
 
 ;************* STIX pointing estimate 
 ; If aspect solution is available (i.e., ~NaN) and is reliable (i.e. not much different from the spacecraft estimate) 
@@ -82,12 +84,12 @@ B0 =average(aux_data_str[time_ind].solo_loc_carrington_lonlat[1])
 readcol, loc_file( 'Mapcenter_correction_factors.csv', path = getenv('STX_VIS_DEMO') ), $
   avg_shift_x, avg_shift_y, offset_x, offset_y
 
-STX_POINTING = [avg_shift_x,avg_shift_y] + [YAW, PITCH]
+STX_POINTING = [avg_shift_x,avg_shift_y] + [ROT_YAW, ROT_PITCH]
 
 if ~X_SAS.isnan() and ~Y_SAS.isnan() then begin
 
   sas_pointing        = [X_SAS, Y_SAS]
-  spacecraft_pointing = [YAW, PITCH]
+  spacecraft_pointing = [ROT_YAW, ROT_PITCH]
   
   if norm(sas_pointing - spacecraft_pointing) lt 200. or use_sas then begin
     
