@@ -48,7 +48,8 @@
 ;    25-Jan-2022 - ECMD (Graz), attenuator and transmission_table keywords added
 ;    22-Feb-2022 - ECMD (Graz), documented 
 ;    29-Jun-2022 - ECMD (Graz), updated to call transmission table stix_transmission_highres_20220621.csv which includes 
-;                               alloys to describe the Be window and Al attenuator 
+;                               alloys to describe the Be window and Al attenuator. Attenuator transmission is included in 
+;                               standard table so a separate call to a component separated table is no longer needed. 
 ;
 ;-
 function stx_transmission, ein, det_mask, attenuator = attenuator, xcom = xcom, transmission_table = transmission_table, sbo = sbo, verbose = verbose
