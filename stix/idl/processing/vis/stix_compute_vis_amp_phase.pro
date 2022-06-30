@@ -180,7 +180,7 @@ FUNCTION stix_compute_vis_amp_phase,sci_file,tr_flare,er_flare,bkg_file=bkg_file
   ;same format
   ;SPEC_ALL_BKG   FLOAT     = Array[1, 32, 12, 32] = [time, det , pix, energy]
 
-  if n_elements(time_dur_bkg) gt 1 then message, "Backgroung file has more than one time bin"
+  if n_elements(time_dur_bkg) gt 1 then message, "Background file has more than one time bin"
   
   endif else begin
   spec_all_bkg = fltarr(1,32,12,32)
@@ -204,25 +204,7 @@ FUNCTION stix_compute_vis_amp_phase,sci_file,tr_flare,er_flare,bkg_file=bkg_file
   ;ELUT
   ;correction should be done depending on the spectral shape
   ;here the lazy way: simply correct for actual bin size
-
-  ;07-Mar-22 changed due to new loaction of ELUT tables 
-CASE 1 OF
-   (tr_flare[1] LT anytim('1-Jan-2021 00:00:00')): BEGIN
-            f_elut = loc_file( 'elut_table_20200519.csv', path = concat_dir( concat_dir('SSW_STIX','dbase'),'detector') )
-    END
-    
-   (tr_flare[1] GT anytim('1-Jan-2021 00:00:00')) AND (tr_flare[1] LT anytim('24-Jun-2021 00:00:00')): BEGIN
-            f_elut = loc_file( 'elut_table_20201204.csv', path = concat_dir( concat_dir('SSW_STIX','dbase'),'detector') )
-    END
-    
-   (tr_flare[1] GT anytim('24-Jun-2021 00:00:00')) AND (tr_flare[1] LT anytim('9-Dec-2021 00:00:00')): BEGIN
-            f_elut = loc_file( 'elut_table_20210625.csv', path = concat_dir( concat_dir('SSW_STIX','dbase'),'detector') )
-   END
-   
-   (tr_flare[1] GT anytim('9-Dec-2021 00:00:00')): BEGIN
-            f_elut = loc_file( 'elut_table_20211209.csv', path = concat_dir( concat_dir('SSW_STIX','dbase'),'detector') )
-    END
-  ENDCASE
+  f_elut = loc_file( stx_date2elut_file(tr_flare[1]), path = concat_dir( concat_dir('SSW_STIX','dbase'),'detector') )
 
   stx_read_elut, gain, offset, str4096, elut_filename = f_elut, scale1024=0, ekev_a = ekev
   ;ekev=[energy edges, pixel, det], only includes science energy bins, not 0 and last
@@ -233,8 +215,17 @@ CASE 1 OF
   ;THIS_BIN_SIZE   DOUBLE    = Array[30, 12, 32]
   ;rspec_all=[time, det, pix, energy]
   ;RSPEC_ALL       FLOAT     = Array[45, 32, 12, 32]
-  this_bin_size_switch=fltarr(32,12,30)
-  for i=0,29 do for j=0,11 do this_bin_size_switch(*,j,i)=this_bin_size(i,j,*)
+  this_bin_size_switch=fltarr(32,12,32)+1.
+  this_bin_low_switch = fltarr(32,12,32)
+  this_bin_high_switch = fltarr(32,12,32)
+  for i=0,29 do for j=0,11 do begin
+    this_bin_size_switch(*,j,i+1)=this_bin_size(i,j,*)
+    this_bin_low_switch(*,j,i+1) =this_bin_low(i,j,*)
+    this_bin_high_switch(*,j,i+1)=this_bin_high(i,j,*)
+  endfor
+;  this_bin_size_switch=fltarr(32,12,30)
+;  for i=0,29 do for j=0,11 do this_bin_size_switch(*,j,i)=this_bin_size(i,j,*)
+
 
   ;calculate total counts for each detector
   if n_elements(elist) eq 1 then begin
@@ -255,32 +246,75 @@ CASE 1 OF
   print
   print
   endif
+  
+  if n_elements(tlist) eq 1 then begin
+  
+  this_r  = reform(spec_all(tlist,*,*,*))
+  this_dr = reform(dspec_all(tlist,*,*,*))
+  
+  endif else begin
+   
+  this_r = total(spec_all(tlist,*,*,*),1) 
+  this_dr = sqrt(total(dspec_all(tlist,*,*,*)^2.,1))
+  
+  endelse
+  
+  this_bkg = reform(spec_all_bkg)
+  this_dbkg = reform(dspec_all_bkg)
+  
+  
+  ;; Assuming flat spectrum in the first and last energy bin (TBD dependence on the slope)
+  if n_en eq 1 then begin
+  
+    this_r(*,*,elist) *= (e1(elist) - e0(elist)) / this_bin_size_switch(*,*,elist)
+    this_dr(*,*,elist) *= (e1(elist) - e0(elist)) / this_bin_size_switch(*,*,elist)   
+    
+    this_bkg(*,*,elist) *= (e1(elist) - e0(elist)) / this_bin_size_switch(*,*,elist)
+    this_dbkg(*,*,elist) *= (e1(elist) - e0(elist)) / this_bin_size_switch(*,*,elist)
+  
+  endif else begin
+    
+    ;; If multiple energy bins, correct firts and last only
+    this_r(*,*,elist(0)) *= (this_bin_high_switch(*,*,elist(0)) - e0(elist(0)))/this_bin_size_switch(*,*,elist(0))
+    this_r(*,*,elist(-1)) *= (e1(elist(-1)) - this_bin_low_switch(*,*,elist(-1)) )/this_bin_size_switch(*,*,elist(-1))
 
+    this_dr(*,*,elist(0)) *= (this_bin_high_switch(*,*,elist(0)) - e0(elist(0)))/this_bin_size_switch(*,*,elist(0))
+    this_dr(*,*,elist(-1)) *= (e1(elist(-1)) - this_bin_low_switch(*,*,elist(-1)) )/this_bin_size_switch(*,*,elist(-1))
+    
+    
+    this_bkg(*,*,elist(0)) *= (this_bin_high_switch(*,*,elist(0)) - e0(elist(0)))/this_bin_size_switch(*,*,elist(0))
+    this_bkg(*,*,elist(-1)) *= (e1(elist(-1)) - this_bin_low_switch(*,*,elist(-1)) )/this_bin_size_switch(*,*,elist(-1))
 
+    this_dbkg(*,*,elist(0)) *= (this_bin_high_switch(*,*,elist(0)) - e0(elist(0)))/this_bin_size_switch(*,*,elist(0))
+    this_dbkg(*,*,elist(-1)) *= (e1(elist(-1)) - this_bin_low_switch(*,*,elist(-1)) )/this_bin_size_switch(*,*,elist(-1))
+    
+  endelse
   
   ;; Sum  counts in time and energy
   if n_en eq 1 then begin
 
-    this_r=reform(total(spec_all(tlist,*,*,elist),1))
-    this_dr=sqrt(total(dspec_all(tlist,*,*,elist)^2,1))
-    this_bkg=reform(spec_all_bkg(*,*,*,elist))
-    this_dbkg=sqrt(reform(dspec_all_bkg(*,*,*,elist)^2))   
-    this_bin_size_summed=this_bin_size_switch(*,*,elist)
+    this_r=reform(this_r(*,*,elist))
+    this_dr=reform(this_dr(*,*,elist))
+    this_bkg=reform(this_bkg(*,*,elist))
+    this_dbkg=reform(this_dbkg(*,*,elist))   
+    ;this_bin_size_summed=this_bin_size_switch(*,*,elist)
 
   endif else begin
 
-    this_r=total(total(spec_all(tlist,*,*,elist),4),1)
-    this_dr=sqrt(total(total(dspec_all(tlist,*,*,elist)^2,4),1))
-    this_bkg=reform(total(spec_all_bkg(*,*,*,elist),4))
-    this_dbkg=sqrt(reform(total(dspec_all_bkg(*,*,*,elist)^2,4)))
-    this_bin_size_summed = total(this_bin_size_switch(*,*,elist),3)
+    this_r=total(this_r(*,*,elist),3)
+    this_dr=sqrt(total(this_dr(*,*,elist)^2,3))
+    
+    this_bkg=total(this_bkg(*,*,elist),3)
+    this_dbkg=sqrt(reform(total(this_dbkg(*,*,elist)^2,3)))
+    ;this_bin_size_summed = total(this_bin_size_switch(*,*,elist),3)
     
   endelse
   
-  this_r  = this_r / this_bin_size_summed
-  this_dr = this_dr / this_bin_size_summed
-  this_bkg = this_bkg / this_bin_size_summed
-  this_dbkg = this_dbkg / this_bin_size_summed
+  ;; Divide by the science bin width
+  this_r  = this_r / (e1(elist(-1)) - e0(elist(0)))
+  this_dr = this_dr / (e1(elist(-1)) - e0(elist(0)))
+  this_bkg = this_bkg / (e1(elist(-1)) - e0(elist(0)))
+  this_dbkg = this_dbkg / (e1(elist(-1)) - e0(elist(0)))
   
 
   this_lt = n_elements(tlist) gt 1? total(live32[*,tlist],2) : reform(live32[*,tlist])
