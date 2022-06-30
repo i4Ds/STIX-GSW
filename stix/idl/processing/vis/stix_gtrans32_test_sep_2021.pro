@@ -6,6 +6,7 @@ FUNCTION stix_gtrans32_test_sep_2021,xy_flare,o_flare=o_flare,rel_f=rel_f,plot=p
   ; for finest grids: only transmission without correction for internal shadowing
 
   ;input: xy_flare = position of flare in heliocentric coordinates as seen from Solar Orbiter
+  ;                  (roll angle is not taken into account)
   ;
 
   ;output: grid transmission for each subcollimator with the usual labeling
@@ -14,54 +15,31 @@ FUNCTION stix_gtrans32_test_sep_2021,xy_flare,o_flare=o_flare,rel_f=rel_f,plot=p
 
 
 
-  ;read grid parameters
-  ;grid_temp=ascii_template('grid_param_front.txt')
-  ;save,grid_temp,filename='grid_temp.sav'
+  ;read grid parameters (from Matej's measurements - average between front and back illuminated)
   restore,loc_file( 'grid_temp.sav', path = getenv('STX_VIS_DEMO') )
   fff=read_ascii(loc_file( 'grid_param_front.txt', path = getenv('STX_VIS_DEMO') ),temp=grid_temp)
   rrr=read_ascii(loc_file( 'grid_param_rear.txt', path = getenv('STX_VIS_DEMO') ),temp=grid_temp)
 
   
-  ;assumes pointing to solar center (to be corrected with aspect data in the future)
-  ;correct for pixel look direction
-  ;Ewan will send definition of plus minus by email. for now I use the following
-  ;xy_flare_stix=[-xy_flare(1),xy_flare(0)]
-  
-  ;;;;; Paolo Massa (September 2021): changed definition of 'xy_flare_stix' according to the relationship between
-  ;;;;; the heliocentric coordinate system and the SXmap one
+  ;;; Changed definition of 'xy_flare_stix' according to the relationship between
+  ;;; the heliocentric coordinate system and the SXmap one
   xy_flare_stix=[xy_flare(1),-xy_flare(0)] 
-  ;print,xy_flare
-  ;print,xy_flare_stix
-
-  ;radial
+  
+  
+  ;;;radial distance
   r_flare=sqrt( total(xy_flare_stix^2) )
-  ;angle from +y direction (definition used by Matej in grid table)
-  ;o_flare=abs(asin(xy_flare_stix(1)/r_flare)/!pi*180)
-  ;o_flare=90-abs(asin(xy_flare_stix(1)/r_flare)/!pi*180)
-  ;new October 26
-
-  ;;;;; Paolo Massa (September 2021): corrected the definition of 'o_flare'
   
-;  if (xy_flare_stix(0) ge 0) AND (xy_flare_stix(1) ge 0) then o_flare=acos(xy_flare_stix(1)/r_flare)/!pi*180.
-;  if (xy_flare_stix(0) ge 0) AND (xy_flare_stix(1) le 0) then o_flare=90+asin(abs(xy_flare_stix(1))/r_flare)/!pi*180.
-;  if (xy_flare_stix(0) le 0) AND (xy_flare_stix(1) le 0) then o_flare=acos(abs(xy_flare_stix(1))/r_flare)/!pi*180.
-;  if (xy_flare_stix(0) le 0) AND (xy_flare_stix(1) ge 0) then o_flare=90+asin(xy_flare_stix(1)/r_flare)/!pi*180.
-
-  if (xy_flare_stix(0) ge 0) AND (xy_flare_stix(1) ge 0) then o_flare=acos(xy_flare_stix(1)/r_flare) * !radeg
-  if (xy_flare_stix(0) ge 0) AND (xy_flare_stix(1) le 0) then o_flare=90-asin(abs(xy_flare_stix(1))/r_flare) * !radeg
-  if (xy_flare_stix(0) le 0) AND (xy_flare_stix(1) le 0) then o_flare=-90+asin(xy_flare_stix(1)/r_flare) * !radeg
-  if (xy_flare_stix(0) le 0) AND (xy_flare_stix(1) ge 0) then o_flare=-acos(xy_flare_stix(1)/r_flare) * !radeg
+  ;;;;; Paolo Massa (June 2022: restored previous version by Matej and Sam)
   
-  ;;;;; Paolo Massa (September 2021): corrected the definition of 'rel_f' and 'rel_r'. Indeed, the grids in this case
-  ;;;;; are considered looking towards the Sun. A minus sign is added to 'fff.o' and 'rrr.o' to keep into account the different
-  ;;;;; definition of the orientation angle used in Matej's grid table
+  if (xy_flare_stix(0) ge 0) AND (xy_flare_stix(1) ge 0) then o_flare=acos(xy_flare_stix(1)/r_flare)/!pi*180.
+  if (xy_flare_stix(0) ge 0) AND (xy_flare_stix(1) le 0) then o_flare=90+asin(abs(xy_flare_stix(1))/r_flare)/!pi*180.
+  if (xy_flare_stix(0) le 0) AND (xy_flare_stix(1) le 0) then o_flare=acos(abs(xy_flare_stix(1))/r_flare)/!pi*180.
+  if (xy_flare_stix(0) le 0) AND (xy_flare_stix(1) ge 0) then o_flare=90+asin(xy_flare_stix(1)/r_flare)/!pi*180.
+
   
 ;  ;orientations of grids relative to flare
-;  rel_f=abs(fff.o-o_flare)
-;  rel_r=abs(rrr.o-o_flare)
-  rel_f=abs(-fff.o-o_flare)
-  rel_r=abs(-rrr.o-o_flare)
-
+  rel_f=abs(180.-fff.o-o_flare)
+  rel_r=abs(180.-rrr.o-o_flare)
 
   ;correction only applies to component normal to the grid orientation
   cor_f=sin(rel_f/180.*!pi)
