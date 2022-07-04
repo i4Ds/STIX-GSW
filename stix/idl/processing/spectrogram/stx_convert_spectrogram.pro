@@ -40,7 +40,10 @@
 ;    shift_duration : in, type="boolean", default="0"
 ;                     Shift all time bins by 1 to account for FSW time input discrepancy prior to 09-Dec-2021.
 ;                     N.B. WILL ONLY WORK WITH FULL TIME RESOUTION DATA WHICH IS OFTEN NOT THE CASE FOR PIXEL DATA.
-;              
+;
+;    plot : in, type="boolean", default="1"
+;                     If set open OSPEX GUI and plot lightcurve in standard quickool energy bands where there is data present 
+;                                  
 ;    ospex_obj : out, type="OSPEX object"
 ;               
 ;
@@ -51,11 +54,13 @@
 ;
 ; :history:
 ;    18-Jun-2021 - ECMD (Graz), initial release
-;    22-Feb-2022 - ECMD (Graz), documented, added default warnings, elut is determined by stx_date2elut_file, improved error calculation 
+;    22-Feb-2022 - ECMD (Graz), documented, added default warnings, elut is determined by stx_date2elut_file, improved error calculation
+;    04-Jul-2022 - ECMD (Graz), added plot keyword 
 ;    
 ;-
 pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, time_shift = time_shift, energy_shift = energy_shift, distance = distance, $
-  flare_location= flare_location, elut_filename = elut_filename, replace_doubles = replace_doubles, keep_short_bins = keep_short_bins, apply_time_shift = apply_time_shift, ospex_obj = ospex_obj
+  flare_location= flare_location, elut_filename = elut_filename, replace_doubles = replace_doubles, keep_short_bins = keep_short_bins, apply_time_shift = apply_time_shift,$
+  no_attenuation = no_attenuation, plot = plot, ospex_obj = ospex_obj
 
   if n_elements(time_shift) eq 0 then begin
     message, 'Time shift value is not set. Using default value of 0 [s].', /info
@@ -73,6 +78,7 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
   
   default, energy_shift, 0.
   default, flare_location, [0.,0.]
+  default, plot, 1 
 
   dist_factor = 1./(distance^2.)
 
@@ -83,9 +89,9 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
 
   data_level = 4
 
-  hstart_time = (sxpar(primary_header, 'DATE_BEG'))
+  start_time = atime(stx_time2any((t_axis.time_start)[0]))
 
-  elut_filename = stx_date2elut_file(hstart_time)
+  elut_filename = stx_date2elut_file(start_time)
   
   counts_in = data_str.counts
 
@@ -161,15 +167,29 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
  
  ;get the rcr states and the times of rcr changes from the ql_lightcurves structure
   ut_rcr = stx_time2any(t_axis.time_start) 
-  
-
   find_changes, rcr, index, state, count=count
+
+  ; ************************************************************
+  ; ******************** TEMPORARY FIX *************************
+  ; ***** Andrea: 2022-April-05
+  ; Temporarily creation of the no_attenuation keyword in order
+  ; to avoid attenuation of the fitted curve. This is useful for 
+  ; obtaining thermal fit parameters with the BKG detector in the 
+  ; case the attenuator is inserted. We tested it with the X 
+  ; class flare on 2021-Oct-26 and it works nicely.
+  if keyword_set(no_attenuation) then begin
+    rcr = rcr*0.
+    index = 0
+    state = 0
+  endif
+  ; ************************************************************
+  ; ************************************************************
+  
   ;add the rcr information to a specpar structure so it can be incuded in the spectrum FITS file
   specpar = { sp_atten_state :  {time:ut_rcr[index], state:state} }
   
-
   stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, $
-    dist_factor = dist_factor, flare_location= flare_location, eff_ewidth = eff_ewidth, ospex_obj = ospex_obj
+    dist_factor = dist_factor, flare_location= flare_location, eff_ewidth = eff_ewidth, plot = plot, ospex_obj = ospex_obj
 
 end
 

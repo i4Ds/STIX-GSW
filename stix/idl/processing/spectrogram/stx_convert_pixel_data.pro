@@ -47,7 +47,10 @@
 ;                     Shift all time bins by 1 to account for FSW time input discrepancy prior to 09-Dec-2021.
 ;                     N.B. WILL ONLY WORK WITH FULL TIME RESOUTION DATA WHICH IS OFTEN NOT THE CASE FOR PIXEL DATA.
 ;
-;    ospex_obj : out, type="OSPEX object"
+;     plot : in, type="boolean", default="1"
+;                     If set open OSPEX GUI and plot lightcurve in standard quickool energy bands where there is data present 
+;                                  
+;      ospex_obj : out, type="OSPEX object"
 ;
 ;
 ; :examples:
@@ -58,11 +61,12 @@
 ; :history:
 ;    18-Jun-2021 - ECMD (Graz), initial release
 ;    19-Jan-2022 - Andrea (FHNW), added keywords for selecting a subset of pixels and detectors for OSPEX
-;    22-Feb-2022 - ECMD (Graz), documented, added default warnings, elut is determined by stx_date2elut_file, improved error calculation 
-;                               
+;    22-Feb-2022 - ECMD (Graz), documented, added default warnings, elut is determined by stx_date2elut_file, improved error calculation
+;    04-Jul-2022 - ECMD (Graz), added plot keyword 
+;
 ;-
 pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, time_shift = time_shift, energy_shift = energy_shift, distance = distance, $
-  flare_location= flare_location, ospex_obj = ospex_obj, det_ind = det_ind, pix_ind = pix_ind, shift_duration = shift_duration, no_attenuation=no_attenuation
+  flare_location= flare_location,  plot = plot, ospex_obj = ospex_obj, det_ind = det_ind, pix_ind = pix_ind, shift_duration = shift_duration, no_attenuation=no_attenuation
 
   if n_elements(time_shift) eq 0 then begin
     message, 'Time shift value not set using default value of 0 [s].', /info
@@ -81,6 +85,7 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   default, energy_shift, 0.
   default, flare_location, [0.,0.]
   default, shift_duration, 0
+  default, plot, 1
 
   dist_factor = 1./(distance^2.)
 
@@ -110,9 +115,9 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
 
   data_level = 1
 
-  hstart_time = (sxpar(primary_header, 'DATE_BEG'))
+  start_time = atime(stx_time2any((t_axis.time_start)[0]))
 
-  elut_filename = stx_date2elut_file(hstart_time)
+  elut_filename = stx_date2elut_file(start_time)
 
   counts_in = data_str.counts
 
@@ -226,11 +231,33 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   ; ************************************************************
   ; ************************************************************
 
+  ; ******************** TEMPORARY FIX *************************
+  ; ***** ECMD: 2022-Jun-27
+  ; As the reported time of the RCR status change can be inaccurate
+  ; up to several seconds correct this by finding the times where there is a
+  ; large change in counts in the counts of the 5 - 6 keV energy bin.
+  ; find all time intervals where the difference between adjacent bins is large
+  if max(rcr) gt 0 then begin; skip if in the standard state of RCR0 for the full time range
+
+    jumps = where(abs((total(counts_spec,2))[2,*] - shift((total(counts_spec,2))[2,*],-1)) gt 1e4)
+    ; include the starting bin
+    jumps = [0, jumps]
+    ; as the attenuator motion can be present in two consecutive bins select only the first
+    idx_jumps =  where(abs(jumps - shift(jumps, -1)) gt 2)
+    jumps_use= [jumps[idx_jumps]]
+    ; each transition should correspond close in time to a recorded transition in the FITS file
+    ; adjust the time indexes of these transitions to the closest jumps
+    closest_jumps = value_closest(jumps_use, index)
+    index = jumps_use[closest_jumps]
+
+  endif
+  ; ************************************************************
+
   ;add the rcr information to a specpar structure so it can be incuded in the spectrum FITS file
   specpar = { sp_atten_state :  {time:ut_rcr[index], state:state} }
 
   stx_convert_science_data2ospex, spectrogram = spectrogram, specpar=specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims,  fits_path_bk = fits_path_bk,$
-    dist_factor = dist_factor, flare_location= flare_location, eff_ewidth = eff_ewidth,ospex_obj = ospex_obj
+    dist_factor = dist_factor, flare_location= flare_location, eff_ewidth = eff_ewidth, plot = plot, ospex_obj = ospex_obj
 
 end
 

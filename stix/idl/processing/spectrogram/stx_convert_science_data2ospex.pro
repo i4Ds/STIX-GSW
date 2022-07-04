@@ -42,17 +42,23 @@
 ;    eff_ewidth : in, type="float arr"
 ;               an output float value
 ;
-;    ospex_obj : out, type="OSPEX object",
+;    plot : in, type="boolean", default="1"
+;                     If set open OSPEX GUI and plot lightcurve in standard quickool energy bands where there is data present 
+;                                  
+;      ospex_obj : out, type="OSPEX object",
 ;               the output OSPEX object contining the data 
 ;
 ;
 ; :history:
 ;    18-Jun-2021 - ECMD (Graz), initial release
 ;    22-Feb-2022 - ECMD (Graz), documented, improved error calculation 
+;    04-Jul-2022 - ECMD (Graz), added plot keyword 
 ;    
 ;-
 pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims,  fits_path_bk = fits_path_bk,$
-  dist_factor = dist_factor, flare_location= flare_location, eff_ewidth = eff_ewidth, ospex_obj = ospex_obj
+  dist_factor = dist_factor, flare_location= flare_location, eff_ewidth = eff_ewidth, plot = plot, ospex_obj = ospex_obj
+
+  default, plot, 0
 
   n_energies = data_dims[0]
   n_detectors = data_dims[1]
@@ -166,13 +172,15 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
   e_axis = spectrogram.energy_axis
   emin = 1
   emax = 150
-  new_edges = where( spectrogram.energy_axis.edges_1 gt emin and  spectrogram.energy_axis.edges_1 lt emax)
+  ; 10-Jun-2022 ECMD issue which removed highest energy bin  
+  new_edges = where( spectrogram.energy_axis.edges_1 gt emin and  spectrogram.energy_axis.edges_1 le emax, n_energy_edges) 
   e_axis_new = stx_construct_energy_axis(energy_edges = e_axis.edges_1, select = new_edges)
 
   new_energies = where_arr(fix(10*e_axis.mean),fix(10*e_axis_new.mean))
 
   spec_in_corr = spec_in_corr[new_energies,*]
   total_error = total_error[new_energies,*]
+  n_energies = n_energy_edges-1
 
   ;insert the information from the telemetry file into the expected stx_fsw_sd_spectrogram structure
   spectrogram = { $
@@ -200,10 +208,14 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
 
   ospex_obj =   stx_fsw_sd_spectrogram2ospex( spectrogram, specpar = specpar, time_shift= time_shift, ph_energy_edges = ph_in, /include_damage, /fits , /tail, livetime_fraction = eff_livetime_fraction, $
     dist_factor = dist_factor, flare_location= flare_location )
-
+  
+  if keyword_set(plot) then begin
+  counts_str = ospex_obj->getdata(spex_units='counts')
+  origunits = ospex_obj->get(/spex_data_origunits)
+  origunits.data_name = 'STIX'
+  ospex_obj->set, spex_data_origunits = origunits
   ospex_obj -> set, spex_eband = get_edges([4.,10.,15.,25, 50, 84.], /edges_2)
-
-  ospex_obj -> plot_time,  spex_units='flux'
-
+  ospex_obj -> plot_time,  spex_units='flux', /show_err, obj = plotman_object 
+endif
 
 end
