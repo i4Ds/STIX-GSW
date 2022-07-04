@@ -28,7 +28,8 @@ pro stx_ospex_spectroscopy_demo
   ;*********************************************** 1- AQUIRE DATA ******************************************************
 
   ;The files used for this demonstration are hosted on a STIX server and downloaded when the demo is first run
-  site = 'http://pub099.cs.technik.fhnw.ch/data/demo/ospex/'
+  ;03-Jul-2022 - ECMD (Graz), updated data archive URL
+  site = 'http://dataarchive.stix.i4ds.net/data/demo/ospex/'
 
   ;The ospex folder in under stx_demo_data will usually start off empty on initial installation of the STIX software
   out_dir = concat_dir( getenv('stx_demo_data'),'ospex', /d)
