@@ -71,7 +71,7 @@ function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time
   ut2_time = ospex_obj->getaxis(/ut, /edges_2)
   duration = ospex_obj->getaxis(/ut, /width)
 
-  ;use OPSEX bin_data method to bin counts in given energy bands
+  ;use OSPEX bin_data method to bin counts in given energy bands
   energy_summed_counts = data_obj->bin_data(data = counts_str, intervals = energy_ranges, $
     eresult = energy_summed_error, ltime = energy_summed_error)
 
@@ -98,7 +98,7 @@ function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time
   intervals = [ut2_time[0,iall[0:-2]],ut2_time[1,iall[1:-1]-1]]
   intervals = [[intervals],[ ut2_time[0,iall[-1]], ut2_time[1,-1]]]
 
-  ;use OPSEX bin_data method to bin counts in given time bands
+  ;use OSPEX bin_data method to bin counts in given time bands
   time_summed_counts = data_obj->bin_data(data = energy_summed_str, intervals = intervals, /do_time, $
     eresult = time_summed_error, ltime = time_summed_livetime)
 
