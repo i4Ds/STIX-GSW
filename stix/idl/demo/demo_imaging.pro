@@ -22,7 +22,7 @@ data_folder = getenv('SSW_STIX') + '/idl/processing/imaging/data/'
 
 path_sci_file = data_folder + 'solo_L1_stix-sci-xray-l1-1178428688_20200607T213708-20200607T215208_V01.fits' ; Path of the science L1 fits file
 path_bkg_file = data_folder + 'solo_L1_stix-sci-xray-l1-1178451984_20200607T225959-20200607T235900_V01.fits' ; Path of the background L1 fits file
-; Path of the auxiliary L2 fits file (available at "http://pub099.cs.technik.fhnw.ch/fits/L2/")
+; Path of the auxiliary L2 fits file (available at "http://dataarchive.stix.i4ds.net/fits/L2/")
 aux_fits_file = data_folder + 'solo_L2_stix-aux-auxiliary_20200607_V01.fits' 
 time_range    = ['7-Jun-2020 21:39:00', '7-Jun-2020 21:42:49'] ; Time range to consider
 energy_range  = [6,10]       ; Energy range to consider (keV)
