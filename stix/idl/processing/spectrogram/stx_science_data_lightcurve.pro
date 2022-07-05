@@ -8,7 +8,7 @@
 ;
 ; :description:
 ;    This takes a science data file and produces a lightcurve structure binned to the given energy and time bins
-;    A plotman window showing the lightcurve can also be generated. 
+;    A plotman window showing the lightcurve can also be generated.
 ;
 ; :categories:
 ;     lightcurve
@@ -125,7 +125,7 @@ function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time
     plot_obj = plotman(desc='STIX Lightcurve', input = ut_plot, /ylog, xst = 1)
   endif
 
-  ;retrieve the data from the OSPEX object for the output structure 
+  ;retrieve the data from the OSPEX object for the output structure
   flux_str = ospex_obj->getdata(spex_units='flux')
   ut2_time = ospex_obj->getaxis(/ut, /edges_2)
   duration = ospex_obj->getaxis(/ut, /width)
@@ -137,6 +137,7 @@ function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time
     ut:ut2_time, duration:duration, $
     energy_bands:energy_ranges}
 
+  obj_destroy, ospex_obj
   return, light_curve_str
 end
 ;---------------------------------------------------------------------------
@@ -191,8 +192,8 @@ pro stx_demo_lightcurve
   fits_path_data_l4 = loc_file(l4_filename, path = out_dir )
   fits_path_bk   = loc_file(bk_filename, path = out_dir )
   fits_path_data_l1   = loc_file(l1_filename, path = out_dir)
- 
-  ; set the example time and energy binning 
+
+  ; set the example time and energy binning
   time_min = 4
   energy_ranges = [4,6,10,28]
 
