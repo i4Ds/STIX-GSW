@@ -209,6 +209,8 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
 
   endif
 
+  n_time = n_elements(time_bin_center) ; update number of time bins
+
   if alpha then begin
     rcr = tag_exist(data, 'rcr') ? data.rcr :replicate(control.rcr, n_time)
   endif else begin
@@ -223,6 +225,7 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
     counts_err = full_counts_err
 
   endelse
+
 
   ; create time object
   stx_time_obj = stx_time()
@@ -270,6 +273,7 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
 
   endif
 
+  energies_used = where( control.energy_bin_mask eq 1, nenergies)
   energy_edges_2 = transpose([[energy[energies_used].e_low], [energy[energies_used].e_high]])
   edge_products, energy_edges_2, edges_1 = energy_edges_1
 

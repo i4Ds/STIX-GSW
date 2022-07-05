@@ -140,6 +140,8 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
 
   endelse
 
+  n_times = n_elements(time_bin_center) ; update number of time bins
+
   energies_used = where( control.energy_bin_mask eq 1, nenergies)
 
 
@@ -156,7 +158,7 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
     counts = full_counts
 
     full_counts_err = dblarr(32, 12, 32, n_times)
-    full_counts[energies_used, pixels_used, detectors_used, *] = counts_err
+    full_counts_err[energies_used, pixels_used, detectors_used, *] = counts_err
     counts_err = full_counts_err
 
   endif else begin
@@ -204,6 +206,7 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
   t_axis.time_end = t_end
   t_axis.duration = duration
 
+  energies_used = where( control.energy_bin_mask eq 1, nenergies)
   energy_edges_2 = transpose([[energy[energies_used].e_low], [energy[energies_used].e_high]])
   edge_products, energy_edges_2, edges_1 = energy_edges_1
 
