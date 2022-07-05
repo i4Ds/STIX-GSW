@@ -209,11 +209,12 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
   ospex_obj =   stx_fsw_sd_spectrogram2ospex( spectrogram, specpar = specpar, time_shift= time_shift, ph_energy_edges = ph_in, /include_damage, /fits , /tail, livetime_fraction = eff_livetime_fraction, $
     dist_factor = dist_factor, flare_location= flare_location )
   
-  if keyword_set(plot) then begin
   counts_str = ospex_obj->getdata(spex_units='counts')
   origunits = ospex_obj->get(/spex_data_origunits)
   origunits.data_name = 'STIX'
   ospex_obj->set, spex_data_origunits = origunits
+  
+  if keyword_set(plot) then begin
   ospex_obj -> set, spex_eband = get_edges([4.,10.,15.,25, 50, 84.], /edges_2)
   ospex_obj -> plot_time,  spex_units='flux', /show_err, obj = plotman_object 
 endif
