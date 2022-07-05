@@ -127,11 +127,14 @@ function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time
 
   ;retrieve the data from the OSPEX object for the output structure
   flux_str = ospex_obj->getdata(spex_units='flux')
+  units = data_obj->getunits()
   ut2_time = ospex_obj->getaxis(/ut, /edges_2)
   duration = ospex_obj->getaxis(/ut, /width)
 
   light_curve_str = {$
     data:flux_str.data, $
+    data_type:units.data_type, $
+    data_units:units.data, $
     error:flux_str.edata, $
     livetime : flux_str.ltime, $
     ut:ut2_time, duration:duration, $
