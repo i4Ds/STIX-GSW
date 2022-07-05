@@ -33,19 +33,16 @@
 ;            Set if input file is an alpha e.g. L1A
 ;
 ;    use_discriminators : in, type="boolean", default="0"
-;               an output float value;
+;               if set include the LLD and ULD energy bins
 ;
 ;    primary_header : out, type="string array"
-;               an output float value;
-;
-;    data_str : out, type="structure"
-;              The header of the primary HDU of the spectrogram data file
+;              The header of the primary HDU of the pixel data files
 ;
 ;    data_header : out, type="string array", default="string array"
-;              The header of the data extension of the spectrogram data file
+;              The header of the data extension of the pixel data file
 ;
 ;    data_str : out, type="structure"
-;              The contents of the data extension of the spectrogram data file
+;              The contents of the data extension of the pixel data file
 ;
 ;    control_header : out, type="string array"
 ;                The header of the control extension of the spectrogram data file
