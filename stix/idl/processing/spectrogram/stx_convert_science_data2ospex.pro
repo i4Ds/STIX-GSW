@@ -28,10 +28,10 @@
 ;               The science data x-ray compaction level used to create the spectrogram 
 ;
 ;    data_dims : in, type="float", default="1.0"
-;               The dimentions of the spectrogram count data 
+;               The dimensions of the spectrogram count data 
 ;
 ;    fits_path_bk : in, optional, type="string"
-;              The path to file containg the background observation this should be in pixel data format i.e. sci-xray-cpd (or sci-xray-l1)
+;              The path to file containing the background observation this should be in pixel data format i.e. sci-xray-cpd (or sci-xray-l1)
 ;
 ;    dist_factor : in, type="float", default="1.0"
 ;               The distance 
@@ -43,10 +43,10 @@
 ;               an output float value
 ;
 ;    plot : in, type="boolean", default="1"
-;                     If set open OSPEX GUI and plot lightcurve in standard quickool energy bands where there is data present 
+;                     If set open OSPEX GUI and plot lightcurve in standard quicklook energy bands where there is data present 
 ;                                  
 ;      ospex_obj : out, type="OSPEX object",
-;               the output OSPEX object contining the data 
+;               the output OSPEX object containing the data 
 ;
 ;
 ; :history:

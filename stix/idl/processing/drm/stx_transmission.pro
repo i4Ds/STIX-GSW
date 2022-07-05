@@ -8,7 +8,7 @@
 ;
 ; :description:
 ; 
-;    This procedure calulates the tramission probality of photons at specified energy rance from the fromt entrance to 
+;    This procedure calculates the transmission probality of photons at specified energy range from the front entrance to 
 ;    the detector
 ;
 ;
@@ -18,7 +18,7 @@
 ; :params:
 ; 
 ;    ein : in, required, type="fltarr"
-;             an array of energies at whicth to calulate the trnsmission
+;             an array of energies at which to calculate the transmission
 ;             
 ;    det_mask :in, type="fltarr", default="intarr(32)+1"
 ;              An array of detector indices to use
@@ -26,19 +26,19 @@
 ; :keywords:
 ; 
 ;    attenuator : in, type="boolean", default="0"
-;               If set incude transmission through aluminum attenuator 
+;               If set include transmission through aluminium attenuator 
 ;               
 ;    xcom : in, type="boolean", default="0"
-;               If set calulate tranmission using IDL xcom rather than supplied tables
+;               If set calculate transmission using IDL xcom rather than supplied tables
 ;               
 ;    transmission_table : in, type="string", default="stix_transmission_highres_20210303.csv'"
 ;              path to csv file of transmission table to use             
 ;
 ;    sbo : in, type="boolean", default="0"
-;               if set use SolarBlack (Oxygen) compostion rather than SolarBlack (Carbon) 
+;               if set use SolarBlack (Oxygen) composition rather than SolarBlack (Carbon) 
 ;
 ; :returns:
-;   fltarr with the transmition fraction at the specified energies
+;   fltarr with the transmission fraction at the specified energies
 ;
 ;
 ; :history:
@@ -61,7 +61,7 @@ function stx_transmission, ein, det_mask, attenuator = attenuator, xcom = xcom, 
   ;TODO - option for grid covers
   idx_det = where(det_mask eq 1, count_det)
 
-  ;if set cacluate the transmission factors directly using xsec
+  ;if set calculate the transmission factors directly using xsec
   if keyword_set(xcom) then begin
 
     emin = ein
@@ -140,7 +140,7 @@ function stx_transmission, ein, det_mask, attenuator = attenuator, xcom = xcom, 
     ; Al = 42 x 1000 Å
     ; Mylar = 0.25 x 20 + 3 mils
     ; Kapton = 3 mils
-    ; Dacron = not incuded
+    ; Dacron = not included
     ;
     mli = (1d0/exp( (tr_al)*(42d0 * 1000.d0*angstrom) )) * ( 1.d0/exp( (tr_kapton)*(3d0*mil)  )) * (1d0/exp( (tr_mylar) *(20d0*.25d0*mil + 3d0*mil)))
 

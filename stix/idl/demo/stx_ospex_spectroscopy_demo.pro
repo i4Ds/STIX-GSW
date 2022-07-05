@@ -31,10 +31,10 @@ pro stx_ospex_spectroscopy_demo
   ;03-Jul-2022 - ECMD (Graz), updated data archive URL
   site = 'http://dataarchive.stix.i4ds.net/data/demo/ospex/'
 
-  ;The ospex folder in under stx_demo_data will usually start off empty on initial installation of the STIX software
+  ;The OSPEX folder in under stx_demo_data will usually start off empty on initial installation of the STIX software
   out_dir = concat_dir( getenv('stx_demo_data'),'ospex', /d)
 
-  ;if the ospex demo database folder is not present then create it
+  ;if the OSPEX demo database folder is not present then create it
   if ~file_test(out_dir, /directory) then begin
     file_mkdir, out_dir
   endif
@@ -72,7 +72,7 @@ pro stx_ospex_spectroscopy_demo
   print, 'The ELUT applied at this time was : ', elut_filename
   print, " "
 
-  ;The proceure can be used to provide the ELUT given the date in any anytim compatible format
+  ;The procedure can be used to provide the ELUT given the date in any anytim compatible format
   print, stx_date2elut_file('2022-02-08')
 
   ;The primary header also contains values for some parameters needed for spectroscopy related to the changing spacecraft location.
@@ -123,7 +123,7 @@ pro stx_ospex_spectroscopy_demo
   fit_function= 'vth+thick2'
 
   ;The initial fit parameters are adjusted manually to get a good starting point for the fit.
-  ; The parmeter definitions as found in f_vth.pro and f_thick2.pro :
+  ; The parameter definitions as found in f_vth.pro and f_thick2.pro :
   ;   fit_comp_params[0] - Emission measure in units of 10^49
   ;   fit_comp_params[1] - KT, plasma temperature in keV
   ;   fit_comp_params[2] - Abundance relative to coronal for Fe, Ni, Si, and Ca. S as well at half the deviation from 1 as Fe.

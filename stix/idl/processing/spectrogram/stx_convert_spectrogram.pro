@@ -39,10 +39,10 @@
 ;
 ;    shift_duration : in, type="boolean", default="0"
 ;                     Shift all time bins by 1 to account for FSW time input discrepancy prior to 09-Dec-2021.
-;                     N.B. WILL ONLY WORK WITH FULL TIME RESOUTION DATA WHICH IS OFTEN NOT THE CASE FOR PIXEL DATA.
+;                     N.B. WILL ONLY WORK WITH FULL TIME RESOLUTION DATA WHICH IS OFTEN NOT THE CASE FOR PIXEL DATA.
 ;
 ;    plot : in, type="boolean", default="1"
-;                     If set open OSPEX GUI and plot lightcurve in standard quickool energy bands where there is data present 
+;                     If set open OSPEX GUI and plot lightcurve in standard quicklook energy bands where there is data present 
 ;                                  
 ;    ospex_obj : out, type="OSPEX object"
 ;               
@@ -185,7 +185,7 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
   ; ************************************************************
   ; ************************************************************
   
-  ;add the rcr information to a specpar structure so it can be incuded in the spectrum FITS file
+  ;add the rcr information to a specpar structure so it can be included in the spectrum FITS file
   specpar = { sp_atten_state :  {time:ut_rcr[index], state:state} }
   
   stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, $
