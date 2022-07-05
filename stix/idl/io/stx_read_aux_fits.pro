@@ -18,7 +18,7 @@
 ; :keywords:
 ;
 ;    primary_header : out, type="string array"
-;               an output float value;
+;              The header of the primary HDU of the pixel data files
 ;
 ;    data_header : out, type="string array"
 ;              The header of the data extension of the auxiliary file
