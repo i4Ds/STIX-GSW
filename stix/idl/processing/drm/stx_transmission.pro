@@ -47,6 +47,9 @@
 ;                               to calculate transmission
 ;    25-Jan-2022 - ECMD (Graz), attenuator and transmission_table keywords added
 ;    22-Feb-2022 - ECMD (Graz), documented 
+;    29-Jun-2022 - ECMD (Graz), updated to call transmission table stix_transmission_highres_20220621.csv which includes 
+;                               alloys to describe the Be window and Al attenuator. Attenuator transmission is included in 
+;                               standard table so a separate call to a component separated table is no longer needed. 
 ;
 ;-
 function stx_transmission, ein, det_mask, attenuator = attenuator, xcom = xcom, transmission_table = transmission_table, sbo = sbo, verbose = verbose
@@ -173,7 +176,7 @@ function stx_transmission, ein, det_mask, attenuator = attenuator, xcom = xcom, 
       transmission_table = transmission_table
     endif else begin
 
-      transmission_table_sbc =  loc_file( 'stix_transmission_highres_20210303.csv', path = getenv('STX_GRID'))
+      transmission_table_sbc =  loc_file( 'stix_transmission_highres_20220621.csv', path = getenv('STX_GRID'))
       transmission_table_sbo =  loc_file( 'stix_transmission_highres_alt_20210826.csv', path = getenv('STX_GRID'))
 
       transmission_table = keyword_set(sbo) ? transmission_table_sbo : transmission_table_sbc
@@ -190,12 +193,7 @@ function stx_transmission, ein, det_mask, attenuator = attenuator, xcom = xcom, 
 
     if attenuator then begin
 
-      transmission_table_comp = loc_file( 'stix_transmission_by_component_highres_20210303.csv', path = getenv('STX_GRID'))
-      transmission_components = read_csv(transmission_table_comp, head = header)
-
-      ;TODO check attenuation is on same energy binning as other components
-
-      att = transmission_components.(4)
+      att = transmission.(33)
 
       tot *= att
     endif
