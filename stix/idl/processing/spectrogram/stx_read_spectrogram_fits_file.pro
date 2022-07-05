@@ -94,10 +94,11 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
 
   n_time = n_elements(data.time)
 
-  hstart_time = (sxpar(primary_header, 'DATE_BEG'))
 
   processing_level = (sxpar(primary_header, 'LEVEL'))
   if strcompress(processing_level,/remove_all) eq 'L1A' then alpha = 1
+
+  hstart_time = alpha ? (sxpar(primary_header, 'date_beg')) : (sxpar(primary_header, 'date-beg'))
 
 
   trigger_zero = (sxpar(data_header, 'TZERO3'))
@@ -206,26 +207,35 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
 
   endif
 
-  if alpha then begin
-    rcr = tag_exist(data, 'rcr') ? data.rcr :replicate(control.rcr, n_time)
-  endif else begin
-    rcr =  ((data.rcr).typecode) eq 7 ? fix(strmid(data.rcr,0,1,/reverse_offset)) : (data.rcr)
-  endelse
-
-
   ; create time object
   stx_time_obj = stx_time()
   stx_time_obj.value =  anytim(hstart_time , /mjd)
   start_time = stx_time_add(stx_time_obj, seconds = time_shift)
 
-  if ~keyword_set(alpha) then begin ; 25-Mar-22 (ECMD) time and timedel in L1 files are now in centiseconds 
-    t_start = stx_time_add( start_time,  seconds = [ time_bin_center/100 - duration/200 ] )
-    t_end   = stx_time_add( start_time,  seconds = [ time_bin_center/100 + duration/200 ] )
-    t_mean  = stx_time_add( start_time,  seconds = [ time_bin_center/100 ] )
-  endif else begin
+  if alpha then begin
+    rcr = tag_exist(data, 'rcr') ? data.rcr :replicate(control.rcr, n_time)
+    
     t_start = stx_time_add( start_time,  seconds = [ time_bin_center - duration/2. ] )
     t_end   = stx_time_add( start_time,  seconds = [ time_bin_center + duration/2. ] )
     t_mean  = stx_time_add( start_time,  seconds = [ time_bin_center ] )
+
+  endif else begin
+    rcr =  ((data.rcr).typecode) eq 7 ? fix(strmid(data.rcr,0,1,/reverse_offset)) : (data.rcr)
+  
+    full_counts = dblarr(32, n_time)
+    full_counts[energies_used, *] = counts
+    counts = full_counts
+
+    full_counts_err = dblarr(32, n_time)
+    full_counts[energies_used, *] = counts_err
+    counts_err = full_counts_err
+
+    ; 25-Mar-22 (ECMD) time and timedel in L1 files are now in centiseconds
+    t_start = stx_time_add( start_time,  seconds = [ time_bin_center/100 - duration/200 ] )
+    t_end   = stx_time_add( start_time,  seconds = [ time_bin_center/100 + duration/200 ] )
+    t_mean  = stx_time_add( start_time,  seconds = [ time_bin_center/100 ] )
+    duration = duration/100
+  
   endelse
 
   t_axis  = stx_time_axis(n_elements(time_bin_center))
