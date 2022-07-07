@@ -161,7 +161,7 @@ configuration = 'ellipse'
 ; 3) 'fitsigmasout_pso' is a structure containing the uncertainty on the optimized parameters
 ; 4) set /uncertainty for computing an estimate of the uncertainty on the parameters
 
-vis_fwdfit_pso_map = stx_vis_fwdfit_pso(type,vis,aux_data,param_opt=param_opt,imsize=imsize,pixel=pixel, $
+vis_fwdfit_pso_map = stx_vis_fwdfit_pso(configuration,vis,aux_data,imsize=imsize,pixel=pixel, $
   srcstr = srcstrout_pso,fitsigmas=fitsigmasout_pso,/uncertainty)
 
 loadct, 5
