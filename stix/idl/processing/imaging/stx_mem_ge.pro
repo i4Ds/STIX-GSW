@@ -1,4 +1,4 @@
-FUNCTION stx_mem_ge,vis,imsize,pixel,silent=silent, total_flux=total_flux, percent_lambda=percent_lambda
+FUNCTION stx_mem_ge,vis,imsize,pixel,aux_data,silent=silent, total_flux=total_flux, percent_lambda=percent_lambda
 
   ; wrapper around MEM_GE
   ; output map structure has north up
@@ -25,16 +25,16 @@ FUNCTION stx_mem_ge,vis,imsize,pixel,silent=silent, total_flux=total_flux, perce
   mem__ge_map=mem_ge_map
   mem__ge_map.data=rotate(mem_ge_map.data,1)
   
-  ;; Mapcenter corrected for Frederic's mean shift values
-  mem__ge_map.xc = vis[0].xyoffset[0] + 26.1
-  mem__ge_map.yc = vis[0].xyoffset[1] + 58.2
+  ; Compute the mapcenter
+  this_mapcenter = vis[0].xyoffset + aux_data.stx_pointing
 
-  data = stx_get_l0_b0_rsun_roll_temp(this_time_range[0])
-  
-  mem__ge_map.roll_angle    = data.ROLL_ANGLE
-  add_prop,mem__ge_map,rsun = data.RSUN
-  add_prop,mem__ge_map,B0   = data.B0
-  add_prop,mem__ge_map,L0   = data.L0
+  mem__ge_map.xc = this_mapcenter[0]
+  mem__ge_map.yc = this_mapcenter[1]
+  mem__ge_map=rot_map(mem__ge_map,-aux_data.ROLL_ANGLE,rcenter=[0.,0.])
+  mem__ge_map.ROLL_ANGLE = 0.
+  add_prop,mem__ge_map,rsun = aux_data.RSUN
+  add_prop,mem__ge_map,B0   = aux_data.B0
+  add_prop,mem__ge_map,L0   = aux_data.L0
   
   return,mem__ge_map
 

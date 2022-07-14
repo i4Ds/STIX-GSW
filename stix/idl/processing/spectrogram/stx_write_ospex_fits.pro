@@ -33,7 +33,7 @@
 ;
 ;
 ; :calling sequence:
-;       IDL> stx_write_opsex_fits, spectrum = spec, srm = srm
+;       IDL> stx_write_ospex_fits, spectrum = spec, srm = srm
 ;
 ;
 ; :history:

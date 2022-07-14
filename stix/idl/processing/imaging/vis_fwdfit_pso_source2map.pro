@@ -1,23 +1,43 @@
-function vis_FWDFIT_PSO_SOURCE2MAP, srcstr, type=type, pixel=pixel, imsize=mapsize, xyoffset=xyoffset
+
+; NAME:
+;   vis_fwdfit_pso_source2map
+;
+; PURPOSE:
+;    create the image corresponding to the input vis_fwdfit_pso configuration and optimized parameters.
+;
+; INPUTS:
+;   srcstr: the structure containing the optimized parameters
+;   configuration: array containing parametric shapes to use for the forward fitting method
+;
+; KEYWORDS:
+;   IMSIZE      : array containing the size (number of pixels) of the image to reconstruct
+;                 (default is [128., 128.])
+;   PIXEL       : array containing the pixel size (in arcsec) of the image to reconstruct
+;                 (default is [1., 1.])
+;   XYOFFSET    : array containing the center of the map
+;                 (default is [0., 0.])
+
+
+function vis_FWDFIT_PSO_SOURCE2MAP, srcstr, configuration, pixel=pixel, imsize=mapsize, xyoffset=xyoffset
 
   default, pixel, [1., 1.]
   default, mapsize, [128, 128]
   default, xyoffset, [0., 0.]
-  default, type, 'circle'
+  ;default, type, 'circle'
 
   ; Define the map and its axes.
   data    = FLTARR(mapsize[0],mapsize[1])
   xy      = Reform( ( Pixel_coord( [mapsize[0], mapsize[1]] ) ), 2, mapsize[0], mapsize[1] )
   x       = reform(xy[0, *, *])*pixel[0] + xyoffset[0]
   y       = reform(xy[1, *, *])*pixel[1] + xyoffset[1]
-  
+
   im_tmp=x*0.
 
-  nsrc = N_ELEMENTS(srcstr)
+  nsrc = N_ELEMENTS(configuration)
 
   FOR n = 0, nsrc-1 DO BEGIN
 
-    if type eq 'loop' then begin
+    if configuration[n] eq 'loop' then begin
 
       ; LOOP CREATION
       ncirc0      = 21     ; Upper limit to number of ~equispaced circles that will be used to approximate loop.
@@ -34,10 +54,10 @@ function vis_FWDFIT_PSO_SOURCE2MAP, srcstr, type=type, pixel=pixel, imsize=mapsi
       reltheta    = (iseq/(ncirc-1.) - 0.5)                       ; locations of circles for arclength=1
       factor      = SQRT(TOTAL(reltheta^2 *relflux)) * SIG2FWHM   ; FWHM of binomial distribution for arclength=1
 
-      loopangle   = srcstr.loop_angle* !DTOR / factor
+      loopangle   = srcstr[n].loop_angle* !DTOR / factor
       IF ABS(loopangle) GT 1.99*!PI THEN MESSAGE, 'Internal parameterization error - Loop arc exceeds 2pi.'
       IF loopangle EQ 0 THEN loopangle = 0.01                     ; radians. Avoids problems if loopangle = 0
-      
+
       theta       = ABS(loopangle) * (iseq/(ncirc-1.) - 0.5)      ; equispaced between +- loopangle/2
       xloop       = SIN(theta)                                    ; for unit radius of curvature, R
       yloop       = COS(theta)                                    ; relaive to center of curvature
@@ -48,8 +68,8 @@ function vis_FWDFIT_PSO_SOURCE2MAP, srcstr, type=type, pixel=pixel, imsize=mapsi
       ; Note that there are combinations of loop angle, sigminor and sigmajor that cannot occur with radius>1arcsec.
       ; In such a case circle radius is set to 1.  Such cases will lead to bad solutions and be flagged as such at the end.
 
-      sigminor    = srcstr.srcfwhm_min / SIG2FWHM
-      sigmajor    = srcstr.srcfwhm_max / SIG2FWHM
+      sigminor    = srcstr[n].srcfwhm_min / SIG2FWHM
+      sigmajor    = srcstr[n].srcfwhm_max / SIG2FWHM
       fsumx2      = TOTAL(xloop^2*relflux)         ; scale-free factors describing loop moments for endpoint separation=1
       fsumy       = TOTAL(yloop*relflux)
       fsumy2      = TOTAL(yloop^2*relflux)
@@ -63,7 +83,7 @@ function vis_FWDFIT_PSO_SOURCE2MAP, srcstr, type=type, pixel=pixel, imsize=mapsi
       rely        = yloop * loopradius  - cgshift
       ;
       ; Calculate source structures for each circle.
-      pasep       = srcstr.srcpa *!DTOR
+      pasep       = srcstr[n].srcpa *!DTOR
       eccen_new   = 0                                  ; Circular sources
       pa_new      = 0
 
@@ -72,9 +92,9 @@ function vis_FWDFIT_PSO_SOURCE2MAP, srcstr, type=type, pixel=pixel, imsize=mapsi
 
       FOR i = 0,n_elements(iseq)-1 do begin
 
-        flux_new    = srcstr.srcflux * relflux[i]               ; Split the flux between components.
-        x_loc_new   = srcstr.srcx - relx[i]* SIN(pasep) + rely[i]* COS(pasep)
-        y_loc_new   = srcstr.srcy + relx[i]* COS(pasep) + rely[i]* SIN(pasep)
+        flux_new    = srcstr[n].srcflux * relflux[i]               ; Split the flux between components.
+        x_loc_new   = srcstr[n].srcx - relx[i]* SIN(pasep) + rely[i]* COS(pasep)
+        y_loc_new   = srcstr[n].srcy + relx[i]* COS(pasep) + rely[i]* SIN(pasep)
 
         x_tmp       = ((x-x_loc_new)*cosinus) + ((y-y_loc_new)*sinus)
         y_tmp       = - ((x-x_loc_new)*sinus) + ((y-y_loc_new)*cosinus)
@@ -100,33 +120,30 @@ function vis_FWDFIT_PSO_SOURCE2MAP, srcstr, type=type, pixel=pixel, imsize=mapsi
 
       x_tmp    = ((x-xcen)*cosinus) + ((y-ycen)*sinus)
       y_tmp    = - ((x-xcen)*sinus) + ((y-ycen)*cosinus)
-      
-    if fwhm_max eq 0 or fwhm_min eq 0 then begin
-      
+
+      if fwhm_max eq 0 or fwhm_min eq 0 then begin
+
         x_tmp = x_tmp*0.
         y_tmp = y_tmp*0.
-        
-     endif else begin
-      
+
+      endif else begin
+
         x_tmp    = 2.*sqrt( 2.*alog(2.) )*x_tmp/fwhm_max
         y_tmp    = 2.*sqrt( 2.*alog(2.) )*y_tmp/fwhm_min
-           
-     endelse
 
-     im_tmp   = exp(-((x_tmp)^2. + (y_tmp)^2.)/2.)
-      
-     if max(im_tmp) ne 0. then begin
+      endelse
+
+      im_tmp   = exp(-((x_tmp)^2. + (y_tmp)^2.)/2.)
+
+      if max(im_tmp) ne 0. then begin
 
         data    += im_tmp/(total(im_tmp)*pixel[0]*pixel[1])*flux
-    
-     endif
+
+      endif
 
     endelse
-
 
   ENDFOR
 
   return, data
-  ;make_map(data, xcen=xyoffset[0],ycen=xyoffset[1], dx = pixel[0], dy = pixel[1], id = 'STIX PSO' )
-
 END

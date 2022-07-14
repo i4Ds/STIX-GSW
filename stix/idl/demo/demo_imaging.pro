@@ -22,13 +22,26 @@ data_folder = getenv('SSW_STIX') + '/idl/processing/imaging/data/'
 
 path_sci_file = data_folder + 'solo_L1_stix-sci-xray-l1-1178428688_20200607T213708-20200607T215208_V01.fits' ; Path of the science L1 fits file
 path_bkg_file = data_folder + 'solo_L1_stix-sci-xray-l1-1178451984_20200607T225959-20200607T235900_V01.fits' ; Path of the background L1 fits file
-time_range = ['7-Jun-2020 21:39:00', '7-Jun-2020 21:42:49'] ; Time range to consider
-energy_range = [6,10]       ; Energy range to consider (keV)
-mapcenter = [-1625, -700] ; Coordinates of the center of the map to reconstruct (quasi-heliocentric)
-xy_flare = mapcenter      ; Location of the map (quasi-heliocentric). Needed for the visibility phase calibration
+; Path of the auxiliary L2 fits file (available at "http://dataarchive.stix.i4ds.net/fits/L2/")
+aux_fits_file = data_folder + 'solo_L2_stix-aux-auxiliary_20200607_V01.fits' 
+time_range    = ['7-Jun-2020 21:39:00', '7-Jun-2020 21:42:49'] ; Time range to consider
+energy_range  = [6,10]       ; Energy range to consider (keV)
+mapcenter     = [-1575, -780] ; Coordinates of the center of the map to reconstruct (Heliocentric)
+xy_flare      = mapcenter      ; Location of the map (quasi-heliocentric). Needed for the visibility phase calibration
 
 
 ;;;;;;;;;; CONSTRUCT VISIBILITY STRUCTURE
+
+; Create a structure containing auxiliary data to use for image reconstruction
+; - STX_POINTING: X and Y coordinates of STIX pointing (arcsec, SOLO_SUN_RTN coordinate frame). 
+;                 It is derived from the SAS solution (if available) or from the spacecraft pointing 
+;                 (plus average SAS solution)
+; - RSUN: apparent radius of the Sun in arcsec
+; - ROLL_ANGLE: spacecraft roll angle in degrees
+; - L0: Heliographic longitude in degrees
+; - B0: Heliographic latitude in degrees
+aux_data = stx_create_auxiliary_data(aux_fits_file, time_range)
+
 
 ; Compute the array of detector indices (from 0 to 31) from the corresponding labels.
 ; Used for selecting the detectors to consider for making the images
@@ -36,13 +49,14 @@ xy_flare = mapcenter      ; Location of the map (quasi-heliocentric). Needed for
 ;                             '6a','6b','6c','5a','5b','5c','4a','4b','4c','3a','3b','3c'])
 
 ; Create the visibility structure filled with the measured data
-vis=stix2vis_sep2021(path_sci_file, time_range, energy_range, mapcenter, path_bkg_file=path_bkg_file, $
+vis=stix2vis_sep2021(path_sci_file, time_range, energy_range, mapcenter, aux_data, path_bkg_file=path_bkg_file, $
   subc_index=subc_index, xy_flare=xy_flare, pixels=pixels)
 ; in 'stix2vis_sep2021':
 ; - avoid the plots by setting the keyword /silent
 ; - select the detector pixels (to use for computing the visibilities) by setting the keyword 'pixels' equal to
 ;   'TOP', 'BOT' or 'TOP+BOT' (top row pixels, bottom row pixels, or top+bottom pixels, respectively).
 ;   Default is 'TOP+BOT'
+
 
 print, " "
 print, "Press SPACE to continue"
@@ -59,7 +73,7 @@ pixel     = [2.,2.]       ; pixel size in arcsec
 
 ; For using 'stix_show_bproj' create the visibility structure with the default 'subc_index' (from 10 to 3). Otherwise
 ; it throws an error
-stx_show_bproj,vis,imsize=imsize,pixel=pixel,out=bp_map,scaled_out=scaled_out
+stx_show_bproj,vis,aux_data,imsize=imsize,pixel=pixel,out=bp_map,scaled_out=scaled_out
 ;
 ; - Window 0: each row corresponds to a different resolution (from top to bottom, label 10 to 3). The first three
 ;             columns refer to label 'a', 'b' and 'c'; the last column is the  sum of the first three.
@@ -68,10 +82,10 @@ stx_show_bproj,vis,imsize=imsize,pixel=pixel,out=bp_map,scaled_out=scaled_out
 
 
 ; BACKPROJECTION natural weighting
-bp_nat_map = stx_bproj(vis,imsize,pixel)
+bp_nat_map = stx_bproj(vis,imsize,pixel,aux_data)
 
 ; BACKPROJECTION uniform weighting
-bp_uni_map = stx_bproj(vis,imsize,pixel,/uni)
+bp_uni_map = stx_bproj(vis,imsize,pixel,aux_data,/uni)
 
 print, " "
 print, "Press SPACE to continue"
@@ -83,7 +97,7 @@ pause
 
 niter  = 200    ;number of iterations
 gain   = 0.1    ;gain used in each clean iteration
-nmap   = 1   ;only every 20th integration is shown in plot
+nmap   = 1      ;only every 20th integration is shown in plot
 
 ;Output are 5 maps
 ;index 0: CLEAN map
@@ -92,7 +106,7 @@ nmap   = 1   ;only every 20th integration is shown in plot
 ;index 3: clean component map
 ;index 4: clean map without residuals added
 beam_width = 20.
-clean_map=stx_vis_clean(vis,niter=niter,image_dim=imsize[0],PIXEL=pixel[0],uni=0,gain=0.1,nmap=nmap,/plot,/set, beam_width=beam_width)
+clean_map=stx_vis_clean(vis,aux_data,niter=niter,image_dim=imsize[0],PIXEL=pixel[0],uni=0,gain=0.1,nmap=nmap,/plot,/set, beam_width=beam_width)
 
 print, " "
 print, "Press SPACE to continue"
@@ -103,7 +117,7 @@ pause
 ;;************************************************ MEM_GE *********************************************************
 
 ; Maximum entropy method (see Massa P. et al 2020 for details)
-mem_ge_map=stx_mem_ge(vis,imsize,pixel)
+mem_ge_map=stx_mem_ge(vis,imsize,pixel,aux_data)
 
 window, 0
 cleanplot
@@ -120,9 +134,9 @@ pause
 ;*************************************** Expectation Maximization ************************************************
 
 ; EM is a count-based method, therefore it starts from the countrates recorded by the detector pixels
-data = stix_compute_vis_amp_phase(path_sci_file,anytim(time_range),energy_range, xy_flare=xy_flare,bkg_file=path_bkg_file, /silent)
+data = stix_compute_vis_amp_phase(path_sci_file,anytim(time_range),energy_range,bkg_file=path_bkg_file,/silent,/no_trans)
 
-em_map = stx_em(data.RATE_PIXEL,energy_range,time_range,IMSIZE=imsize,PIXEL=pixel,$
+em_map = stx_em(data.RATE_PIXEL,energy_range,time_range,aux_data,IMSIZE=imsize,PIXEL=pixel,$
   MAPCENTER=mapcenter,xy_flare=xy_flare, WHICH_PIX=pixels)
 
 loadct, 5
@@ -138,17 +152,17 @@ pause
 
 ;*************************************** VIS_FWDFIT ************************************************
 
-type='ellipse'
+configuration = 'ellipse'
 
 ; Comments:
-; 1) use the keyword 'param_opt' to fix some of the parameters (and fit the remaining ones);
+; 1) use the keyword srcin to fix some of the parameters (and fit the remaining ones);
 ;    Please, see the header of the FWDFIT-PSO procedure for details
 ; 2) 'srcstrout_pso' is a structure containing the values of the optimized parameters
 ; 3) 'fitsigmasout_pso' is a structure containing the uncertainty on the optimized parameters
 ; 4) set /uncertainty for computing an estimate of the uncertainty on the parameters
 
-vis_fwdfit_pso_map = stx_vis_fwdfit_pso(type, vis,  param_opt=param_opt, imsize=imsize, pixel=pixel, $
-  srcstr = srcstrout_pso, fitsigmas=fitsigmasout_pso, /uncertainty)
+vis_fwdfit_pso_map = stx_vis_fwdfit_pso(configuration,vis,aux_data,imsize=imsize,pixel=pixel, $
+  srcstr = srcstrout_pso,fitsigmas=fitsigmasout_pso,/uncertainty)
 
 loadct, 5
 window, 0

@@ -96,10 +96,11 @@
 ; 10-jan-2022  Paolo: changed beam width definition (from sigma to FWHM).
 ;              Default value is now estimated from the subcollimators resolution by using 'vis_sigma_clean_beam'
 ; 20-jan-2022  Säm and Paolo: added box_map keyword
+; 05-jun-2022  Paolo: added 'aux_data' input
 ;-
 
 
-function stx_vis_clean, vis, niter = niter, image_dim = image_dim_in, pixel = pixel, $
+function stx_vis_clean, vis, aux_data, niter = niter, image_dim = image_dim_in, pixel = pixel, $
   _extra = _extra,  $
   spatial_frequency_weight = spatial_frequency_weight, $
   uniform_weighting = uniform_weighting, $
@@ -336,44 +337,55 @@ function stx_vis_clean, vis, niter = niter, image_dim = image_dim_in, pixel = pi
   this_energy_range = vis[0].energy_range
   this_estring=strtrim(fix(this_energy_range[0]),2)+'-'+strtrim(fix(this_energy_range[1]),2)+' keV'
   
-  ; Map parameters
+  stx_pointing = aux_data.stx_pointing
+  ; Compute the mapcenter
+  this_mapcenter = vis[0].xyoffset + stx_pointing
+  this_xc = this_mapcenter[0]
+  this_yc = this_mapcenter[1]
+
   
-  data = stx_get_l0_b0_rsun_roll_temp(this_time[0])
-  
-  this_rsun        = data.RSUN
-  this_B0          = data.B0
-  this_L0          = data.L0
-  this_roll_angle  = data.ROLL_ANGLE
+  this_rsun        = aux_data.RSUN
+  this_B0          = aux_data.B0
+  this_L0          = aux_data.L0
+  this_roll_angle  = aux_data.ROLL_ANGLE
   this_roll_center = [0.,0.]
-  ;; Mapcenter corrected for Frederic's mean shift values
-  this_xc = vis[0].xyoffset[0] + 26.1
-  this_yc = vis[0].xyoffset[1] + 58.2
+  
 
   ; CLEAN MAP
   out0 = make_map(rotate(clean_image,1), dx = pixel[0], dy = pixel[0],  units = 'photons cm!u-2!n asec!u-2!n s!u-1!n keV!u-1!n',$
                   image_alg = 'vis_clean', id = 'STIX CLEAN '+this_estring+': ', xcen=this_xc, ycen=this_yc, beam_size = beam_width, $
                   time = this_time_avg, dur = this_duration, erange=strtrim(fix(vis[0].energy_range[0]),2)+'-'+strtrim(fix(vis[0].energy_range[1]),2)+' keV', $
-                  energy_range=vis[0].energy_range, rsun=this_rsun, L0=this_L0, B0=this_B0, roll_angle=this_roll_angle, roll_center=this_roll_center)
+                  energy_range=vis[0].energy_range, rsun=this_rsun, L0=this_L0, B0=this_B0)
+  out0=rot_map(out0,-this_roll_angle,rcenter=this_roll_center)
+  out0.ROLL_ANGLE = 0.
 
   out1 = make_map( rotate(bproj_map,1), dx = pixel[0], dy = pixel[0],  units = 'photons cm!u-2!n asec!u-2!n s!u-1!n keV!u-1!n',$
                   image_alg = 'vis_pb', id = 'STIX BPROJ '+this_estring+': ', xcen=this_xc, ycen=this_yc, beam_size = beam_width, $
                   time = this_time_avg, dur = this_duration, erange=strtrim(fix(vis[0].energy_range[0]),2)+'-'+strtrim(fix(vis[0].energy_range[1]),2)+' keV', $
-                  energy_range=vis[0].energy_range, rsun=this_rsun, L0=this_L0, B0=this_B0, roll_angle=this_roll_angle, roll_center=this_roll_center)
+                  energy_range=vis[0].energy_range, rsun=this_rsun, L0=this_L0, B0=this_B0)
+  out1=rot_map(out1,-this_roll_angle,rcenter=this_roll_center)
+  out1.ROLL_ANGLE = 0.
                   
   out2 = make_map( rotate(resid_map,1), dx = pixel[0], dy = pixel[0],  units = 'photons cm!u-2!n asec!u-2!n s!u-1!n keV!u-1!n',$
                   image_alg = 'vis_clean', id = 'CLEAN RESIDUAL '+this_estring+': ', xcen=this_xc, ycen=this_yc, beam_size = beam_width, $
                   time = this_time_avg, dur = this_duration, erange=strtrim(fix(vis[0].energy_range[0]),2)+'-'+strtrim(fix(vis[0].energy_range[1]),2)+' keV', $
-                  energy_range=vis[0].energy_range, rsun=this_rsun, L0=this_L0, B0=this_B0, roll_angle=this_roll_angle, roll_center=this_roll_center)
+                  energy_range=vis[0].energy_range, rsun=this_rsun, L0=this_L0, B0=this_B0)
+  out2=rot_map(out2,-this_roll_angle,rcenter=this_roll_center)
+  out2.ROLL_ANGLE = 0.
                   
   out3 =make_map( rotate(clean_sources_map,1), dx = pixel[0], dy = pixel[0],  units = 'photons cm!u-2!n asec!u-2!n s!u-1!n keV!u-1!n',$
                   image_alg = 'vis_clean', id = 'CLEAN components '+this_estring+': ', xcen=this_xc, ycen=this_yc, beam_size = beam_width, $
                   time = this_time_avg, dur = this_duration, erange=strtrim(fix(vis[0].energy_range[0]),2)+'-'+strtrim(fix(vis[0].energy_range[1]),2)+' keV', $
-                  energy_range=vis[0].energy_range, rsun=this_rsun, L0=this_L0, B0=this_B0, roll_angle=this_roll_angle, roll_center=this_roll_center)
+                  energy_range=vis[0].energy_range, rsun=this_rsun, L0=this_L0, B0=this_B0)
+  out3=rot_map(out3,-this_roll_angle,rcenter=this_roll_center)
+  out3.ROLL_ANGLE = 0.
                   
   out4 =make_map( rotate(clean_map,1), dx = pixel[0], dy = pixel[0], units = 'photons cm!u-2!n asec!u-2!n s!u-1!n keV!u-1!n' ,$
                   image_alg = 'vis_clean', id = 'CLEAN convolved '+this_estring+': ', xcen=this_xc, ycen=this_yc, beam_size = beam_width, $
                   time = this_time_avg, dur = this_duration, erange=strtrim(fix(vis[0].energy_range[0]),2)+'-'+strtrim(fix(vis[0].energy_range[1]),2)+' keV', $
-                  energy_range=vis[0].energy_range, rsun=this_rsun, L0=this_L0, B0=this_B0, roll_angle=this_roll_angle, roll_center=this_roll_center)
+                  energy_range=vis[0].energy_range, rsun=this_rsun, L0=this_L0, B0=this_B0)
+  out4=rot_map(out4,-this_roll_angle,rcenter=this_roll_center)
+  out4.ROLL_ANGLE = 0.
 
   if keyword_set(plot) then begin
     window,6,xsize=5*this_disp,ysize=2*this_disp

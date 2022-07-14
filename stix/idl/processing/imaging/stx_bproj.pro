@@ -1,4 +1,4 @@
-FUNCTION stx_bproj,vis,imsize,pixel,silent=silent,uni=uni
+FUNCTION stx_bproj,vis,imsize,pixel,aux_data,silent=silent,uni=uni
 
   ; wrapper around backprojection
   ; output map structure has north up
@@ -20,18 +20,17 @@ FUNCTION stx_bproj,vis,imsize,pixel,silent=silent,uni=uni
   b_map=bp_map
   b_map.data=rotate(bp_map.data,1)
   
-  ;; Mapcenter corrected for Frederic's mean shift values
-  b_map.xc = vis[0].xyoffset[0] + 26.1
-  b_map.yc = vis[0].xyoffset[1] + 58.2
+  stx_pointing = aux_data.stx_pointing
+  ; Compute the mapcenter
+  this_mapcenter = vis[0].xyoffset + stx_pointing
 
-  
-  data = stx_get_l0_b0_rsun_roll_temp(this_time_range[0])
-  
-  b_map.roll_angle    = data.ROLL_ANGLE
-  ;eventually fill in radial distance etc
-  add_prop,b_map,rsun = data.RSUN
-  add_prop,b_map,B0   = data.B0
-  add_prop,b_map,L0   = data.L0
+  b_map.xc = this_mapcenter[0]
+  b_map.yc = this_mapcenter[1]
+  b_map=rot_map(b_map,-aux_data.ROLL_ANGLE,rcenter=[0.,0.])
+  b_map.ROLL_ANGLE = 0.
+  add_prop,b_map,rsun = aux_data.RSUN
+  add_prop,b_map,B0   = aux_data.B0
+  add_prop,b_map,L0   = aux_data.L0
   
   return,b_map
 

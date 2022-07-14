@@ -42,7 +42,7 @@
 ;              The header of the primary HDU of the spectrogram data file
 ;
 ;    data_header : out, type="string array", default="string array"
-;              The header of the data extention of the spectrogram data file
+;              The header of the data extension of the spectrogram data file
 ;
 ;    data_str : out, type="structure"
 ;              The contents of the data extension of the spectrogram data file
@@ -67,11 +67,12 @@
 ;
 ;    shift_duration : in, type="boolean", default="1"
 ;                     Shift all time bins by 1 to account for FSW time input discrepancy prior to 09-Dec-2021.
-;                     N.B. WILL ONLY WORK WITH FULL TIME RESOUTION DATA WHICH IS USUALLY NOT THE CASE FOR SPECTROGRAM DATA.
+;                     N.B. WILL ONLY WORK WITH FULL TIME RESOLUTION DATA WHICH IS USUALLY NOT THE CASE FOR SPECTROGRAM DATA.
 ;
 ; :history:
 ;    18-Jun-2021 - ECMD (Graz), initial release
 ;    22-Feb-2022 - ECMD (Graz), documented, improved handling of alpha and non-alpha files, fixed duration shift issue
+;    05-Jul-2022 - ECMD (Graz), fixed handling of L1 files which don't contain the full set of energies
 ;
 ;-
 pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
@@ -94,20 +95,22 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
 
   n_time = n_elements(data.time)
 
-  hstart_time = (sxpar(primary_header, 'DATE_BEG'))
+  energies_used = where( control.energy_bin_mask eq 1 , nenergies)
 
   processing_level = (sxpar(primary_header, 'LEVEL'))
   if strcompress(processing_level,/remove_all) eq 'L1A' then alpha = 1
 
+  hstart_time = alpha ? (sxpar(primary_header, 'date_beg')) : (sxpar(primary_header, 'date-beg'))
+
 
   trigger_zero = (sxpar(data_header, 'TZERO3'))
   new_triggers = float(trigger_zero +data.triggers)
-  data= rep_tag_value(data, 'TRIGGERS', new_triggers)
-  ;TO BE ADDED WHEN FULL_RESOLUTION KEWORD IS INCUDED
+  data = rep_tag_value(data, 'TRIGGERS', new_triggers)
+  ;TO BE ADDED WHEN FULL_RESOLUTION KEWORD IS INCLUDED
   ;  full_resolution = (sxpar(primary_header, 'FULL_RESOLUTION'))
   ;
   ;if ~full_resolution  and apply_time_shift then begin
-  ;    message, /info, 'For time shift compensation full archive buffer time resoultion files are needed.'
+  ;    message, /info, 'For time shift compensation full archive buffer time resolution files are needed.'
   ;endif
 
   data.counts_err  = sqrt(data.counts_err^2. + data.counts)
@@ -206,10 +209,21 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
 
   endif
 
+  n_time = n_elements(time_bin_center) ; update number of time bins
+
   if alpha then begin
     rcr = tag_exist(data, 'rcr') ? data.rcr :replicate(control.rcr, n_time)
   endif else begin
     rcr =  ((data.rcr).typecode) eq 7 ? fix(strmid(data.rcr,0,1,/reverse_offset)) : (data.rcr)
+    ;L1 files
+    full_counts = dblarr(32, n_time)
+    full_counts[energies_used, *] = counts
+    counts = full_counts
+
+    full_counts_err = dblarr(32, n_time)
+    full_counts[energies_used, *] = counts_err
+    counts_err = full_counts_err
+
   endelse
 
 
@@ -218,10 +232,14 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   stx_time_obj.value =  anytim(hstart_time , /mjd)
   start_time = stx_time_add(stx_time_obj, seconds = time_shift)
 
-  if ~keyword_set(alpha) then begin ; 25-Mar-22 (ECMD) time and timedel in L1 files are now in centiseconds 
+  if ~keyword_set(alpha) then begin ; 25-Mar-22 (ECMD) time and timedel in L1 files are now in centiseconds
+    time_bin_center = double(time_bin_center)
+    duration = double(duration)
+    ; 29-Jun-22 (ECMD) time and timedel in L1 files are now in centiseconds
     t_start = stx_time_add( start_time,  seconds = [ time_bin_center/100 - duration/200 ] )
     t_end   = stx_time_add( start_time,  seconds = [ time_bin_center/100 + duration/200 ] )
     t_mean  = stx_time_add( start_time,  seconds = [ time_bin_center/100 ] )
+    duration = duration/100
   endif else begin
     t_start = stx_time_add( start_time,  seconds = [ time_bin_center - duration/2. ] )
     t_end   = stx_time_add( start_time,  seconds = [ time_bin_center + duration/2. ] )
@@ -255,7 +273,7 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
 
   endif
 
-  energies_used = where( control.energy_bin_mask eq 1 , nenergies)
+  energies_used = where( control.energy_bin_mask eq 1, nenergies)
   energy_edges_2 = transpose([[energy[energies_used].e_low], [energy[energies_used].e_high]])
   edge_products, energy_edges_2, edges_1 = energy_edges_1
 

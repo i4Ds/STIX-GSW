@@ -16,7 +16,7 @@
 ;  energy_range: array containing lower and upper bound of the energy range to consider
 ;  mapcenter: coordinates of center of the map to reconstruct (heliocentric, north up).
 ;             Needed for adding the correct shift to the visibility phases.
-;
+;  aux_data: structure containing the SAS solution (if available for the considered time)
 ;
 ; OUTPUTS:
 ;   visibility structure corresponding to a given time range and a given energy range
@@ -31,11 +31,11 @@
 ; HISTORY: September 2021: wrapper around Paolo's first script
 ;          10-jan-2022, added keyword "shift_by_one"
 ;          26-jan-2022, xy_flare and mapcenter are cast as float array
-;
+;          01-may-2022, aux_data keyword added
 ;-
 
-FUNCTION stix2vis_sep2021, path_sci_file, time_range, energy_range, mapcenter, path_bkg_file=path_bkg_file, $
-  xy_flare=xy_flare, subc_index=subc_index, pixels=pixels, silent=silent, shift_by_one=shift_by_one
+FUNCTION stix2vis_sep2021, path_sci_file, time_range, energy_range, mapcenter, aux_data, path_bkg_file=path_bkg_file, $
+  xy_flare=xy_flare, subc_index=subc_index, pixels=pixels, silent=silent, shift_by_one=shift_by_one, use_sas=use_sas
 
   default, xy_flare, [0., 0.]
   default, subc_index, stix_label2ind(['10a','10b','10c','9a','9b','9c','8a','8b','8c','7a','7b','7c',$
@@ -44,9 +44,22 @@ FUNCTION stix2vis_sep2021, path_sci_file, time_range, energy_range, mapcenter, p
 
   mapcenter = float(mapcenter)
   xy_flare  = float(xy_flare)
+  
+  stx_pointing = aux_data.stx_pointing
+  
+  roll_angle = aux_data.ROLL_ANGLE * !dtor
+  
+  this_xy_flare = xy_flare
+  this_xy_flare[0] = cos(roll_angle)  * xy_flare[0] + sin(roll_angle) * xy_flare[1] - stx_pointing[0]
+  this_xy_flare[1] = -sin(roll_angle) * xy_flare[0] + cos(roll_angle) * xy_flare[1] - stx_pointing[1]
+  
+  ; Correct the mapcenter
+  this_mapcenter = mapcenter
+  this_mapcenter[0] = cos(roll_angle)  * mapcenter[0] + sin(roll_angle) * mapcenter[1] - stx_pointing[0]
+  this_mapcenter[1] = -sin(roll_angle) * mapcenter[0] + cos(roll_angle) * mapcenter[1] - stx_pointing[1]
 
   ;;;;;;;;;; make amplitudes and phases
-  data = stix_compute_vis_amp_phase(path_sci_file,anytim(time_range),energy_range, xy_flare=xy_flare,bkg_file=path_bkg_file, $
+  data = stix_compute_vis_amp_phase(path_sci_file,anytim(time_range),energy_range, xy_flare=this_xy_flare,bkg_file=path_bkg_file, $
     pixels=pixels, silent=silent, shift_by_one=shift_by_one, subc_index=subc_index)
 
 
@@ -58,7 +71,7 @@ FUNCTION stix2vis_sep2021, path_sci_file, time_range, energy_range, mapcenter, p
   ; Phase projection correction
   L1 = 550.
   L2 = 47.
-  phase -= xy_flare[1] * 360. * !pi / (180. * 3600. * 8.8) * (L2 + L1/2.)
+  phase -= this_xy_flare[1] * 360. * !pi / (180. * 3600. * 8.8) * (L2 + L1/2.)
 
   ; Construct visibility structure
   subc_str = stx_construct_subcollimator()
@@ -68,9 +81,6 @@ FUNCTION stix2vis_sep2021, path_sci_file, time_range, energy_range, mapcenter, p
 
   ; Compute real and imaginary part of the visibility
   vis.obsvis = ampobs[subc_index] * complex(cos(phase[subc_index] * !dtor), sin(phase[subc_index] * !dtor))
-
-  ; Add phase factor for shifting the mapcenter
-  this_mapcenter = mapcenter - [26.1,58.2] ; Subtract Frederic's mean shift values
   
   phase_mapcenter = -2 * !pi * (this_mapcenter[1] * vis.u - this_mapcenter[0] * vis.v )
   vis.obsvis *= complex(cos(phase_mapcenter), sin(phase_mapcenter))

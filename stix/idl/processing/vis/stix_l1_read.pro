@@ -38,11 +38,11 @@ bkg_ratio = 1.1
 cfl_ratio = 1.33
 triggers32=data.triggers(t2det-1)
 ;CFL and det8
-triggers32(8,*)=data.triggers(t2det(8))/(1.+cfl_ratio)*cfl_ratio
-triggers32(7,*)=data.triggers(t2det(7))/(1.+cfl_ratio)
+triggers32(8,*)=data.triggers(t2det(8)-1)/(1.+cfl_ratio)*cfl_ratio
+triggers32(7,*)=data.triggers(t2det(7)-1)/(1.+cfl_ratio)
 ;BKG and det 16
-triggers32(9,*)=data.triggers(t2det(9))/(1.+bkg_ratio)*bkg_ratio
-triggers32(15,*)=data.triggers(t2det(15))/(1.+bkg_ratio)
+triggers32(9,*)=data.triggers(t2det(9)-1)/(1.+bkg_ratio)*bkg_ratio
+triggers32(15,*)=data.triggers(t2det(15)-1)/(1.+bkg_ratio)
 
 ;make rates
 trates32=triggers32*0.

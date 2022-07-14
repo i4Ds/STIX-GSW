@@ -6,7 +6,7 @@
 ; Category    : analysis
 ;
 ; Syntax      :
-;   derive_aspect_solution, data
+;   stx_derive_aspect_solution, data
 ;
 ; Input       :
 ;   data      = a structure as returned by read_L1_data
@@ -27,6 +27,7 @@
 ;   2021-11-15 - FSc: removed common block "config", pass full path to file with simulated data as input
 ;   2022-01-18, FSc: added optional arguments 'interpol_r' and 'interpol_xy'; major rewriting
 ;   2022-01-28, FSc (AIP) : adapted to STX_ASPECT_DTO structure
+;   2022-04-22, FSc (AIP) : changed name from "derive_aspect_solution" to "stx_derive_aspect_solution"
 ;   
 ;-
 
@@ -111,7 +112,7 @@ function solve_aspect_one_plane, inputA_B, inputC_D, plane_AB, plane_CD, all_X, 
   return,result
 end
 
-pro derive_aspect_solution, data, simu_data_file, interpol_r=interpol_r, interpol_xy=interpol_xy
+pro stx_derive_aspect_solution, data, simu_data_file, interpol_r=interpol_r, interpol_xy=interpol_xy
   default, interpol_r, 0
   default, interpol_xy, 0
   
