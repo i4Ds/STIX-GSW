@@ -53,7 +53,7 @@
 ;                  Added a few functionalities:
 ;                       -> automatic recognition of SPEC and CPD files: /is_pixel_data is no more needed
 ;                       -> option for manually define time_shift. Default: assume solar center
-;                       -> spex_units keyword added
+;                       -> rate keyword added
 ;                          
 ;
 ;-
