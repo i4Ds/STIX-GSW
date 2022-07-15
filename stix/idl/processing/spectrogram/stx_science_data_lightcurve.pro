@@ -31,8 +31,8 @@
 ;    fits_path_bk : in, type="string"
 ;                   The path to the pixel data file containing the background observation.
 ;
-;    spex_units : in, type="string", default="flux"
-;                Units of the output lightcurves. It can be either "flux" [cnts/s/keV/cm^2] or "rate" [cnts/s]
+;    rate : in, optional keyword, default="flux"
+;               If set, the output units are cnts/s. By default, it is in Flux units [cnts/s/keV/cm^2]
 ;
 ;    plot_obj : out, type="Object"
 ;               Plotman Object containing the binned lightcurve. Supplying this keyword will open a plotman widget showing
@@ -58,16 +58,14 @@
 ;
 ;-
 function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time_min = time_min,  $
-  fits_path_bk =  fits_path_bk, plot_obj = plot_obj, time_shift = time_shift, spex_units = spex_units, shift_duration = shift_duration
+  fits_path_bk =  fits_path_bk, plot_obj = plot_obj, time_shift = time_shift, rate = rate, shift_duration = shift_duration
 
   default, time_min, 20
   default, edges_in, [[4.,10.],[10,15],[15,25]]
   default, spex_units, 'flux'
   
-  ; Check the spex_units
-;  if spex_units ne 'flux' or spex_units ne 'rate' then begin
-;    message, 'ERROR: spex_units has to be either "flux" (default) or "rate". '
-;  endif
+  ; If /rate is set, return the rate units
+  if keyword_set(rate) then spex_units = 'rate'
   
   ;for the light curve the standard default corrections are applied
   ; If the user manually defines time_shift, then use that
