@@ -68,20 +68,19 @@
 pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, time_shift = time_shift, energy_shift = energy_shift, distance = distance, $
   flare_location= flare_location,  plot = plot, ospex_obj = ospex_obj, det_ind = det_ind, pix_ind = pix_ind, shift_duration = shift_duration, no_attenuation=no_attenuation
 
+
+
   if n_elements(time_shift) eq 0 then begin
     message, 'Time shift value not set using default value of 0 [s].', /info
     print, 'File averaged values can be obtained from the FITS file header'
     print, 'using stx_get_header_corrections.pro.'
     time_shift = 0.
   endif
-
-  if n_elements(distance) eq 0 then begin
-    message, 'Distance value not set using default value of 1 [AU].', /info
-    print, 'File averaged values can be obtained from the FITS file header'
-    print, 'using stx_get_header_corrections.pro.'
-    distance = 1.
-  endif
-
+  
+  ;if distance is not set use the average value from the fits header
+  stx_get_header_corrections, fits_path_data, distance = header_distance
+  default, distance, header_distance
+  
   default, energy_shift, 0.
   default, flare_location, [0.,0.]
   default, shift_duration, 0
