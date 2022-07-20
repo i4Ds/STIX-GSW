@@ -33,8 +33,8 @@
 ;    fits_path_bk : in, optional, type="string"
 ;              The path to file containing the background observation this should be in pixel data format i.e. sci-xray-cpd (or sci-xray-l1)
 ;
-;    dist_factor : in, type="float", default="1.0"
-;               The distance 
+;    distance : in, optional, type="float", default taken from FITS header
+;               The distance between Solar Orbiter and the Sun centre in Astronomical Units needed to correct flux.
 ;
 ;    flare_location : in, type="float array", default="[0.,0.]"
 ;               the location of the flare in heliocentric coordinates as seen from Solar Orbiter
@@ -51,14 +51,22 @@
 ;
 ; :history:
 ;    18-Jun-2021 - ECMD (Graz), initial release
-;    22-Feb-2022 - ECMD (Graz), documented, improved error calculation 
-;    04-Jul-2022 - ECMD (Graz), added plot keyword 
-;    
+;    22-Feb-2022 - ECMD (Graz), documented, improved error calculation
+;    04-Jul-2022 - ECMD (Graz), added plot keyword
+;    20-Jul-2022 - ECMD (Graz), by default use distance from header
+;
 ;-
 pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims,  fits_path_bk = fits_path_bk,$
-  dist_factor = dist_factor, flare_location= flare_location, eff_ewidth = eff_ewidth, plot = plot, ospex_obj = ospex_obj
+  distance = distance, flare_location= flare_location, eff_ewidth = eff_ewidth, plot = plot, ospex_obj = ospex_obj
 
   default, plot, 0
+
+  ;if distance is not set use the average value from the fits header
+  stx_get_header_corrections, fits_path_data, distance = header_distance
+  default, distance, header_distance
+  print, 'Using Solar Orbiter distance of :' + distance +  ' AU'
+
+  dist_factor = 1./(distance^2.)
 
   n_energies = data_dims[0]
   n_detectors = data_dims[1]
@@ -172,8 +180,8 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
   e_axis = spectrogram.energy_axis
   emin = 1
   emax = 150
-  ; 10-Jun-2022 ECMD issue which removed highest energy bin  
-  new_edges = where( spectrogram.energy_axis.edges_1 gt emin and  spectrogram.energy_axis.edges_1 le emax, n_energy_edges) 
+  ; 10-Jun-2022 ECMD issue which removed highest energy bin
+  new_edges = where( spectrogram.energy_axis.edges_1 gt emin and  spectrogram.energy_axis.edges_1 le emax, n_energy_edges)
   e_axis_new = stx_construct_energy_axis(energy_edges = e_axis.edges_1, select = new_edges)
 
   new_energies = where_arr(fix(10*e_axis.mean),fix(10*e_axis_new.mean))
@@ -208,15 +216,15 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
 
   ospex_obj =   stx_fsw_sd_spectrogram2ospex( spectrogram, specpar = specpar, time_shift= time_shift, ph_energy_edges = ph_in, /include_damage, /fits , /tail, livetime_fraction = eff_livetime_fraction, $
     dist_factor = dist_factor, flare_location= flare_location )
-  
+
   counts_str = ospex_obj->getdata(spex_units='counts')
   origunits = ospex_obj->get(/spex_data_origunits)
   origunits.data_name = 'STIX'
   ospex_obj->set, spex_data_origunits = origunits
-  
+
   if keyword_set(plot) then begin
-  ospex_obj -> set, spex_eband = get_edges([4.,10.,15.,25, 50, 84.], /edges_2)
-  ospex_obj -> plot_time,  spex_units='flux', /show_err, obj = plotman_object 
-endif
+    ospex_obj -> set, spex_eband = get_edges([4.,10.,15.,25, 50, 84.], /edges_2)
+    ospex_obj -> plot_time,  spex_units='flux', /show_err, obj = plotman_object
+  endif
 
 end

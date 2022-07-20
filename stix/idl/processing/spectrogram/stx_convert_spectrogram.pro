@@ -56,6 +56,7 @@
 ;    18-Jun-2021 - ECMD (Graz), initial release
 ;    22-Feb-2022 - ECMD (Graz), documented, added default warnings, elut is determined by stx_date2elut_file, improved error calculation
 ;    04-Jul-2022 - ECMD (Graz), added plot keyword 
+;    20-Jul-2022 - ECMD (Graz), distance factor now calculated in stx_convert_science_data2ospex
 ;    
 ;-
 pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, time_shift = time_shift, energy_shift = energy_shift, distance = distance, $
@@ -68,19 +69,11 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
     print, 'using stx_get_header_corrections.pro.'
     time_shift = 0.
   endif
-
-  if n_elements(distance) eq 0 then begin
-    message, 'Distance value is not set. Using default value of 1 [AU].', /info
-    print, 'File averaged values can be obtained from the FITS file header'
-    print, 'using stx_get_header_corrections.pro.'
-    distance = 1.
-  endif
   
   default, energy_shift, 0.
   default, flare_location, [0.,0.]
   default, plot, 1 
 
-  dist_factor = 1./(distance^2.)
 
   stx_read_spectrogram_fits_file, fits_path_data, time_shift, primary_header = primary_header, data_str = data_str, data_header = data_header, control_str = control_str, $
     control_header= control_header, energy_str = energy_str, energy_header = energy_header, t_axis = t_axis, energy_shift = energy_shift,  e_axis = e_axis , use_discriminators = 0,$
@@ -189,7 +182,7 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
   specpar = { sp_atten_state :  {time:ut_rcr[index], state:state} }
   
   stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, $
-    dist_factor = dist_factor, flare_location= flare_location, eff_ewidth = eff_ewidth, plot = plot, ospex_obj = ospex_obj
+    distance = distance, flare_location= flare_location, eff_ewidth = eff_ewidth, plot = plot, ospex_obj = ospex_obj
 
 end
 
