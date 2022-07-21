@@ -76,7 +76,6 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
     distance = 1.
   endif
   
-  default, energy_shift, 0.
   default, flare_location, [0.,0.]
   default, plot, 1 
 

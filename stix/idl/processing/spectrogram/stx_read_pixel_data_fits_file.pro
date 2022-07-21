@@ -73,9 +73,10 @@
 ;    25-Jan-2021 - ECMD (Graz), initial release
 ;    19-Jan-2022 - Andrea (FHNW), Added the correction of the duration time array when reading the L1 FITS files for OSPEX
 ;    22-Feb-2022 - ECMD (Graz), documented, improved handling of alpha and non-alpha files, altered duration shift calculation
-;    28-Feb-2022 - ECMD (Graz), fixed issue reading sting rcr values for level 1 files 
+;    28-Feb-2022 - ECMD (Graz), fixed issue reading sting rcr values for level 1 files
 ;    05-Jul-2022 - ECMD (Graz), fixed handling of L1 files which don't contain the full set of energy, detector and pixel combinations
-;
+;    21-Jul-2022 - ECMD (Graz), added automatic check for energy shift 
+;    
 ;-
 pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
   control_header= control_header, energy_str = energy, energy_header = energy_header, t_axis = t_axis, e_axis = e_axis, $
@@ -83,7 +84,6 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
 
   default, alpha, 0
   default, time_shift, 0
-  default, energy_shift, 0
   default, use_discriminators, 1
 
   !null = stx_read_fits(fits_path, 0, primary_header,  mversion_full = mversion_full)
@@ -146,13 +146,13 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
 
 
   if ~keyword_set(alpha) then begin
-    
+
     rcr =  ((data.rcr).typecode) eq 7 ? fix(strmid(data.rcr,0,1,/reverse_offset)) : (data.rcr)
     data =  rep_tag_value(data, rcr, 'RCR')
 
     detectors_used = where( (data.detector_masks)[*,0] eq 1, ndets)
     pixels_used = where( total((data.pixel_masks)[*,*,0],1) eq 1, npix)
-    
+
     full_counts = dblarr(32, 12, 32, n_times)
     full_counts[energies_used, pixels_used, detectors_used, *] = counts
     counts = full_counts
@@ -164,7 +164,7 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
   endif else begin
     rcr = data.rcr
   endelse
-  
+
 
   if control.energy_bin_mask[0] || control.energy_bin_mask[-1] and ~keyword_set(use_discriminators) then begin
 
@@ -205,6 +205,10 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
   t_axis.time_start = t_start
   t_axis.time_end = t_end
   t_axis.duration = duration
+
+  ; If time range of observation is during Nov 2020 RSCW apply average energy shift by default
+  expected_energy_shift = stx_check_energy_shift(hstart_time)
+  default, energy_shift, expected_energy_shift
 
   energies_used = where( control.energy_bin_mask eq 1, nenergies)
   energy_edges_2 = transpose([[energy[energies_used].e_low], [energy[energies_used].e_high]])
