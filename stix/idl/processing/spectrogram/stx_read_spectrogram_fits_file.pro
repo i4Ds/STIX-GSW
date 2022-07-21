@@ -73,7 +73,8 @@
 ;    18-Jun-2021 - ECMD (Graz), initial release
 ;    22-Feb-2022 - ECMD (Graz), documented, improved handling of alpha and non-alpha files, fixed duration shift issue
 ;    05-Jul-2022 - ECMD (Graz), fixed handling of L1 files which don't contain the full set of energies
-;
+;    21-Jul-2022 - ECMD (Graz), added automatic check for energy shift 
+;    
 ;-
 pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
   control_header= control_header, energy_str = energy, energy_header = energy_header, t_axis = t_axis, e_axis = e_axis, $
@@ -81,7 +82,6 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   shift_duration = shift_duration
 
   default, time_shift, 0
-  default, energy_shift, 0
   default, use_discriminators, 1
   default, replace_doubles, 0
   default, keep_short_bins, 1
@@ -102,7 +102,6 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
 
   hstart_time = alpha ? (sxpar(primary_header, 'date_beg')) : (sxpar(primary_header, 'date-beg'))
 
-
   trigger_zero = (sxpar(data_header, 'TZERO3'))
   new_triggers = float(trigger_zero +data.triggers)
   data = rep_tag_value(data, 'TRIGGERS', new_triggers)
@@ -118,6 +117,10 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
 
   duration_shift_needed = (anytim(hstart_time) lt anytim('2021-12-09T00:00:00')) ? 1 : 0
   default, shift_duration, duration_shift_needed
+
+  ; If time range of observation is during Nov 2020 RSCW apply average energy shift by default
+  expected_energy_shift = stx_check_energy_shift(hstart_time)
+  default, energy_shift, expected_energy_shift
 
   if ~keyword_set(keep_short_bins) and (anytim(hstart_time) lt anytim('2020-11-25T00:00:00') ) then $
     message, 'Automatic short bin removal should not be attempted on observations before 25-Nov-20'
