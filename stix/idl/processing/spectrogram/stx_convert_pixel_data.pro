@@ -78,7 +78,6 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   endif
   
 
-  default, energy_shift, 0.
   default, flare_location, [0.,0.]
   default, shift_duration, 0
   default, plot, 1
