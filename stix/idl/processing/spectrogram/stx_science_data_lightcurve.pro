@@ -24,7 +24,7 @@
 ;    time_min : in, type="float", default="20."
 ;               Minimum time size in seconds
 ;               
-;    time_shift : in, type="string", default: taken from the FITS header
+;    time_shift : in, type="float", default: taken from the FITS header
 ;                 Light travel time correction to apply to the time profiles. By default, it takes the
 ;                 value from the FITS header, i.e., Sun center location of the flare is assumed.
 ;
@@ -51,8 +51,8 @@
 ;    30-Jun-2022 - ECMD (Graz), initial release
 ;    15-Jul-2022 - Andrea Francesco Battaglia (FHNW)
 ;                  Added a few functionalities:
-;                       -> automatic recognition of SPEC and CPD files: /is_pixel_data is no more needed
-;                       -> option for manually define time_shift. Default: assume solar center
+;                       -> automatic recognition of SPEC and CPD files: /is_pixel_data is no longer needed
+;                       -> option to manually define time_shift. Default: assume solar center
 ;                       -> rate keyword added
 ;                          
 ;
@@ -69,11 +69,8 @@ function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time
   
   ;for the light curve the standard default corrections are applied
   ; If the user manually defines time_shift, then use that
-  if keyword_set(time_shift) then begin
-    stx_get_header_corrections, fits_path, distance = distance
-  endif else begin
-    stx_get_header_corrections, fits_path, distance = distance, time_shift = time_shift
-  endelse
+  stx_get_header_corrections, fits_path, distance = distance, time_shift = tmp_shift
+  default, time_shift, tmp_shift
 
   edge_products, edges_in, edges_2 = energy_ranges
   
@@ -81,12 +78,12 @@ function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time
   !null = mrdfits(fits_path, 0, primary_header)
   orig_filename = sxpar(primary_header, 'FILENAME')
 
-  if strpos(orig_filename, 'cpd') gt -1 then begin
+  if strpos(orig_filename, 'cpd') gt -1 or strpos(orig_filename, 'xray-l1') gt -1 then begin
     stx_convert_pixel_data, fits_path_data = fits_path, fits_path_bk =  fits_path_bk, distance = distance, time_shift = time_shift, ospex_obj = ospex_obj, shift_duration = shift_duration, _extra= _extra
-  endif else if strpos(orig_filename, 'spec') gt -1 then begin
+  endif else if strpos(orig_filename, 'spec') gt -1 or strpos(orig_filename, 'spectrogram') gt -1 then begin
     stx_convert_spectrogram, fits_path_data = fits_path, fits_path_bk =  fits_path_bk, distance = distance, time_shift = time_shift, ospex_obj = ospex_obj, _extra= _extra
   endif else begin
-    message, 'ERROR: the FILENAME field in the primary header should contain either cpd or spec'
+    message, 'ERROR: the FILENAME field in the primary header should contain either cpd, xray-l1 or spec'
   endelse
 
   data_obj = ospex_obj->get(/obj,class='spex_data')
