@@ -171,8 +171,7 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
 
   endelse
 
-  eff_livetime_fraction = f_div(counts_spec , corrected_counts , default = 1 )
-  eff_livetime_fraction = mean(eff_livetime_fraction, dim = 1)
+  eff_livetime_fraction = f_div(total(counts_spec,1) , total(corrected_counts,1) , default = 1 )
   eff_livetime_fraction_expanded = transpose(rebin([eff_livetime_fraction],n_elements(eff_livetime_fraction),n_energies))
   spec_in_corr *= eff_livetime_fraction_expanded
   total_error *= eff_livetime_fraction_expanded

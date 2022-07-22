@@ -97,10 +97,10 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   g03_10=[g03,g04,g05,g06,g07,g08,g09,g10]
 
   mask_use_detectors = intarr(32)
-  if not keyword_set(det_ind) then mask_use_detectors[g03_10] = 1 else mask_use_detectors[det_ind] = 1
+  if n_elements(det_ind) eq 0 then mask_use_detectors[g03_10] = 1 else mask_use_detectors[det_ind] = 1
 
   mask_use_pixels = intarr(12)
-  if not keyword_set(pix_ind) then mask_use_pixels[*] = 1 else mask_use_pixels[pix_ind] = 1
+  if n_elements(pix_ind) eq 0 then mask_use_pixels[*] = 1 else mask_use_pixels[pix_ind] = 1
 
 
   stx_read_pixel_data_fits_file, fits_path_data, time_shift, primary_header = primary_header, data_str = data_str, data_header = data_header, control_str = control_str, $
