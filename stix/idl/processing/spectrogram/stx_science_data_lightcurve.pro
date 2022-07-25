@@ -95,9 +95,9 @@ function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time
 
   ;use OSPEX bin_data method to bin counts in given energy bands
   energy_summed_counts = data_obj->bin_data(data = counts_str, intervals = energy_ranges, $
-    eresult = energy_summed_error, ltime = energy_summed_error)
+    eresult = energy_summed_error, ltime = energy_summed_ltime)
 
-  energy_summed_str = {data:energy_summed_counts, edata:energy_summed_error, ltime:energy_summed_error}
+  energy_summed_str = {data:energy_summed_counts, edata:energy_summed_error, ltime:energy_summed_ltime}
 
   ; determine time bins with minimum duration - keep adding consecutive bins until the minimum
   ; value is at least reached
