@@ -93,8 +93,8 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
 
   energy_bin_mask = control_str.energy_bin_mask
 
-  pixels_used = where(control_str.pixel_mask eq 1)
-  detectors_used = where(control_str.detector_mask eq 1)
+  pixels_used = where(control_str.pixel_masks eq 1)
+  detectors_used = where(control_str.detector_masks eq 1)
 
 
   energy_bins = where( energy_bin_mask eq 1 )

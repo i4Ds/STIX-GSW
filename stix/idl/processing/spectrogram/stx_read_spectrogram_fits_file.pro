@@ -216,6 +216,8 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
 
   if alpha then begin
     rcr = tag_exist(data, 'rcr') ? data.rcr :replicate(control.rcr, n_time)
+    control = rep_tag_name(control, 'pixel_mask','pixel_masks')
+    control = rep_tag_name(control, 'detector_mask','detector_masks')
   endif else begin
     rcr =  ((data.rcr).typecode) eq 7 ? fix(strmid(data.rcr,0,1,/reverse_offset)) : (data.rcr)
     ;L1 files
@@ -226,6 +228,7 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
     full_counts_err = dblarr(32, n_time)
     full_counts[energies_used, *] = counts_err
     counts_err = full_counts_err
+
 
   endelse
 
