@@ -97,7 +97,7 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
 
   endfor
 
-  ospex_obj  = ospex()
+  ospex_obj  = ospex(/no)
 
   ;if the fits keyword is set write the spectrogram and srm data to fits files and then read them in to the ospex object
   if keyword_set(fits) then begin

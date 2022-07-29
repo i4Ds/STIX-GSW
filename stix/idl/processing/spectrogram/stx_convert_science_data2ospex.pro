@@ -222,6 +222,7 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
   ospex_obj->set, spex_data_origunits = origunits
 
   if keyword_set(plot) then begin
+    ospex_obj ->gui
     ospex_obj -> set, spex_eband = get_edges([4.,10.,15.,25, 50, 84.], /edges_2)
     ospex_obj -> plot_time,  spex_units='flux', /show_err, obj = plotman_object
   endif
