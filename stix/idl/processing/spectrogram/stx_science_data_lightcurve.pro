@@ -23,16 +23,21 @@
 ;
 ;    time_min : in, type="float", default="20."
 ;               Minimum time size in seconds
+;               
+;    time_shift : in, type="float", default: taken from the FITS header
+;                 Light travel time correction to apply to the time profiles. By default, it takes the
+;                 value from the FITS header, i.e., Sun center location of the flare is assumed.
 ;
 ;    fits_path_bk : in, type="string"
 ;                   The path to the pixel data file containing the background observation.
 ;
-;    is_pixel_data : in, type="Boolean"
-;                    Set if STIX science data FITS file is L1 pixel data rather than L4 spectrogram
+;    rate : in, optional keyword, default="flux"
+;               If set, the output units are cnts/s. By default, it is in Flux units [cnts/s/keV/cm^2]
 ;
 ;    plot_obj : out, type="Object"
 ;               Plotman Object containing the binned lightcurve. Supplying this keyword will open a plotman widget showing
 ;               the lightcurve plot.
+;               
 ;
 ; :returns:
 ;
@@ -44,24 +49,41 @@
 ;
 ; :history:
 ;    30-Jun-2022 - ECMD (Graz), initial release
+;    15-Jul-2022 - Andrea Francesco Battaglia (FHNW)
+;                  Added a few functionalities:
+;                       -> automatic recognition of SPEC and CPD files: /is_pixel_data is no longer needed
+;                       -> option to manually define time_shift. Default: assume solar center
+;                       -> rate keyword added
+;                          
 ;
 ;-
 function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time_min = time_min,  $
-  fits_path_bk =  fits_path_bk, is_pixel_data = is_pixel_data, plot_obj = plot_obj
+  fits_path_bk =  fits_path_bk, plot_obj = plot_obj, time_shift = time_shift, rate = rate, shift_duration = shift_duration
 
   default, time_min, 20
   default, edges_in, [[4.,10.],[10,15],[15,25]]
-
+  default, spex_units, 'flux'
+  
+  ; If /rate is set, return the rate units
+  if keyword_set(rate) then spex_units = 'rate'
+  
   ;for the light curve the standard default corrections are applied
-  stx_get_header_corrections, fits_path, distance = distance, time_shift = time_shift
+  ; If the user manually defines time_shift, then use that
+  stx_get_header_corrections, fits_path, distance = distance, time_shift = tmp_shift
+  default, time_shift, tmp_shift
 
   edge_products, edges_in, edges_2 = energy_ranges
+  
+  ; Get the original filename
+  !null = mrdfits(fits_path, 0, primary_header)
+  orig_filename = sxpar(primary_header, 'FILENAME')
 
-
-  if keyword_set(is_pixel_data) then begin
-    stx_convert_pixel_data, fits_path_data = fits_path, fits_path_bk =  fits_path_bk, distance = distance, time_shift = time_shift, ospex_obj = ospex_obj, _extra= _extra
-  endif else begin
+  if strpos(orig_filename, 'cpd') gt -1 or strpos(orig_filename, 'xray-l1') gt -1 then begin
+    stx_convert_pixel_data, fits_path_data = fits_path, fits_path_bk =  fits_path_bk, distance = distance, time_shift = time_shift, ospex_obj = ospex_obj, shift_duration = shift_duration, _extra= _extra
+  endif else if strpos(orig_filename, 'spec') gt -1 or strpos(orig_filename, 'spectrogram') gt -1 then begin
     stx_convert_spectrogram, fits_path_data = fits_path, fits_path_bk =  fits_path_bk, distance = distance, time_shift = time_shift, ospex_obj = ospex_obj, _extra= _extra
+  endif else begin
+    message, 'ERROR: the FILENAME field in the primary header should contain either cpd, xray-l1 or spec'
   endelse
 
   data_obj = ospex_obj->get(/obj,class='spex_data')
@@ -73,9 +95,9 @@ function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time
 
   ;use OSPEX bin_data method to bin counts in given energy bands
   energy_summed_counts = data_obj->bin_data(data = counts_str, intervals = energy_ranges, $
-    eresult = energy_summed_error, ltime = energy_summed_error)
+    eresult = energy_summed_error, ltime = energy_summed_ltime)
 
-  energy_summed_str = {data:energy_summed_counts, edata:energy_summed_error, ltime:energy_summed_error}
+  energy_summed_str = {data:energy_summed_counts, edata:energy_summed_error, ltime:energy_summed_ltime}
 
   ; determine time bins with minimum duration - keep adding consecutive bins until the minimum
   ; value is at least reached
@@ -119,14 +141,14 @@ function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time
 
   ; if the plot_obj keyword is present create a plotman window and plot the lightcurve
   if arg_present(plot_obj) then begin
-    ospex_obj->plot_time,  spex_units='flux', /show_err, /show_filter
+    ospex_obj->plot_time,  spex_units=spex_units, /show_err, /show_filter
     pobj = ospex_obj->get_plotman_obj()
     ut_plot = pobj->get(/data)
     plot_obj = plotman(desc='STIX Lightcurve', input = ut_plot, /ylog, xst = 1)
   endif
 
   ;retrieve the data from the OSPEX object for the output structure
-  flux_str = ospex_obj->getdata(spex_units='flux')
+  flux_str = ospex_obj->getdata(spex_units=spex_units)
   units = data_obj->getunits()
   ut2_time = ospex_obj->getaxis(/ut, /edges_2)
   duration = ospex_obj->getaxis(/ut, /width)
@@ -137,7 +159,9 @@ function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time
     data_units:units.data, $
     error:flux_str.edata, $
     livetime : flux_str.ltime, $
-    ut:ut2_time, duration:duration, $
+    ut:ut2_time, $
+    duration:duration, $
+    time_shift:time_shift, $
     energy_bands:energy_ranges}
 
   obj_destroy, ospex_obj
