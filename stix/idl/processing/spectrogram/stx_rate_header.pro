@@ -56,7 +56,10 @@ function stx_rate_header, nchan = nchan, $
   timezeri = timezeri, $
   tstartf = tstartf, $
   tstopi = tstopi, $
-  tstopf = tstopf
+  tstopf = tstopf, $
+  backapp = backapp, $
+  backfile = backfile
+  
     
   rate_struct = {rate_header}
   rate_struct.telescope = 'Solar Orbiter'
@@ -88,6 +91,8 @@ function stx_rate_header, nchan = nchan, $
   rate_struct.telapse = double(((tstopi-timezeri) + (tstopf-tstartf))*86400.0)
   rate_struct.clockcor = 'T'
   rate_struct.telapse = 0.0
+  rate_struct.backapp = backapp
+  rate_struct.backfile = backfile
   rate_struct.poisserr = 'F'
   rate_struct.version = '1.0'
   rate_struct.author = 'Unknown'

@@ -35,10 +35,10 @@
 ;                               print warning when using on-axis default for background detector
 ;
 ;-
-function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shift = time_shift, ph_energy_edges = ph_edges, fits = fits, plotman_obj = pobj, specfilename = specfilename, srmfilename  = srmfilename,$
-  flare_location = flare_location,  gtrans32 = gtrans32, livetime_fraction =livetime_fraction, _extra = _extra
+function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shift = time_shift, ph_energy_edges = ph_edges, generate_fits = generate_fits, plotman_obj = pobj, specfilename = specfilename, srmfilename  = srmfilename,$
+  flare_location = flare_location,  gtrans32 = gtrans32, livetime_fraction = livetime_fraction, sys_uncert = sys_uncert,fits_info_params = fits_info_params, _extra = _extra
 
-
+  default, sys_uncert, 0.05
   ntimes = n_elements(spectrogram.time_axis.time_start)
 
   ;get the energy edges for building the drm from the spectrogram
@@ -82,7 +82,7 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
 
 
   rcr_states = specpar.sp_atten_state.state
-  rcr_states = rcr_states[UNIQ(rcr_states, SORT(rcr_states))]
+  rcr_states = rcr_states[uniq(rcr_states, sort(rcr_states))]
   nrcr_states = n_elements(rcr_states)
 
   srm_atten = replicate( {rcr:0,  srm:fltarr(n_elements(ct_edges)-1,n_elements(ph_edges)-1)},nrcr_states )
@@ -91,7 +91,8 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
     ;make the srm for the appropriate pixel mask and energy edges
     rcr = rcr_states[i]
 
-    srm = stx_build_pixel_drm(ct_edges, pixel_mask, rcr = rcr, ph_energy_edges = ph_edges,  grid_factor = grid_factor, dist_factor = dist_factor, _extra = _extra)
+    srm = stx_build_pixel_drm(ct_edges, pixel_mask, rcr = rcr, ph_energy_edges = ph_edges,  grid_factor = grid_factor,$
+      dist_factor = dist_factor, _extra = _extra)
     srm_atten[i].srm = srm.smatrix
     srm_atten[i].rcr = rcr
 
@@ -100,7 +101,7 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
   ospex_obj  = ospex(/no)
 
   ;if the fits keyword is set write the spectrogram and srm data to fits files and then read them in to the ospex object
-  if keyword_set(fits) then begin
+  if keyword_set(generate_fits) or fits_info_params.generate_fits eq 1 then begin
     utime = transpose([stx_time2any( spectrogram.time_axis.time_start )])
 
     ;spectrogram structure for passing to fits writer routine
@@ -112,35 +113,51 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
       attenuator_state  : spectrogram.rcr , $
       error             : spectrogram.error }
 
-    default, specfilename, 'stx_spectrum_' + time2file( utime[0] ) + '.fits'
-    default, srmfilename, 'stx_srm_' + time2file( utime[0] ) + '.fits'
+    specfilename = fits_info_params.specfile
+    srmfilename =  fits_info_params.srmfile
+    ;   default, specfilename, 'stx_spectrum_' + time2file( utime[0] ) + '.fits'
+    ;   default, srmfilename, 'stx_srm_' + time2file( utime[0] ) + '.fits'
 
-    stx_write_ospex_fits, spectrum = spectrum_in, srmdata = srm,  specpar = specpar, time_shift= time_shift, srm_atten =srm_atten, specfilename = specfilename, srmfilename = srmfilename, ph_edges = ph_edges,xspec = xspec
+    fits_info_params.grid_factor = grid_factor
+    ;   fits_info_params.specfile = specfilename
+    ;   fits_info_params.srmfile = srmfilename
+
+    stx_write_ospex_fits, spectrum = spectrum_in, srmdata = srm,  specpar = specpar, time_shift = time_shift, $
+      srm_atten = srm_atten, specfilename = specfilename, srmfilename = srmfilename, ph_edges = ph_edges, $
+      fits_info_params = fits_info_params, xspec = xspec
 
     ospex_obj->set, spex_file_reader = 'stx_read_sp'
     ospex_obj->set, spex_specfile = specfilename   ; name of your spectrum file
     ospex_obj->set, spex_drmfile = srmfilename
-    ospex_obj->set, spex_uncert = 0.05
+    ospex_obj->set, spex_uncert = sys_uncert
 
   endif else begin
-    ;if the fits keyword is not set use the spex_user_data strategy to pass in the data directly to the ospex object
+    ;if the generate_fits keyword is not set use the spex_user_data strategy to pass in the data directly to the ospex object
 
     energy_edges = spectrogram.energy_axis.edges_2
     Edge_Products, ph_edges, edges_2 = ph_edges2
 
     utime2 = transpose(stx_time2any( [[spectrogram.time_axis.time_start], [spectrogram.time_axis.time_end]] ))
+    livetime = livetime_fraction*(spectrogram.time_axis.duration)
+    livetime = transpose(rebin([livetime],n_elements(livetime),n_elements(ct_edges)-1))
 
     ospex_obj->set, spex_data_source = 'spex_user_data'
     ospex_obj->set, spectrum = float(spectrogram.counts),  $
       spex_ct_edges = energy_edges, $
       spex_ut_edges = utime2, $
-      livetime = livetime_seconds
-    ospex_obj->set, spex_respinfo = srm.smatrix
+      livetime = livetime, $
+      errors = spectrogram.error
+    srm = rep_tag_name(srm,'smatrix','drm')
+    ospex_obj->set, spex_respinfo = srm
     ospex_obj->set, spex_area = srm.area
     ospex_obj->set, spex_detectors = 'STIX'
-    ospex_obj->set, spex_drm_ph_edges = ph_edges
-    ospex_obj->set, spex_uncert = 0.05
-    
+    ospex_obj->set, spex_drm_ct_edges = energy_edges
+    ospex_obj->set, spex_drm_ph_edges = ph_edges2
+    ;    ospex_obj->set, fit_xvals = ph_edges2
+    ;    ospex_obj->set, spex_ph_edges = ph_edges2
+    ;    ospex_obj->set, ph_edges = ph_edges2
+    ospex_obj->set, spex_uncert = sys_uncert
+    ospex_obj->set, spex_error_use_expected = 0
   endelse
 
 

@@ -48,8 +48,8 @@
 ;                     N.B. WILL ONLY WORK WITH FULL TIME RESOLUTION DATA WHICH IS OFTEN NOT THE CASE FOR PIXEL DATA.
 ;
 ;     plot : in, type="boolean", default="1"
-;                     If set open OSPEX GUI and plot lightcurve in standard quicklook energy bands where there is data present 
-;                                  
+;                     If set open OSPEX GUI and plot lightcurve in standard quicklook energy bands where there is data present
+;
 ;      ospex_obj : out, type="OSPEX object"
 ;
 ;
@@ -62,12 +62,16 @@
 ;    18-Jun-2021 - ECMD (Graz), initial release
 ;    19-Jan-2022 - Andrea (FHNW), added keywords for selecting a subset of pixels and detectors for OSPEX
 ;    22-Feb-2022 - ECMD (Graz), documented, added default warnings, elut is determined by stx_date2elut_file, improved error calculation
-;    04-Jul-2022 - ECMD (Graz), added plot keyword 
+;    04-Jul-2022 - ECMD (Graz), added plot keyword
 ;    20-Jul-2022 - ECMD (Graz), distance factor now calculated in stx_convert_science_data2ospex
 ;
 ;-
-pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, time_shift = time_shift, energy_shift = energy_shift, distance = distance, $
-  flare_location= flare_location,  plot = plot, ospex_obj = ospex_obj, det_ind = det_ind, pix_ind = pix_ind, shift_duration = shift_duration, no_attenuation=no_attenuation
+pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, $
+  time_shift = time_shift, energy_shift = energy_shift, distance = distance, flare_location= flare_location, $
+  det_ind = det_ind, pix_ind = pix_ind, $
+  shift_duration = shift_duration, no_attenuation=no_attenuation, sys_uncert = sys_uncert, $
+  generate_fits = generate_fits, specfile = specfile, srmfile = srmfile,$
+  plot = plot, ospex_obj = ospex_obj
 
 
   if n_elements(time_shift) eq 0 then begin
@@ -76,11 +80,11 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
     print, 'using stx_get_header_corrections.pro.'
     time_shift = 0.
   endif
-  
 
   default, flare_location, [0.,0.]
   default, shift_duration, 0
   default, plot, 1
+
 
 
   g10=[3,20,22]-1
@@ -112,6 +116,11 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   start_time = atime(stx_time2any((t_axis.time_start)[0]))
 
   elut_filename = stx_date2elut_file(start_time)
+  uid = control_str.request_id
+
+  fits_info_params = stx_fits_info_params( fits_path_data = fits_path_data, data_level = data_level, $
+    distance = distance, time_shift = time_shift, fits_path_bk = fits_path_bk, uid = uid, $
+    generate_fits = generate_fits, specfile = specfile, srmfile = srmfile, elut_file = elut_filename)
 
   counts_in = data_str.counts
 
@@ -213,9 +222,9 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   ; ******************** TEMPORARY FIX *************************
   ; ***** Andrea: 2022-April-05
   ; Temporarily creation of the no_attenuation keyword in order
-  ; to avoid attenuation of the fitted curve. This is useful for 
-  ; obtaining thermal fit parameters with the BKG detector in the 
-  ; case the attenuator is inserted. We tested it with the X 
+  ; to avoid attenuation of the fitted curve. This is useful for
+  ; obtaining thermal fit parameters with the BKG detector in the
+  ; case the attenuator is inserted. We tested it with the X
   ; class flare on 2021-Oct-26 and it works nicely.
   if keyword_set(no_attenuation) then begin
     rcr = rcr*0.
@@ -251,7 +260,7 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   specpar = { sp_atten_state :  {time:ut_rcr[index], state:state} }
 
   stx_convert_science_data2ospex, spectrogram = spectrogram, specpar=specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims,  fits_path_bk = fits_path_bk,$
-    distance = distance, fits_path_data = fits_path_data, flare_location= flare_location, eff_ewidth = eff_ewidth, plot = plot, ospex_obj = ospex_obj
+    distance = distance, fits_path_data = fits_path_data, flare_location = flare_location, eff_ewidth = eff_ewidth, sys_uncert = sys_uncert, plot = plot, fits_info_params = fits_info_params, ospex_obj = ospex_obj
 
 end
 

@@ -55,14 +55,15 @@ pro stx_write_ospex_fits, $
   ph_edges = ph_edges, $
   time_shift = time_shift,$
   xspec = xspec,$
-    _extra = extra_keys
+  fits_info_params = fits_info_params,$
+  _extra = extra_keys
 
-  default, any_specfile, 0 
+  default, any_specfile, 0
   default, xspec, 0
   if ~keyword_set(any_specfile) then begin
-   print,  'To use SPEX_ANY_SPECFILE strategy '
-   print,  'change self->setstrategy, '+string(39B)+'SPEX_HESSI_SPECFILE' +string(39B)+ ' to self->setstrategy, '+string(39B)+'SPEX_ANY_SPECFILE'+string(39B)
-   print,  'in STIX rate block of spex_data__define.pro'
+    print,  'To use SPEX_ANY_SPECFILE strategy '
+    print,  'change self->setstrategy, '+string(39B)+'SPEX_HESSI_SPECFILE' +string(39B)+ ' to self->setstrategy, '+string(39B)+'SPEX_ANY_SPECFILE'+string(39B)
+    print,  'in STIX rate block of spex_data__define.pro'
   endif
 
 
@@ -148,9 +149,23 @@ pro stx_write_ospex_fits, $
 
   units_arr = [ units, units, ' ', ' ', ' ', 's', 's' ]
 
+  backapp = fits_info_params.background_subtracted ? 'T' : 'F'
+  backfile = fits_info_params.fits_background_file
+
   ;make the rate structure
   rate_struct = stx_rate_header( nchan = nchan, exposure = exposure, timezeri = timezeri, tstartf = tstartf, $
-    tstopi = tstopi, tstopf = tstopf )
+    tstopi = tstopi, tstopf = tstopf, backapp = backapp, backfile = backfile )
+
+  fxaddpar, primary_header, 'PARENT', fits_info_params.fits_data_file, "Parent Observation Data File", before='AUTHOR'
+  fxaddpar, primary_header, 'DATA_LEVEL', fits_info_params.data_level, "Observation Data Compression Level", before='AUTHOR'
+ 
+  fxaddpar, specheader, 'REQUEST_ID', fits_info_params.uid, "Uniquie Request ID for the Observation", before='AUTHOR'
+  fxaddpar, specheader, 'SUN_DISTANCE', fits_info_params.distance, "Distance in AU to Sun", before='AUTHOR'
+  fxaddpar, specheader, 'GRID_FACTOR', fits_info_params.grid_factor, "Total Grid Transmission Factor", before='AUTHOR'
+  fxaddpar, specheader, 'ELUT_FILENAME', fits_info_params.elut_file, "Filename of ELUT", before='AUTHOR'
+
+  fxaddpar, srmheader, 'SUN_DISTANCE', fits_info_params.distance, "Distance in AU to Sun", before='AUTHOR'
+  fxaddpar, srmheader, 'GRID_FACTOR', fits_info_params.grid_factor, "Total Grid Transmission Factor used", before='AUTHOR'
 
 
   ;make the spectrum file
