@@ -171,15 +171,18 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
 
     ;remove short time bins with low counts
     counts_for_time_bin=total(counts[1:10,*],1)
+    
+    min_count_threshold = 1400
+    idx_short=where(counts_for_time_bin le min_count_threshold )
 
-    idx_short=where(counts_for_time_bin le 1400 )
-
-    ;list when we have 1 second time bins, short or normal bins
+    ;list when we have mimum duration time bins, short or normal bins
     mask_long_bins  =  lonarr(n_time-1) + 1
+
+    min_time = stx_date2min_time(hstart_time) / 10.
 
     if idx_short[0] ne -1 then begin
 
-      idx_double = where(duration[idx_short-1] eq 1)
+      idx_double = where(duration[idx_short-1] eq min_time)
 
       idx_short_plus = idx_double[0] ne -1 ? [idx_short,idx_short[idx_double]-1] : idx_short
 
