@@ -57,7 +57,8 @@
 ;
 ;-
 pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims,  fits_path_bk = fits_path_bk,$
-  distance = distance, fits_path_data = fits_path_data, fits_info_params = fits_info_params,  flare_location = flare_location, eff_ewidth = eff_ewidth, sys_uncert = sys_uncert,  plot = plot, generate_fits = fits,ospex_obj = ospex_obj
+  distance = distance, fits_path_data = fits_path_data, fits_info_params = fits_info_params, flare_location = flare_location, eff_ewidth = eff_ewidth, sys_uncert = sys_uncert,  $
+  background_data = background_data, plot = plot, generate_fits = fits,ospex_obj = ospex_obj
 
   default, plot, 0
 
@@ -205,17 +206,23 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
 
   uid = fits_info_params.uid
 
-;  fstart_time = time2fid(atime(stx_time2any((spectrogram.time_axis.time_start)[0])),/full,/time)
+  background_data = { $
+    type          : "stx_background_data", $
+    counts        : corrected_counts_bk, $
+    error         : error_bk}
+
+
+  ;  fstart_time = time2fid(atime(stx_time2any((spectrogram.time_axis.time_start)[0])),/full,/time)
 
   default, specfilename, 'stx_spectrum_' + strtrim(uid,2) + '.fits'
   default, srmfilename,  'stx_srm_'      + strtrim(uid,2) + '.fits'
-  
-;  outfile = dialog_pickfile(file = specfilename, path=curdir(), filter='*.fits', $
-;    title = 'Select output file name')
-    
-   fits_info_params.distance = distance
-   fits_info_params.specfile = specfilename
-   fits_info_params.srmfile = srmfilename
+
+  ;  outfile = dialog_pickfile(file = specfilename, path=curdir(), filter='*.fits', $
+  ;    title = 'Select output file name')
+
+  fits_info_params.distance = distance
+  fits_info_params.specfile = specfilename
+  fits_info_params.srmfile = srmfilename
 
   transmission = read_csv(loc_file( 'stix_trans_by_component.csv', path = getenv('STX_GRID')))
 

@@ -64,7 +64,7 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
   replace_doubles = replace_doubles, keep_short_bins = keep_short_bins, apply_time_shift = apply_time_shift,$
   shift_duration = shift_duration, no_attenuation=no_attenuation, sys_uncert = sys_uncert, $
   generate_fits = generate_fits, specfile = specfile, srmfile = srmfile,$
-  plot = plot, ospex_obj = ospex_obj
+  background_data = background_data, plot = plot, ospex_obj = ospex_obj
 
   if n_elements(time_shift) eq 0 then begin
     message, 'Time shift value is not set. Using default value of 0 [s].', /info
@@ -191,7 +191,8 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
   specpar = { sp_atten_state :  {time:ut_rcr[index], state:state} }
 
   stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, $
-    distance = distance, fits_path_data = fits_path_data, flare_location= flare_location, eff_ewidth = eff_ewidth, fits_info_params = fits_info_params,  sys_uncert = sys_uncert,plot = plot, generate_fits = generate_fits, ospex_obj = ospex_obj
+    distance = distance, fits_path_data = fits_path_data, flare_location= flare_location, eff_ewidth = eff_ewidth, fits_info_params = fits_info_params, sys_uncert = sys_uncert, $
+    background_data = background_data, plot = plot, generate_fits = generate_fits, ospex_obj = ospex_obj
 
 end
 
