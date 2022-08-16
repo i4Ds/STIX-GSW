@@ -103,7 +103,7 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   hstart_time = alpha ? (sxpar(primary_header, 'date_beg')) : (sxpar(primary_header, 'date-beg'))
 
   trigger_zero = (sxpar(data_header, 'TZERO3'))
-  new_triggers = float(trigger_zero +data.triggers)
+  new_triggers = float(trigger_zero + data.triggers)
   data = rep_tag_value(data, 'TRIGGERS', new_triggers)
   ;TO BE ADDED WHEN FULL_RESOLUTION KEWORD IS INCLUDED
   ;  full_resolution = (sxpar(primary_header, 'FULL_RESOLUTION'))
