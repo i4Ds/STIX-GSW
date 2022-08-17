@@ -42,8 +42,8 @@
 ;       
 ;
 ; :history:
-;       23-Sep-2014 – ECMD (Graz)
-;       
+;       23-Sep-2014 – ECMD (Graz) - initial release
+;       08-Aug-2022 – ECMD (Graz) - pass in basic info about background subtraction
 ;       
 ;-
 

@@ -43,14 +43,14 @@
 ;       26-Nov-2017 - RAS   (GSFC), Get ph_edges from srm structure if passed
 ;       03-Dec-2018 - ECMD  (Graz), include information for multiple attenuation states
 ;       23-Feb-2022 - ECMD  (Graz), added information of xspec compatibility and time shift to files
-;
-;-
+;       08-Aug-2022 - ECMD (Graz), can now pass in file names for the output spectrum and srm FITS files
+;                                  added keyword to allow the user to specify the systematic uncertainty ;-
 pro stx_write_ospex_fits, $
   spectrum = spec, $
   specfilename = specfilename, $
   srmfilename = srmfilename, $
   specpar = specpar, $
-  srm_atten=srm_atten, $
+  srm_atten = srm_atten, $
   srmdata = srm, $
   ph_edges = ph_edges, $
   time_shift = time_shift,$

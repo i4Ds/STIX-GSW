@@ -63,8 +63,8 @@
 ;                       -> automatic recognition of SPEC and CPD files: /is_pixel_data is no longer needed
 ;                       -> option to manually define time_shift. Default: assume solar center
 ;                       -> rate keyword added
-;    08-Aug-2022 - ECMD (Graz), added pixel and detecor index selection for pixel data 
-;                               added keyword to allow the user to specify the systematic uncertanty 
+;    08-Aug-2022 - ECMD (Graz), added pixel and detector index selection for pixel data 
+;                               added keyword to allow the user to specify the systematic uncertainty 
 ;
 ;
 ;-

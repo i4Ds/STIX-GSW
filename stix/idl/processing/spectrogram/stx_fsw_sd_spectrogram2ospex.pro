@@ -33,10 +33,15 @@
 ;    03-Dec-2018 – ECMD (Graz), livetime and attenuator states accounted for
 ;    22-Feb-2022 - ECMD (Graz), added passing of time_shift information to file, default systematic error of 5%
 ;                               print warning when using on-axis default for background detector
+;    29-Jul-2022 - ECMD (Graz), make OSPEX object without opening the GUI
+;    08-Aug-2022 - ECMD (Graz), can now pass in file names for the output spectrum and srm FITS files
+;                               added keyword to allow the user to specify the systematic uncertainty 
+;                               pass through structure of info parameters to write in FITS file
 ;
-;-
-function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shift = time_shift, ph_energy_edges = ph_edges, generate_fits = generate_fits, plotman_obj = pobj, specfilename = specfilename, srmfilename  = srmfilename,$
-  flare_location = flare_location,  gtrans32 = gtrans32, livetime_fraction = livetime_fraction, sys_uncert = sys_uncert,fits_info_params = fits_info_params, _extra = _extra
+;-                               
+function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shift = time_shift, ph_energy_edges = ph_edges, generate_fits = generate_fits, plotman_obj = pobj, $
+  specfilename = specfilename, srmfilename = srmfilename,flare_location = flare_location,  gtrans32 = gtrans32, livetime_fraction = livetime_fraction, sys_uncert = sys_uncert, $
+  fits_info_params = fits_info_params, _extra = _extra
 
   default, sys_uncert, 0.05
   ntimes = n_elements(spectrogram.time_axis.time_start)
@@ -115,12 +120,8 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
 
     specfilename = fits_info_params.specfile
     srmfilename =  fits_info_params.srmfile
-    ;   default, specfilename, 'stx_spectrum_' + time2file( utime[0] ) + '.fits'
-    ;   default, srmfilename, 'stx_srm_' + time2file( utime[0] ) + '.fits'
 
     fits_info_params.grid_factor = grid_factor
-    ;   fits_info_params.specfile = specfilename
-    ;   fits_info_params.srmfile = srmfilename
 
     stx_write_ospex_fits, spectrum = spectrum_in, srmdata = srm,  specpar = specpar, time_shift = time_shift, $
       srm_atten = srm_atten, specfilename = specfilename, srmfilename = srmfilename, ph_edges = ph_edges, $
@@ -153,9 +154,6 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
     ospex_obj->set, spex_detectors = 'STIX'
     ospex_obj->set, spex_drm_ct_edges = energy_edges
     ospex_obj->set, spex_drm_ph_edges = ph_edges2
-    ;    ospex_obj->set, fit_xvals = ph_edges2
-    ;    ospex_obj->set, spex_ph_edges = ph_edges2
-    ;    ospex_obj->set, ph_edges = ph_edges2
     ospex_obj->set, spex_uncert = sys_uncert
     ospex_obj->set, spex_error_use_expected = 0
   endelse

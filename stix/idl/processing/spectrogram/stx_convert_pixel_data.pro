@@ -46,11 +46,23 @@
 ;    shift_duration : in, type="boolean", default="0"
 ;                     Shift all time bins by 1 to account for FSW time input discrepancy prior to 09-Dec-2021.
 ;                     N.B. WILL ONLY WORK WITH FULL TIME RESOLUTION DATA WHICH IS OFTEN NOT THE CASE FOR PIXEL DATA.
+;                     
+;    generate_fits : in, type="boolean", default="0"
+;                     Shift a.
+;                     
+;    specfile : in, type="string", default=""
+;                     Shift a. 
+;                     
+;    srmfile : in, type="boolean", default=""
+;                     Shift a.
+;
+;    background_data : out, type="structure"
+;                     Shift a.
 ;
 ;     plot : in, type="boolean", default="1"
 ;                     If set open OSPEX GUI and plot lightcurve in standard quicklook energy bands where there is data present
 ;
-;      ospex_obj : out, type="OSPEX object"
+;     ospex_obj : out, type="OSPEX object"
 ;
 ;
 ; :examples:
@@ -64,12 +76,16 @@
 ;    22-Feb-2022 - ECMD (Graz), documented, added default warnings, elut is determined by stx_date2elut_file, improved error calculation
 ;    04-Jul-2022 - ECMD (Graz), added plot keyword
 ;    20-Jul-2022 - ECMD (Graz), distance factor now calculated in stx_convert_science_data2ospex
+;    08-Aug-2022 - ECMD (Graz), can now pass in file names for the output spectrum and srm FITS files
+;                               added keyword to allow the user to specify the systematic uncertainty 
+;                               generate structure of info parameters to pass through to FITS file
+;    16-Aug-2022 - ECMD (Graz), information about subtracted background can now be passed out                       
 ;
 ;-
 pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, $
-  time_shift = time_shift, energy_shift = energy_shift, distance = distance, flare_location= flare_location, $
+  time_shift = time_shift, energy_shift = energy_shift, distance = distance, flare_location = flare_location, $
   det_ind = det_ind, pix_ind = pix_ind, $
-  shift_duration = shift_duration, no_attenuation=no_attenuation, sys_uncert = sys_uncert, $
+  shift_duration = shift_duration, no_attenuation = no_attenuation, sys_uncert = sys_uncert, $
   generate_fits = generate_fits, specfile = specfile, srmfile = srmfile,$
   background_data = background_data, plot = plot, ospex_obj = ospex_obj
 

@@ -25,6 +25,17 @@ function stx_fits_info_params, fits_path_data = fits_path_data, data_level = dat
     fits_background_file = bk_file_name + '.fits'
   end
 
+  if specfile ne '' then begin
+    break_file, specfile, disk, dir, sp_file_name, ext
+    specfile = sp_file_name + '.fits'
+  end
+
+  if srmfile ne '' then begin
+    break_file, srmfile, disk, dir, rm_file_name, ext
+    srmfile = rm_file_name + '.fits'
+  end
+
+
   stx_fits_info = {uid:uid, fits_data_file:fits_data_file, data_level:data_level, $
     distance:distance, time_shift:time_shift, grid_factor:0., $
     background_subtracted:background_subtracted, fits_background_file:fits_background_file, $

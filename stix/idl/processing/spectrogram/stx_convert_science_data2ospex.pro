@@ -53,19 +53,24 @@
 ;    18-Jun-2021 - ECMD (Graz), initial release
 ;    22-Feb-2022 - ECMD (Graz), documented, improved error calculation
 ;    04-Jul-2022 - ECMD (Graz), added plot keyword
-;    20-Jul-2022 - ECMD (Graz), by default use distance from header
-;
+;    29-Jul-2022 - ECMD (Graz), by default use distance from header
+;                               don't open the OSPEX gui unless plot keyword is set
+;    08-Aug-2022 - ECMD (Graz), can now pass in file names for the output spectrum and srm FITS files
+;                               default file name is based on unique request ID
+;                               added keyword to allow the user to specify the systematic uncertainty 
+;                               pass through structure of info parameters to write in FITS file
+;                                                              
 ;-
 pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims,  fits_path_bk = fits_path_bk,$
   distance = distance, fits_path_data = fits_path_data, fits_info_params = fits_info_params, flare_location = flare_location, eff_ewidth = eff_ewidth, sys_uncert = sys_uncert,  $
-  background_data = background_data, plot = plot, generate_fits = fits,ospex_obj = ospex_obj
+  background_data = background_data, plot = plot, generate_fits = generate_fits, pickfile = pickfile, ospex_obj = ospex_obj
 
   default, plot, 0
 
   ;if distance is not set use the average value from the fits header
   stx_get_header_corrections, fits_path_data, distance = header_distance
   default, distance, header_distance
-  print, 'Using Solar Orbiter distance of :' + strtrim(distance,2) +  ' AU'
+  print, 'Using Solar Orbiter distance of : ' + strtrim(distance,2) +  ' AU'
 
   dist_factor = 1./(distance^2.)
 
@@ -212,13 +217,18 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
     error         : error_bk}
 
 
-  ;  fstart_time = time2fid(atime(stx_time2any((spectrogram.time_axis.time_start)[0])),/full,/time)
+  fstart_time = time2fid(atime(stx_time2any((spectrogram.time_axis.time_start)[0])),/full,/time)
 
   default, specfilename, 'stx_spectrum_' + strtrim(uid,2) + '.fits'
   default, srmfilename,  'stx_srm_'      + strtrim(uid,2) + '.fits'
 
-  ;  outfile = dialog_pickfile(file = specfilename, path=curdir(), filter='*.fits', $
-  ;    title = 'Select output file name')
+
+  if keyword_set(pickfile) then begin
+    specfilename = dialog_pickfile(file = specfilename, path=curdir(), filter='*.fits', $
+      title = 'Select output file name')
+    srmfilename = dialog_pickfile(file = srmfilename, path=curdir(), filter='*.fits', $
+      title = 'Select output file name')
+  endif
 
   fits_info_params.distance = distance
   fits_info_params.specfile = specfilename
