@@ -4,13 +4,14 @@
 ;       STIX
 ;
 ; :name:
-;       stx_date2elut_file
+;       stx_date2min_time
 ;
 ; :description:
-;    This function returns the filename corresponding to the energy lookup table (ELUT) active on STIX on a given date.
+;    This function returns the filename corresponding to the lookup table corresponding to the minimum time
+;    bin set on STIX on a given date.
 ;
 ; :categories:
-;    spectroscopy, calibration
+;    spectroscopy, lightcurve 
 ;
 ; :params:
 ;    date : in, required, type="string"
