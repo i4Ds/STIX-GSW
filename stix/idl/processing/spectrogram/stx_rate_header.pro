@@ -8,21 +8,21 @@
 ;
 ; :purpose:
 ;    Make rate header structure for stix spectrum fits file.
-;           
+;
 ;
 ; :category:
 ;       helper methods
 ;
 ; :description:
 ;   Routine based on the form of the rate structure made in hsi_spectrum__fitswrite.
-;   
-;   
+;
+;
 ; :keywords:
 ;
-;   nchan - the number of channels 
+;   nchan - the number of channels
 ;
 ;   exposure - exposure time
-;   
+;
 ;   timezeri - integer part start time
 ;
 ;   tstartf - fractional part of start time (number of milliseconds divided by number of milliseconds per day)
@@ -31,20 +31,20 @@
 ;
 ;   tstopf - fractional part end time
 ;
-;         
+;
 ; :returns:
-;    Returns the structure rate structure needed for the headers inn the stix spectrum fits files. 
+;    Returns the structure rate structure needed for the headers inn the stix spectrum fits files.
 ;
 ; :calling sequence:
 ;    IDL> rate_struct = stx_rate_header( nchan = nchan, exposure = exposure, timezeri = timezeri, tstartf = tstartf , $
 ;         tstopi= tstopi, tstopf = tstopf )
 ;
-;       
+;
 ;
 ; :history:
 ;       23-Sep-2014 – ECMD (Graz) - initial release
 ;       08-Aug-2022 – ECMD (Graz) - pass in basic info about background subtraction
-;       
+;
 ;-
 
 ;+
@@ -59,8 +59,8 @@ function stx_rate_header, nchan = nchan, $
   tstopf = tstopf, $
   backapp = backapp, $
   backfile = backfile
-  
-    
+
+
   rate_struct = {rate_header}
   rate_struct.telescope = 'Solar Orbiter'
   rate_struct.instrument = 'STIX'
@@ -98,7 +98,7 @@ function stx_rate_header, nchan = nchan, $
   rate_struct.author = 'Unknown'
   rate_struct.observer = 'Unknown'
   rate_struct.timversn = 'OGIP/93-003'
-  
+
   return, rate_struct
 
 

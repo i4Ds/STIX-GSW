@@ -7,11 +7,12 @@
 ;       stx_convert_science_data2ospex
 ;
 ; :description:
-;    This procedure saves a property file at given location. The properties... etc.
+;    This procedure takes a science data formatted as a stx_fsw_sd_spectrogram structure calculates the
+;    livetime corrected values and optionally subtracts a background observation from a supplied background file.
+;    This data is then passed to an OSPEX object.
 ;
 ; :categories:
 ;    spectroscopy
-;
 ;
 ; :keywords:
 ;
@@ -42,11 +43,25 @@
 ;    eff_ewidth : in, type="float arr"
 ;               an output float value
 ;
-;    plot : in, type="boolean", default="1"
-;                     If set open OSPEX GUI and plot lightcurve in standard quicklook energy bands where there is data present
+;    sys_uncert : in, type="float", default="0.05"
+;                 The fractional systematic uncertanty to be added
+
+;    fits_info_params : in, type="structure"
+;                       Structure of information parameters to be written out to the spectrum and srm FITS files
 ;
-;      ospex_obj : out, type="OSPEX object",
-;               the output OSPEX object containing the data
+;    background_data : out, type="stx_background_data structure"
+;                     Structure containing the subtracted background for external plotting.
+;
+;    plot : in, type="boolean", default="1"
+;           If set open OSPEX GUI and plot lightcurve in standard quicklook energy bands where there is data present
+;
+;    generate_fits : in, type="boolean", default="1"
+;                    If set spectrum and srm FITS files will be generated and read using the stx_read_sp using the
+;                    SPEX_ANY_SPECFILE strategy. Otherwise use the spex_user_data strategy to pass in the data
+;                    directly to the ospex object.
+;
+;    ospex_obj : out, type="OSPEX object",
+;                the output OSPEX object containing the data
 ;
 ;
 ; :history:
@@ -54,12 +69,12 @@
 ;    22-Feb-2022 - ECMD (Graz), documented, improved error calculation
 ;    04-Jul-2022 - ECMD (Graz), added plot keyword
 ;    29-Jul-2022 - ECMD (Graz), by default use distance from header
-;                               don't open the OSPEX gui unless plot keyword is set
+;                               don't open the OSPEX GUI unless plot keyword is set
 ;    08-Aug-2022 - ECMD (Graz), can now pass in file names for the output spectrum and srm FITS files
 ;                               default file name is based on unique request ID
-;                               added keyword to allow the user to specify the systematic uncertainty 
+;                               added keyword to allow the user to specify the systematic uncertainty
 ;                               pass through structure of info parameters to write in FITS file
-;                                                              
+;    16-Aug-2022 - ECMD (Graz), pass out background data structure for plotting
 ;-
 pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims,  fits_path_bk = fits_path_bk,$
   distance = distance, fits_path_data = fits_path_data, fits_info_params = fits_info_params, flare_location = flare_location, eff_ewidth = eff_ewidth, sys_uncert = sys_uncert,  $
@@ -180,6 +195,7 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
 
 
   eff_livetime_fraction = f_div(total(counts_spec,1) , total(corrected_counts,1) , default = 1 )
+  ; 22-Jul-2022 - ECMD, changed from mean to total for more consistent estimate
   eff_livetime_fraction_expanded = transpose(rebin([eff_livetime_fraction],n_elements(eff_livetime_fraction),n_energies))
   spec_in_corr *= eff_livetime_fraction_expanded
   total_error *= eff_livetime_fraction_expanded
@@ -241,7 +257,7 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
   edge_products, phe, mean = mean_phe, width = w_phe
   ph_in = [mean_phe[0] - w_phe[0], mean_phe]
 
-  ospex_obj =   stx_fsw_sd_spectrogram2ospex( spectrogram, specpar = specpar, time_shift= time_shift, ph_energy_edges = ph_in, $
+  ospex_obj = stx_fsw_sd_spectrogram2ospex( spectrogram, specpar = specpar, time_shift= time_shift, ph_energy_edges = ph_in, $
     /include_damage, generate_fits = generate_fits , /tail, livetime_fraction = eff_livetime_fraction, $
     dist_factor = dist_factor, flare_location= flare_location, sys_uncert = sys_uncert, fits_info_params = fits_info_params )
 

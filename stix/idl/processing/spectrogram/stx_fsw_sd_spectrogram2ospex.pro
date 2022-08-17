@@ -16,6 +16,9 @@
 ;
 ;    srmfilename  : in, file name for srm fits
 ;
+;    sys_uncert : in, type="float", default="0.05"
+;                 The fractional systematic uncertanty to be added
+;
 ;    plotman_obj  : out, if set to a named variable this will pass out the plotman object created when the
 ;                 spectrogram is plotted
 ;
@@ -35,12 +38,12 @@
 ;                               print warning when using on-axis default for background detector
 ;    29-Jul-2022 - ECMD (Graz), make OSPEX object without opening the GUI
 ;    08-Aug-2022 - ECMD (Graz), can now pass in file names for the output spectrum and srm FITS files
-;                               added keyword to allow the user to specify the systematic uncertainty 
+;                               added keyword to allow the user to specify the systematic uncertainty
 ;                               pass through structure of info parameters to write in FITS file
 ;
-;-                               
+;-
 function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shift = time_shift, ph_energy_edges = ph_edges, generate_fits = generate_fits, plotman_obj = pobj, $
-  specfilename = specfilename, srmfilename = srmfilename,flare_location = flare_location,  gtrans32 = gtrans32, livetime_fraction = livetime_fraction, sys_uncert = sys_uncert, $
+  specfilename = specfilename, srmfilename = srmfilename, flare_location = flare_location, gtrans32 = gtrans32, livetime_fraction = livetime_fraction, sys_uncert = sys_uncert, $
   fits_info_params = fits_info_params, _extra = _extra
 
   default, sys_uncert, 0.05

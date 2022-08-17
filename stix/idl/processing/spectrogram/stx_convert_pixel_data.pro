@@ -46,23 +46,29 @@
 ;    shift_duration : in, type="boolean", default="0"
 ;                     Shift all time bins by 1 to account for FSW time input discrepancy prior to 09-Dec-2021.
 ;                     N.B. WILL ONLY WORK WITH FULL TIME RESOLUTION DATA WHICH IS OFTEN NOT THE CASE FOR PIXEL DATA.
-;                     
-;    generate_fits : in, type="boolean", default="0"
-;                     Shift a.
-;                     
-;    specfile : in, type="string", default=""
-;                     Shift a. 
-;                     
-;    srmfile : in, type="boolean", default=""
-;                     Shift a.
 ;
-;    background_data : out, type="structure"
-;                     Shift a.
+;    sys_uncert : in, type="float", default="0.05"
+;                 The fractional systematic uncertainty to be added
 ;
-;     plot : in, type="boolean", default="1"
-;                     If set open OSPEX GUI and plot lightcurve in standard quicklook energy bands where there is data present
+;    generate_fits : in, type="boolean", default="1"
+;                    If set spectrum and srm FITS files will be generated and read using the stx_read_sp using the
+;                    SPEX_ANY_SPECFILE strategy. Otherwise use the spex_user_data strategy to pass in the data
+;                    directly to the ospex object.
 ;
-;     ospex_obj : out, type="OSPEX object"
+;    specfile : in, type="string", default="'stx_spectrum_' + UID + '.fits'"
+;                    File name to use when saving the spectrum FITS file for OSPEX input.
+;
+;    srmfile : in, type="string", default="'stx_srm_'+ UID + '.fits'"
+;                    File name to use when saving the srm FITS file for OSPEX input.
+;
+;    background_data : out, type="stx_background_data structure"
+;                     Structure containing the subtracted background for external plotting.
+;
+;    plot : in, type="boolean", default="1"
+;                     If set open OSPEX GUI and plot lightcurve in standard quicklook energy bands
+;                     where there is data present
+;
+;    ospex_obj : out, type="OSPEX object"
 ;
 ;
 ; :examples:
@@ -77,9 +83,9 @@
 ;    04-Jul-2022 - ECMD (Graz), added plot keyword
 ;    20-Jul-2022 - ECMD (Graz), distance factor now calculated in stx_convert_science_data2ospex
 ;    08-Aug-2022 - ECMD (Graz), can now pass in file names for the output spectrum and srm FITS files
-;                               added keyword to allow the user to specify the systematic uncertainty 
+;                               added keyword to allow the user to specify the systematic uncertainty
 ;                               generate structure of info parameters to pass through to FITS file
-;    16-Aug-2022 - ECMD (Graz), information about subtracted background can now be passed out                       
+;    16-Aug-2022 - ECMD (Graz), information about subtracted background can now be passed out
 ;
 ;-
 pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, $
@@ -101,8 +107,6 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   default, shift_duration, 0
   default, plot, 1
 
-
-
   g10=[3,20,22]-1
   g09=[16,14,32]-1
   g08=[21,26,4]-1
@@ -116,6 +120,7 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   g01_10=[g01,g02,g03,g04,g05,g06,g07,g08,g09,g10]
   g03_10=[g03,g04,g05,g06,g07,g08,g09,g10]
 
+  ; 22-Jul-2022 - ECMD, changed keyword_set to n_elements as [0] is valid detector or pixel index array
   mask_use_detectors = intarr(32)
   if n_elements(det_ind) eq 0 then mask_use_detectors[g03_10] = 1 else mask_use_detectors[det_ind] = 1
 
@@ -275,9 +280,10 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   ;add the rcr information to a specpar structure so it can be included in the spectrum FITS file
   specpar = { sp_atten_state :  {time:ut_rcr[index], state:state} }
 
-  stx_convert_science_data2ospex, spectrogram = spectrogram, specpar=specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims,  fits_path_bk = fits_path_bk,$
-    distance = distance, fits_path_data = fits_path_data, flare_location = flare_location, eff_ewidth = eff_ewidth, sys_uncert = sys_uncert, plot = plot, background_data = background_data, $
-    fits_info_params = fits_info_params, ospex_obj = ospex_obj
+  stx_convert_science_data2ospex, spectrogram = spectrogram, specpar=specpar, time_shift = time_shift, $
+    data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, distance = distance, $
+    fits_path_data = fits_path_data, flare_location = flare_location, eff_ewidth = eff_ewidth, sys_uncert = sys_uncert, $
+    plot = plot, background_data = background_data, fits_info_params = fits_info_params, ospex_obj = ospex_obj
 
 end
 

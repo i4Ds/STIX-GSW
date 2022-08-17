@@ -14,7 +14,7 @@
 ;       helper methods
 ;
 ; :description:
-;       Routine to write a spectrum FITS file from stix spectrogram data. Based on the routine hsi_spectrum__fitswrite.
+;       Routine to write a spectrum FITS file from STIX spectrogram data. Based on the routine hsi_spectrum__fitswrite.
 ;
 ; :keywords:
 ;
@@ -43,8 +43,9 @@
 ;       26-Nov-2017 - RAS   (GSFC), Get ph_edges from srm structure if passed
 ;       03-Dec-2018 - ECMD  (Graz), include information for multiple attenuation states
 ;       23-Feb-2022 - ECMD  (Graz), added information of xspec compatibility and time shift to files
-;       08-Aug-2022 - ECMD (Graz), can now pass in file names for the output spectrum and srm FITS files
-;                                  added keyword to allow the user to specify the systematic uncertainty ;-
+;       08-Aug-2022 - ECMD  (Graz), can now pass in structure of info parameters to write in FITS file
+;
+;-
 pro stx_write_ospex_fits, $
   spectrum = spec, $
   specfilename = specfilename, $
@@ -53,9 +54,9 @@ pro stx_write_ospex_fits, $
   srm_atten = srm_atten, $
   srmdata = srm, $
   ph_edges = ph_edges, $
-  time_shift = time_shift,$
-  xspec = xspec,$
-  fits_info_params = fits_info_params,$
+  time_shift = time_shift, $
+  xspec = xspec, $
+  fits_info_params = fits_info_params, $
   _extra = extra_keys
 
   default, any_specfile, 0
@@ -158,8 +159,8 @@ pro stx_write_ospex_fits, $
 
   fxaddpar, primary_header, 'PARENT', fits_info_params.fits_data_file, "Parent Observation Data File", before='AUTHOR'
   fxaddpar, primary_header, 'DATA_LEVEL', fits_info_params.data_level, "Observation Data Compression Level", before='AUTHOR'
- 
-  fxaddpar, specheader, 'REQUEST_ID', fits_info_params.uid, "Uniquie Request ID for the Observation", before='AUTHOR'
+
+  fxaddpar, specheader, 'REQUEST_ID', fits_info_params.uid, "Unique Request ID for the Observation", before='AUTHOR'
   fxaddpar, specheader, 'SUN_DISTANCE', fits_info_params.distance, "Distance in AU to Sun", before='AUTHOR'
   fxaddpar, specheader, 'GRID_FACTOR', fits_info_params.grid_factor, "Total Grid Transmission Factor", before='AUTHOR'
   fxaddpar, specheader, 'ELUT_FILENAME', fits_info_params.elut_file, "Filename of ELUT", before='AUTHOR'

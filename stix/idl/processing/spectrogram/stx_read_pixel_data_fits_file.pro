@@ -36,10 +36,7 @@
 ;               an output float value;
 ;
 ;    primary_header : out, type="string array"
-;               an output float value;
-;
-;    data_str : out, type="structure"
-;              The header of the primary HDU of the pixel data file
+;               The header of the primary HDU of the pixel data file.
 ;
 ;    data_header : out, type="string array", default="string array"
 ;              The header of the data extension of the pixel data file
@@ -75,8 +72,8 @@
 ;    22-Feb-2022 - ECMD (Graz), documented, improved handling of alpha and non-alpha files, altered duration shift calculation
 ;    28-Feb-2022 - ECMD (Graz), fixed issue reading sting rcr values for level 1 files
 ;    05-Jul-2022 - ECMD (Graz), fixed handling of L1 files which don't contain the full set of energy, detector and pixel combinations
-;    21-Jul-2022 - ECMD (Graz), added automatic check for energy shift 
-;    
+;    21-Jul-2022 - ECMD (Graz), added automatic check for energy shift
+;
 ;-
 pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
   control_header= control_header, energy_str = energy, energy_header = energy_header, t_axis = t_axis, e_axis = e_axis, $

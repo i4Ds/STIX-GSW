@@ -26,7 +26,7 @@
 ;
 ;    time_shift : in, type="float", default: taken from the FITS header
 ;                 Light travel time correction to apply to the time profiles. By default, it takes the
-;                 value from the FITS header, i.e., Sun center location of the flare is assumed.
+;                 value from the FITS header, i.e., Sun centre location of the flare is assumed.
 ;
 ;    fits_path_bk : in, type="string"
 ;                   The path to the pixel data file containing the background observation.
@@ -35,14 +35,14 @@
 ;               If set, the output units are cnts/s. By default, it is in Flux units [cnts/s/keV/cm^2]
 ;
 ;    det_ind : in, type="int array", default="all detectors  present in observation"
-;              indices of detectors to sum when making spectrogram - N.B. only applicable when input file is pixel data 
+;              indices of detectors to sum when making spectrogram - N.B. only applicable when input file is pixel data
 ;
 ;    pix_ind : in, type="int array", default="all pixels present in observation"
-;               indices of pixels to sum when making spectrogram - N.B. only applicable when input file is pixel data 
-;               
+;               indices of pixels to sum when making spectrogram - N.B. only applicable when input file is pixel data
+;
 ;    sys_uncert : in, optional keyword, default="0.05"
-;               The level of systematic uncertanty to be added to the data
-;               
+;               The level of systematic uncertainty to be added to the data
+;
 ;    plot_obj : out, type="Object"
 ;               Plotman Object containing the binned lightcurve. Supplying this keyword will open a plotman widget showing
 ;               the lightcurve plot.
@@ -61,17 +61,17 @@
 ;    15-Jul-2022 - Andrea Francesco Battaglia (FHNW)
 ;                  Added a few functionalities:
 ;                       -> automatic recognition of SPEC and CPD files: /is_pixel_data is no longer needed
-;                       -> option to manually define time_shift. Default: assume solar center
+;                       -> option to manually define time_shift. Default: assume solar centre
 ;                       -> rate keyword added
-;    08-Aug-2022 - ECMD (Graz), added pixel and detector index selection for pixel data 
-;                               added keyword to allow the user to specify the systematic uncertainty 
+;    08-Aug-2022 - ECMD (Graz), added pixel and detector index selection for pixel data
+;                               added keyword to allow the user to specify the systematic uncertainty
 ;
 ;
 ;-
 function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time_min = time_min,  $
   fits_path_bk =  fits_path_bk, plot_obj = plot_obj, time_shift = time_shift, rate = rate, shift_duration = shift_duration, $
   det_ind = det_ind, pix_ind = pix_ind, sys_uncert = sys_uncert
-  
+
 
   default, time_min, 20
   default, edges_in, [[4.,10.],[10,15],[15,25]]
@@ -97,7 +97,7 @@ function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time
   endif else if strpos(orig_filename, 'spec') gt -1 or strpos(orig_filename, 'spectrogram') gt -1 then begin
     stx_convert_spectrogram, fits_path_data = fits_path, fits_path_bk =  fits_path_bk, distance = distance, time_shift = time_shift, ospex_obj = ospex_obj, $
       sys_uncert = sys_uncert, _extra= _extra
-      if keyword_set(det_ind) or keyword_set(pix_ind) then  message, 'ERROR: Detector and pixel selection not possible with spectrogram files.' 
+    if keyword_set(det_ind) or keyword_set(pix_ind) then  message, 'ERROR: Detector and pixel selection not possible with spectrogram files.'
   endif else begin
     message, 'ERROR: the FILENAME field in the primary header should contain either cpd, xray-l1 or spec'
   endelse

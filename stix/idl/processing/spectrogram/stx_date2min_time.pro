@@ -11,7 +11,7 @@
 ;    bin set on STIX on a given date.
 ;
 ; :categories:
-;    spectroscopy, lightcurve 
+;    spectroscopy, lightcurve
 ;
 ; :params:
 ;    date : in, required, type="string"
@@ -24,7 +24,7 @@
 ;    min_time = stx_date2min_time('2021-04-17')
 ;
 ; :history:
-;    09-Aug-2022 - ECMD (Graz), initial release;    
+;    09-Aug-2022 - ECMD (Graz), initial release;
 ;-
 function stx_date2min_time, date
 

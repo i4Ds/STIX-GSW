@@ -41,8 +41,26 @@
 ;                     Shift all time bins by 1 to account for FSW time input discrepancy prior to 09-Dec-2021.
 ;                     N.B. WILL ONLY WORK WITH FULL TIME RESOLUTION DATA WHICH IS OFTEN NOT THE CASE FOR PIXEL DATA.
 ;
+;    sys_uncert : in, type="float", default="0.05"
+;                 The fractional systematic uncertainty to be added
+;
+;    generate_fits : in, type="boolean", default="1"
+;                    If set spectrum and srm FITS files will be generated and read using the stx_read_sp using the
+;                    SPEX_ANY_SPECFILE strategy. Otherwise use the spex_user_data strategy to pass in the data
+;                    directly to the ospex object.
+;
+;    specfile : in, type="string", default="'stx_spectrum_' + UID + '.fits'"
+;                    File name to use when saving the spectrum FITS file for OSPEX input.
+;
+;    srmfile : in, type="string", default="'stx_srm_'+ UID + '.fits'"
+;                    File name to use when saving the srm FITS file for OSPEX input.
+;
+;    background_data : out, type="stx_background_data structure"
+;                     Structure containing the subtracted background for external plotting.
+;
 ;    plot : in, type="boolean", default="1"
-;                     If set open OSPEX GUI and plot lightcurve in standard quicklook energy bands where there is data present
+;                     If set open OSPEX GUI and plot lightcurve in standard quicklook energy bands
+;                     where there is data present
 ;
 ;    ospex_obj : out, type="OSPEX object"
 ;
@@ -57,12 +75,16 @@
 ;    22-Feb-2022 - ECMD (Graz), documented, added default warnings, elut is determined by stx_date2elut_file, improved error calculation
 ;    04-Jul-2022 - ECMD (Graz), added plot keyword
 ;    20-Jul-2022 - ECMD (Graz), distance factor now calculated in stx_convert_science_data2ospex
+;    08-Aug-2022 - ECMD (Graz), can now pass in file names for the output spectrum and srm FITS files
+;                               added keyword to allow the user to specify the systematic uncertainty
+;                               generate structure of info parameters to pass through to FITS file
+;    16-Aug-2022 - ECMD (Graz), information about subtracted background can now be passed out
 ;
 ;-
 pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, $
   time_shift = time_shift, energy_shift = energy_shift, distance = distance, flare_location= flare_location, $
   replace_doubles = replace_doubles, keep_short_bins = keep_short_bins, apply_time_shift = apply_time_shift,$
-  shift_duration = shift_duration, no_attenuation=no_attenuation, sys_uncert = sys_uncert, $
+  shift_duration = shift_duration, no_attenuation = no_attenuation, sys_uncert = sys_uncert, $
   generate_fits = generate_fits, specfile = specfile, srmfile = srmfile,$
   background_data = background_data, plot = plot, ospex_obj = ospex_obj
 
@@ -77,11 +99,9 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
   default, plot, 1
 
 
-    
   stx_read_spectrogram_fits_file, fits_path_data, time_shift, primary_header = primary_header, data_str = data_str, data_header = data_header, control_str = control_str, $
     control_header= control_header, energy_str = energy_str, energy_header = energy_header, t_axis = t_axis, energy_shift = energy_shift,  e_axis = e_axis , use_discriminators = 0,$
     replace_doubles = replace_doubles, keep_short_bins = keep_short_bins, shift_duration = shift_duration
-
 
   data_level = 4
 
@@ -191,7 +211,7 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
   specpar = { sp_atten_state :  {time:ut_rcr[index], state:state} }
 
   stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, $
-    distance = distance, fits_path_data = fits_path_data, flare_location= flare_location, eff_ewidth = eff_ewidth, fits_info_params = fits_info_params, sys_uncert = sys_uncert, $
+    distance = distance, fits_path_data = fits_path_data, flare_location = flare_location, eff_ewidth = eff_ewidth, fits_info_params = fits_info_params, sys_uncert = sys_uncert, $
     background_data = background_data, plot = plot, generate_fits = generate_fits, ospex_obj = ospex_obj
 
 end

@@ -53,7 +53,7 @@
 ;    EKEV_ACTUAL   - channel edges with true energies based on full adc 4096 bins
 ;    SCALE1024     - 1 or 0, default 1.  If set, gain and offset are returned
 ;    for the 1024 ADC calibration data. EKEV_ACTUAL is the same regardless
-;    path          - Path to the folder in which to search for elut_table csv files, by default .../ssw/so/stix/dbase/detector is used. 
+;    path          - Path to the folder in which to search for elut_table csv files, by default .../ssw/so/stix/dbase/detector is used.
 ;
 ;
 ;
@@ -62,7 +62,7 @@
 ; :History: 29-aug-2019, improved the file search for the elut file
 ; :RAS, 11-jun-2020, added ekev_actual, corrected the action of scale1024==0
 ; :ECMD, 23-Feb-2022, fixed issue with finding file if current folder is not /stix
-; :ECMD, 03-Aug-2022, fixed issue when filename keyword is not used  
+; :ECMD, 03-Aug-2022, fixed issue when filename keyword is not used
 ;
 ;-
 pro stx_read_elut, gain, offset, adc4096_str, elut_filename = elut_filename, scale1024 = scale1024, $

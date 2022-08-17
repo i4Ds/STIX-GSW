@@ -33,10 +33,11 @@
 ;            Set if input file is an alpha e.g. L1A
 ;
 ;    use_discriminators : in, type="boolean", default="0"
-;               an output float value;
+;               If set include the first and last energy channels. These are usually used as LLD
+;               and ULD respectively and so are by default excluded.
 ;
 ;    primary_header : out, type="string array"
-;               an output float value;
+;               The header of the primary HDU of the pixel data file.
 ;
 ;    data_str : out, type="structure"
 ;              The header of the primary HDU of the spectrogram data file
@@ -73,8 +74,8 @@
 ;    18-Jun-2021 - ECMD (Graz), initial release
 ;    22-Feb-2022 - ECMD (Graz), documented, improved handling of alpha and non-alpha files, fixed duration shift issue
 ;    05-Jul-2022 - ECMD (Graz), fixed handling of L1 files which don't contain the full set of energies
-;    21-Jul-2022 - ECMD (Graz), added automatic check for energy shift 
-;    
+;    21-Jul-2022 - ECMD (Graz), added automatic check for energy shift
+;    09-Aug-2022 - ECMD (Graz), determine minimum time bin size using LUT
 ;-
 pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
   control_header= control_header, energy_str = energy, energy_header = energy_header, t_axis = t_axis, e_axis = e_axis, $
@@ -171,11 +172,11 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
 
     ;remove short time bins with low counts
     counts_for_time_bin=total(counts[1:10,*],1)
-    
+
     min_count_threshold = 1400
     idx_short=where(counts_for_time_bin le min_count_threshold )
 
-    ;list when we have mimum duration time bins, short or normal bins
+    ;list when we have minimum duration time bins, short or normal bins
     mask_long_bins  =  lonarr(n_time-1) + 1
 
     min_time = stx_date2min_time(hstart_time) / 10.
@@ -219,6 +220,7 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
 
   if alpha then begin
     rcr = tag_exist(data, 'rcr') ? data.rcr :replicate(control.rcr, n_time)
+    ;21-Jul-2022 - ECMD (Graz), Renaming mask variables as they differ between L1 and L1A files
     control = rep_tag_name(control, 'pixel_mask','pixel_masks')
     control = rep_tag_name(control, 'detector_mask','detector_masks')
   endif else begin
