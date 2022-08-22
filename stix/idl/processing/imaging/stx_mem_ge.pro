@@ -26,7 +26,8 @@ FUNCTION stx_mem_ge,vis,imsize,pixel,aux_data,silent=silent, total_flux=total_fl
   mem__ge_map.data=rotate(mem_ge_map.data,1)
   
   ; Compute the mapcenter
-  this_mapcenter = vis[0].xyoffset + aux_data.stx_pointing
+  ;this_mapcenter = vis[0].xyoffset + aux_data.stx_pointing
+  this_mapcenter = vis[0].mapcenter + aux_data.stx_pointing
 
   mem__ge_map.xc = this_mapcenter[0]
   mem__ge_map.yc = this_mapcenter[1]

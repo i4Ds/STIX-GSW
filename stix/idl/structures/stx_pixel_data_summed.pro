@@ -20,3 +20,5 @@ function stx_pixel_data_summed, pixels=pixels, detectors=dtectors
     datasource            : "?" $  
   }
 end
+
+;;********************* PAOLO: add unit

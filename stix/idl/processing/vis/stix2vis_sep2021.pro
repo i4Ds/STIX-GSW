@@ -75,7 +75,7 @@ FUNCTION stix2vis_sep2021, path_sci_file, time_range, energy_range, mapcenter, a
 
   ; Construct visibility structure
   subc_str = stx_construct_subcollimator()
-  vis = stx_construct_visibility(subc_str[subc_index])
+  vis = stx_construct_visibility_old(subc_str[subc_index])
   vis.u *= -vis.phase_sense
   vis.v *= -vis.phase_sense
 

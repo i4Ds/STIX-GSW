@@ -43,7 +43,7 @@
 ;
 ;-
 
-function stx_construct_visibility, subc_str, f2r_sep=f2r_sep, radius_au=radius_au, energy_range=energy_range, $
+function stx_construct_visibility_old, subc_str, f2r_sep=f2r_sep, radius_au=radius_au, energy_range=energy_range, $
                              time_range=time_range, totflux=totflux, sigamp=sigamp, obsvis=obsvis, _extra=extra
   ; defaults
   ;default, subc_str, stx_read_subc_data()
@@ -74,7 +74,7 @@ function stx_construct_visibility, subc_str, f2r_sep=f2r_sep, radius_au=radius_a
   
   ; create a visibility bag for STIX
   ; we use an anonymous structure for now until a single definition of {stx_visibility} is agreed upon
-  vis = replicate(stx_visibility(),  nfc)
+  vis = replicate(stx_visibility_old(),  nfc)
        
   ; assign detector numbers to visibility index of subcollimator (isc)
   vis.isc = subc_str_f.det_n

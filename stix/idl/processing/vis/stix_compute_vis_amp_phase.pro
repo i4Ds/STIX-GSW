@@ -204,6 +204,7 @@ FUNCTION stix_compute_vis_amp_phase,sci_file,tr_flare,er_flare,bkg_file=bkg_file
   ;same for energy range
   elist=where( (ee ge er_flare(0)) AND (ee le er_flare(1)) )
   n_en=n_elements(elist)
+  if n_en eq 1 then elist = elist[0]
   ;title for plot
   if ~silent then range_title=strmid(anytim(tr_flare(0),/vms),0,11)+' '+strmid(anytim(tr_flare(0),/vms),12,8)+'-'+$
     strmid(anytim(tr_flare(1),/vms),12,8)+'UT & '+strtrim(fix(er_flare(0)),2)+'-'+strtrim(fix(er_flare(1)),2)+' keV'
