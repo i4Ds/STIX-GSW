@@ -2,20 +2,20 @@
 ;
 ; NAME:
 ;
-;   stx_construct_pixel_data
+;   stx_sum_pixel_data
 ;
 ; PURPOSE:
 ;
-;   Construct a STIX calibrated pixel data structures (i.e., compute countrates normalized for livetime,
-;   incident area, lenght of the energy interval considered, and corrected for grid internal shadowing)
+;   Construct a summed STIX pixel data structure (i.e., sum the counts to form a 32x4 dimensional matrix, 
+;   normalize for livetime, incident area, lenght of the energy interval considered, and correct for grid internal shadowing)
 ;
 ; CALLING SEQUENCE:
 ;
-;   pixel_data_calib = stx_calibrate_pixel_data(pixel_data, flare_loc=flare_loc, sumcase=sumcase, silent=silent)
+;   pixel_data_summed = stx_sum_pixel_data(pixel_data, flare_loc=flare_loc, sumcase=sumcase, silent=silent)
 ;
 ; INPUTS:
 ;
-;   pixel_data: STIX pixel data structure to be calibrated
+;   pixel_data: STIX pixel data structure to be summed
 ;
 ; KEYWORDS:
 ; 
@@ -33,7 +33,7 @@
 ;
 ; OUTPUTS:
 ;
-;   'stx_calibrated_pixel_data' structure containing:
+;   'stx_pixel_data_summed' structure containing:
 ;
 ;   - LIVE_TIME: 32-dimensional array containing the live time of each detector in the considered time interval
 ;   - TIME_RANGE: STX_TIME array containg the start and the end of the selected time interval
@@ -77,7 +77,7 @@
 ; 2) modify stix_label2ind
 
 
-function stx_calibrate_pixel_data, pixel_data, xy_flare=xy_flare, sumcase=sumcase, silent=silent
+function stx_sum_pixel_data, pixel_data, xy_flare=xy_flare, sumcase=sumcase, silent=silent
 
 default, sumcase, 'ALL'
 default, silent, 0
@@ -196,29 +196,29 @@ endif
 
 ;;************** Fill in calibrated pixel data structure
 
-calibrated_pixel_data = stx_calibrated_pixel_data()
+pixel_data_summed = stx_pixel_data_summed()
 
-calibrated_pixel_data.LIVE_TIME    = pixel_data.LIVE_TIME
-calibrated_pixel_data.TIME_RANGE   = pixel_data.TIME_RANGE
-calibrated_pixel_data.ENERGY_RANGE = pixel_data.ENERGY_RANGE
-calibrated_pixel_data.COUNT_RATES  = count_rates
-calibrated_pixel_data.COUNTS_RATES_ERROR = counts_rates_error
-calibrated_pixel_data.TOT_COUNTS      = tot_counts
-calibrated_pixel_data.LIVE_TIME_BKG   = pixel_data.LIVE_TIME_BKG
-calibrated_pixel_data.COUNT_RATES_BKG = count_rates_bkg
-calibrated_pixel_data.COUNT_RATES_ERROR_BKG = count_rates_error_bkg
-calibrated_pixel_data.TOT_COUNTS_BKG  = tot_counts_bkg
-calibrated_pixel_data.RCR             = pixel_data.RCR                
+pixel_data_summed.LIVE_TIME    = pixel_data.LIVE_TIME
+pixel_data_summed.TIME_RANGE   = pixel_data.TIME_RANGE
+pixel_data_summed.ENERGY_RANGE = pixel_data.ENERGY_RANGE
+pixel_data_summed.COUNT_RATES  = count_rates
+pixel_data_summed.COUNTS_RATES_ERROR = counts_rates_error
+pixel_data_summed.TOT_COUNTS      = tot_counts
+pixel_data_summed.LIVE_TIME_BKG   = pixel_data.LIVE_TIME_BKG
+pixel_data_summed.COUNT_RATES_BKG = count_rates_bkg
+pixel_data_summed.COUNT_RATES_ERROR_BKG = count_rates_error_bkg
+pixel_data_summed.TOT_COUNTS_BKG  = tot_counts_bkg
+pixel_data_summed.RCR             = pixel_data.RCR                
 
 if ~keyword_set(xy_flare) then begin
-  calibrated_pixel_data.XY_FLARE = [!VALUES.F_NaN,!VALUES.F_NaN]
+  pixel_data_summed.XY_FLARE = [!VALUES.F_NaN,!VALUES.F_NaN]
 endif else begin
-  calibrated_pixel_data.XY_FLARE = xy_flare
+  pixel_data_summed.XY_FLARE = xy_flare
 endelse
  
-calibrated_pixel_data.SUMCASE        = sumcase
-calibrated_pixel_data.DETECTOR_MASKS = pixel_data.DETECTOR_MASKS
+pixel_data_summed.SUMCASE        = sumcase
+pixel_data_summed.DETECTOR_MASKS = pixel_data.DETECTOR_MASKS
 
-return, calibrated_pixel_data
+return, pixel_data_summed
 
 end

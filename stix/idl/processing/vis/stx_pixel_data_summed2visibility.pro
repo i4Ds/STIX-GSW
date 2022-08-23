@@ -2,19 +2,19 @@
 ;
 ; NAME:
 ;
-;   stx_calibrated_pixel_data2visibility
+;   stx_pixel_data_summed2visibility
 ;
 ; PURPOSE:
 ;
-;   Create an uncalibrated 'stx_visibility' structure from a 'stx_calibrated_pixel_data' structure
+;   Create an uncalibrated 'stx_visibility' structure from a 'stx_pixel_data_summed' structure
 ;
 ; CALLING SEQUENCE:
 ;
-;   vis = stx_calibrated_pixel_data2visibility(calibrated_pixel_data)
+;   vis = stx_pixel_data_summed2visibility(pixel_data_summed)
 ;
 ; INPUTS:
 ;
-;   calibrated_pixel_data: 'stx_calibrated_pixel_data' structure
+;   pixel_data_summed: 'stx_pixel_data_summed' structure
 ;   
 ; KEYWORDS:
 ; 
@@ -56,8 +56,8 @@
 ;   paolo.massa@wku.edu
 ;-
 
-function stx_calibrated_pixel_data2visibility, calibrated_pixel_data, subc_index=subc_index, mapcenter=mapcenter, $
-                                               f2r_sep=f2r_sep
+function stx_pixel_data_summed2visibility, pixel_data_summed, subc_index=subc_index, mapcenter=mapcenter, $
+                                           f2r_sep=f2r_sep
 
 default, mapcenter, [0.,0.]
 default, f2r_sep, 550.0
@@ -66,7 +66,7 @@ subc_label = ['10a','10b','10c','9a','9b','9c','8a','8b','8c','7a','7b','7c',$
 default, subc_index, stix_label2ind(subc_label)
 
 ;; Check: if one of the selected sub-collimators was not used, throw and error
-detector_masks = calibrated_pixel_data.DETECTOR_MASKS[subc_index]
+detector_masks = pixel_data_summed.DETECTOR_MASKS[subc_index]
 idx = where(detector_masks eq 0b, n_det)
 if n_det gt 0 then message, "Subcollimators " + subc_label[idx] + " were not used during the flaring event. Do not select those subcollimators"
 
@@ -90,14 +90,14 @@ v = uv * sin(orientation * !DTOR) * (-subc_str.PHASE) ; TO BE REMOVED!
 
 ;;************** Define visibility values
 
-count_rates     = calibrated_pixel_data.COUNT_RATES
+count_rates     = pixel_data_summed.COUNT_RATES
 count_rates     = count_rates[subc_index,*]
-counts_rates_error = calibrated_pixel_data.COUNTS_RATES_ERROR
+counts_rates_error = pixel_data_summed.COUNTS_RATES_ERROR
 counts_rates_error = counts_rates_error[subc_index,*]
 
-count_rates_bkg = calibrated_pixel_data.COUNT_RATES_BKG
+count_rates_bkg = pixel_data_summed.COUNT_RATES_BKG
 count_rates_bkg = count_rates_bkg[subc_index,*]
-count_rates_error_bkg = calibrated_pixel_data.COUNT_RATES_ERROR_BKG
+count_rates_error_bkg = pixel_data_summed.COUNT_RATES_ERROR_BKG
 count_rates_error_bkg = count_rates_error_bkg[subc_index,*]
 
 ;; Background subtraction
@@ -126,7 +126,7 @@ vis_amp = sqrt(vis_cmina^2 + vis_dminb^2)
 sigamp = sqrt( ((vis_cmina)/vis_amp*dcmina)^2+((vis_dminb)/vis_amp*ddminb)^2 )
 
 ;; Visibility phases
-sumcase = calibrated_pixel_data.SUMCASE
+sumcase = pixel_data_summed.SUMCASE
 case sumcase of
 
   'TOP':     begin
@@ -164,16 +164,16 @@ vis.SIGAMP = sigamp
 vis.U = u
 vis.V = v
 
-vis.TOT_COUNTS   = calibrated_pixel_data.TOT_COUNTS
-vis.TOT_COUNTS_BKG = calibrated_pixel_data.TOT_COUNTS_BKG
+vis.TOT_COUNTS   = pixel_data_summed.TOT_COUNTS
+vis.TOT_COUNTS_BKG = pixel_data_summed.TOT_COUNTS_BKG
 vis.ISC          = subc_str.DET_N
 vis.LABEL        = subc_str.LABEL
-vis.LIVE_TIME    = calibrated_pixel_data.LIVE_TIME[subc_index]
-vis.ENERGY_RANGE = calibrated_pixel_data.ENERGY_RANGE
-vis.TIME_RANGE   = calibrated_pixel_data.TIME_RANGE
+vis.LIVE_TIME    = pixel_data_summed.LIVE_TIME[subc_index]
+vis.ENERGY_RANGE = pixel_data_summed.ENERGY_RANGE
+vis.TIME_RANGE   = pixel_data_summed.TIME_RANGE
 vis.PHASE_SENSE  = subc_str.PHASE
 vis.MAPCENTER    = mapcenter
-vis.XY_FLARE     = calibrated_pixel_data.XY_FLARE
+vis.XY_FLARE     = pixel_data_summed.XY_FLARE
 
 return, vis
 

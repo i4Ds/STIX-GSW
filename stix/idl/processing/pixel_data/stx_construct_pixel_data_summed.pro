@@ -1,16 +1,67 @@
-function stx_construct_pixel_data_summed, pixel_data=pixel_data, live_time, time_range, energy_range, counts=counts
-  pixel_data_summed = stx_pixel_data_summed()
-  
-  if(keyword_set(pixel_data)) then begin
-    default, live_time, pixel_data.live_time
-    default, time_range, pixel_data.time_range
-    default, energy_range, pixel_data.energy_range
-  endif
-  
-  pixel_data_summed.live_time = live_time
-  pixel_data_summed.time_range = time_range
-  pixel_data_summed.energy_range = energy_range
-  pixel_data_summed.counts = counts
-  
-  return, pixel_data_summed
+;+
+;
+; NAME:
+;
+;   stx_construct_pixel_data_summed
+;
+; PURPOSE:
+;
+;   Read a STIX science L1 fits file (and potentially a STIX background L1 fits file) and contruct a 'stx_pixel_data_summed' structure
+;
+; CALLING SEQUENCE:
+;
+;   pixel_data_summed = stx_construct_pixel_data_summed(sci_file_path, time_range, energy_range)
+;
+; INPUTS:
+;
+;   sci_file_path: path of the STIX science L1 fits file
+;
+;   time_range: string array containing the start and the end of the time interval to consider
+;
+;   energy_range: array containing the values of the lower and upper edge of the energy interval to consider
+;
+; OUTPUTS:
+;
+;   'stx_pixel_data_summed' (see the header of 'stx_sum_pixel_data' for more details)
+
+;
+; KEYWORDS:
+;
+;   bkg_file_path: if provided, the fields 'COUNT_RATES_BKG', 'COUNT_RATES_ERROR_BKG' and 'LIVE_TIME_BKG' of 
+;                  the calibrated pixel data structure are filled with the values read from the background 
+;                  measurement file
+;                  
+;   elut_corr: if set, a correction based on a ELUT table is applied to the measured counts
+;   
+;   xy_flare: bidimensional array containing the X and Y coordinate of an estimate of the flare location
+;              (STIX coordinate frame, arcsec). If set, a correction for the subcollimator transmission is applied 
+;              to the measured count rates
+;              
+;   sumcase: string containing information on the pixels to be summed. See the header of 'stx_calibrate_pixel_data' for 
+;            more information
+;   
+;   silent: if set, no message is printed
+;              
+;
+; HISTORY: July 2022, Massa P., created
+;
+; CONTACT:
+;   paolo.massa@wku.edu
+;-
+
+function stx_construct_pixel_data_summed, path_sci_file, time_range, energy_range, bkg_file_path=bkg_file_path, $
+                                          elut_corr=elut_corr, xy_flare=xy_flare, $
+                                          sumcase=sumcase, silent=silent, _extra=extra                                                                           
+
+;;************** Construct pixel data
+
+pixel_data = stx_construct_pixel_data(path_sci_file, time_range, energy_range, elut_corr=elut_corr, $
+                                      bkg_file_path=bkg_file_path, _extra=extra)
+                                      
+;;************** Calibrate pixel data
+
+pixel_data_summed = stx_sum_pixel_data(pixel_data, xy_flare=xy_flare, sumcase=sumcase, silent=silent)
+
+return, pixel_data_summed
+
 end

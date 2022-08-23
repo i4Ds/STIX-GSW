@@ -82,13 +82,13 @@ function stx_construct_visibility, path_sci_file, time_range, energy_range, mapc
                                    sumcase=sumcase, f2r_sep=f2r_sep, silent=silent, $
                                    subc_index=subc_index, _extra=extra
 
-calibrated_pixel_data = stx_construct_calibrated_pixel_data(path_sci_file, time_range, energy_range, $
+pixel_data_summed = stx_construct_pixel_data_summed(path_sci_file, time_range, energy_range, $
                                                             bkg_file_path=bkg_file_path, $
                                                             elut_corr=elut_corr, xy_flare=xy_flare, $
                                                             sumcase=sumcase, silent=silent, _extra=extra)
 
-vis = stx_calibrated_pixel_data2visibility(calibrated_pixel_data, subc_index=subc_index, $
-                                           f2r_sep=f2r_sep, mapcenter=mapcenter)                                                         
+vis = stx_pixel_data_summed2visibility(pixel_data_summed, subc_index=subc_index, $
+                                       f2r_sep=f2r_sep, mapcenter=mapcenter)                                                         
                                        
 return, vis
 
