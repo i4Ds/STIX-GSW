@@ -106,20 +106,15 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   default, flare_location, [0.,0.]
   default, shift_duration, 0
   default, plot, 1
+  default, det_ind, 'Coarse'
+  
+  if data_type(det_ind) eq 7 then det_ind = stx_label2det_ind(det_ind)
+  if data_type(pix_ind) eq 7 then pix_ind = stx_label2pix_ind(pix_ind)
 
-  g10=[3,20,22]-1
-  g09=[16,14,32]-1
-  g08=[21,26,4]-1
-  g07=[24,8,28]-1
-  g06=[15,27,31]-1
-  g05=[6,30,2]-1
-  g04=[25,5,23]-1
-  g03=[7,29,1]-1
-  g02=[12,19,17]-1
-  g01=[11,13,18]-1
-  g01_10=[g01,g02,g03,g04,g05,g06,g07,g08,g09,g10]
-  g03_10=[g03,g04,g05,g06,g07,g08,g09,g10]
-
+  stix_compute_subcollimator_indices, g01,g02,g03,g04,g05,g06,g07,g08,g09,g10,$
+    l01,l02,l03,l04,l05,l06,l07,l08,l09,l10,$
+    res32,res10,o32,g03_10,g01_10,g_plot,l_plot
+    
   ; 22-Jul-2022 - ECMD, changed keyword_set to n_elements as [0] is valid detector or pixel index array
   mask_use_detectors = intarr(32)
   if n_elements(det_ind) eq 0 then mask_use_detectors[g03_10] = 1 else mask_use_detectors[det_ind] = 1
