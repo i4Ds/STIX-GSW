@@ -79,7 +79,7 @@ tmp = read_csv(loc_file( 'PhaseCorrFactors.csv', path = getenv('STX_VIS_DEMO')),
 ad_hoc_phase_corr = tmp.field2[vis.ISC - 1]; * (-vis.phase_sense)
 
 ;; Mapcenter correction
-phase_mapcenter_corr = -2 * !pi * (vis.MAPCENTER[0] * vis.U + vis.MAPCENTER[1] * vis.V ) * !radeg
+phase_mapcenter_corr = -2 * !pi * (vis.XYOFFSET[0] * vis.U + vis.XYOFFSET[1] * vis.V ) * !radeg
 
 default, amp_calib_factors, fltarr(n_vis) + modulation_efficiency
 default, phase_calib_factors, grid_phase_corr + ad_hoc_phase_corr + phase_proj_corr + phase_mapcenter_corr

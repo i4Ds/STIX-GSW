@@ -27,7 +27,7 @@
 ;
 ; KEYWORDS:
 ;
-;   bkg_file_path: if provided, the fields 'COUNT_RATES_BKG', 'COUNT_RATES_ERROR_BKG' and 'LIVE_TIME_BKG' of 
+;   path_bkg_file: if provided, the fields 'COUNT_RATES_BKG', 'COUNT_RATES_ERROR_BKG' and 'LIVE_TIME_BKG' of 
 ;                  the calibrated pixel data structure are filled with the values read from the background 
 ;                  measurement file
 ;                  
@@ -49,14 +49,14 @@
 ;   paolo.massa@wku.edu
 ;-
 
-function stx_construct_pixel_data_summed, path_sci_file, time_range, energy_range, bkg_file_path=bkg_file_path, $
+function stx_construct_pixel_data_summed, path_sci_file, time_range, energy_range, path_bkg_file=path_bkg_file, $
                                           elut_corr=elut_corr, xy_flare=xy_flare, $
                                           sumcase=sumcase, silent=silent, _extra=extra                                                                           
 
 ;;************** Construct pixel data
 
 pixel_data = stx_construct_pixel_data(path_sci_file, time_range, energy_range, elut_corr=elut_corr, $
-                                      bkg_file_path=bkg_file_path, _extra=extra)
+                                      path_bkg_file=path_bkg_file, _extra=extra)
                                       
 ;;************** Calibrate pixel data
 

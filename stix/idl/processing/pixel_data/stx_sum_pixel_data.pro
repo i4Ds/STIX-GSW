@@ -19,7 +19,7 @@
 ;
 ; KEYWORDS:
 ; 
-;   flare_loc: bidimensional array containing the X and Y coordinates of an estimate of the flare location
+;   xy_flare: bidimensional array containing the X and Y coordinates of an estimate of the flare location
 ;              (conceived in the STIX coordinate frame, arcsec)
 ;              
 ;   sumcase: string containing information on the pixels to be summed. Options: 

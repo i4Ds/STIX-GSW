@@ -9,10 +9,10 @@
 ;   Imaging X-rays (STIX) in Solar Orbiter", 2019).
 ;
 ; INPUTS:
-;   pixel_data: type="stx_pixel_data_summed"
-;               pixel data structure containing photon counts per time, energy, detector, and pixel
-;               (the counts registered are summed as if they were recorded by 4 virtual pixels per
-;               detector). For details on the summation see the header of 'stx_pixel_sums.pro'.
+;   pixel_data_summed: type="stx_pixel_data_summed"
+;                      pixel data structure containing photon counts per time, energy, detector, and pixel
+;                      (the counts registered are summed as if they were recorded by 4 virtual pixels per
+;                      detector). For details on the summation see the header of 'stx_pixel_data_sum.pro'.
 ; KEYWORDS:
 ;   DET_USED: array containing the indices of detector used 
 ;             (default is 0-31, 8 and 9 excluded)
@@ -36,13 +36,14 @@
 ;             -the detector used
 ;             -the summation of the counts recorded by the pixels.
 ;          June 2022, Massa P., 'aux_data' added
+;          August 2022, Massa P., made it compatible with the up-to-date imaging software
 ;             
 ;CONTACT: massa.p@dima.unige.it
 
-FUNCTION stx_em,countrates,energy_range,time_range,aux_data,IMSIZE=imsize,PIXEL=pixel,MAPCENTER=mapcenter, WHICH_PIX=which_pix, $
-  subc_index=subc_index, MAXITER=maxiter, TOLERANCE=tolerance, SILENT=silent, MAKEMAP=makemap, XY_FLARE=xy_flare
+FUNCTION stx_em, pixel_data_summed, aux_data, imsize=imsize, pixel=pixel, $
+                 mapcenter=mapcenter, subc_index=subc_index, $
+                 maxiter=maxiter, tolerance=tolerance, silent=silent, makemap=makemap;, xy_flare=xy_flare
 
-default, which_pix, 'TOP+BOT'
 default, subc_index, stix_label2ind(['3a','3b','3c','4a','4b','4c','5a','5b','5c','6a','6b','6c',$
                                        '7a','7b','7c','8a','8b','8c','9a','9b','9c','10a','10b','10c'])
 
@@ -53,55 +54,59 @@ default, tolerance, 0.001
 default, silent, 0
 default, makemap, 0
 default, mapcenter, [0, 0]
-default, xy_flare, [0.,0.]
-n_det_used = n_elements(subc_index)
-default, phase_corr, fltarr(n_det_used)
+;default, xy_flare, [0.,0.]
+
 
 ; input parameters control
 if imsize[0] ne imsize[1] then message, 'Error: imsize must be square.'
 if pixel[0] ne pixel[1] then message, 'Error: pixel size per dimension must be equal.'
 
-;;;;;;;;;; Before
+;;***************** Phase calibration factors
 
-subc_str = stx_construct_subcollimator()
+;; Grid phase correction
+tmp = read_csv(loc_file( 'GridCorrection.csv', path = getenv('STX_VIS_DEMO') ), header=header, table_header=tableheader, n_table_header=2 )
+grid_phase_corr = tmp.field2[subc_index]
 
-; Grid correction
-phase_cal = read_csv(loc_file( 'GridCorrection.csv', path = getenv('STX_VIS_DEMO') ), header=header, table_header=tableheader, n_table_header=2 )
-phase_corr = phase_cal.field2
-
-; Phase correction
-phase_cal = read_csv(loc_file( 'PhaseCorrFactors.csv', path = getenv('STX_VIS_DEMO')), header=header, table_header=tableheader, n_table_header=3 )
-phase_corr += phase_cal.field2
-
-; Pixel correction
-phase_corr += 46.1
-
-phase_corr *= !dtor
+;; "Ad hoc" phase correction (for removing residual errors)
+tmp = read_csv(loc_file( 'PhaseCorrFactors.csv', path = getenv('STX_VIS_DEMO')), header=header, table_header=tableheader, n_table_header=3 )
+ad_hoc_phase_corr = tmp.field2[subc_index]
 
 ; Sum over top and bottom pixels
-case which_pix of
+sumcase = pixel_data_summed.SUMCASE
+case sumcase of
 
-  'TOP': begin
+  'TOP':     begin
+    phase_factor = 46.1
     pixel_ind = [0]
   end
 
-  'BOT': begin
+  'BOT':     begin
+    phase_factor = 46.1
     pixel_ind = [1]
   end
 
   'TOP+BOT': begin
+    phase_factor = 46.1
     pixel_ind = [0,1]
   end
 
-endcase
+  'ALL': begin
+    phase_factor = 45.0
+    pixel_ind = [0,1,2]
+  end
 
-pix = reform(countrates, 32, 4, 3)
-countrates = n_elements( pixel_ind ) eq 1 ? reform(pix[*, *, pixel_ind , *]) : total( pix[*, *, pixel_ind, *], 3 )
+  'SMALL': begin
+    phase_factor = 22.5
+    pixel_ind = [2]
+  end
+end
 
-eff_area = subc_str.det.pixel.area
-eff_area = reform(transpose(eff_area), 32, 4, 3)
-eff_area = n_elements( pixel_ind ) eq 1 ? reform(eff_area[*, *, pixel_ind , *]) : total(eff_area[*,*,pixel_ind], 3)
+phase_corr = grid_phase_corr + ad_hoc_phase_corr + phase_factor
+phase_corr *= !dtor
 
+;;**************** Giordano's (u,v) points
+
+subc_str = stx_construct_subcollimator()
 
 uv = stx_uv_points_giordano()
 u = -uv.u * subc_str.phase
@@ -109,39 +114,15 @@ v = -uv.v * subc_str.phase
 u = u[subc_index]
 v = v[subc_index]
 
-phase_corr = phase_corr[subc_index]
-
-stx_pointing = aux_data.stx_pointing
-
-roll_angle = aux_data.ROLL_ANGLE * !dtor
-
-this_xy_flare = xy_flare
-this_xy_flare[0] = cos(roll_angle)  * xy_flare[0] + sin(roll_angle) * xy_flare[1] - stx_pointing[0]
-this_xy_flare[1] = -sin(roll_angle) * xy_flare[0] + cos(roll_angle) * xy_flare[1] - stx_pointing[1]
-
-; Correct the mapcenter
-this_mapcenter = mapcenter
-this_mapcenter[0] = cos(roll_angle)  * mapcenter[0] + sin(roll_angle) * mapcenter[1] - stx_pointing[0]
-this_mapcenter[1] = -sin(roll_angle) * mapcenter[0] + cos(roll_angle) * mapcenter[1] - stx_pointing[1]
-
-
-XYOFFSET=[this_mapcenter[1], -this_mapcenter[0]]
-
-; To make the units: counts s^-1 keV^-1 cm^-2
-countrates = countrates/eff_area
-this_gtrans = stix_gtrans32_test_sep_2021(this_xy_flare)
-for i=0,31 do begin
-  countrates(i,*)=countrates(i,*) / this_gtrans(i) / 4.
-endfor
-countrates = countrates[subc_index, *]
-
-
+;;**************** Transmission matrix
 
 ; Creation of the matrix 'H' used in the EM algorithm
-H = stx_map2pixelabcd_matrix(imsize, pixel, u, v, phase_corr, xyoffset = XYOFFSET, SUMCASE = 1)
+H = stx_map2pixelabcd_matrix(imsize, pixel, u, v, phase_corr, xyoffset = mapcenter, SUMCASE = sumcase)
 
 ; Vectorization of the matrix 'pixel_data.counts' containing the number of counts recorded
 ; by STIX pixels
+n_det_used = n_elements(subc_index)
+countrates = pixel_data_summed.count_rates[subc_index,*]
 y = reform(countrates, n_det_used*4)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -183,13 +164,13 @@ x_im = reform(x, imsize[0],imsize[1])
 ;;;;;;;;;;;; After
 
 em_map = make_map(x_im)
-this_estring=strtrim(fix(energy_range[0]),2)+'-'+strtrim(fix(energy_range[1]),2)+' keV'
+this_estring=strtrim(fix(pixel_data_summed.ENERGY_RANGE[0]),2)+'-'+strtrim(fix(pixel_data_summed.ENERGY_RANGE[1]),2)+' keV'
 em_map.ID = 'STIX EM '+this_estring+': '
 em_map.dx = pixel[0]
 em_map.dy = pixel[1]
 
-
-em_map.time = anytim((anytim(time_range[1])+anytim(time_range[0]))/2.,/vms)
+time_range = stx_time2any(pixel_data_summed.TIME_RANGE)
+em_map.time = anytim((time_range[0]+time_range[1])/2.,/vms)
 
 em_map.DUR = anytim(time_range[1])-anytim(time_range[0])
 
@@ -198,8 +179,8 @@ em__map=em_map
 em__map.data=rotate(em_map.data,1)
 
 
-em__map.xc = this_mapcenter[0] + stx_pointing[0]
-em__map.yc = this_mapcenter[1] + stx_pointing[1]
+em__map.xc = mapcenter[0] + aux_data.stx_pointing[0]
+em__map.yc = mapcenter[1] + aux_data.stx_pointing[1]
 
 em__map=rot_map(em__map,-aux_data.ROLL_ANGLE,rcenter=[0.,0.])
 em__map.ROLL_ANGLE = 0.

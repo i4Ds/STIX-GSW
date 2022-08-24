@@ -26,7 +26,7 @@
 ;
 ; KEYWORDS:
 ;
-;   bkg_file_path: if provided, the background counts are subtracted before computing the visibility values and the
+;   path_bkg_file: if provided, the background counts are subtracted before computing the visibility values and the
 ;                  field 'TOT_COUNTS_BKG' of the visibility structure is filled in
 ;
 ;   elut_corr: if set, a correction based on a ELUT table is applied to the measured counts
@@ -70,14 +70,14 @@
 ;-
 
 function stx_construct_calibrated_visibility, path_sci_file, time_range, energy_range, mapcenter, $
-                                              bkg_file_path=bkg_file_path, elut_corr=elut_corr, xy_flare=xy_flare, $
+                                              path_bkg_file=path_bkg_file, elut_corr=elut_corr, xy_flare=xy_flare, $
                                               sumcase=sumcase, f2r_sep=f2r_sep, r2d_sep=r2d_sep, silent=silent, $
                                               subc_index=subc_index, phase_calib_factors=phase_calib_factors, $
                                               amp_calib_factors=amp_calib_factors, syserr_sigamp = syserr_sigamp, _extra=extra
 
 
 ;; Create visibility structure
-vis = stx_construct_visibility(path_sci_file, time_range, energy_range, mapcenter, bkg_file_path=bkg_file_path, $
+vis = stx_construct_visibility(path_sci_file, time_range, energy_range, mapcenter, path_bkg_file=path_bkg_file, $
                                elut_corr=elut_corr, xy_flare=xy_flare, $
                                sumcase=sumcase, f2r_sep=f2r_sep, silent=silent, $
                                subc_index=subc_index, _extra=extra)

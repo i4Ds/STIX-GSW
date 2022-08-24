@@ -10,11 +10,11 @@
 ;
 ; CALLING SEQUENCE:
 ; 
-;   pixel_data = stx_construct_pixel_data(sci_file_path, time_range, energy_range)
+;   pixel_data = stx_construct_pixel_data(path_sci_file, time_range, energy_range)
 ;
 ; INPUTS:
 ; 
-;   sci_file_path: path of the STIX science L1 fits file
+;   path_sci_file: path of the STIX science L1 fits file
 ;   
 ;   time_range: string array containing the start and the end of the time interval to consider
 ;   
@@ -43,7 +43,7 @@
 ;
 ; KEYWORDS:
 ;
-;   bkg_file_path: if provided, the fields 'COUNTS_BKG', 'COUNTS_ERROR_BKG' and 'LIVE_TIME_BKG' of the pixel_data
+;   path_bkg_file: if provided, the fields 'COUNTS_BKG', 'COUNTS_ERROR_BKG' and 'LIVE_TIME_BKG' of the pixel_data
 ;                  structure are filled with the values read from the background measurement file
 ;
 ;
@@ -53,8 +53,8 @@
 ;   paolo.massa@wku.edu
 ;-
 
-function stx_construct_pixel_data, sci_file_path, time_range, energy_range, elut_corr=elut_corr, $
-                                   bkg_file_path=bkg_file_path, _extra=extra
+function stx_construct_pixel_data, path_sci_file, time_range, energy_range, elut_corr=elut_corr, $
+                                   path_bkg_file=path_bkg_file, _extra=extra
 
 default, elut_corr, 1
 
@@ -62,11 +62,11 @@ if anytim(time_range[0]) gt anytim(time_range[1]) then message, "Start time is g
 if energy_range[0] gt energy_range[1] then message, "Energy range lower edge is greater than the higher edge"
 
 
-stx_read_pixel_data_fits_file, sci_file_path, data_str = data, t_axis = t_axis, e_axis = e_axis, _extra=extra
+stx_read_pixel_data_fits_file, path_sci_file, data_str = data, t_axis = t_axis, e_axis = e_axis, _extra=extra
 
-if keyword_set(bkg_file_path) then begin
+if keyword_set(path_bkg_file) then begin
 
-  stx_read_pixel_data_fits_file, bkg_file_path, data_str = data_bkg, t_axis = t_axis_bkg, e_axis = e_axis_bkg, _extra=extra
+  stx_read_pixel_data_fits_file, path_bkg_file, data_str = data_bkg, t_axis = t_axis_bkg, e_axis = e_axis_bkg, _extra=extra
   
   if n_elements(t_axis_bkg.DURATION) gt 1 then message, 'The chosen file does not contain a background measurement'
 
@@ -129,7 +129,7 @@ duration_time_bins = transpose(cmreplicate(duration_time_bins, 32))
 live_time          = n_elements(time_ind) eq 1? reform(duration_time_bins*livetime_fraction) : $
                      total(duration_time_bins*livetime_fraction,2)
 
-if keyword_set(bkg_file_path) then begin
+if keyword_set(path_bkg_file) then begin
   
   triggergram_bkg        = stx_triggergram(data_bkg.TRIGGERS, t_axis_bkg)
   livetime_fraction_bkg  = stx_livetime_fraction(triggergram_bkg)
@@ -162,7 +162,7 @@ endelse
 counts       = counts[1:30,*,*]
 counts_error = counts_error[1:30,*,*]
 
-if keyword_set(bkg_file_path) then begin
+if keyword_set(path_bkg_file) then begin
 
   counts_bkg       = data_bkg.COUNTS
   counts_error_bkg = data_bkg.COUNTS_ERR
@@ -181,7 +181,7 @@ if keyword_set(elut_corr) then begin
   energy_bin_high = reform(ekev_actual[1:30,*,*])
   energy_bin_size = energy_bin_high - energy_bin_low
   
-  if keyword_set(bkg_file_path) then begin
+  if keyword_set(path_bkg_file) then begin
     
     ;; The bkg elut is potentially different from the one used for correcting the science data
     elut_filename_bkg = stx_date2elut_file(stx_time2any(t_axis_bkg.TIME_START))
@@ -203,7 +203,7 @@ if n_elements(energy_ind) eq 1 then begin
   counts       = reform(counts[energy_ind,*,*]) * energy_corr_factor
   counts_error = reform(counts_error[energy_ind,*,*]) * energy_corr_factor
   
-  if keyword_set(bkg_file_path) then begin
+  if keyword_set(path_bkg_file) then begin
     
     ;; Background
     energy_corr_factor_bkg = elut_corr ? (this_energy_range[1] - this_energy_range[0]) / reform(energy_bin_size_bkg[energy_ind,*,*]) : $
@@ -230,7 +230,7 @@ endif else begin
   counts       = total(counts[energy_ind,*,*],1)
   counts_error = sqrt(total(counts_error[energy_ind,*,*]^2.,1))
   
-  if keyword_set(bkg_file_path) then begin
+  if keyword_set(path_bkg_file) then begin
     
     ;; Background
     energy_corr_factor_low_bkg = elut_corr ? (reform(energy_bin_high_bkg[energy_ind[0],*,*]) - this_energy_range[0]) / $
@@ -284,7 +284,7 @@ pixel_data.ENERGY_RANGE     = this_energy_range
 pixel_data.LIVE_TIME        = live_time
 pixel_data.COUNTS           = transpose(counts)
 pixel_data.COUNTS_ERROR     = transpose(counts_error)
-if keyword_set(bkg_file_path) then begin
+if keyword_set(path_bkg_file) then begin
   
   pixel_data.LIVE_TIME_BKG    = live_time_bkg
   pixel_data.COUNTS_BKG       = transpose(counts_bkg)

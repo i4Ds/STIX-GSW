@@ -26,7 +26,7 @@
 ;
 ; KEYWORDS:
 ;   
-;   bkg_file_path: if provided, the background counts are subtracted before computing the visibility values and the
+;   path_bkg_file: if provided, the background counts are subtracted before computing the visibility values and the
 ;                  field 'TOT_COUNTS_BKG' of the visibility structure is filled in
 ;   
 ;   elut_corr: if set, a correction based on a ELUT table is applied to the measured counts
@@ -61,11 +61,12 @@
 ;                 during the flaring event
 ;   - TOT_COUNTS_BKG: if 'bkg_file_path' is provided, it contains an estimate of the total number of background counts 
 ;                     recorded by the STIX imaging subcollimators (labelled from 3 to 10) during the flaring event
+;   - TOTFLUX: estimate of the total flux recorded by each detector, i.e., A+B+C+D
 ;   - SIGAMP: estimate of the errors on the visibility amplitudes
 ;   - U: u coordinate of the frequencies sampled by the sub-collimators
 ;   - V: v coordinate of the frequencies sampled by the sub-collimators
 ;   - PHASE_SENSE: array containing the sense of the phase measured by the sub-collimator (-1 or 1 values)
-;   - MAPCENTER: bi-dimensional array containing the coordinates of the center of the map to renconstruct from the
+;   - XYOFFSET: bi-dimensional array containing the coordinates of the center of the map to renconstruct from the
 ;                visibiity values
 ;   - XY_FLARE: bi-dimensional array containing the coordinates of the estimated flare location. It is used for computing
 ;               the grid transmission correction and the phase projection correction. If the values are NaN, no correction
@@ -77,15 +78,15 @@
 ; CONTACT:
 ;   paolo.massa@wku.edu
 ;-
-function stx_construct_visibility, path_sci_file, time_range, energy_range, mapcenter, bkg_file_path=bkg_file_path, $
+function stx_construct_visibility, path_sci_file, time_range, energy_range, mapcenter, path_bkg_file=path_bkg_file, $
                                    elut_corr=elut_corr, xy_flare=xy_flare, $
                                    sumcase=sumcase, f2r_sep=f2r_sep, silent=silent, $
                                    subc_index=subc_index, _extra=extra
 
 pixel_data_summed = stx_construct_pixel_data_summed(path_sci_file, time_range, energy_range, $
-                                                            bkg_file_path=bkg_file_path, $
-                                                            elut_corr=elut_corr, xy_flare=xy_flare, $
-                                                            sumcase=sumcase, silent=silent, _extra=extra)
+                                                    path_bkg_file=path_bkg_file, $
+                                                    elut_corr=elut_corr, xy_flare=xy_flare, $
+                                                    sumcase=sumcase, silent=silent, _extra=extra)
 
 vis = stx_pixel_data_summed2visibility(pixel_data_summed, subc_index=subc_index, $
                                        f2r_sep=f2r_sep, mapcenter=mapcenter)                                                         

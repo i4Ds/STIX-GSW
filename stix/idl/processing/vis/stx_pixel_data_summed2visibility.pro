@@ -39,11 +39,12 @@
 ;   - OBSVIS: complex array containing the visibility values
 ;   - TOT_COUNTS: total number of counts recorded by STIX during the flaring events
 ;   - TOT_COUNTS_BKG: estimate of the total number of background counts recorded during the flaring events
+;   - TOTFLUX: estimate of the total flux recorded by each detector, i.e., A+B+C+D
 ;   - SIGAMP: estimate of the errors on the visibility amplitudes
 ;   - U: u coordinate of the frequencies sampled by the sub-collimators
 ;   - V: v coordinate of the frequencies sampled by the sub-collimators
 ;   - PHASE_SENSE: array containing the sense of the phase measured by the sub-collimator (-1 or 1 values)
-;   - MAPCENTER: bi-dimensional array containing the coordinates of the center of the map to renconstruct from the
+;   - XYOFFSET: bi-dimensional array containing the coordinates of the center of the map to renconstruct from the
 ;                visibiity values (STIX coordinate frame, arcsec)
 ;   - XY_FLARE: bi-dimensional array containing the coordinates of the estimated flare location. It is used for computing
 ;               the grid transmission correction and the phase projection correction. If the values are NaN, no correction
@@ -110,6 +111,8 @@ B = count_rates[*,1]
 C = count_rates[*,2]
 D = count_rates[*,3]
 
+totflux = A+B+C+D
+
 dA = counts_rates_error[*,0]
 dB = counts_rates_error[*,1]
 dC = counts_rates_error[*,2]
@@ -166,13 +169,14 @@ vis.V = v
 
 vis.TOT_COUNTS   = pixel_data_summed.TOT_COUNTS
 vis.TOT_COUNTS_BKG = pixel_data_summed.TOT_COUNTS_BKG
+vis.TOTFLUX      = totflux
 vis.ISC          = subc_str.DET_N
 vis.LABEL        = subc_str.LABEL
 vis.LIVE_TIME    = pixel_data_summed.LIVE_TIME[subc_index]
 vis.ENERGY_RANGE = pixel_data_summed.ENERGY_RANGE
 vis.TIME_RANGE   = pixel_data_summed.TIME_RANGE
 vis.PHASE_SENSE  = subc_str.PHASE
-vis.MAPCENTER    = mapcenter
+vis.XYOFFSET     = mapcenter
 vis.XY_FLARE     = pixel_data_summed.XY_FLARE
 
 return, vis
