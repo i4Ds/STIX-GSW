@@ -93,11 +93,6 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   data = stx_read_fits(fits_path, 'data', data_header, mversion_full = mversion_full)
   energy = stx_read_fits(fits_path, 'energies', energy_header, mversion_full = mversion_full)
 
-
-  n_time = n_elements(data.time)
-
-  energies_used = where( control.energy_bin_mask eq 1 , nenergies)
-
   processing_level = (sxpar(primary_header, 'LEVEL'))
   if strcompress(processing_level,/remove_all) eq 'L1A' then alpha = 1
 
@@ -106,12 +101,23 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   trigger_zero = (sxpar(data_header, 'TZERO3'))
   new_triggers = float(trigger_zero + data.triggers)
   data = rep_tag_value(data, 'TRIGGERS', new_triggers)
+  
   ;TO BE ADDED WHEN FULL_RESOLUTION KEWORD IS INCLUDED
   ;  full_resolution = (sxpar(primary_header, 'FULL_RESOLUTION'))
   ;
   ;if ~full_resolution  and apply_time_shift then begin
   ;    message, /info, 'For time shift compensation full archive buffer time resolution files are needed.'
   ;endif
+  
+  time = data.time
+  n_time = n_elements(time)
+  if n_time gt 1 then begin
+    min_time_diff = min(time[1:-1] - time)
+    time_discrep_thrshold = alpha ? -0.2 : -20
+    if min_time_diff lt time_discrep_thrshold then message, 'Time intervals are not monotonically increasing. Possible issue with FITS file.'
+  endif
+  
+  energies_used = where( control.energy_bin_mask eq 1 , nenergies)
 
   data.counts_err  = sqrt(data.counts_err^2. + data.counts)
   data.triggers_err = sqrt( data.triggers_err^2. + data.triggers)
