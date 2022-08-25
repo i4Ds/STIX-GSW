@@ -147,9 +147,8 @@ pro stx_write_ospex_fits, $
     compatibility = compatibility,$
     any_specfile = any_specfile
 
-
-  units_arr = [ units, units, ' ', ' ', ' ', 's', 's' ]
-
+  units_arr = [ 'counts/s', 'counts/s', ' ', ' ', ' ', 's', 's' ]
+  
   backapp = fits_info_params.background_subtracted ? 'T' : 'F'
   backfile = fits_info_params.fits_background_file
 
@@ -179,7 +178,7 @@ pro stx_write_ospex_fits, $
   spectrum2fits, specfilename, rate_struct = rate_struct, write_primary_header = 1, $
     primary_header = primary_header, extension_header = specheader, $
     data = data, error = data_error, $
-    units = units_array, spec_num = specnum, channel = channel, $
+    units = units_arr, spec_num = specnum, channel = channel, $
     timedel = timedel, $
     timecen = timecen, $
     nrows = n_elements( timecen ),$
@@ -188,8 +187,7 @@ pro stx_write_ospex_fits, $
     e_min = reform( ct_edges_2[0,*] ), $
     e_max = reform( ct_edges_2[1,*] ), e_unit = 'kev', $
     err_code = err_code, _extra = extra_keys, err_msg = err_msg
-
-
+ 
   if  is_struct( specpar ) then begin
     specpar = str_sub2top(specpar)
 
