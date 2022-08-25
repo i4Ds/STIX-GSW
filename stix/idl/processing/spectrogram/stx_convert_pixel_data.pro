@@ -171,6 +171,18 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   energy_edges_used = [e_axis.low_fsw_idx, e_axis.high_fsw_idx[-1]+1]
   n_energy_edges = n_elements(energy_edges_used)
 
+if total(pixel_mask_used[0:3]) eq  total(pixel_mask_used[4:7]) then begin
+  count_ratio_threshold = 1.05
+  counts_top = total(counts_in[1:25,0:3,detectors_used,*])
+  counts_bottom = total(counts_in[1:25,4:7,detectors_used,*])
+  case 1 of 
+    f_div(counts_top, counts_bottom, default = 2) gt count_ratio_threshold : message, 'Top pixel total 5% higher than bottom row. Possible pixel shadowing. Recommend using only top pixels for analysis.',/info
+    f_div(counts_bottom, counts_top, default = 2) gt count_ratio_threshold : message, 'Bottom pixel total 5% higher than top row. Possible pixel shadowing. Recommend using only bottom pixels for analysis.',/info
+else:
+endcase
+endif
+
+
   stx_read_elut, ekev_actual = ekev_actual, elut_filename = elut_filename
 
   ave_edge  = mean(reform(ekev_actual[energy_edges_used-1, pixels_used, detectors_used, 0 ],n_energy_edges, n_pixels, n_detectors), dim= 2)

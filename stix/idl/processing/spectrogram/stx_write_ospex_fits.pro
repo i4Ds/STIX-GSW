@@ -164,9 +164,15 @@ pro stx_write_ospex_fits, $
   fxaddpar, specheader, 'SUN_DISTANCE', fits_info_params.distance, "Distance in AU to Sun", before='AUTHOR'
   fxaddpar, specheader, 'GRID_FACTOR', fits_info_params.grid_factor, "Total Grid Transmission Factor", before='AUTHOR'
   fxaddpar, specheader, 'ELUT_FILENAME', fits_info_params.elut_file, "Filename of ELUT", before='AUTHOR'
+  fxaddpar, specheader, 'DETUSED', fits_info_params.detused, "Label for detectors used", before='AUTHOR'
+  fxaddpar, specheader, 'DETNAM', fits_info_params.detused, "Label for detectors used", before='AUTHOR'
+  fxaddpar, specheader, 'SUMFLAG', 1, "Detectors are summed", before='AUTHOR'
 
   fxaddpar, srmheader, 'SUN_DISTANCE', fits_info_params.distance, "Distance in AU to Sun", before='AUTHOR'
   fxaddpar, srmheader, 'GRID_FACTOR', fits_info_params.grid_factor, "Total Grid Transmission Factor used", before='AUTHOR'
+  fxaddpar, srmheader, 'DETUSED', fits_info_params.detused, "Label for detectors used", before='AUTHOR'
+  fxaddpar, srmheader, 'DETNAM', fits_info_params.detused, "Label for detectors used", before='AUTHOR'
+  fxaddpar, srmheader, 'SUMFLAG', 1, "Detectors are summed", before='AUTHOR'
 
 
   ;make the spectrum file

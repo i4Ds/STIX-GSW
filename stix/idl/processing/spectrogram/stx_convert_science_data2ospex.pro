@@ -182,6 +182,10 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
 
     total_error = sqrt(corrected_error^2. + error_bk^2. )
 
+    background_data = { $
+      type          : "stx_background_data", $
+      counts        : corrected_counts_bk, $
+      error         : error_bk}
 
   endif else begin
 
@@ -227,10 +231,7 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
 
   uid = fits_info_params.uid
 
-  background_data = { $
-    type          : "stx_background_data", $
-    counts        : corrected_counts_bk, $
-    error         : error_bk}
+
 
 
   fstart_time = time2fid(atime(stx_time2any((spectrogram.time_axis.time_start)[0])),/full,/time)
