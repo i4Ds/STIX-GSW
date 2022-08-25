@@ -98,7 +98,12 @@ pro stx_ospex_spectroscopy_demo
   spex_file_reader= 'stx_read_sp'
 
   ;The names of the OSPEX compatible spectrum and corresponding response matrix file are based on the observation start time
- 
+  spex_specfile_l4= 'stx_spectrum_2202080003.fits'
+  spex_drmfile_l4= 'stx_srm_2202080003.fits'
+
+  spex_specfile_l1= 'stx_spectrum_2202080013.fits'
+  spex_drmfile_l1= 'stx_srm_2202080013.fits'
+
 
   ;At the low end we fit to the lowest science energy STIX observes of 4 keV
   ;For up to moderate events the science energy channels 28 - 32 keV and 32 - 36 keV are dominated by lines in the
