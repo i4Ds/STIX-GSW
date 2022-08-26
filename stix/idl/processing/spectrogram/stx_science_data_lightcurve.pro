@@ -119,7 +119,7 @@ function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time
   ; value is at least reached
   i=0
   j=0
-  total=duration[0]
+  total=0
   iall=[]
 
   while (i lt n_elements(duration)-1) do begin
