@@ -165,6 +165,10 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
   ospex_obj->set, spex_uncert = sys_uncert
   ospex_obj->set, spex_error_use_expected = 0
 
+  counts_str = ospex_obj->getdata(spex_units='counts')
+  origunits = ospex_obj->get(/spex_data_origunits)
+  origunits.data_name = 'STIX'
+  ospex_obj->set, spex_data_origunits = origunits
 
   return, ospex_obj
 end

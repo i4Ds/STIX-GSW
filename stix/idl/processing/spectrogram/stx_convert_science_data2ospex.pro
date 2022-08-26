@@ -232,8 +232,6 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
   uid = fits_info_params.uid
 
 
-
-
   fstart_time = time2fid(atime(stx_time2any((spectrogram.time_axis.time_start)[0])),/full,/time)
 
   default, specfilename, 'stx_spectrum_' + strtrim(uid,2) + '.fits'
@@ -261,12 +259,6 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
   ospex_obj = stx_fsw_sd_spectrogram2ospex( spectrogram, specpar = specpar, time_shift= time_shift, ph_energy_edges = ph_in, $
     /include_damage, generate_fits = generate_fits , /tail, livetime_fraction = eff_livetime_fraction, $
     dist_factor = dist_factor, flare_location= flare_location, sys_uncert = sys_uncert, fits_info_params = fits_info_params )
-
-  counts_str = ospex_obj->getdata(spex_units='counts')
-  origunits = ospex_obj->get(/spex_data_origunits)
-  origunits.data_name = 'STIX'
-  ospex_obj->set, spex_data_origunits = origunits
-  ospex_obj->set, spex_error_use_expected = 0
 
   if keyword_set(plot) then begin
     ospex_obj ->gui
