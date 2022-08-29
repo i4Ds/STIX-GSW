@@ -169,11 +169,11 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
 
   detector_mask_used = intarr(32)
   detector_mask_used[detectors_used]  = 1
-  n_detectors =total(detector_mask_used)
+  n_detectors = total(detector_mask_used)
   energy_edges_used = [e_axis.low_fsw_idx, e_axis.high_fsw_idx[-1]+1]
   n_energy_edges = n_elements(energy_edges_used)
 
-  if total(pixel_mask_used[0:3]) eq  total(pixel_mask_used[4:7]) then begin
+  if total(pixel_mask_used[0:3]) eq total(pixel_mask_used[4:7]) then begin
     count_ratio_threshold = 1.05
     counts_top = total(counts_in[1:25,0:3,detectors_used,*])
     counts_bottom = total(counts_in[1:25,4:7,detectors_used,*])
