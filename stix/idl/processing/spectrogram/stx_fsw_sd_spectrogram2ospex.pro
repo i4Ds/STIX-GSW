@@ -106,6 +106,9 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
 
   endfor
 
+  detector_label = stx_det_mask2label(spectrogram.detector_mask)
+  pixel_label = stx_pix_mask2label(spectrogram.pixel_mask)
+
   ospex_obj  = ospex(/no)
 
   ;if the fits keyword is set write the spectrogram and srm data to fits files and then read them in to the ospex object
@@ -125,15 +128,15 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
     srmfilename =  fits_info_params.srmfile
 
     fits_info_params.grid_factor = grid_factor
-
-    stx_write_ospex_fits, spectrum = spectrum_in, srmdata = srm,  specpar = specpar, time_shift = time_shift, $
+    fits_info_params.detused = detector_label + ', Pixels: ' + pixel_label
+    
+    stx_write_ospex_fits, spectrum = spectrum_in, srmdata = srm, specpar = specpar, time_shift = time_shift, $
       srm_atten = srm_atten, specfilename = specfilename, srmfilename = srmfilename, ph_edges = ph_edges, $
       fits_info_params = fits_info_params, xspec = xspec
 
     ospex_obj->set, spex_file_reader = 'stx_read_sp'
     ospex_obj->set, spex_specfile = specfilename   ; name of your spectrum file
     ospex_obj->set, spex_drmfile = srmfilename
-    ospex_obj->set, spex_uncert = sys_uncert
 
   endif else begin
     ;if the generate_fits keyword is not set use the spex_user_data strategy to pass in the data directly to the ospex object
@@ -157,10 +160,15 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
     ospex_obj->set, spex_detectors = 'STIX'
     ospex_obj->set, spex_drm_ct_edges = energy_edges
     ospex_obj->set, spex_drm_ph_edges = ph_edges2
-    ospex_obj->set, spex_uncert = sys_uncert
-    ospex_obj->set, spex_error_use_expected = 0
   endelse
 
+  ospex_obj->set, spex_uncert = sys_uncert
+  ospex_obj->set, spex_error_use_expected = 0
+
+  counts_str = ospex_obj->getdata(spex_units='counts')
+  origunits = ospex_obj->get(/spex_data_origunits)
+  origunits.data_name = 'STIX'
+  ospex_obj->set, spex_data_origunits = origunits
 
   return, ospex_obj
 end
