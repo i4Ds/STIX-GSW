@@ -25,14 +25,14 @@
 ;
 ;    distance : in, optional, type="float", default= "1."
 ;               The distance between Solar Orbiter and the Sun centre in Astronomical Units needed to correct flux.
-;               
+;
 ;    time_shift : in, optional, type="float", default="0."
 ;               The difference in seconds in light travel time between the Sun and Earth and the Sun and Solar Orbiter
 ;               i.e. Time(Sun to Earth) - Time(Sun to S/C)
 ;
 ;    energy_shift : in, optional, type="float", default="0."
 ;               Shift all energies by this value in keV. Rarely needed only for cases where there is a significant shift
-;               in calibration before a new ELUT can be uploaded.  
+;               in calibration before a new ELUT can be uploaded.
 ;
 ;    flare_location : in, type="float array", default="[0.,0.]"
 ;               the location of the flare in heliocentric coordinates as seen from Solar Orbiter
@@ -41,11 +41,29 @@
 ;                     Shift all time bins by 1 to account for FSW time input discrepancy prior to 09-Dec-2021.
 ;                     N.B. WILL ONLY WORK WITH FULL TIME RESOLUTION DATA WHICH IS OFTEN NOT THE CASE FOR PIXEL DATA.
 ;
+;    sys_uncert : in, type="float", default="0.05"
+;                 The fractional systematic uncertainty to be added
+;
+;    generate_fits : in, type="boolean", default="1"
+;                    If set spectrum and srm FITS files will be generated and read using the stx_read_sp using the
+;                    SPEX_ANY_SPECFILE strategy. Otherwise use the spex_user_data strategy to pass in the data
+;                    directly to the ospex object.
+;
+;    specfile : in, type="string", default="'stx_spectrum_' + UID + '.fits'"
+;                    File name to use when saving the spectrum FITS file for OSPEX input.
+;
+;    srmfile : in, type="string", default="'stx_srm_'+ UID + '.fits'"
+;                    File name to use when saving the srm FITS file for OSPEX input.
+;
+;    background_data : out, type="stx_background_data structure"
+;                     Structure containing the subtracted background for external plotting.
+;
 ;    plot : in, type="boolean", default="1"
-;                     If set open OSPEX GUI and plot lightcurve in standard quicklook energy bands where there is data present 
-;                                  
+;                     If set open OSPEX GUI and plot lightcurve in standard quicklook energy bands
+;                     where there is data present
+;
 ;    ospex_obj : out, type="OSPEX object"
-;               
+;
 ;
 ; :examples:
 ;      fits_path_data   = 'solo_L1A_stix-sci-spectrogram-2104170001_20210417T153019-20210417T171825_010019_V01.fits'
@@ -55,12 +73,20 @@
 ; :history:
 ;    18-Jun-2021 - ECMD (Graz), initial release
 ;    22-Feb-2022 - ECMD (Graz), documented, added default warnings, elut is determined by stx_date2elut_file, improved error calculation
-;    04-Jul-2022 - ECMD (Graz), added plot keyword 
-;    
+;    04-Jul-2022 - ECMD (Graz), added plot keyword
+;    20-Jul-2022 - ECMD (Graz), distance factor now calculated in stx_convert_science_data2ospex
+;    08-Aug-2022 - ECMD (Graz), can now pass in file names for the output spectrum and srm FITS files
+;                               added keyword to allow the user to specify the systematic uncertainty
+;                               generate structure of info parameters to pass through to FITS file
+;    16-Aug-2022 - ECMD (Graz), information about subtracted background can now be passed out
+;
 ;-
-pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, time_shift = time_shift, energy_shift = energy_shift, distance = distance, $
-  flare_location= flare_location, elut_filename = elut_filename, replace_doubles = replace_doubles, keep_short_bins = keep_short_bins, apply_time_shift = apply_time_shift,$
-  no_attenuation = no_attenuation, plot = plot, ospex_obj = ospex_obj
+pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, $
+  time_shift = time_shift, energy_shift = energy_shift, distance = distance, flare_location= flare_location, $
+  replace_doubles = replace_doubles, keep_short_bins = keep_short_bins, apply_time_shift = apply_time_shift,$
+  shift_duration = shift_duration, no_attenuation = no_attenuation, sys_uncert = sys_uncert, $
+  generate_fits = generate_fits, specfile = specfile, srmfile = srmfile,$
+  background_data = background_data, plot = plot, ospex_obj = ospex_obj
 
   if n_elements(time_shift) eq 0 then begin
     message, 'Time shift value is not set. Using default value of 0 [s].', /info
@@ -69,29 +95,26 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
     time_shift = 0.
   endif
 
-  if n_elements(distance) eq 0 then begin
-    message, 'Distance value is not set. Using default value of 1 [AU].', /info
-    print, 'File averaged values can be obtained from the FITS file header'
-    print, 'using stx_get_header_corrections.pro.'
-    distance = 1.
-  endif
-  
   default, flare_location, [0.,0.]
-  default, plot, 1 
+  default, plot, 1
 
-  dist_factor = 1./(distance^2.)
 
   stx_read_spectrogram_fits_file, fits_path_data, time_shift, primary_header = primary_header, data_str = data_str, data_header = data_header, control_str = control_str, $
     control_header= control_header, energy_str = energy_str, energy_header = energy_header, t_axis = t_axis, energy_shift = energy_shift,  e_axis = e_axis , use_discriminators = 0,$
     replace_doubles = replace_doubles, keep_short_bins = keep_short_bins, shift_duration = shift_duration
-
 
   data_level = 4
 
   start_time = atime(stx_time2any((t_axis.time_start)[0]))
 
   elut_filename = stx_date2elut_file(start_time)
-  
+
+  uid = control_str.request_id
+
+  fits_info_params = stx_fits_info_params( fits_path_data = fits_path_data, data_level = data_level, $
+    distance = distance, time_shift = time_shift, fits_path_bk = fits_path_bk, uid = uid, $
+    generate_fits = generate_fits, specfile = specfile, srmfile = srmfile, elut_file = elut_filename)
+
   counts_in = data_str.counts
 
   dim_counts = counts_in.dim
@@ -100,8 +123,8 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
 
   energy_bin_mask = control_str.energy_bin_mask
 
-  pixels_used = where(control_str.pixel_mask eq 1)
-  detectors_used = where(control_str.detector_mask eq 1)
+  pixels_used = where(control_str.pixel_masks eq 1)
+  detectors_used = where(control_str.detector_masks eq 1)
 
 
   energy_bins = where( energy_bin_mask eq 1 )
@@ -139,12 +162,12 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
 
   counts_err =  reform(counts_err,[n_energies, n_times])
 
-  triggers =  reform(data_str.triggers,[1, n_times]) 
- 
-  triggers_err =  reform(data_str.triggers_err,[1, n_times]) 
+  triggers =  reform(data_str.triggers,[1, n_times])
 
-   rcr = data_str.rcr
- 
+  triggers_err =  reform(data_str.triggers_err,[1, n_times])
+
+  rcr = data_str.rcr
+
   ;insert the information from the telemetry file into the expected stx_fsw_sd_spectrogram structure
   spectrogram = { $
     type          : "stx_fsw_sd_spectrogram", $
@@ -163,18 +186,18 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
   data_dims[1] = 1
   data_dims[2] = 1
   data_dims[3] = n_times
- 
- ;get the rcr states and the times of rcr changes from the ql_lightcurves structure
-  ut_rcr = stx_time2any(t_axis.time_start) 
+
+  ;get the rcr states and the times of rcr changes from the ql_lightcurves structure
+  ut_rcr = stx_time2any(t_axis.time_start)
   find_changes, rcr, index, state, count=count
 
   ; ************************************************************
   ; ******************** TEMPORARY FIX *************************
   ; ***** Andrea: 2022-April-05
   ; Temporarily creation of the no_attenuation keyword in order
-  ; to avoid attenuation of the fitted curve. This is useful for 
-  ; obtaining thermal fit parameters with the BKG detector in the 
-  ; case the attenuator is inserted. We tested it with the X 
+  ; to avoid attenuation of the fitted curve. This is useful for
+  ; obtaining thermal fit parameters with the BKG detector in the
+  ; case the attenuator is inserted. We tested it with the X
   ; class flare on 2021-Oct-26 and it works nicely.
   if keyword_set(no_attenuation) then begin
     rcr = rcr*0.
@@ -183,12 +206,13 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
   endif
   ; ************************************************************
   ; ************************************************************
-  
+
   ;add the rcr information to a specpar structure so it can be included in the spectrum FITS file
   specpar = { sp_atten_state :  {time:ut_rcr[index], state:state} }
-  
+
   stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, $
-    dist_factor = dist_factor, flare_location= flare_location, eff_ewidth = eff_ewidth, plot = plot, ospex_obj = ospex_obj
+    distance = distance, fits_path_data = fits_path_data, flare_location = flare_location, eff_ewidth = eff_ewidth, fits_info_params = fits_info_params, sys_uncert = sys_uncert, $
+    background_data = background_data, plot = plot, generate_fits = generate_fits, ospex_obj = ospex_obj
 
 end
 
