@@ -202,7 +202,7 @@ FUNCTION stix_compute_vis_amp_phase,sci_file,tr_flare,er_flare,bkg_file=bkg_file
   ; list of indices for time range
   tr_flare=anytim(tr_flare)
   tlist=where( (time_spec ge tr_flare(0)) AND (time_spec le tr_flare(1)) )
-  tlist = [5:17]
+  
   ;same for energy range
   elist=where( (ee ge er_flare(0)) AND (ee le er_flare(1)) )
   n_en=n_elements(elist)

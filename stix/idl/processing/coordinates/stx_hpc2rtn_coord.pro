@@ -1,5 +1,45 @@
-
-;; Roll angle correction
+;+
+;
+; NAME:
+;
+;   stx_hpc2rtn_coord
+;
+; PURPOSE:
+;
+;   Transform a bi-dimensional array of coordinates from Helioprojective Cartesian coordinate frame
+;   (Solar Orbiter vantage point) to the Solar Orbiter - Sun Radial-Tnagential-Normal coordinate frame and viceversa.
+;   Essentially, it performs a rotation for the spacecraft roll angle
+;
+; CALLING SEQUENCE:
+;
+;   xy_coord_new = stx_hpc2rtn_coord(xy_coord, aux_data)
+;
+; INPUTS:
+;
+;   xy_coord: bi-dimensional array of coordinates (arcsec). If the 'inverse' keyword is set to 0,
+;             the coordinates are assumed to be in the Helioprojective Cartesian coordinate frame
+;             (Solar Orbiter vantage point) and they are transformed into the corresponding ones
+;             in the Solar Orbiter - Sun Radial-Tnagential-Normal coordinate frame
+;
+;   aux_data: 'stx_aux_data' structure containing information on STIX pointing and spacecraft roll angle
+;
+;
+; KEYWORDS:
+;
+;   inverse: if set, the invese transformation is applied. In this case, the coordinates in 'xy_coord'
+;            are assumed to be in the Solar Orbiter - Sun Radial-Tnagential-Normal and they are transformed 
+;            into the corresponding ones in the Helioprojective Cartesian coordinate frame
+;
+;
+; OUTPUTS:
+;
+;   A bi-dimensional array containing the transformed coordinates
+;
+; HISTORY: August 2022, Massa P., created
+;
+; CONTACT:
+;   paolo.massa@wku.edu
+;-
 
 function stx_hpc2rtn_coord, xy_coord, aux_data, inverse=inverse
 
