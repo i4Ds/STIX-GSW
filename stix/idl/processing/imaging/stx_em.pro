@@ -36,13 +36,14 @@
 ;             -the detector used
 ;             -the summation of the counts recorded by the pixels.
 ;          June 2022, Massa P., 'aux_data' added
-;          August 2022, Massa P., made it compatible with the up-to-date imaging software
+;          August 2022, Massa P., made it compatible with the up-to-date imaging software and added backrgound correction
+;                       in the EM iterative scheme
 ;             
 ;CONTACT: massa.p@dima.unige.it
 
 FUNCTION stx_em, pixel_data_summed, aux_data, imsize=imsize, pixel=pixel, $
                  mapcenter=mapcenter, subc_index=subc_index, $
-                 maxiter=maxiter, tolerance=tolerance, silent=silent, makemap=makemap;, xy_flare=xy_flare
+                 maxiter=maxiter, tolerance=tolerance, silent=silent, makemap=makemap
 
 default, subc_index, stix_label2ind(['3a','3b','3c','4a','4b','4c','5a','5b','5c','6a','6b','6c',$
                                        '7a','7b','7c','8a','8b','8c','9a','9b','9c','10a','10b','10c'])
@@ -54,7 +55,6 @@ default, tolerance, 0.001
 default, silent, 0
 default, makemap, 0
 default, mapcenter, [0, 0]
-;default, xy_flare, [0.,0.]
 
 
 ; input parameters control
@@ -122,8 +122,11 @@ H = stx_map2pixelabcd_matrix(imsize, pixel, u, v, phase_corr, xyoffset = mapcent
 ; Vectorization of the matrix 'pixel_data.counts' containing the number of counts recorded
 ; by STIX pixels
 n_det_used = n_elements(subc_index)
-countrates = pixel_data_summed.count_rates[subc_index,*]
+countrates = pixel_data_summed.COUNT_RATES[subc_index,*]
 y = reform(countrates, n_det_used*4)
+
+countrates_bkg = pixel_data_summed.COUNT_RATES_ERROR_BKG[subc_index,*]
+b = reform(countrates_bkg, n_det_used*4)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; EXPECTATION MAXIMIZATION ALGORITHM
@@ -139,7 +142,7 @@ if ~keyword_set(silent) then print, 'EM iterations: ' & print, 'N. Iter:      ST
 ; Loop of the algorithm
 for iter = 1, maxiter do begin
   Hx = H # x
-  z = f_div(y , Hx)
+  z = f_div(y , Hx + b)
   Hz = H ## z
 
   x = x * transpose(f_div(Hz, Ht1))
@@ -178,9 +181,10 @@ em_map.DUR = anytim(time_range[1])-anytim(time_range[0])
 em__map=em_map
 em__map.data=rotate(em_map.data,1)
 
-
-em__map.xc = mapcenter[0] + aux_data.stx_pointing[0]
-em__map.yc = mapcenter[1] + aux_data.stx_pointing[1]
+; Compute the mapcenter
+this_mapcenter = stx_rtn2stx_coord(mapcenter, aux_data, /inverse)
+em__map.xc = this_mapcenter[0]
+em__map.yc = this_mapcenter[1]
 
 em__map=rot_map(em__map,-aux_data.ROLL_ANGLE,rcenter=[0.,0.])
 em__map.ROLL_ANGLE = 0.

@@ -154,11 +154,11 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
     pixels_used = where( total((data.pixel_masks)[*,*,0],1) eq 1, npix)
 
     full_counts = dblarr(32, 12, 32, n_times)
-    full_counts[energies_used, pixels_used, detectors_used, *] = counts
+    full_counts[energies_used, pixels_used, detectors_used, *] = counts[*,pixels_used,*,*]
     counts = full_counts
 
     full_counts_err = dblarr(32, 12, 32, n_times)
-    full_counts_err[energies_used, pixels_used, detectors_used, *] = counts_err
+    full_counts_err[energies_used, pixels_used, detectors_used, *] = counts_err[*,pixels_used,*,*]
     counts_err = full_counts_err
 
   endif else begin

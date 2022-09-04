@@ -31,12 +31,12 @@ function stx_visibility
     tot_counts: 0.0, $
     tot_counts_bkg: 0.0, $
     totflux : 0.0, $
-    sigamp : 0.0, $
+    sigamp : 0.0, $  ;; ERROR on visibility amplitude. Comments: how to compute phase, amp and error phase
     u : 0.0, $
     v : 0.0, $
     phase_sense : 0, $
     xyoffset: fltarr(2), $
-    xy_flare : fltarr(2), $
+    xy_flare : fltarr(2), $ ;; COMMENTS
     calibrated : 0b $
     }
 return, struct

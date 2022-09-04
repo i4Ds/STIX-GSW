@@ -339,7 +339,16 @@ function stx_vis_clean, vis, aux_data, niter = niter, image_dim = image_dim_in, 
   
   stx_pointing = aux_data.stx_pointing
   ; Compute the mapcenter
-  this_mapcenter = vis[0].xyoffset + stx_pointing
+  if vis[0].calibrated eq 1 then begin
+
+    this_mapcenter = stx_rtn2stx_coord(vis[0].xyoffset, aux_data, /inverse)
+
+  endif else begin
+
+    this_mapcenter = vis[0].xyoffset + aux_data.stx_pointing
+
+  endelse
+  
   this_xc = this_mapcenter[0]
   this_yc = this_mapcenter[1]
 

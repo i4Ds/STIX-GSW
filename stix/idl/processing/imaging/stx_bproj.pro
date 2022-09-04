@@ -22,7 +22,17 @@ FUNCTION stx_bproj,vis,imsize,pixel,aux_data,silent=silent,uni=uni
   
   stx_pointing = aux_data.stx_pointing
   ; Compute the mapcenter
-  this_mapcenter = vis[0].xyoffset + stx_pointing
+ 
+  ; Compute the mapcenter
+  if vis[0].calibrated eq 1 then begin
+
+    this_mapcenter = stx_rtn2stx_coord(vis[0].xyoffset, aux_data, /inverse)
+    
+  endif else begin
+    
+    this_mapcenter = vis[0].xyoffset + aux_data.stx_pointing
+
+  endelse
 
   b_map.xc = this_mapcenter[0]
   b_map.yc = this_mapcenter[1]

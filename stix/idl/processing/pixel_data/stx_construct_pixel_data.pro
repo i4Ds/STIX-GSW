@@ -6,7 +6,7 @@
 ;
 ; PURPOSE:
 ; 
-;   Read a STIX science L1 fits file (and potentially a STIX background L1 fits file) and fill in a 'pixel_data' structure
+;   Read a STIX science L1 fits file (and optionally a STIX background L1 fits file) and fill in a 'pixel_data' structure
 ;
 ; CALLING SEQUENCE:
 ; 
@@ -18,7 +18,7 @@
 ;   
 ;   time_range: string array containing the start and the end of the time interval to consider
 ;   
-;   energy_range: array containing the values of the lower and upper edge of the energy interval to consider
+;   energy_range: bi-dimensional array containing the lower and upper edges of the energy interval to consider
 ;
 ; OUTPUTS:
 ; 
@@ -29,24 +29,44 @@
 ;     - COUNTS_ERROR: array 32x12 containing the errors (statistics + compression) associated with the number of counts 
 ;                     recorded by the detector pixels
 ;     - LIVE_TIME: 32-dimensional array containing the live time of each detector in the considered time interval
-;     - TIME_RANGE: STX_TIME array containg the start and the end of the selected time interval
-;                   (the time bins containing the provided start and the end time are included in the interval)
+;     - TIME_RANGE: bi-dimesional 'stx_time' array containing the lower and upper edge of the selected time interval
+;                   (the time bins containing the start and the end time provided as input are included in the 
+;                   selected interval)
 ;     - ENERGY_RANGE: array containing the lower and the upper edge of the selected energy interval
 ;                     (the energy bins containing the lower and the upper edges provided as input are included in the interval)
-;     - COUNTS_BKG: array 32x12 containing the number of background counts recorded by the detector pixels
-;     - COUNTS_ERROR_BKG: array 32x12 containing the errors (statistics + compression) associated with the number of background counts 
-;                         recorded by the detector pixels in the selected and energy interval
+;     - COUNTS_BKG: array 32x12 containing an estimate of the number of background counts recorded by the detector pixels in the selected 
+;                   time and energy intervals. If no bakground measurement is provided, it is filled with zeros
+;     - COUNTS_ERROR_BKG: array 32x12 containing the errors (statistics + compression) associated with the estimate of the 
+;                         number of background counts recorded by the detector pixels in the selected time and energy intervals
 ;     - LIVE_TIME_BKG: 32-dimensional array containing the live time of each detector for the background measurement
-;     - RCR: rate control regime status for the selcted time interval
+;     - XY_FLARE: 2-dimensional array containing the X and Y coordinates of the estimated flare location (STIX coordinate frame, arcsec).
+;                   If 'xy_flare' is not passed, it is filled with NaN values
+;     - RCR: rate control regime status in the selcted time interval. If the RCR changes in that interval, an error is thrown
 ;     - PIXEL_MASKS: matrix containing info on the pixels used in the selected time interval
 ;     - DETECTOR_MASKS: matrix containing information on the detectors used in the selected time interval
 ;
 ; KEYWORDS:
 ;
-;   path_bkg_file: if provided, the fields 'COUNTS_BKG', 'COUNTS_ERROR_BKG' and 'LIVE_TIME_BKG' of the pixel_data
-;                  structure are filled with the values read from the background measurement file
+;   path_bkg_file: path of a background L1 fits file. If provided, the fields 'COUNTS_BKG', 'COUNTS_ERROR_BKG' and 'LIVE_TIME_BKG' 
+;                  of the pixel_data structure are filled with the values read from the background measurement file
 ;
-;
+;   elut_corr: if set, a correction based on a ELUT table is applied to the measured counts
+;   
+;   xy_flare: bidimensional array containing the X and Y coordinates of the estimated flare location
+;             (STIX coordinate frame, arcsec). If passed, the grid transmission correction is computed
+;   
+;   subc_index: array containing the indices of the selected imaging detectors. Used only for plotting the lightcurve by means of 
+;             'stx_plot_selected_time_range'. Default, indices of
+;             the detectors from 10 to 3
+;   
+;   sumcase: string indicating which pixels are considered. Used only for plotting the lightcurve by means of
+;            'stx_plot_selected_time_range'. Refer to the header of 'stx_sum_pixel_data' for more details.
+;             Default, 'TOP+BOT'
+;    
+;   silent: if set, plots are not displayed
+;   
+;   no_small: if set, Moire patterns measured by small pixels are not plotted with 'stx_plot_moire_pattern'
+;             
 ; HISTORY: July 2022, Massa P., created
 ;
 ; CONTACT:
@@ -54,9 +74,15 @@
 ;-
 
 function stx_construct_pixel_data, path_sci_file, time_range, energy_range, elut_corr=elut_corr, $
-                                   path_bkg_file=path_bkg_file, _extra=extra
+                                   path_bkg_file=path_bkg_file, xy_flare=xy_flare, subc_index=subc_index, $
+                                   sumcase=sumcase, silent=silent, no_small=no_small, _extra=extra
 
 default, elut_corr, 1
+default, silent, 0
+default, subc_index, stx_label2ind(['10a','10b','10c','9a','9b','9c','8a','8b','8c','7a','7b','7c',$
+                                   '6a','6b','6c','5a','5b','5c','4a','4b','4c','3a','3b','3c'])
+
+default, sumcase, "TOP+BOT"
 
 if anytim(time_range[0]) gt anytim(time_range[1]) then message, "Start time is greater than end time"
 if energy_range[0] gt energy_range[1] then message, "Energy range lower edge is greater than the higher edge"
@@ -95,9 +121,6 @@ this_time_range = [t_axis.TIME_START[time_ind_min], t_axis.TIME_END[time_ind_max
 
 ;;************** Select energy indices
 
-;Question: COULD IT BE THAT THERE ARE GAPS BETWEEN THE LOWER AND THE HIGHER ENERGY EDGE?
-; IN THAT CASE I WOULD HAVE TO ADD A CONTROL
-
 energy_low  = e_axis.LOW
 energy_high = e_axis.HIGH
 
@@ -123,11 +146,11 @@ this_energy_range = [energy_low[energy_ind_min], energy_high[energy_ind_max]]
 
 triggergram        = stx_triggergram(data.TRIGGERS, t_axis)
 livetime_fraction  = stx_livetime_fraction(triggergram)
-livetime_fraction  = livetime_fraction[*, time_ind]
-duration_time_bins = t_axis.DURATION[time_ind]
+duration_time_bins = t_axis.DURATION
 duration_time_bins = transpose(cmreplicate(duration_time_bins, 32))
-live_time          = n_elements(time_ind) eq 1? reform(duration_time_bins*livetime_fraction) : $
-                     total(duration_time_bins*livetime_fraction,2)
+live_time_bins     = livetime_fraction*duration_time_bins
+live_time          = n_elements(time_ind) eq 1? reform(live_time_bins[*,time_ind]) : $
+                     total(live_time_bins[*,time_ind],2)
 
 if keyword_set(path_bkg_file) then begin
   
@@ -136,6 +159,21 @@ if keyword_set(path_bkg_file) then begin
   duration_time_bins_bkg = t_axis_bkg.DURATION
   live_time_bkg          = duration_time_bins_bkg[0]*livetime_fraction_bkg
   
+endif
+
+;;************** Plot lightcurve (if ~silent)
+
+if ~silent then begin
+  
+  if keyword_set(path_bkg_file) then begin
+    stx_plot_selected_time_range, stx_time2any(t_axis.MEAN), energy_ind, time_ind, data.COUNTS, live_time_bins, subc_index, $
+                                  sumcase, this_energy_range, this_time_range, counts_bkg=data_bkg.COUNTS, $
+                                  live_time_bkg=live_time_bkg
+  endif else begin
+    stx_plot_selected_time_range, stx_time2any(t_axis.MEAN), energy_ind, time_ind, data.COUNTS, live_time_bins, subc_index, $
+                                  sumcase, this_energy_range, this_time_range
+  endelse
+
 endif
 
 ;;************** Sum counts (and related errors) in time
@@ -172,7 +210,7 @@ if keyword_set(path_bkg_file) then begin
 endif
 
 ;; Compute elut correction (if 'elut_corr' is set) - Correct just the first and the last energy bins (flat spectrum is assumed)
-if keyword_set(elut_corr) then begin
+if elut_corr then begin
   
   elut_filename = stx_date2elut_file(stx_time2any(this_time_range[0]))  
   stx_read_elut, ekev_actual = ekev_actual, elut_filename = elut_filename  
@@ -251,6 +289,32 @@ endif else begin
 
 endelse
 
+;;************** Correction for grid internal shadowing
+
+if keyword_set(xy_flare) then begin
+
+  subc_transmission     = stx_subc_transmission(xy_flare)
+  subc_transmission_bkg = stx_subc_transmission([0.,0.])
+  for i=0,31 do begin
+    
+    counts[*,i]       = counts[*,i]/subc_transmission[i]*0.25
+    counts_error[*,i] = counts_error[*,i]/subc_transmission[i]*0.25
+
+  endfor
+  
+  if keyword_set(path_bkg_file) then begin
+    
+    for i=0,31 do begin
+      
+      counts_bkg[*,i]       = counts_bkg[*,i]/subc_transmission_bkg[i]*0.25
+      counts_error_bkg[*,i] = counts_error_bkg[*,i]/subc_transmission_bkg[i]*0.25
+      
+    endfor
+    
+  endif
+
+endif
+
 ;;**************  RCR
 
 rcr = data.rcr[time_ind]
@@ -290,10 +354,19 @@ if keyword_set(path_bkg_file) then begin
   pixel_data.COUNTS_BKG       = transpose(counts_bkg)
   pixel_data.COUNTS_ERROR_BKG = transpose(counts_error_bkg)
   
-endif  
+endif
+
+if ~keyword_set(xy_flare) then begin
+  pixel_data.XY_FLARE = [!VALUES.F_NaN,!VALUES.F_NaN]
+endif else begin
+  pixel_data.XY_FLARE = xy_flare
+endelse
+
 pixel_data.RCR            = rcr[0]
 pixel_data.PIXEL_MASKS    = pixel_masks[*,*,0]
 pixel_data.DETECTOR_MASKS = detector_masks[*,0]
+
+if ~silent then stx_plot_moire_pattern, pixel_data, no_small=no_small
 
 return, pixel_data  
   

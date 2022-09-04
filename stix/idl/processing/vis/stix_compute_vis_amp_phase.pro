@@ -160,7 +160,8 @@ end
 ;
 ;-
 FUNCTION stix_compute_vis_amp_phase,sci_file,tr_flare,er_flare,bkg_file=bkg_file,$
-  xy_flare=xy_flare,no_trans=no_trans,pixels=pixels,silent=silent,shift_by_one=shift_by_one, subc_index=subc_index
+  xy_flare=xy_flare,no_trans=no_trans,pixels=pixels,silent=silent,shift_by_one=shift_by_one, subc_index=subc_index, $
+  no_elut=no_elut
 
   ;note: deadtime correction assumes 12.5d-6 and ignores double triggers (that is ok for the June 7 flare, but not necessarily for Nov 2020 flares)
   default, silent, 0
@@ -201,6 +202,7 @@ FUNCTION stix_compute_vis_amp_phase,sci_file,tr_flare,er_flare,bkg_file=bkg_file
   ; list of indices for time range
   tr_flare=anytim(tr_flare)
   tlist=where( (time_spec ge tr_flare(0)) AND (time_spec le tr_flare(1)) )
+  tlist = [5:17]
   ;same for energy range
   elist=where( (ee ge er_flare(0)) AND (ee le er_flare(1)) )
   n_en=n_elements(elist)
@@ -271,10 +273,11 @@ FUNCTION stix_compute_vis_amp_phase,sci_file,tr_flare,er_flare,bkg_file=bkg_file
   this_bkg = reform(spec_all_bkg)
   this_dbkg = reform(dspec_all_bkg)
   
-  
+  if ~keyword_set(no_elut) then begin
+  print, "ELUT CORR"
   ;; Assuming flat spectrum in the first and last energy bin (TBD dependence on the slope)
   if n_en eq 1 then begin
-  
+    
     this_r(*,*,elist) *= (e1(elist) - e0(elist)) / this_bin_size_switch(*,*,elist)
     this_dr(*,*,elist) *= (e1(elist) - e0(elist)) / this_bin_size_switch(*,*,elist)   
     
@@ -282,7 +285,7 @@ FUNCTION stix_compute_vis_amp_phase,sci_file,tr_flare,er_flare,bkg_file=bkg_file
     this_dbkg(*,*,elist) *= (e1(elist) - e0(elist)) / this_bin_size_switch(*,*,elist)
   
   endif else begin
-    
+
     ;; If multiple energy bins, correct firts and last only
     this_r(*,*,elist(0)) *= (this_bin_high_switch(*,*,elist(0)) - e0(elist(0)))/this_bin_size_switch(*,*,elist(0))
     this_r(*,*,elist(-1)) *= (e1(elist(-1)) - this_bin_low_switch(*,*,elist(-1)) )/this_bin_size_switch(*,*,elist(-1))
@@ -298,6 +301,7 @@ FUNCTION stix_compute_vis_amp_phase,sci_file,tr_flare,er_flare,bkg_file=bkg_file
     this_dbkg(*,*,elist(-1)) *= (e1(elist(-1)) - this_bin_low_switch(*,*,elist(-1)) )/this_bin_size_switch(*,*,elist(-1))
     
   endelse
+  endif
   
   ;; Sum  counts in time and energy
   if n_en eq 1 then begin
@@ -351,6 +355,7 @@ FUNCTION stix_compute_vis_amp_phase,sci_file,tr_flare,er_flare,bkg_file=bkg_file
 
   ;GRID TRANSMISSION
   if not keyword_set(no_trans) then begin
+    print, "GRID TRASM CORR"
     ;correct for measured grid transmission
     if not keyword_set(xy_flare) then begin
       ;grid transmission normal incident (i.e. without grid shadowing) for flare location at center
@@ -456,7 +461,9 @@ FUNCTION stix_compute_vis_amp_phase,sci_file,tr_flare,er_flare,bkg_file=bkg_file
     tr_flare: tr_flare, $
     er_flare: er_flare,$
     cts_tot: cts_tot, $
-    cts_bkg: cts_bkg}
+    cts_bkg: cts_bkg,$
+    countrate:countrate,$
+    livetime:this_lt}
 
   if ~silent then begin
     ; display observed moire pattern for each detector

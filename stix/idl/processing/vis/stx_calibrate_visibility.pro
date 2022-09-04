@@ -7,8 +7,7 @@
 ; PURPOSE:
 ;
 ;   Takes as input an uncalibrated 'stx_visibility' structure and returns as output the corresponding calibrated one.
-;   The calibration process consists in the calibration of the visibility amplitude (and of the corresponding errors)
-;   and phases.
+;   The calibration process consists in the calibration of the visibility amplitudes and phases.
 ;
 ; CALLING SEQUENCE:
 ;
@@ -22,24 +21,25 @@
 ; 
 ;   phase_calib_factors: 32-dimensional array containing the phase calibration factors for each detectors (degrees).
 ;                        The default phase calibration factors consist of four terms:
-;                         - a grid correction factor, which keeps into account the phase of the fron and the rear grid;
-;                         - a projection correction factor, is the 'xy_flare' estimate of the flare location is provided 
+;                         - a grid correction factor, which keeps into account the phase of the front and the rear grid;
+;                         - a projection correction factor, if the 'xy_flare' estimate of the flare location is provided 
 ;                           in the visibility structure;
 ;                         - an "ad hoc" phase correction factor, which removes systematic residual errors. 
 ;                           The cause of these systematic errors is still under investigation;
-;                         - a factor which is added so that the reconstructed image is centered in the 'mapcenter' 
-;                           location saved in the input visibility structure
+;                         - a factor which is added so that the reconstructed image is centered in the 
+;                           coordinates that are saved in the 'XYOFFSET' field of the input visibility structure
 ;   
-;   amp_calib_factors: 32-dimensional array containing amplitude calibration factors. The default value is the modulation
-;                      efficiency factor
+;   amp_calib_factors: 32-dimensional array containing amplitude calibration factors. The default values include just the
+;                       modulation efficiency factor
 ;   
 ;   syserr_sigamp: float, percentage of systematic error to be added to the visibility amplitude errors. 
 ;                  Default, 5%
 ;   
-;   f2r_sep: separation between the front and the rear grid (mm). Default, 550 mm
+;   f2r_sep: separation between the front and the rear grid (mm). Default, 550 mm. It is used for computing the default 
+;            projection correction factors
 ;   
 ;   r2d_sep: separation between the rear grid and the detector (mm, used for the phase projection correction).
-;            Default, 47 mm
+;            Default, 47 mm. It is used for computing the default 
 ;
 ; OUTPUTS:
 ;
@@ -101,7 +101,7 @@ calibrated_vis_amp   = vis_amp * amp_calib_factors
 calibrated_vis_phase = vis_phase + phase_calib_factors
 ;; Calibrate sigamp
 calibrated_sigamp = vis.sigamp * amp_calib_factors
-calibrated_sigamp = sqrt(calibrated_sigamp^2 + syserr_sigamp^2 * calibrated_vis_amp) ;; Add systematic error
+calibrated_sigamp = sqrt(calibrated_sigamp^2 + syserr_sigamp^2 * calibrated_vis_amp^2.) ;; Add systematic error
 
 calibrated_obsvis = complex(cos(calibrated_vis_phase * !dtor), sin(calibrated_vis_phase * !dtor)) * calibrated_vis_amp
  

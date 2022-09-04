@@ -35,7 +35,9 @@
 ;-
 
 FUNCTION stix2vis_sep2021, path_sci_file, time_range, energy_range, mapcenter, aux_data, path_bkg_file=path_bkg_file, $
-  xy_flare=xy_flare, subc_index=subc_index, pixels=pixels, silent=silent, shift_by_one=shift_by_one, use_sas=use_sas
+  xy_flare=xy_flare, subc_index=subc_index, pixels=pixels, silent=silent, shift_by_one=shift_by_one, $
+  no_trans=no_trans,no_elut=no_elut
+  
 
   default, xy_flare, [0., 0.]
   default, subc_index, stix_label2ind(['10a','10b','10c','9a','9b','9c','8a','8b','8c','7a','7b','7c',$
@@ -60,7 +62,7 @@ FUNCTION stix2vis_sep2021, path_sci_file, time_range, energy_range, mapcenter, a
 
   ;;;;;;;;;; make amplitudes and phases
   data = stix_compute_vis_amp_phase(path_sci_file,anytim(time_range),energy_range, xy_flare=this_xy_flare,bkg_file=path_bkg_file, $
-    pixels=pixels, silent=silent, shift_by_one=shift_by_one, subc_index=subc_index)
+    pixels=pixels, silent=silent, shift_by_one=shift_by_one, subc_index=subc_index, no_trans=no_trans,no_elut=no_elut)
 
 
   ;;;;;;;;;; CONSTRUCT VISIBILITY STRUCTURE

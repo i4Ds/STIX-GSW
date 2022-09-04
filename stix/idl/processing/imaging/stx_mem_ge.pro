@@ -3,7 +3,8 @@ FUNCTION stx_mem_ge,vis,imsize,pixel,aux_data,silent=silent, total_flux=total_fl
   ; wrapper around MEM_GE
   ; output map structure has north up
   ;
-  ; 10-Sep-2021: Paolo Massa: first version
+  ; 10-Sep-2021: Paolo Massa, first version
+  ; 22-Aug-2022: Paolo Massa, made it compatible with the new imaging pipeline 
   
   default, percent_lambda, stx_mem_ge_percent_lambda(stx_vis_get_snr(vis))
   default, silent, 0
@@ -26,7 +27,15 @@ FUNCTION stx_mem_ge,vis,imsize,pixel,aux_data,silent=silent, total_flux=total_fl
   mem__ge_map.data=rotate(mem_ge_map.data,1)
   
   ; Compute the mapcenter
-  this_mapcenter = vis[0].xyoffset + aux_data.stx_pointing
+  if vis[0].calibrated eq 1 then begin
+
+    this_mapcenter = stx_rtn2stx_coord(vis[0].xyoffset, aux_data, /inverse)
+    
+  endif else begin
+    
+    this_mapcenter = vis[0].xyoffset + aux_data.stx_pointing
+
+  endelse
 
   mem__ge_map.xc = this_mapcenter[0]
   mem__ge_map.yc = this_mapcenter[1]

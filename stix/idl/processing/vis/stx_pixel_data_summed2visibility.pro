@@ -31,9 +31,9 @@
 ;
 ;   Uncalibrated 'stx_visibility' structure containing:
 ;   
-;   - ISC: indexes of the considered subcollimators
+;   - ISC: indices of the considered subcollimators
 ;   - LABEL: labels of the considered subcollimators
-;   - LIVE_TIME: detectors' livetime 
+;   - LIVE_TIME: detector livetime 
 ;   - ENERGY_RANGE: bi-dimensional array containing the lower and upper edge of the considered energy interval
 ;   - TIME_RANGE: bi-dimensional 'stx_time' array containing the lower and upper edge of the considered time interval
 ;   - OBSVIS: complex array containing the visibility values
@@ -46,9 +46,9 @@
 ;   - PHASE_SENSE: array containing the sense of the phase measured by the sub-collimator (-1 or 1 values)
 ;   - XYOFFSET: bi-dimensional array containing the coordinates of the center of the map to renconstruct from the
 ;                visibiity values (STIX coordinate frame, arcsec)
-;   - XY_FLARE: bi-dimensional array containing the coordinates of the estimated flare location. It is used for computing
-;               the grid transmission correction and the phase projection correction. If the values are NaN, no correction
-;               is applied (STIX coordinate frame, arcsec)
+;   - XY_FLARE: bi-dimensional array containing the coordinates of the estimated flare location (STIX coordinate frame, arcsec). 
+;               It is used for computing the grid transmission correction and the phase projection correction. 
+;               If the 'xy_flare' field of the  input 'stx_pixel_data_summed' structure contains NaN values, no correction is applied 
 ;   - CALIBRATED: 0 if the values of the visibility amplitudes and phases are not calibrated, 1 otherwise   
 ;   
 ; HISTORY: August 2022, Massa P., created
@@ -62,9 +62,8 @@ function stx_pixel_data_summed2visibility, pixel_data_summed, subc_index=subc_in
 
 default, mapcenter, [0.,0.]
 default, f2r_sep, 550.0
-subc_label = ['10a','10b','10c','9a','9b','9c','8a','8b','8c','7a','7b','7c',$
-              '6a','6b','6c','5a','5b','5c','4a','4b','4c','3a','3b','3c']
-default, subc_index, stix_label2ind(subc_label)
+default, subc_index, stx_label2ind(['10a','10b','10c','9a','9b','9c','8a','8b','8c','7a','7b','7c',$
+                                    '6a','6b','6c','5a','5b','5c','4a','4b','4c','3a','3b','3c'])
 
 ;; Check: if one of the selected sub-collimators was not used, throw and error
 detector_masks = pixel_data_summed.DETECTOR_MASKS[subc_index]

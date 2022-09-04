@@ -72,17 +72,16 @@ aux_data = stx_create_auxiliary_data(aux_fits_file, time_range)
 ; Create the visibility structure filled with the measured data
 
 ; Coordinate transformaion: from Helioprojective Cartesian to STIX coordinate frame
-mapcenter_stix = stx_coordinate_transform(mapcenter, aux_data)
-xy_flare_stix  = stx_coordinate_transform(xy_flare, aux_data)
+mapcenter_stix = stx_hpc2stx_coord(mapcenter, aux_data)
+xy_flare_stix  = stx_hpc2stx_coord(xy_flare, aux_data)
+
+;mapcenter_stix_new1 = stx_coordinate_transform(mapcenter, aux_data)
+;xy_flare_stix      = stx_coordinate_transform(xy_flare, aux_data)
 
 vis=stx_construct_calibrated_visibility(path_sci_file, time_range, energy_range, mapcenter_stix, $
                                         path_bkg_file=path_bkg_file, xy_flare=xy_flare_stix)
 
-print, " "
-print, "Press SPACE to continue"
-print, " "
-pause
-
+stop
 
 ;;**************** SET PARAMETERS FOR IMAGING
 
@@ -107,11 +106,7 @@ bp_nat_map = stx_bproj(vis,imsize,pixel,aux_data)
 ; BACKPROJECTION uniform weighting
 bp_uni_map = stx_bproj(vis,imsize,pixel,aux_data,/uni)
 
-print, " "
-print, "Press SPACE to continue"
-print, " "
-pause
-
+stop
 
 ;**************************************** CLEAN (from visibilities) **********************************************
 
@@ -128,11 +123,7 @@ nmap   = 1      ;only every 20th integration is shown in plot
 beam_width = 20.
 clean_map=stx_vis_clean(vis,aux_data,niter=niter,image_dim=imsize[0],PIXEL=pixel[0],uni=0,gain=0.1,nmap=nmap,/plot,/set, beam_width=beam_width)
 
-print, " "
-print, "Press SPACE to continue"
-print, " "
-pause
-
+stop
 
 ;;************************************************ MEM_GE *********************************************************
 
@@ -144,12 +135,7 @@ cleanplot
 plot_map, mem_ge_map, /cbar,title='MEM_GE - CLEAN contour (50%)'
 plot_map,clean_map[0],/over,/perc,level=[50]
 
-
-print, " "
-print, "Press SPACE to continue"
-print, " "
-pause
-
+stop
 
 ;*************************************** Expectation Maximization ************************************************
 
@@ -165,10 +151,7 @@ cleanplot
 plot_map, em_map, /cbar,title='EM - CLEAN contour (50%)'
 plot_map,clean_map[0],/over,/perc,level=[50]
 
-print, " "
-print, "Press SPACE to continue"
-print, " "
-pause
+stop
 
 ;*************************************** VIS_FWDFIT ************************************************
 
@@ -190,11 +173,7 @@ cleanplot
 plot_map, vis_fwdfit_pso_map, /cbar,title='VIS_FWDFIT_PSO - CLEAN contour (50%)'
 plot_map,clean_map[0],/over,/perc,level=[50]
 
-print, " "
-print, "Press SPACE to continue"
-print, " "
-pause
-
+stop
 
 ;*********************************************** COMPARISON ******************************************************
 

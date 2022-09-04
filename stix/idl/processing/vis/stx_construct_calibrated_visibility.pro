@@ -57,6 +57,8 @@
 ;                      
 ;   syserr_sigamp: percentage of systematic error added in quadrature to the error on the visibility amplitudes derived
 ;                  from statistical and compression errors
+;                  
+;   no_small: if set, Moire patterns measured by small pixels are not plotted with 'stx_plot_moire_pattern'
 ;
 ; OUTPUTS:
 ;
@@ -73,16 +75,19 @@ function stx_construct_calibrated_visibility, path_sci_file, time_range, energy_
                                               path_bkg_file=path_bkg_file, elut_corr=elut_corr, xy_flare=xy_flare, $
                                               sumcase=sumcase, f2r_sep=f2r_sep, r2d_sep=r2d_sep, silent=silent, $
                                               subc_index=subc_index, phase_calib_factors=phase_calib_factors, $
-                                              amp_calib_factors=amp_calib_factors, syserr_sigamp = syserr_sigamp, _extra=extra
+                                              amp_calib_factors=amp_calib_factors, syserr_sigamp = syserr_sigamp, $
+                                              no_small=no_small, _extra=extra
 
 
-;; Create visibility structure
+;;*********** Create visibility structure
+
 vis = stx_construct_visibility(path_sci_file, time_range, energy_range, mapcenter, path_bkg_file=path_bkg_file, $
                                elut_corr=elut_corr, xy_flare=xy_flare, $
                                sumcase=sumcase, f2r_sep=f2r_sep, silent=silent, $
-                               subc_index=subc_index, _extra=extra)
+                               subc_index=subc_index, no_small=no_small, _extra=extra)
 
-;; Calibrate visibility
+;;*********** Calibrate visibility
+
 calibrated_vis = stx_calibrate_visibility(vis, phase_calib_factors=phase_calib_factors, $
                                           amp_calib_factors=amp_calib_factors, $
                                           syserr_sigamp = syserr_sigamp, r2d_sep=r2d_sep, f2r_sep=f2r_sep)

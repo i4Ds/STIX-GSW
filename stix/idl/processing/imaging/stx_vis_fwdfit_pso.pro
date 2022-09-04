@@ -280,9 +280,10 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
   ;rotate map to heliocentric view
   fwdfit_pso__map = fwdfit_pso_map
   fwdfit_pso__map.data = rotate(fwdfit_pso_map.data,1)
-
-  fwdfit_pso__map.xc = vis[0].xyoffset[0] + aux_data.stx_pointing[0]
-  fwdfit_pso__map.yc = vis[0].xyoffset[1] + aux_data.stx_pointing[1]
+  
+  this_mapcenter = stx_rtn2stx_coord(vis[0].xyoffset, aux_data, /inverse)
+  fwdfit_pso__map.xc = this_mapcenter[0]
+  fwdfit_pso__map.yc = this_mapcenter[1]
 
   fwdfit_pso__map=rot_map(fwdfit_pso__map,-aux_data.ROLL_ANGLE,rcenter=[0.,0.])
   fwdfit_pso__map.ROLL_ANGLE = 0.
