@@ -80,17 +80,7 @@ function stx_construct_calibrated_visibility, path_sci_file, time_range, energy_
                                               amp_calib_factors=amp_calib_factors, syserr_sigamp = syserr_sigamp, $
                                               no_small=no_small, no_rcr_check=no_rcr_check, _extra=extra
                                               
-default, subc_index, stx_label2ind(['10a','10b','10c','9a','9b','9c','8a','8b','8c','7a','7b','7c',$
-                                    '6a','6b','6c','5a','5b','5c','4a','4b','4c','3a','3b','3c'])
-
 ;;*********** Create visibility structure
-
-;; Compute all the visibilities (needed just for plot of visibility amplitudes vs resolution
-this_subc_index = stx_label2ind(['10a','10b','10c','9a','9b','9c',$
-                               '8a','8b','8c','7a','7b','7c',$
-                               '6a','6b','6c','5a','5b','5c',$
-                               '4a','4b','4c','3a','3b','3c',$
-                               '2a','2b','2c','1a','1b','1c'])
 
 vis = stx_construct_visibility(path_sci_file, time_range, energy_range, mapcenter, path_bkg_file=path_bkg_file, $
                                elut_corr=elut_corr, xy_flare=xy_flare, $
@@ -107,13 +97,7 @@ calibrated_vis = stx_calibrate_visibility(vis, phase_calib_factors=phase_calib_f
 
 if ~silent then stx_plot_vis_amp_vs_resolution, calibrated_vis
 
-;;*********** Find indices of the selected visibilities
 
-idx_vis = intarr(n_elements(subc_index))
-for i=0,n_elements(subc_index)-1 do begin
-  idx_vis[i] = where(calibrated_vis.ISC-1 eq subc_index[i])
-endfor
-
-return, calibrated_vis[idx_vis]
+return, calibrated_vis
 
 end

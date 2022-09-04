@@ -100,6 +100,10 @@ case sumcase of
   end
 end
 
+;; Check if 'sumcase' is compatible with pixel masks (i.e., if the selected pixels have been used)
+pixel_masks = reform(pixel_data.PIXEL_MASKS,4,3)
+
+if total(pixel_masks[*,pixel_ind]) lt 4.*n_elements(pixel_ind) then message, "Change 'sumcase': one of the selected pixels is not available"
 
 count_rates = reform(pixel_data.COUNTS, 32, 4, 3)
 ;; Compute total counts: saved in the pixel data structure
