@@ -75,9 +75,6 @@ aux_data = stx_create_auxiliary_data(aux_fits_file, time_range)
 mapcenter_stix = stx_hpc2stx_coord(mapcenter, aux_data)
 xy_flare_stix  = stx_hpc2stx_coord(xy_flare, aux_data)
 
-;mapcenter_stix_new1 = stx_coordinate_transform(mapcenter, aux_data)
-;xy_flare_stix      = stx_coordinate_transform(xy_flare, aux_data)
-
 vis=stx_construct_calibrated_visibility(path_sci_file, time_range, energy_range, mapcenter_stix, $
                                         path_bkg_file=path_bkg_file, xy_flare=xy_flare_stix)
 

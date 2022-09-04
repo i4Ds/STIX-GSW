@@ -66,6 +66,8 @@
 ;   silent: if set, plots are not displayed
 ;   
 ;   no_small: if set, Moire patterns measured by small pixels are not plotted with 'stx_plot_moire_pattern'
+;   
+;   no_rcr_check: if set, control on RCR change during the selected time interval is not performed. Default, 0
 ;             
 ; HISTORY: July 2022, Massa P., created
 ;
@@ -75,7 +77,7 @@
 
 function stx_construct_pixel_data, path_sci_file, time_range, energy_range, elut_corr=elut_corr, $
                                    path_bkg_file=path_bkg_file, xy_flare=xy_flare, subc_index=subc_index, $
-                                   sumcase=sumcase, silent=silent, no_small=no_small, _extra=extra
+                                   sumcase=sumcase, silent=silent, no_small=no_small, no_rcr_check=no_rcr_check, _extra=extra
 
 default, elut_corr, 1
 default, silent, 0
@@ -83,6 +85,7 @@ default, subc_index, stx_label2ind(['10a','10b','10c','9a','9b','9c','8a','8b','
                                    '6a','6b','6c','5a','5b','5c','4a','4b','4c','3a','3b','3c'])
 
 default, sumcase, "TOP+BOT"
+default, no_rcr_check, 0
 
 if anytim(time_range[0]) gt anytim(time_range[1]) then message, "Start time is greater than end time"
 if energy_range[0] gt energy_range[1] then message, "Energy range lower edge is greater than the higher edge"
@@ -319,7 +322,7 @@ endif
 
 rcr = data.rcr[time_ind]
 find_changes, rcr, index, state, count=count
-if count gt 1 then message, "RCR status changed in the selected time interval"
+if (count gt 1) and (~no_rcr_check) then message, "RCR status changed in the selected time interval"
 
 ;;************** Pixel masks and detector masks
 

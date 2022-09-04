@@ -51,6 +51,8 @@
 ;               Default, subcollimators labelled from 10 to 3.
 ;
 ;   no_small: if set, Moire patterns measured by small pixels are not plotted with 'stx_plot_moire_pattern'
+;   
+;   no_rcr_check: if set, control on RCR change during the selected time interval is not performed
 ;
 ; OUTPUTS:
 ;
@@ -84,14 +86,15 @@
 function stx_construct_visibility, path_sci_file, time_range, energy_range, mapcenter, path_bkg_file=path_bkg_file, $
                                    elut_corr=elut_corr, xy_flare=xy_flare, $
                                    sumcase=sumcase, f2r_sep=f2r_sep, silent=silent, $
-                                   subc_index=subc_index, no_small=no_small, _extra=extra
+                                   subc_index=subc_index, no_small=no_small, no_rcr_check=no_rcr_check, _extra=extra
 
 ;;************** Construct a 'stx_pixel_data_summed' structure
                              
 pixel_data_summed = stx_construct_pixel_data_summed(path_sci_file, time_range, energy_range, $
                                                     path_bkg_file=path_bkg_file, $
                                                     elut_corr=elut_corr, xy_flare=xy_flare, subc_index=subc_index, $
-                                                    sumcase=sumcase, silent=silent,no_small=no_small, _extra=extra)
+                                                    sumcase=sumcase, silent=silent,no_small=no_small, $
+                                                    no_rcr_check=no_rcr_check, _extra=extra)
 
 ;;************** Create an uncalibrated 'stx_visibility' structure from a the correpsonding 'stx_pixel_data_summed' structure
 

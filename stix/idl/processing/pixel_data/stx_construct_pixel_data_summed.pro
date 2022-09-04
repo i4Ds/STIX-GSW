@@ -47,7 +47,8 @@
 ;   silent: if set, no message is printed and no plot is displayed
 ;   
 ;   no_small: if set, Moire patterns measured by small pixels are not plotted with 'stx_plot_moire_pattern'
-;              
+;   
+;   no_rcr_check: if set, control on RCR change during the selected time interval is not performed
 ;
 ; HISTORY: July 2022, Massa P., created
 ;
@@ -57,13 +58,14 @@
 
 function stx_construct_pixel_data_summed, path_sci_file, time_range, energy_range, path_bkg_file=path_bkg_file, $
                                           elut_corr=elut_corr, xy_flare=xy_flare, $
-                                          subc_index=subc_index, sumcase=sumcase, silent=silent, no_small=no_small, _extra=extra                                                                           
+                                          subc_index=subc_index, sumcase=sumcase, silent=silent, no_small=no_small,$
+                                          no_rcr_check=no_rcr_check, _extra=extra                                                                           
 
 ;;************** Construct pixel data
 
 pixel_data = stx_construct_pixel_data(path_sci_file, time_range, energy_range, elut_corr=elut_corr, $
                                       path_bkg_file=path_bkg_file, xy_flare=xy_flare, subc_index=subc_index, sumcase=sumcase, $
-                                      silent=silent, no_small=no_small, _extra=extra)                                     
+                                      silent=silent, no_small=no_small, no_rcr_check=no_rcr_check, _extra=extra)                                     
 ;;************** Calibrate pixel data
   
 pixel_data_summed = stx_sum_pixel_data(pixel_data, subc_index=subc_index, sumcase=sumcase, silent=silent)
