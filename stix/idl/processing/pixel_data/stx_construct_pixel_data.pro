@@ -91,7 +91,7 @@ if anytim(time_range[0]) gt anytim(time_range[1]) then message, "Start time is g
 if energy_range[0] gt energy_range[1] then message, "Energy range lower edge is greater than the higher edge"
 
 
-stx_read_pixel_data_fits_file, path_sci_file, data_str = data, t_axis = t_axis, e_axis = e_axis, _extra=extra
+stx_read_pixel_data_fits_file, path_sci_file, data_str = data, t_axis = t_axis, e_axis = e_axis, alpha = alpha, _extra=extra
 
 if keyword_set(path_bkg_file) then begin
 
@@ -326,7 +326,15 @@ if (count gt 1) and (~no_rcr_check) then message, "RCR status changed in the sel
 
 ;;************** Pixel masks and detector masks
 
-pixel_masks    = data.PIXEL_MASKS[*,*,time_ind]
+if alpha then begin
+  
+  pixel_masks    = data.PIXEL_MASKS[*,*,time_ind]
+  
+endif else begin
+  
+  pixel_masks    = data.PIXEL_MASKS[*,time_ind]
+  
+endelse
 detector_masks = data.DETECTOR_MASKS[*,time_ind]
 
 diff_pixel_masks    = fltarr(n_elements(time_ind))
@@ -334,8 +342,15 @@ diff_detector_masks = fltarr(n_elements(time_ind))
 
 for i=0,n_elements(time_ind)-2 do begin
   
-  diff_pixel_masks[i]    = total(pixel_masks[*,*,i]-pixel_masks[*,*,i+1])
-  diff_detector_masks[i] = total(detector_masks[*,i]-detector_masks[*,i+1])
+  if alpha then begin
+
+    diff_pixel_masks[i] = total(pixel_masks[*,*,i]-pixel_masks[*,*,i+1])
+
+  endif else begin
+
+    diff_pixel_masks[i] = total(pixel_masks[*,i]-pixel_masks[*,i+1])
+
+  endelse
   
 endfor
 
@@ -366,7 +381,14 @@ endif else begin
 endelse
 
 pixel_data.RCR            = rcr[0]
-pixel_data.PIXEL_MASKS    = pixel_masks[*,*,0]
+
+if alpha then begin
+  pixels_used = where( total((data.pixel_masks)[*,*,0],1) eq 1, npix)
+  pixel_data.PIXEL_MASKS[pixels_used] = 1b
+endif else begin
+  pixel_data.PIXEL_MASKS    = pixel_masks[*,0]
+endelse
+  
 pixel_data.DETECTOR_MASKS = detector_masks[*,0]
 
 if ~silent then stx_plot_moire_pattern, pixel_data, no_small=no_small

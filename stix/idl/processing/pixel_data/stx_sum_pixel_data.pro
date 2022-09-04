@@ -114,7 +114,9 @@ counts_rates_error = n_elements( pixel_ind ) eq 1 ? reform(counts_rates_error[*,
 
 count_rates_bkg = reform(pixel_data.COUNTS_BKG, 32, 4, 3)
 ;; Compute total background counts: saved in the pixel data structure
-tot_counts_bkg  = total(total(count_rates_bkg[subc_index,*,pixel_ind],2),2)
+tot_counts_bkg  = n_elements(pixel_ind) eq 1 ? total(reform(count_rates_bkg[subc_index,*,pixel_ind]),2) : $
+                  total(total(count_rates_bkg[subc_index,*,pixel_ind],2),2)
+
 count_rates_bkg = n_elements( pixel_ind ) eq 1 ? reform(count_rates_bkg[*, *, pixel_ind]) : $
                   total( count_rates_bkg[*, *, pixel_ind], 3 )
               

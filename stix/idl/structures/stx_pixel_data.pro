@@ -37,7 +37,7 @@ function stx_pixel_data
     counts_error_bkg      : dblarr(32,12), $            ; Errors associated with the measured background counts (statistics + compression) 
     xy_flare              : fltarr(2),  $               ; Estimate of the flare location used for grids' transmission correction
     rcr                   : byte(0), $                  ; Rate Control Regime (RCR) status
-    pixel_masks           : bytarr(12,12), $            ; Matrix containing information on the pixels used for the measurement
+    pixel_masks           : bytarr(12), $               ; Matrix containing information on the pixels used for the measurement
     detector_masks        : bytarr(32) $                ; Matrix containing information on the detectors used for the measurement
   }
 end

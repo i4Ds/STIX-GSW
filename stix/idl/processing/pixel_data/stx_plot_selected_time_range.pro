@@ -60,15 +60,15 @@ if keyword_set(counts_bkg) then bkg_level = counts_bkg[1:30,*,*]
 
 ;;********** Sum in energy
 
-if n_elements(energy_ind eq 1) then begin
+if n_elements(energy_ind) eq 1 then begin
   
-  lightcurve = reform(counts[energy_ind,*,*,*])
+  lightcurve = reform(lightcurve[energy_ind,*,*,*])
   if keyword_set(counts_bkg) then bkg_level = reform(bkg_level[energy_ind,*,*])
   
 
 endif else begin
   
-  lightcurve = total(counts[energy_ind,*,*,*],1)
+  lightcurve = total(lightcurve[energy_ind,*,*,*],1)
   if keyword_set(counts_bkg) then bkg_level = total(bkg_level[energy_ind,*,*],1)
   
 endelse
@@ -83,7 +83,7 @@ live_time_bins = cmreplicate(live_time_bins, 12)
 live_time_bins = transpose(live_time_bins,[2,0,1])
 if keyword_set(counts_bkg) then this_live_time_bkg = transpose(cmreplicate(live_time_bkg, 12))
 
-if n_elements(subc_index eq 1) then begin
+if n_elements(subc_index) eq 1 then begin
   
   lightcurve      = reform(lightcurve[*,subc_index,*]/live_time_bins[*,subc_index,*])
   eff_area        = reform(eff_area[*,subc_index])
@@ -130,7 +130,7 @@ lightcurve = reform(lightcurve, 4, 3, dim_lightcurve[1])
 eff_area   = reform(eff_area, 4, 3)
 if keyword_set(counts_bkg) then bkg_level = reform(bkg_level, 4, 3)
 
-if n_elements(pixel_ind eq 1) then begin
+if n_elements(pixel_ind) eq 1 then begin
   
   lightcurve = reform(lightcurve[*,pixel_ind,*])
   eff_area   = reform(eff_area[*,pixel_ind])
