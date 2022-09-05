@@ -85,7 +85,7 @@ function stx_construct_calibrated_visibility, path_sci_file, time_range, energy_
 vis = stx_construct_visibility(path_sci_file, time_range, energy_range, mapcenter, path_bkg_file=path_bkg_file, $
                                elut_corr=elut_corr, xy_flare=xy_flare, $
                                sumcase=sumcase, f2r_sep=f2r_sep, silent=silent, $
-                               subc_index=this_subc_index, no_small=no_small, no_rcr_check=no_rcr_check, _extra=extra)
+                               subc_index=subc_index, no_small=no_small, no_rcr_check=no_rcr_check, _extra=extra)
 
 ;;*********** Calibrate visibility
 
