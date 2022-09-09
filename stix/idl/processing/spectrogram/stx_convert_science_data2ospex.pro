@@ -78,7 +78,7 @@
 ;-
 pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims,  fits_path_bk = fits_path_bk,$
   distance = distance, fits_path_data = fits_path_data, fits_info_params = fits_info_params, flare_location = flare_location, eff_ewidth = eff_ewidth, sys_uncert = sys_uncert,  $
-  background_data = background_data, plot = plot, generate_fits = generate_fits, pickfile = pickfile, ospex_obj = ospex_obj
+  xspec = xspec, background_data = background_data, plot = plot, generate_fits = generate_fits, pickfile = pickfile, ospex_obj = ospex_obj
 
   default, plot, 0
 
@@ -195,6 +195,11 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
 
     total_error = corrected_error
 
+    background_data = { $
+      type          : "stx_background_data", $
+      counts        : 0L*corrected_counts, $
+      error         : 0L*corrected_error}
+      
   endelse
 
 
@@ -216,7 +221,7 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
   spec_in_corr = spec_in_corr[new_energies,*]
   total_error = total_error[new_energies,*]
   n_energies = n_energy_edges-1
-
+ 
   ;insert the information from the telemetry file into the expected stx_fsw_sd_spectrogram structure
   spectrogram = { $
     type          : "stx_fsw_sd_spectrogram", $
@@ -257,8 +262,8 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
   ph_in = [mean_phe[0] - w_phe[0], mean_phe]
 
   ospex_obj = stx_fsw_sd_spectrogram2ospex( spectrogram, specpar = specpar, time_shift= time_shift, ph_energy_edges = ph_in, $
-    /include_damage, generate_fits = generate_fits , /tail, livetime_fraction = eff_livetime_fraction, $
-    dist_factor = dist_factor, flare_location= flare_location, sys_uncert = sys_uncert, fits_info_params = fits_info_params )
+    /include_damage, generate_fits = generate_fits, xspec = xspec, /tail, livetime_fraction = eff_livetime_fraction, $
+    dist_factor = dist_factor, flare_location = flare_location, sys_uncert = sys_uncert, fits_info_params = fits_info_params, background_data = background_data)
 
   if keyword_set(plot) then begin
     ospex_obj ->gui

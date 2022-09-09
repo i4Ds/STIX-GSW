@@ -106,7 +106,7 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   default, flare_location, [0.,0.]
   default, shift_duration, 0
   default, plot, 1
-  default, det_ind, 'Coarse'
+  default, det_ind, 'top24'
 
   if data_type(det_ind) eq 7 then det_ind = stx_label2det_ind(det_ind)
   if data_type(pix_ind) eq 7 then pix_ind = stx_label2pix_ind(pix_ind)
