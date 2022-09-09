@@ -65,7 +65,8 @@
 ;                       -> rate keyword added
 ;    08-Aug-2022 - ECMD (Graz), added pixel and detector index selection for pixel data
 ;                               added keyword to allow the user to specify the systematic uncertainty
-;
+;    05-Sep-2022 - ECMD (Graz), added rcr info to output structure
+;                               suppress plotting when ospex object is created  
 ;
 ;-
 function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time_min = time_min,  $
@@ -93,10 +94,10 @@ function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time
 
   if strpos(orig_filename, 'cpd') gt -1 or strpos(orig_filename, 'xray-l1') gt -1 then begin
     stx_convert_pixel_data, fits_path_data = fits_path, fits_path_bk =  fits_path_bk, distance = distance, time_shift = time_shift, ospex_obj = ospex_obj, $
-      det_ind = det_ind, pix_ind = pix_ind, sys_uncert = sys_uncert, _extra= _extra
+      det_ind = det_ind, pix_ind = pix_ind, sys_uncert = sys_uncert, plot = 0, _extra= _extra
   endif else if strpos(orig_filename, 'spec') gt -1 or strpos(orig_filename, 'spectrogram') gt -1 then begin
     stx_convert_spectrogram, fits_path_data = fits_path, fits_path_bk =  fits_path_bk, distance = distance, time_shift = time_shift, ospex_obj = ospex_obj, $
-      sys_uncert = sys_uncert, _extra= _extra
+      sys_uncert = sys_uncert, plot = 0, _extra= _extra
     if keyword_set(det_ind) or keyword_set(pix_ind) then  message, 'ERROR: Detector and pixel selection not possible with spectrogram files.'
   endif else begin
     message, 'ERROR: the FILENAME field in the primary header should contain either cpd, xray-l1 or spec'
@@ -107,8 +108,10 @@ function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time
 
   ut_time = ospex_obj->getaxis(/ut, /edges_1)
   ut2_time = ospex_obj->getaxis(/ut, /edges_2)
+  ut2_time_all = ut2_time
   duration = ospex_obj->getaxis(/ut, /width)
-
+  filters_all = ospex_obj->get(/spex_interval_filter) 
+  
   ;use OSPEX bin_data method to bin counts in given energy bands
   energy_summed_counts = data_obj->bin_data(data = counts_str, intervals = energy_ranges, $
     eresult = energy_summed_error, ltime = energy_summed_ltime)
@@ -152,9 +155,13 @@ function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time
   origunits.data_name = 'STIX'
   ospex_obj->set, spex_data_origunits = origunits
   ospex_obj->set, spex_uncert = 0.05
-  ospex_obj -> set, spex_eband = energy_ranges
-  ospex_obj -> set, spex_tband = intervals
-
+  ospex_obj ->set, spex_eband = energy_ranges
+  ospex_obj ->set, spex_tband = intervals
+  ospex_obj->set, spex_fit_time_interval = intervals
+  
+  idx = transpose([[iall],[shift(iall,-1)-1]])
+  rcr  = spex_get_filter(filters_all,idx)
+  
   ; if the plot_obj keyword is present create a plotman window and plot the lightcurve
   if arg_present(plot_obj) then begin
     ospex_obj->plot_time,  spex_units=spex_units, /show_err, /show_filter
@@ -169,6 +176,7 @@ function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time
   ut2_time = ospex_obj->getaxis(/ut, /edges_2)
   duration = ospex_obj->getaxis(/ut, /width)
 
+
   light_curve_str = {$
     data:flux_str.data, $
     data_type:units.data_type, $
@@ -178,6 +186,7 @@ function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time
     ut:ut2_time, $
     duration:duration, $
     time_shift:time_shift, $
+    rcr:rcr, $
     energy_bands:energy_ranges}
 
   obj_destroy, ospex_obj
