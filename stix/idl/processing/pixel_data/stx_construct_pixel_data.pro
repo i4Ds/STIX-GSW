@@ -68,6 +68,9 @@
 ;   no_small: if set, Moire patterns measured by small pixels are not plotted with 'stx_plot_moire_pattern'
 ;   
 ;   no_rcr_check: if set, control on RCR change during the selected time interval is not performed. Default, 0
+;   
+;   shift_duration: if set, shift all time bins by 1 to account for FSW time input discrepancy prior to 09-Dec-2021.
+;                   N.B. WILL ONLY WORK WITH FULL TIME RESOLUTION DATA WHICH IS OFTEN NOT THE CASE FOR PIXEL DATA.
 ;             
 ; HISTORY: July 2022, Massa P., created
 ;          September 2022, Massa P., added 'shift_duration' keyword
