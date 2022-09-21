@@ -40,7 +40,7 @@ sock_copy, website_url + uid_bkg_file, out_name, status = status, out_dir = out_
 
 ; L2 auxiliary fits files server URL
 website_url = 'http://dataarchive.stix.i4ds.net/fits/L2/'
-file_name    = '2020/06/07/AUX/solo_L2_stix-aux-auxiliary_20200607_V01.fits'
+file_name    = '2020/06/07/AUX/solo_L2_stix-aux-ephemeris_20200607_V01.fits'
 
 sock_copy, website_url + file_name, out_name, status = status, out_dir = out_dir, $
            local_file=aux_fits_file, clobber=0
@@ -152,7 +152,7 @@ stop
 
 ;*************************************** VIS_FWDFIT ************************************************
 
-configuration = 'ellipse'
+configuration = ['circle','circle'];'ellipse'
 
 ; Comments:
 ; 1) use the keyword srcin to fix some of the parameters (and fit the remaining ones);

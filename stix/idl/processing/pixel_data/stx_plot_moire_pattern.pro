@@ -114,12 +114,16 @@ o32(g01)=[150,90,30]
 g_plot=[g10,g05,g09,g04,g08,g03,g07,g02,g06,g01]
 l_plot=[l10,l05,l09,l04,l08,l03,l07,l02,l06,l01]
 
-loadct,5
+loadct,39
 device, Window_State=win_state
 if not win_state[0] then window,0,xsize=900,ysize=800
 wset,0
 
 clearplot
+
+x_top_bot = [45,135,225,315]
+x_small   = x_top_bot - 22.5
+
 xmargin=0.08
 ymargin_top=0.12
 ymargin_bot=0.02
@@ -127,9 +131,9 @@ xleer=0.02
 yleer=0.03
 xim=(1-2*xmargin-xleer)/6.
 yim=(1-ymargin_top-ymargin_bot-4*yleer)/5.
-c_top=122
-c_bot=44
-c_small=200
+c_top=250
+c_bot=198
+c_small=70
 chs=1.0
 for i=0,29 do begin
   this_resolution=i/3
@@ -140,35 +144,35 @@ for i=0,29 do begin
   this_title=l_plot(i)+'('+strtrim(fix(g_plot(i)),2)+');'+strtrim(fix(res32(g_plot(i))),2)+'";'+strtrim(fix(o32(g_plot(i))),2)+'!Uo!N'
   if i ne 24 then begin
     if ~no_top then begin
-    plot,[0.5,1.5,2.5,3.5],counts_rates(g_plot(i),0:3),xtitle=' ',ytitle=' ',psym=-1,charsi=chs,yrange=[0,max(counts_rates(g_plot,*))],noe=i,xtickname=replicate(' ',9),ytickname=replicate(' ',9),xticks=8,xminor=1,xticklen=1d-22,title=this_title
-    oplot,[0.5,1.5,2.5,3.5],counts_rates(g_plot(i),0:3),psym=-1,color=c_top
-    errplot,[0.5,1.5,2.5,3.5],(counts_rates(g_plot(i),0:3)-counts_rates_error(g_plot(i),0:3)),(counts_rates(g_plot(i),0:3)+counts_rates_error(g_plot(i),0:3)),thick=th3,color=c_top
+    plot,x_top_bot,counts_rates(g_plot(i),0:3),xtitle=' ',ytitle=' ',psym=-1,charsi=chs,yrange=[0,max(counts_rates(g_plot,*))],noe=i,xtickname=replicate(' ',9),ytickname=replicate(' ',9),xticks=8,xminor=1,xticklen=1d-22,title=this_title
+    oplot,x_top_bot,counts_rates(g_plot(i),0:3),psym=-1,color=c_top
+    errplot,x_top_bot,(counts_rates(g_plot(i),0:3)-counts_rates_error(g_plot(i),0:3)),(counts_rates(g_plot(i),0:3)+counts_rates_error(g_plot(i),0:3)),thick=th3,color=c_top
     endif
     if ~no_bot then begin
-    if no_top then plot,[0.5,1.5,2.5,3.5],counts_rates(g_plot(i),4:7),xtitle=' ',ytitle=' ',psym=-1,charsi=chs,yrange=[0,max(counts_rates(g_plot,*))],noe=i,xtickname=replicate(' ',9),ytickname=replicate(' ',9),xticks=8,xminor=1,xticklen=1d-22,title=this_title
-    oplot,[0.5,1.5,2.5,3.5],counts_rates(g_plot(i),4:7),psym=-1,color=c_bot
-    errplot,[0.5,1.5,2.5,3.5],(counts_rates(g_plot(i),4:7)-counts_rates_error(g_plot(i),4:7)),(counts_rates(g_plot(i),4:7)+counts_rates_error(g_plot(i),*)),thick=th3,color=c_bot
+    if no_top then plot,x_top_bot,counts_rates(g_plot(i),4:7),xtitle=' ',ytitle=' ',psym=-1,charsi=chs,yrange=[0,max(counts_rates(g_plot,*))],noe=i,xtickname=replicate(' ',9),ytickname=replicate(' ',9),xticks=8,xminor=1,xticklen=1d-22,title=this_title
+    oplot,x_top_bot,counts_rates(g_plot(i),4:7),psym=-1,color=c_bot
+    errplot,x_top_bot,(counts_rates(g_plot(i),4:7)-counts_rates_error(g_plot(i),4:7)),(counts_rates(g_plot(i),4:7)+counts_rates_error(g_plot(i),*)),thick=th3,color=c_bot
     endif
     if ~no_small then begin
-    if no_top and no_bot then plot,[0.5,1.5,2.5,3.5],counts_rates(g_plot(i),8:11),xtitle=' ',ytitle=' ',psym=-1,charsi=chs,yrange=[0,max(counts_rates(g_plot,*))],noe=i,xtickname=replicate(' ',9),ytickname=replicate(' ',9),xticks=8,xminor=1,xticklen=1d-22,title=this_title
-    oplot,[0.5,1.5,2.5,3.5],counts_rates(g_plot(i),8:11),psym=-1,color=c_small
-    errplot,[0.5,1.5,2.5,3.5],(counts_rates(g_plot(i),8:11)-counts_rates_error(g_plot(i),8:11)),(counts_rates(g_plot(i),8:11)+counts_rates_error(g_plot(i),8:11)),thick=th3,color=c_small
+    if no_top and no_bot then plot,x_small,counts_rates(g_plot(i),8:11),xtitle=' ',ytitle=' ',psym=-1,charsi=chs,yrange=[0,max(counts_rates(g_plot,*))],noe=i,xtickname=replicate(' ',9),ytickname=replicate(' ',9),xticks=8,xminor=1,xticklen=1d-22,title=this_title
+    oplot,x_small,counts_rates(g_plot(i),8:11),psym=-1,color=c_small
+    errplot,x_small,(counts_rates(g_plot(i),8:11)-counts_rates_error(g_plot(i),8:11)),(counts_rates(g_plot(i),8:11)+counts_rates_error(g_plot(i),8:11)),thick=th3,color=c_small
     endif
   endif else begin
     if ~no_top then begin
-    plot,[0.5,1.5,2.5,3.5],counts_rates(g_plot(i),0:3),xtitle=' ',ytitle='cts/s/keV/cm^2',psym=-1,charsi=chs,yrange=[0,max(counts_rates(g_plot,*))],noe=i,xtickname=[' ','A',' ','B',' ','C',' ','D',' '],xticks=8,xminor=1,xticklen=1d-22,title=this_title
-    oplot,[0.5,1.5,2.5,3.5],counts_rates(g_plot(i),0:3),psym=-1,color=c_top
-    errplot,[0.5,1.5,2.5,3.5],(counts_rates(g_plot(i),0:3)-counts_rates_error(g_plot(i),0:3)),(counts_rates(g_plot(i),0:3)+counts_rates_error(g_plot(i),0:3)),thick=th3,color=c_top
+    plot,x_top_bot,counts_rates(g_plot(i),0:3),xtitle=' ',ytitle='cts/s/keV/cm^2',psym=-1,charsi=chs,yrange=[0,max(counts_rates(g_plot,*))],noe=i,xtickname=[' ','A',' ','B',' ','C',' ','D',' '],xticks=8,xminor=1,xticklen=1d-22,title=this_title
+    oplot,x_top_bot,counts_rates(g_plot(i),0:3),psym=-1,color=c_top
+    errplot,x_top_bot,(counts_rates(g_plot(i),0:3)-counts_rates_error(g_plot(i),0:3)),(counts_rates(g_plot(i),0:3)+counts_rates_error(g_plot(i),0:3)),thick=th3,color=c_top
     endif
     if ~no_bot then begin
-    if no_top then plot,[0.5,1.5,2.5,3.5],counts_rates(g_plot(i),4:7),xtitle=' ',ytitle='cts/s/keV/cm^2',psym=-1,charsi=chs,yrange=[0,max(counts_rates(g_plot,*))],noe=i,xtickname=[' ','A',' ','B',' ','C',' ','D',' '],xticks=8,xminor=1,xticklen=1d-22,title=this_title
-    oplot,[0.5,1.5,2.5,3.5],counts_rates(g_plot(i),4:7),psym=-1,color=c_bot
-    errplot,[0.5,1.5,2.5,3.5],(counts_rates(g_plot(i),4:7)-counts_rates_error(g_plot(i),4:7)),(counts_rates(g_plot(i),4:7)+counts_rates_error(g_plot(i),4:7)),thick=th3,color=c_bot
+    if no_top then plot,x_top_bot,counts_rates(g_plot(i),4:7),xtitle=' ',ytitle='cts/s/keV/cm^2',psym=-1,charsi=chs,yrange=[0,max(counts_rates(g_plot,*))],noe=i,xtickname=[' ','A',' ','B',' ','C',' ','D',' '],xticks=8,xminor=1,xticklen=1d-22,title=this_title
+    oplot,x_top_bot,counts_rates(g_plot(i),4:7),psym=-1,color=c_bot
+    errplot,x_top_bot,(counts_rates(g_plot(i),4:7)-counts_rates_error(g_plot(i),4:7)),(counts_rates(g_plot(i),4:7)+counts_rates_error(g_plot(i),4:7)),thick=th3,color=c_bot
     endif
     if ~no_small then begin
-    if no_top and no_bot then plot,[0.5,1.5,2.5,3.5],counts_rates(g_plot(i),8:11),xtitle=' ',ytitle='cts/s/keV/cm^2',psym=-1,charsi=chs,yrange=[0,max(counts_rates(g_plot,*))],noe=i,xtickname=[' ','A',' ','B',' ','C',' ','D',' '],xticks=8,xminor=1,xticklen=1d-22,title=this_title
-    oplot,[0.5,1.5,2.5,3.5],counts_rates(g_plot(i),8:11),psym=-1,color=c_small
-    errplot,[0.5,1.5,2.5,3.5],(counts_rates(g_plot(i),8:11)-counts_rates_error(g_plot(i),8:11)),(counts_rates(g_plot(i),8:11)+counts_rates_error(g_plot(i),8:11)),thick=th3,color=c_small
+    if no_top and no_bot then plot,x_small,counts_rates(g_plot(i),8:11),xtitle=' ',ytitle='cts/s/keV/cm^2',psym=-1,charsi=chs,yrange=[0,max(counts_rates(g_plot,*))],noe=i,xtickname=[' ','A',' ','B',' ','C',' ','D',' '],xticks=8,xminor=1,xticklen=1d-22,title=this_title
+    oplot,x_small,counts_rates(g_plot(i),8:11),psym=-1,color=c_small
+    errplot,x_small,(counts_rates(g_plot(i),8:11)-counts_rates_error(g_plot(i),8:11)),(counts_rates(g_plot(i),8:11)+counts_rates_error(g_plot(i),8:11)),thick=th3,color=c_small
     endif
   endelse
 endfor
