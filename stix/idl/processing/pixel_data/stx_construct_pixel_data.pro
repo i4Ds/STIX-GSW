@@ -70,6 +70,7 @@
 ;   no_rcr_check: if set, control on RCR change during the selected time interval is not performed. Default, 0
 ;             
 ; HISTORY: July 2022, Massa P., created
+;          September 2022, Massa P., added 'shift_duration' keyword
 ;
 ; CONTACT:
 ;   paolo.massa@wku.edu
@@ -77,7 +78,8 @@
 
 function stx_construct_pixel_data, path_sci_file, time_range, energy_range, elut_corr=elut_corr, $
                                    path_bkg_file=path_bkg_file, xy_flare=xy_flare, subc_index=subc_index, $
-                                   sumcase=sumcase, silent=silent, no_small=no_small, no_rcr_check=no_rcr_check, _extra=extra
+                                   sumcase=sumcase, silent=silent, no_small=no_small, no_rcr_check=no_rcr_check, $
+                                   shift_duration=shift_duration, _extra=extra
 
 default, elut_corr, 1
 default, silent, 0
@@ -91,7 +93,7 @@ if anytim(time_range[0]) gt anytim(time_range[1]) then message, "Start time is g
 if energy_range[0] gt energy_range[1] then message, "Energy range lower edge is greater than the higher edge"
 
 
-stx_read_pixel_data_fits_file, path_sci_file, data_str = data, t_axis = t_axis, e_axis = e_axis, alpha = alpha, _extra=extra
+stx_read_pixel_data_fits_file, path_sci_file, data_str = data, t_axis = t_axis, e_axis = e_axis, alpha = alpha, shift_duration=shift_duration, _extra=extra
 
 if keyword_set(path_bkg_file) then begin
 
