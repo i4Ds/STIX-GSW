@@ -15,7 +15,9 @@
 ;                array containing the UTC start time and end time of the considered time range      
 ;
 ; :keywords:
-;    use_sas: is set, avoid check on the reliability and use SAS solution for providing an estimate of STIX pointing 
+;    use_sas: if set, avoid check on the reliability and use SAS solution for providing an estimate of STIX pointing 
+;    dont_use_sas: if set, bypass SAS solution and use spacecraft pointing (corrected for systematics) instead
+;    silent: if set, don't dieplay information regarding pointing
 ;
 ; :returns:
 ;
@@ -30,48 +32,105 @@
 ; :history:
 ;
 ;    May 1, 2022: Massa P. (MIDA, Unige), created
-;
+;    2022-08-24, F. Schuller (AIP, Germany): implemented interpolation if no measurement found in time range
+;    2022-09-09, FSc: added optional argument 'dont_use_sas'
+;    2022-09-23, FSc: keyword 'silent' added; if not set, now displays messages about the pointing correction used
 ;-
-function stx_create_auxiliary_data, fits_path, time_range, use_sas=use_sas
+function stx_create_auxiliary_data, fits_path, time_range, use_sas=use_sas, dont_use_sas=dont_use_sas, silent=silent
 
-default, use_sas, 0
+  default, use_sas, 0
+  default, dont_use_sas, 0
+  default, silent, 0
+
 stx_read_aux_fits, fits_path, aux_data=aux_data_str
 
 ;************** Get the indices corresponding to the considered time range
 this_time_range = anytim(time_range)
 time_data       = anytim(aux_data_str.TIME_UTC)
+time_data      -= 32.   ; shift AUX data by half a time bin (starting time vs. bin centre)
 
 ;; CHECK: if the considered time interval is not contained in the time range of the aux_data structure, then throw an error
-if this_time_range[0] lt min(time_data) or $
-   this_time_range[1] lt min(time_data) or $
-   this_time_range[0] gt max(time_data) or $
-   this_time_range[1] gt max(time_data) then $
+if this_time_range[1] lt min(time_data) or $
+   this_time_range[0] gt max(time_data) then $
    message, "The aux fits file does not contain information for the considered time range."
 
-time_ind = where((time_data ge this_time_range[0]) and (time_data le this_time_range[1]))
+time_ind = where((time_data ge this_time_range[0]) and (time_data le this_time_range[1]), nb_within)
+; if time range is too short to contain any measurement, interpolate between nearest values
+if not nb_within then begin
+  time_middle = (this_time_range[0]+this_time_range[1])/2.
+  time_diff   = time_data - time_middle
+  t_near = where(abs(time_diff) eq min(abs(time_diff)))  &  t_near = t_near[0]
+  if time_diff[t_near] gt 0 then begin
+    t_before = t_near-1  &  t_after = t_near
+  endif else begin
+    t_before = t_near  &  t_after = t_near+1
+  endelse
 
-;************* Compute the average of the values of interest over the considered time range
+  ; Compute interpolated values for all parameters
+  ; Aspect solution
+  X_SAS = ((time_data[t_after]-time_middle) * aux_data_str[t_before].Y_SRF + $
+           (time_middle-time_data[t_before]) * aux_data_str[t_after].Y_SRF) / $
+           (time_data[t_after]-time_data[t_before])
+  Y_SAS = -1.*((time_data[t_after]-time_middle) * aux_data_str[t_before].Z_SRF + $
+           (time_middle-time_data[t_before]) * aux_data_str[t_after].Z_SRF) / $
+           (time_data[t_after]-time_data[t_before])
 
-; Aspect solution
-X_SAS = average(aux_data_str[time_ind].Y_SRF)
-Y_SAS = -average(aux_data_str[time_ind].Z_SRF)
+  ; Apparent solar radius (arcsec)
+  RSUN = ((time_data[t_after]-time_middle) * aux_data_str[t_before].spice_disc_size + $
+          (time_middle-time_data[t_before]) * aux_data_str[t_after].spice_disc_size) / $
+          (time_data[t_after]-time_data[t_before])
+  RSUN = float(RSUN)
 
-;Apparent solar radius (arcsec)
-RSUN = average(aux_data_str[time_ind].spice_disc_size)
+  ;Roll angle (degrees)
+  ROLL_ANGLE = ((time_data[t_after]-time_middle) * aux_data_str[t_before].ROLL_ANGLE_RPY[0] + $
+                (time_middle-time_data[t_before]) * aux_data_str[t_after].ROLL_ANGLE_RPY[0]) / $
+                (time_data[t_after]-time_data[t_before])
+  ROLL_ANGLE = float(ROLL_ANGLE)
 
-;Roll angle (degrees)
-ROLL_ANGLE = average(aux_data_str[time_ind].ROLL_ANGLE_RPY[0])
+  ;Yaw (arcsec)
+  YAW = ((time_data[t_after]-time_middle) * aux_data_str[t_before].ROLL_ANGLE_RPY[2] + $
+         (time_middle-time_data[t_before]) * aux_data_str[t_after].ROLL_ANGLE_RPY[2]) / $
+         (time_data[t_after]-time_data[t_before])
+  YAW = -1.*float(YAW) * 3600.
 
-;Yaw (arcsec)
-YAW = -average(aux_data_str[time_ind].ROLL_ANGLE_RPY[2] * 3600.)
-;Pitch (arcsec)
-PITCH = average(aux_data_str[time_ind].ROLL_ANGLE_RPY[1] * 3600.)
+  ;Pitch (arcsec)
+  PITCH = ((time_data[t_after]-time_middle) * aux_data_str[t_before].ROLL_ANGLE_RPY[1] + $
+           (time_middle-time_data[t_before]) * aux_data_str[t_after].ROLL_ANGLE_RPY[1]) / $
+           (time_data[t_after]-time_data[t_before])
+  PITCH = float(PITCH) * 3600.
+ 
+  ;L0 (degrees)
+  L0 = ((time_data[t_after]-time_middle) * aux_data_str[t_before].solo_loc_carrington_lonlat[0] + $
+        (time_middle-time_data[t_before]) * aux_data_str[t_after].solo_loc_carrington_lonlat[0]) / $
+        (time_data[t_after]-time_data[t_before])
+  L0 = float(L0)
 
-;L0 (degrees)
-L0 = average(aux_data_str[time_ind].solo_loc_carrington_lonlat[0])
+  ;B0 (degrees)
+  B0 = ((time_data[t_after]-time_middle) * aux_data_str[t_before].solo_loc_carrington_lonlat[1] + $
+        (time_middle-time_data[t_before]) * aux_data_str[t_after].solo_loc_carrington_lonlat[1]) / $
+        (time_data[t_after]-time_data[t_before])
+  B0 = float(B0)
 
-;B0 (degrees)
-B0 =average(aux_data_str[time_ind].solo_loc_carrington_lonlat[1])
+endif else begin
+  ;************* Compute the average of the values of interest over the considered time range
+  ; Aspect solution
+  X_SAS = average(aux_data_str[time_ind].Y_SRF)
+  Y_SAS = -average(aux_data_str[time_ind].Z_SRF)
+
+  ; Apparent solar radius (arcsec)
+  RSUN = average(aux_data_str[time_ind].spice_disc_size)
+  ;Roll angle (degrees)
+  ROLL_ANGLE = average(aux_data_str[time_ind].ROLL_ANGLE_RPY[0])
+  ;Yaw (arcsec)
+  YAW = -average(aux_data_str[time_ind].ROLL_ANGLE_RPY[2] * 3600.)
+  ;Pitch (arcsec)
+  PITCH = average(aux_data_str[time_ind].ROLL_ANGLE_RPY[1] * 3600.)
+  ;L0 (degrees)
+  L0 = average(aux_data_str[time_ind].solo_loc_carrington_lonlat[0])
+  ;B0 (degrees)
+  B0 =average(aux_data_str[time_ind].solo_loc_carrington_lonlat[1])
+endelse
+
 
 ;; Rotate YAW and PITCH by roll angle (for passing from SOLO_SUN_RTN to the spacecraft reference frame)
 ROT_YAW   = YAW * cos(ROLL_ANGLE * !dtor) + PITCH * sin(ROLL_ANGLE * !dtor)
@@ -82,22 +141,41 @@ ROT_PITCH = -YAW * sin(ROLL_ANGLE * !dtor) + PITCH * cos(ROLL_ANGLE * !dtor)
 ; use it. Otherwise, use spacecraft pointing estimate
 
 readcol, loc_file( 'Mapcenter_correction_factors.csv', path = getenv('STX_VIS_DEMO') ), $
-  avg_shift_x, avg_shift_y, offset_x, offset_y
+  avg_shift_x, avg_shift_y, offset_x, offset_y, /silent
 
-STX_POINTING = [avg_shift_x,avg_shift_y] + [ROT_YAW, ROT_PITCH]
+spacecraft_pointing = [avg_shift_x,avg_shift_y] + [ROT_YAW, ROT_PITCH]
 
 if ~X_SAS.isnan() and ~Y_SAS.isnan() then begin
 
-  sas_pointing        = [X_SAS, Y_SAS]
-  spacecraft_pointing = [ROT_YAW, ROT_PITCH]
-  
-  if norm(sas_pointing - spacecraft_pointing) lt 200. or use_sas then begin
-    
-    STX_POINTING = [X_SAS, Y_SAS] + [offset_x, offset_y]  
-    
+  if ~silent then begin
+    print, " -- STX_CREATE_AUXILIARY_DATA : "
+    print, X_SAS, Y_SAS, format='(" --- found (Y_SRF, -Z_SRF) = ", F7.1,",",F7.1)'
   endif
+  ; Correct SAS solution for systematic error measured in 2021
+  X_SAS += offset_X  &  Y_SAS += offset_Y
+  sas_pointing = [X_SAS, Y_SAS]
 
-endif  
+  if ~silent then begin
+    print, X_SAS, Y_SAS, format='("  ==> STIX (SAS) pointing = ", F7.1,",",F7.1)'
+    print, ROT_YAW, ROT_PITCH, format='(" --- spacecraft pointing = ", F7.1,",",F7.1)'
+    print, spacecraft_pointing[0], spacecraft_pointing [1], format='("  ==> s/c pointing + systematics = ", F7.1,",",F7.1)'
+  endif
+;;  spacecraft_pointing = [ROT_YAW, ROT_PITCH]
+
+  STX_POINTING = spacecraft_pointing
+  diff_ptg = norm(sas_pointing - spacecraft_pointing)
+
+  if diff_ptg lt 200. or use_sas then begin
+    if not keyword_set(dont_use_sas) then $
+      STX_POINTING = sas_pointing $
+    else if ~silent then print, " --- Using spacecraft pointing (and NOT SAS solution)."
+  endif else if ~silent then print," --- difference greater than 200 arcsec, using spacecraft pointing."
+endif
+
+if ~silent then begin
+  print
+  print, STX_POINTING[0], STX_POINTING[1], format='(" --- using STIX pointing = ", F7.1,",",F7.1)'
+endif
 
 aux_data = {STX_POINTING: STX_POINTING, $
             RSUN: RSUN, $
