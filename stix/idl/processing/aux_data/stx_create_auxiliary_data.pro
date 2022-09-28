@@ -153,9 +153,9 @@ readcol, loc_file( 'Mapcenter_correction_factors.csv', path = getenv('STX_VIS_DE
   avg_shift_x, avg_shift_y, offset_x, offset_y, /silent
 
 spacecraft_pointing = [avg_shift_x,avg_shift_y] + [ROT_YAW, ROT_PITCH]
+STX_POINTING = spacecraft_pointing
 
 if ~X_SAS.isnan() and ~Y_SAS.isnan() then begin
-
   if ~silent then begin
     print, " + STX_CREATE_AUXILIARY_DATA : "
     print, X_SAS, Y_SAS, format='(" --- found (Y_SRF, -Z_SRF) = ", F7.1,",",F7.1)'
@@ -170,9 +170,7 @@ if ~X_SAS.isnan() and ~Y_SAS.isnan() then begin
     print, ROT_YAW, ROT_PITCH, format='(" --- spacecraft pointing = ", F7.1,",",F7.1)'
     print, spacecraft_pointing[0], spacecraft_pointing [1], format='("  ==> s/c pointing + systematics = ", F7.1,",",F7.1)'
   endif
-;;  spacecraft_pointing = [ROT_YAW, ROT_PITCH]
 
-  STX_POINTING = spacecraft_pointing
   diff_ptg = norm(sas_pointing - spacecraft_pointing)
 
   if diff_ptg lt 200. or use_sas then begin
@@ -180,7 +178,7 @@ if ~X_SAS.isnan() and ~Y_SAS.isnan() then begin
       STX_POINTING = sas_pointing $
     else if ~silent then print, " --- Using spacecraft pointing (and NOT SAS solution)."
   endif else if ~silent then print," --- difference greater than 200 arcsec, using spacecraft pointing."
-endif
+endif else if ~silent then print," SAS solution not available, using spacecraft pointing."
 
 if ~silent then begin
   print
