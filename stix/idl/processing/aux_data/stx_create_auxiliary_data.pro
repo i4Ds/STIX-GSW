@@ -35,6 +35,7 @@
 ;    2022-08-24, F. Schuller (AIP, Germany): implemented interpolation if no measurement found in time range
 ;    2022-09-09, FSc: added optional argument 'dont_use_sas'
 ;    2022-09-23, FSc: keyword 'silent' added; if not set, now displays messages about the pointing correction used
+;    2022-09-28, FSc: displays a warning if dispersion in pointing > 3 arcsec
 ;-
 function stx_create_auxiliary_data, fits_path, time_range, use_sas=use_sas, dont_use_sas=dont_use_sas, silent=silent
 
@@ -56,7 +57,8 @@ if this_time_range[1] lt min(time_data) or $
 
 time_ind = where((time_data ge this_time_range[0]) and (time_data le this_time_range[1]), nb_within)
 ; if time range is too short to contain any measurement, interpolate between nearest values
-if not nb_within then begin
+if ~nb_within then begin
+  if ~silent then print, " + STX_CREATE_AUXILIARY_DATA : no measurement found, doing interpolation."
   time_middle = (this_time_range[0]+this_time_range[1])/2.
   time_diff   = time_data - time_middle
   t_near = where(abs(time_diff) eq min(abs(time_diff)))  &  t_near = t_near[0]
@@ -74,6 +76,7 @@ if not nb_within then begin
   Y_SAS = -1.*((time_data[t_after]-time_middle) * aux_data_str[t_before].Z_SRF + $
            (time_middle-time_data[t_before]) * aux_data_str[t_after].Z_SRF) / $
            (time_data[t_after]-time_data[t_before])
+  sigma_X = 0.  &  sigma_Y = 0.
 
   ; Apparent solar radius (arcsec)
   RSUN = ((time_data[t_after]-time_middle) * aux_data_str[t_before].spice_disc_size + $
@@ -116,7 +119,13 @@ endif else begin
   ; Aspect solution
   X_SAS = average(aux_data_str[time_ind].Y_SRF)
   Y_SAS = -average(aux_data_str[time_ind].Z_SRF)
-
+  ; Also compute sigma and issue a warning if above 3 arcsec
+  tolerance = 3.
+  if nb_within gt 1 then sigma_X = sigma(aux_data_str[time_ind].Y_SRF) else sigma_X = 0.
+  if nb_within gt 1 then sigma_Y = sigma(aux_data_str[time_ind].Z_SRF) else sigma_Y = 0.
+  if sigma_X gt tolerance then print, sigma_X, format='(" *** WARNING - pointing unstable [rms(X) = ",F6.1," arcsec]")'
+  if sigma_Y gt tolerance then print, sigma_Y, format='(" *** WARNING - pointing unstable [rms(Y) = ",F6.1," arcsec]")'
+  
   ; Apparent solar radius (arcsec)
   RSUN = average(aux_data_str[time_ind].spice_disc_size)
   ;Roll angle (degrees)
@@ -148,15 +157,16 @@ spacecraft_pointing = [avg_shift_x,avg_shift_y] + [ROT_YAW, ROT_PITCH]
 if ~X_SAS.isnan() and ~Y_SAS.isnan() then begin
 
   if ~silent then begin
-    print, " -- STX_CREATE_AUXILIARY_DATA : "
+    print, " + STX_CREATE_AUXILIARY_DATA : "
     print, X_SAS, Y_SAS, format='(" --- found (Y_SRF, -Z_SRF) = ", F7.1,",",F7.1)'
+    print, sigma_X, sigma_Y, format='("                 std. dev. = ", F7.1,",",F7.1)'
   endif
   ; Correct SAS solution for systematic error measured in 2021
   X_SAS += offset_X  &  Y_SAS += offset_Y
   sas_pointing = [X_SAS, Y_SAS]
 
   if ~silent then begin
-    print, X_SAS, Y_SAS, format='("  ==> STIX (SAS) pointing = ", F7.1,",",F7.1)'
+    print, X_SAS, Y_SAS, format='("  ==>  STIX (SAS) pointing = ", F7.1,",",F7.1)'
     print, ROT_YAW, ROT_PITCH, format='(" --- spacecraft pointing = ", F7.1,",",F7.1)'
     print, spacecraft_pointing[0], spacecraft_pointing [1], format='("  ==> s/c pointing + systematics = ", F7.1,",",F7.1)'
   endif
