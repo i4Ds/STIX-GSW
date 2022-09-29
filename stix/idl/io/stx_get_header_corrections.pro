@@ -28,7 +28,7 @@
 ;
 ; :examples:
 ;
-;    fits_path = loc_file('solo_L1A_stix-sci-spectrogram-2104170001_20210417T153019-20210417T171825_033898_V01.fits', path = concat_dir( getenv('stx_demo_data'),'ospex',/dir) )
+;    fits_path = loc_file('solo_L1A_stix-sci-spectrogram-2104170001_20210417T153019-20210417T171825_033898_V01.fits', path = concat_dir( getenv('STX_DEMO_DATA'),'ospex',/dir) )
 ;    stx_get_header_corrections, fits_path, distance = distance, time_shift = time_shift
 ;
 ; :history:

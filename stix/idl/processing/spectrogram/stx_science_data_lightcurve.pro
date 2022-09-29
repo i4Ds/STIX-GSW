@@ -220,7 +220,7 @@ pro stx_demo_lightcurve
   site = 'http://dataarchive.stix.i4ds.net/data/demo/ospex/'
 
   ;The OSPEX folder in under stx_demo_data will usually start off empty on initial installation of the STIX software
-  out_dir = concat_dir( getenv('stx_demo_data'),'ospex', /d)
+  out_dir = concat_dir( getenv('STX_DEMO_DATA'),'ospex', /d)
 
   ;if the ospex demo database folder is not present then create it
   if ~file_test(out_dir, /directory) then begin

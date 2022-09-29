@@ -45,7 +45,6 @@
 #
 
 
-
 # Variable Definitions and Assignements
 # -------------------------------------
 setenv STX_CONF		$SSW_STIX/dbase/conf
@@ -56,12 +55,4 @@ setenv STX_CFL		$SSW_STIX/dbase/cfl
 setenv STX_VIS_PHASE	$SSW_STIX/dbase/vis_phase
 setenv STX_SAS		$SSW_STIX/dbase/sas
 
-# hack for case-sensitive operative systems
-setenv stx_conf		$SSW_STIX/dbase/conf
-setenv stx_grid 	$SSW_STIX/dbase/grid
-setenv stx_demo_data 	$SSW_STIX/dbase/demo
-setenv stx_det  	$SSW_STIX/dbase/detector
-setenv stx_cfl  	$SSW_STIX/dbase/cfl
-setenv stx_vis_phase	$SSW_STIX/dbase/vis_phase
-setenv stx_sas		$SSW_STIX/dbase/sas
 
