@@ -63,6 +63,7 @@ xy_flare      = mapcenter     ; Estimated flare location (Helioprojective Cartes
 ; - B0: Heliographic latitude in degrees
 aux_data = stx_create_auxiliary_data(aux_fits_file, time_range)
 
+stx_estimate_flare_location, path_sci_file, time_range, aux_data, flare_loc=flare_loc, path_bkg_file=path_bkg_file
 
 ; Compute the array of detector indices (from 0 to 31) from the corresponding labels.
 ; Used for selecting the detectors to consider for making the images
