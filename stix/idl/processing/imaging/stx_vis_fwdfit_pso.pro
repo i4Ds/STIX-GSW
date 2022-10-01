@@ -67,8 +67,6 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
 
   ; stix view
   this_vis = vis
-  this_vis.xyoffset[0] = vis.xyoffset[1]
-  this_vis.xyoffset[1] = - vis.xyoffset[0]
   
   roll_angle = aux_data.ROLL_ANGLE * !dtor
 
@@ -98,8 +96,7 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
         ON_IOError, x_stix_c
         ; Cause type conversion error.
         if flag1 then this_x_c = double(srcin.circle[j].param_opt.param_x)
-        ;cos(roll_angle) * double(srcin.circle[j].param_opt.param_x) + sin(roll_angle)* double(srcin.circle[j].param_opt.param_y); - aux_data.stx_pointing[1];58.2)
-
+        
         flag2=1
         Catch, theError
         IF theError NE 0 THEN BEGIN
@@ -112,18 +109,19 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
         ON_IOError, y_stix_c
         ; Cause type conversion error.
         if flag2 then this_y_c = double(srcin.circle[j].param_opt.param_y)
-        ;- sin(roll_angle) * double(srcin.circle[j].param_opt.param_x) + cos(roll_angle)* double(srcin.circle[j].param_opt.param_y);- aux_data.stx_pointing[0];58.2)
-
+       
 
         if (((flag1 eq 0) and (flag2 eq 1)) or ((flag1 eq 1 ) and (flag2 eq 0))) then begin
           Catch, /Cancel
           message, "Fix both x and y positions or none of them."
         endif
         if ((flag1 eq 1) and (flag2 eq 1)) then begin
-          this_x_c = cos(roll_angle) * double(srcin.circle[j].param_opt.param_x) + sin(roll_angle)* double(srcin.circle[j].param_opt.param_y); - aux_data.stx_pointing[1];58.2)
-          this_y_c = - sin(roll_angle) * double(srcin.circle[j].param_opt.param_x) + cos(roll_angle)* double(srcin.circle[j].param_opt.param_y);- aux_data.stx_pointing[0];58.2)
-          srcin.circle[j].param_opt.param_y = string(- this_x_c + aux_data.stx_pointing[0])
-          srcin.circle[j].param_opt.param_x = string(this_y_c - aux_data.stx_pointing[1])
+
+          this_xy_c = stx_hpc2stx_coord([double(srcin.circle[j].param_opt.param_x),double(srcin.circle[j].param_opt.param_y)], aux_data)
+          
+          srcin.circle[j].param_opt.param_x = string(this_xy_c[0])
+          srcin.circle[j].param_opt.param_y = string(this_xy_c[1])
+          
         endif
 
         
@@ -145,8 +143,7 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
         ON_IOError, x_stix_e
         ; Cause type conversion error.
         if flag3 then this_x_e = double(srcin.ellipse[j].param_opt.param_x)
-        ;cos(roll_angle) * double(srcin.ellipse[j].param_opt.param_x) + sin(roll_angle)* double(srcin.ellipse[j].param_opt.param_y); - aux_data.stx_pointing[1];58.2)
-
+        
         flag4=1
         Catch, theError
         IF theError NE 0 THEN BEGIN
@@ -159,17 +156,18 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
         ON_IOError, y_stix_e
         ; Cause type conversion error.
         if flag4 then this_y_e = double(srcin.ellipse[j].param_opt.param_y)
-        ;- sin(roll_angle) * double(srcin.ellipse[j].param_opt.param_x) + cos(roll_angle)* double(srcin.ellipse[j].param_opt.param_y);- aux_data.stx_pointing[0];58.2)
         
         if (((flag3 eq 0) and (flag4 eq 1)) or ((flag3 eq 1 ) and (flag4 eq 0))) then begin
           Catch, /Cancel
           message, "Fix both x and y positions or none of them."
         endif
         if ((flag3 eq 1) and (flag4 eq 1)) then begin
-          this_x_e = cos(roll_angle) * double(srcin.ellipse[j].param_opt.param_x) + sin(roll_angle)* double(srcin.ellipse[j].param_opt.param_y); - aux_data.stx_pointing[1];58.2)
-          this_y_e =  - sin(roll_angle) * double(srcin.ellipse[j].param_opt.param_x) + cos(roll_angle)* double(srcin.ellipse[j].param_opt.param_y);- aux_data.stx_pointing[0];58.2)
-          srcin.ellipse[j].param_opt.param_y = string( - this_x_e + aux_data.stx_pointing[0])
-          srcin.ellipse[j].param_opt.param_x = string(this_y_e - aux_data.stx_pointing[1])
+        
+          this_xy_e = stx_hpc2stx_coord([double(srcin.ellipse[j].param_opt.param_x),double(srcin.ellipse[j].param_opt.param_y)], aux_data)
+
+          srcin.ellipse[j].param_opt.param_x = string(this_xy_e[0])
+          srcin.ellipse[j].param_opt.param_y = string(this_xy_e[1])
+        
         endif
 
         
@@ -204,8 +202,7 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
         ON_IOError, x_stix_l
         ; Cause type conversion error.
         if flag5 then this_x_l =  double(srcin.loop[j].param_opt.param_x)
-        ;cos(roll_angle) * double(srcin.loop[j].param_opt.param_x) + sin(roll_angle)* double(srcin.loop[j].param_opt.param_y); - aux_data.stx_pointing[1];58.2)
-
+        
         flag6=1
         Catch, theError
         IF theError NE 0 THEN BEGIN
@@ -218,17 +215,18 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
         ON_IOError, y_stix_l
         ; Cause type conversion error.
         if flag6 then this_y_l = double(srcin.loop[j].param_opt.param_y)
-        ;- sin(roll_angle) * double(srcin.loop[j].param_opt.param_x) + cos(roll_angle)* double(srcin.loop[j].param_opt.param_y);- aux_data.stx_pointing[0];58.2)
-      
+        
         if (((flag5 eq 0) and (flag6 eq 1)) or ((flag5 eq 1 ) and (flag6 eq 0))) then begin
           Catch, /Cancel
           message, "Fix both x and y positions or none of them."
         endif
         if ((flag5 eq 1) and (flag6 eq 1)) then begin
-          this_x_l =  cos(roll_angle) * double(srcin.loop[j].param_opt.param_x) + sin(roll_angle)* double(srcin.loop[j].param_opt.param_y); - aux_data.stx_pointing[1];58.2)
-          this_y_l = - sin(roll_angle) * double(srcin.loop[j].param_opt.param_x) + cos(roll_angle)* double(srcin.loop[j].param_opt.param_y);- aux_data.stx_pointing[0];58.2)
-          srcin.loop[j].param_opt.param_y = string(- this_x_l + aux_data.stx_pointing[0])
-          srcin.loop[j].param_opt.param_x = string(this_y_l - aux_data.stx_pointing[1])
+          
+          this_xy_l = stx_hpc2stx_coord([double(srcin.loop[j].param_opt.param_x),double(srcin.loop[j].param_opt.param_y)], aux_data)
+
+          srcin.loop[j].param_opt.param_x = string(this_xy_l[0])
+          srcin.loop[j].param_opt.param_y = string(this_xy_l[1])
+          
         endif
         
         
@@ -302,18 +300,11 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
 
   nsrc = N_ELEMENTS(srcstr)
   FOR n = 0, nsrc-1 DO BEGIN
-
-     ; heliocentric view
-      x_new = srcstr[n].srcy - this_vis[0].xyoffset[1]
-      y_new = srcstr[n].srcx - this_vis[0].xyoffset[0]
-
-      ;; Correct mapcenter with SAS solution or avarage shift value
-      this_x        = - x_new + vis[0].xyoffset[0] + aux_data.stx_pointing[0];26.1
-      this_y        = y_new + vis[0].xyoffset[1]  + aux_data.stx_pointing[1];58.2
-
-      ;roll_angle = aux_data.ROLL_ANGLE * !dtor
-      srcstr[n].srcx = cos(roll_angle)  * ( this_x ) - sin(roll_angle) * (this_y )
-      srcstr[n].srcy = sin(roll_angle)  * ( this_x ) + cos(roll_angle) * (this_y )
+      
+      xy_hpc = stx_hpc2stx_coord([srcstr[n].srcx,srcstr[n].srcy], aux_data, /inverse)
+      
+      srcstr[n].srcx = xy_hpc[0]
+      srcstr[n].srcy = xy_hpc[1]
       
       if ~(srcstr[n].srctype eq 'circle') then begin
           srcstr[n].SRCPA = atan(sin((srcstr[n].SRCPA+90.)*!dtor+roll_angle), cos((srcstr[n].SRCPA+90.)*!dtor+roll_angle))*180/!pi

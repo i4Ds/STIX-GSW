@@ -115,9 +115,7 @@ g_plot=[g10,g05,g09,g04,g08,g03,g07,g02,g06,g01]
 l_plot=[l10,l05,l09,l04,l08,l03,l07,l02,l06,l01]
 
 loadct,39
-device, Window_State=win_state
-if not win_state[0] then window,0,xsize=900,ysize=800
-wset,0
+window,0,xsize=900,ysize=800
 
 clearplot
 

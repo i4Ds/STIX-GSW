@@ -7,8 +7,8 @@
 ;       stx_imaging_demo
 ;
 ; :description:
-;    This demonstration script shows how to read a Level 1(A) STIX science data files and create a visibility structure.
-;    This structure is then used for image reconstruction by means of all the available imaging algorithms
+;    This demonstration script shows how to read a Level 1(A) STIX science data file and to reconstruct the image of the 
+;    flaring X-ray source by means of every available imaging algorithm
 ;
 ; :categories:
 ;    demo, imaging
@@ -19,84 +19,114 @@
 ;
 ;-
 
+;;******************************** LOAD DATA - June 7 2020, 21:41 UT ********************************
 
 ; Folder in which the files downloaded for this demonstration are stored
 out_dir = concat_dir( getenv('stx_demo_data'),'imaging', /d)
 
-;;**************** LOAD DATA - June 7 2020, 21:41 UT
 
-; STIX data center URL
+; URL of the STIX data center
 website_url = 'https://datacenter.stix.i4ds.net/download/fits/bsd/'
 
+; UID of the science fits file to be dowloaded from the website
 uid_sci_file = "1178428688"
-
+; Download the science fits file (if not already stored in out_dir)
 sock_copy, website_url + uid_sci_file, out_name, status = status, out_dir = out_dir, $
            local_file=path_sci_file, clobber=0
-           
-uid_bkg_file = "1178451984"
 
+; UID of the background fits file to be dowloaded from the website           
+uid_bkg_file = "1178451984"
+; Download the background fits file (if not already stored in out_dir)
 sock_copy, website_url + uid_bkg_file, out_name, status = status, out_dir = out_dir, $
            local_file=path_bkg_file, clobber=0
 
-; L2 auxiliary fits files server URL
+; URL of the server containing the L2 auxiliary fits files
 website_url = 'http://dataarchive.stix.i4ds.net/fits/L2/'
+; Filename of the auxiliary L2 fits file to be downloaded
 file_name    = '2020/06/07/AUX/solo_L2_stix-aux-ephemeris_20200607_V01.fits'
-
+; Download the L2 auxiliary fits file (if not already stored in out_dir)
 sock_copy, website_url + file_name, out_name, status = status, out_dir = out_dir, $
            local_file=aux_fits_file, clobber=0
- 
-time_range    = ['7-Jun-2020 21:39:00', '7-Jun-2020 21:42:49'] ; Time range to consider
-energy_range  = [6,10]        ; Energy range to consider (keV)
-mapcenter     = [-1575, -780] ; Coordinates of the center of the map to reconstruct (Helioprojective Cartesian from Solar Orbiter vantage point)
-xy_flare      = mapcenter     ; Estimated flare location (Helioprojective Cartesian from Solar Orbiter vantage point)
 
+stop
 
-;;**************** CONSTRUCT VISIBILITY STRUCTURE
+;;*********************************** SET TIME AND ENERGY RANGES ***********************************
+
+; Time range to be selected for image reconstruction
+time_range    = ['7-Jun-2020 21:39:00', '7-Jun-2020 21:42:49']
+; Energy range to be selected for image reconstruction (keV) 
+energy_range  = [6,10]
+
+stop
+
+;;******************************** CONSTRUCT AUXILIARY DATA STRUCTURE ********************************
 
 ; Create a structure containing auxiliary data to use for image reconstruction
 ; - STX_POINTING: X and Y coordinates of STIX pointing (arcsec, SOLO_SUN_RTN coordinate frame). 
-;                 It is derived from the SAS solution (if available) or from the spacecraft pointing 
-;                 (plus average SAS solution)
+;                 The coordinates are derived from the STIX SAS solution (when available) or from 
+;                 the spacecraft pointing information 
 ; - RSUN: apparent radius of the Sun in arcsec
 ; - ROLL_ANGLE: spacecraft roll angle in degrees
 ; - L0: Heliographic longitude in degrees
 ; - B0: Heliographic latitude in degrees
+
 aux_data = stx_create_auxiliary_data(aux_fits_file, time_range)
-
-stx_estimate_flare_location, path_sci_file, time_range, aux_data, flare_loc=flare_loc, path_bkg_file=path_bkg_file
-
-; Compute the array of detector indices (from 0 to 31) from the corresponding labels.
-; Used for selecting the detectors to consider for making the images
-;subc_index = stix_label2ind(['10a','10b','10c','9a','9b','9c','8a','8b','8c','7a','7b','7c',$
-;                             '6a','6b','6c','5a','5b','5c','4a','4b','4c','3a','3b','3c'])
-
-; Create the visibility structure filled with the measured data
-
-; Coordinate transformaion: from Helioprojective Cartesian to STIX coordinate frame
-mapcenter_stix = stx_hpc2stx_coord(mapcenter, aux_data)
-xy_flare_stix  = stx_hpc2stx_coord(xy_flare, aux_data)
-
-vis=stx_construct_calibrated_visibility(path_sci_file, time_range, energy_range, mapcenter_stix, $
-                                        path_bkg_file=path_bkg_file, xy_flare=xy_flare_stix)
 
 stop
 
-;;**************** SET PARAMETERS FOR IMAGING
+;*************************************** ESTIMATE FLARE LOCATION **************************************
 
-imsize    = [129, 129]    ; number of pixels of the map to recinstruct
-pixel     = [2.,2.]       ; pixel size in arcsec
+; Returns the coordinates of the estimated flare location (arcsec, Helioprojective Cartesian coordinates 
+; from Solar Orbiter vantage point) in the 'flare_loc' keyword. These coordinates are used for setting the
+; center of the maps to be reconstructed
+
+stx_estimate_flare_location, path_sci_file, time_range, aux_data, flare_loc=flare_loc, $
+                             path_bkg_file=path_bkg_file
+
+stop
+
+;************************************ CONSTRUCT VISIBILITY STRUCTURE ***********************************
+
+; Set the coordinates of the center of the map to be reconstruct ed ('mapcenter') and of the estimated flare 
+; location ('xy_flare'). The latters are used for performing a projection correction to the visibility
+; phases and for correcting the grid internal shadowing effect. The coordinates given as input to the 
+; imaging pipeline have to be conceived in the STIX reference frame; hence, we perform a transformation
+; from Helioprojective Cartesian to STIX reference frame with 'stx_hpc2stx_coord'
+
+mapcenter = stx_hpc2stx_coord(flare_loc, aux_data)
+xy_flare  = mapcenter
+
+; Create a calibrated visibility structure. For selecting the subcollimators to be used, uncomment the following
+; lines and set the labels of the sub-collimators to be considered
+
+;subc_index = stx_label2ind(['10a','10b','10c','9a','9b','9c','8a','8b','8c','7a','7b','7c',$
+;                             '6a','6b','6c','5a','5b','5c','4a','4b','4c','3a','3b','3c'])
+
+vis=stx_construct_calibrated_visibility(path_sci_file, time_range, energy_range, mapcenter, subc_index=subc_index, $
+                                        path_bkg_file=path_bkg_file, xy_flare=xy_flare)
+
+stop
+
+;*************************************** SET IMAGE AND PIXEL SIZE ***********************************
+
+; Number of pixels of the map to be reconstructed
+imsize    = [129, 129]
+; Pixel size in arcsec  
+pixel     = [2.,2.]       
+
+stop
 
 ;******************************************* BACKPROJECTION ********************************************************
 
-; For using 'stix_show_bproj' create the visibility structure with the default 'subc_index' (from 10 to 3). Otherwise
+; For using 'stx_show_bproj', create the visibility structure with the default 'subc_index' (from 10 to 3). Otherwise
 ; it throws an error
+
 stx_show_bproj,vis,aux_data,imsize=imsize,pixel=pixel,out=bp_map,scaled_out=scaled_out
 ;
 ; - Window 0: each row corresponds to a different resolution (from top to bottom, label 10 to 3). The first three
 ;             columns refer to label 'a', 'b' and 'c'; the last column is the  sum of the first three.
 ; - Window 2: Natural weighting (first row) and uniform weighting (second row). From left to right, backprojection
 ;             obtained starting from subcollimators 10 and subsequently adding subcollimators with finer resolution
-
 
 ; BACKPROJECTION natural weighting
 bp_nat_map = stx_bproj(vis,imsize,pixel,aux_data)
@@ -106,11 +136,14 @@ bp_uni_map = stx_bproj(vis,imsize,pixel,aux_data,/uni)
 
 stop
 
-;**************************************** CLEAN (from visibilities) **********************************************
+;**************************************** CLEAN (from visibilities) *********************************************
 
-niter  = 200    ;number of iterations
-gain   = 0.1    ;gain used in each clean iteration
-nmap   = 1      ;only every 20th integration is shown in plot
+; Number of iterations
+niter  = 200
+; Gain used in each clean iteration
+gain   = 0.1
+; The plot of the clean components and of the cleaned map is shown at every iteration
+nmap   = 1      
 
 ;Output are 5 maps
 ;index 0: CLEAN map
@@ -119,15 +152,17 @@ nmap   = 1      ;only every 20th integration is shown in plot
 ;index 3: clean component map
 ;index 4: clean map without residuals added
 beam_width = 20.
-clean_map=stx_vis_clean(vis,aux_data,niter=niter,image_dim=imsize[0],PIXEL=pixel[0],uni=0,gain=0.1,nmap=nmap,/plot,/set, beam_width=beam_width)
+clean_map=stx_vis_clean(vis,aux_data,niter=niter,image_dim=imsize[0],PIXEL=pixel[0],uni=0,gain=0.1,nmap=nmap,$
+                        /plot,/set, beam_width=beam_width)
 
 stop
 
 ;;************************************************ MEM_GE *********************************************************
 
-; Maximum entropy method (see Massa P. et al 2020 for details)
+; Maximum entropy method (see Massa P. et al (2020) for details)
 mem_ge_map=stx_mem_ge(vis,imsize,pixel,aux_data)
 
+loadct,5,/silent
 window, 0
 cleanplot
 plot_map, mem_ge_map, /cbar,title='MEM_GE - CLEAN contour (50%)'
@@ -137,13 +172,15 @@ stop
 
 ;*************************************** Expectation Maximization ************************************************
 
+; Expectation Maximization algorithm from STIX counts (see Massa P. et al (2019) for details). Takes as input a 
+; summed pixel data structure
 pixel_data_summed = stx_construct_pixel_data_summed(path_sci_file, time_range, energy_range, path_bkg_file=path_bkg_file, $
-                                                    xy_flare=xy_flare_stix)
+                                                    xy_flare=xy_flare, /silent)
 
 em_map = stx_em(pixel_data_summed, aux_data, imsize=imsize, pixel=pixel,$
-                mapcenter=mapcenter_stix)
+                mapcenter=mapcenter)
 
-loadct, 5
+loadct,5,/silent
 window, 0
 cleanplot
 plot_map, em_map, /cbar,title='EM - CLEAN contour (50%)'
@@ -153,19 +190,19 @@ stop
 
 ;*************************************** VIS_FWDFIT ************************************************
 
-configuration = ['circle','circle'];'ellipse'
+configuration = 'ellipse'
 
 ; Comments:
-; 1) use the keyword srcin to fix some of the parameters (and fit the remaining ones);
-;    Please, see the header of the FWDFIT-PSO procedure for details
-; 2) 'srcstrout_pso' is a structure containing the values of the optimized parameters
-; 3) 'fitsigmasout_pso' is a structure containing the uncertainty on the optimized parameters
-; 4) set /uncertainty for computing an estimate of the uncertainty on the parameters
+; 1) use the 'srcin' keyword to fix the value of some of the parameters (and fit the remaining ones);
+;    Please, refer to the header of the FWDFIT-PSO procedure for details.
+; 2) 'srcstrout_pso' is a structure containing the values of the optimized parameters.
+; 3) set /uncertainty for computing an estimate of the uncertainty on the parameters. The values of 
+;    the uncertainties are stored in 'fitsigmasout_pso' 
 
 vis_fwdfit_pso_map = stx_vis_fwdfit_pso(configuration,vis,aux_data,imsize=imsize,pixel=pixel, $
                                         srcstr = srcstrout_pso,fitsigmas=fitsigmasout_pso,/uncertainty)
 
-loadct, 5
+loadct,5,/silent
 window, 0
 cleanplot
 plot_map, vis_fwdfit_pso_map, /cbar,title='VIS_FWDFIT_PSO - CLEAN contour (50%)'
@@ -175,6 +212,7 @@ stop
 
 ;*********************************************** COMPARISON ******************************************************
 
+loadct,5,/silent
 window,0,xsize=5*imsize[0],ysize=5*imsize[0]
 cleanplot
 !p.multi=[0,2,2]

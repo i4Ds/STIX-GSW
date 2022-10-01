@@ -307,10 +307,12 @@ function vis_fwdfit_pso, configuration, vis, srcin, $
 
 
   if keyword_set(uncertainty) then begin
-
-    print, ' '
-    print, 'Uncertainty: '
-    print, '
+    
+    if ~keyword_set(silent) then begin
+      print, ' '
+      print, 'Uncertainty: '
+      print, ' '
+    endif
 
     ntry = 20
     trial_results = fltarr(Nvars, ntry)

@@ -66,7 +66,7 @@ function stx_construct_pixel_data_summed, path_sci_file, time_range, energy_rang
 pixel_data = stx_construct_pixel_data(path_sci_file, time_range, energy_range, elut_corr=elut_corr, $
                                       path_bkg_file=path_bkg_file, xy_flare=xy_flare, subc_index=subc_index, sumcase=sumcase, $
                                       silent=silent, no_small=no_small, no_rcr_check=no_rcr_check, _extra=extra)                                     
-;;************** Calibrate pixel data
+;;************** Sum pixel data
   
 pixel_data_summed = stx_sum_pixel_data(pixel_data, subc_index=subc_index, sumcase=sumcase, silent=silent)
 

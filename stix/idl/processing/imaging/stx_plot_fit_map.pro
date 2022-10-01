@@ -122,8 +122,8 @@ ssw_legend, leg_text, psym=leg_sym, color=leg_color, linest=leg_style, box=0, ch
 set_viewport,0.1, 0.48, 0.12, 0.27
 
 plot, xx, (obs_vis_phase - pred_vis_phase)/obs_sigphase, /nodata, xticks=9, xtickv=xtickv, xrange=xrange, /xst, $
-  charsize=charsize, thick=thick, yrange=[-8,8], /yst, /noe, $
-  xtitle=xtitle, ytitle=y_title_residuals
+  charsize=charsize, thick=thick, yrange=[-8,8], /yst, $
+  xtitle=xtitle, ytitle=y_title_residuals, /noe
 
 ; draw vertical dotted lines at each detector boundary
 for i=1,10 do oplot, i+[0,0], !y.crange, linestyle=1
@@ -157,8 +157,8 @@ ssw_legend, leg_text, psym=leg_sym, color=leg_color, linest=leg_style, box=0, ch
 set_viewport,0.57, 0.95, 0.12, 0.27
 
 plot, xx, (obs_vis_amp - pred_vis_amp)/obs_sigamp, /nodata, xticks=9, xtickv=xtickv, xrange=xrange, /xst, $
-  charsize=charsize, thick=thick, yrange=[-8,8], /yst, /noe, $
-  xtitle=xtitle, ytitle=y_title_residuals
+  charsize=charsize, thick=thick, yrange=[-8,8], /yst, $
+  xtitle=xtitle, ytitle=y_title_residuals, /noe
 
 ; draw vertical dotted lines at each detector boundary
 for i=1,10 do oplot, i+[0,0], !y.crange, linestyle=1

@@ -25,7 +25,7 @@
 ;
 ; KEYWORDS:
 ;
-;   inverse: if set, the invese transformation is applied. In this case, the coordinates in 'xy_coord'
+;   inverse: if set, the inverse transformation is applied. In this case, the coordinates in 'xy_coord'
 ;            are assumed to be in the STIX coordinate frame and they are transformed into the corresponding
 ;            ones in the Helioprojective Cartesian coordinate frame
 ;            
