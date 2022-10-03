@@ -40,6 +40,8 @@
 ;    08-Aug-2022 - ECMD (Graz), can now pass in file names for the output spectrum and srm FITS files
 ;                               added keyword to allow the user to specify the systematic uncertainty
 ;                               pass through structure of info parameters to write in FITS file
+;    03-Oct-2022 - ECMD (Graz), replaced stix_gtrans32_test with stx_subc_transmission for calculating the grid transmission 
+;                               and made the routine the default option rather than the tabulated on-axis values
 ;
 ;-
 function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shift = time_shift, ph_energy_edges = ph_edges, generate_fits = generate_fits, plotman_obj = pobj, $
@@ -47,6 +49,8 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
   fits_info_params = fits_info_params, xspec = xspec, background_data = background_data, _extra = _extra
 
   default, sys_uncert, 0.05
+  default, gtrans32, 1
+  
   ntimes = n_elements(spectrogram.time_axis.time_start)
 
   ;get the energy edges for building the drm from the spectrogram
@@ -62,7 +66,7 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
   pixels_used = [where(spectrogram.pixel_mask eq 1 , /null)]
 
   if keyword_set(gtrans32) then begin
-    grid_factors=stix_gtrans32_test(flare_location)
+    grid_factors=stx_subc_transmission(flare_location)
     grid_factor = average(grid_factors[grids_used])
   endif else begin
 
