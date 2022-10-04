@@ -151,12 +151,12 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
 
   if n_times eq 1 then begin
 
-    pixels_used =  where(total(data_str.pixel_masks,2) gt 0 and mask_use_pixels eq 1)
+    pixels_used =  where(data_str.pixel_masks gt 0 and mask_use_pixels eq 1)
     detectors_used = where(data_str.detector_masks eq 1 and mask_use_detectors eq 1)
 
   endif else begin
 
-    pixels_used = where(total(total(data_str.pixel_masks,1),2) gt 0 and mask_use_pixels eq 1)
+    pixels_used = where(total(data_str.pixel_masks,2) gt 0 and mask_use_pixels eq 1)
     detectors_used = where(total(data_str.detector_masks,2) gt 0 and mask_use_detectors eq 1)
 
   endelse
