@@ -143,7 +143,7 @@ niter  = 200
 ; Gain used in each clean iteration
 gain   = 0.1
 ; The plot of the clean components and of the cleaned map is shown at every iteration
-nmap   = 20      
+nmap   = 1      
 
 ;Output are 5 maps
 ;index 0: CLEAN map
