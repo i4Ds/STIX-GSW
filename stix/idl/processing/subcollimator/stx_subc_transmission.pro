@@ -51,7 +51,7 @@ for i=0,n_elements(grid_orient_front)-1 do begin
   
   ;; Exclude detectors 1 and 2
   
-  if (sc[i] ne 11) and (sc[i] ne 12) and (sc[i] ne 12) and (sc[i] ne 17) and (sc[i] ne 18) and (sc[i] ne 19) then begin
+  if (sc[i] ne 11) and (sc[i] ne 12) and (sc[i] ne 13) and (sc[i] ne 17) and (sc[i] ne 18) and (sc[i] ne 19) then begin
    
    transm_front = stx_grid_transmission(flare_loc[0], flare_loc[1], grid_orient_front[i], $
                                       grid_pitch_front[i], grid_slit_front[i], grid_thick_front[i])
