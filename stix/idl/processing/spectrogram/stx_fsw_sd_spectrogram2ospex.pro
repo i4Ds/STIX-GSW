@@ -65,22 +65,28 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
   grids_used = [where(spectrogram.detector_mask eq 1 , /null)]
   pixels_used = [where(spectrogram.pixel_mask eq 1 , /null)]
 
-  if keyword_set(gtrans32) then begin
-    grid_factors=stx_subc_transmission(flare_location)
-    grid_factor = average(grid_factors[grids_used])
+  grid_transmission_file =  concat_dir(getenv('STX_GRID'), 'nom_grid_transmission.txt')
+  readcol, grid_transmission_file, grid_factors_file, format = 'f', skip = 2
+  
+  
+  if (keyword_set(gtrans32) and n_elements(flare_location) ne 0) then begin
+    grid_factors_proc = stx_subc_transmission(flare_location)
+    ;05-Oct-2022 - ECMD until fine grid tranmission is ready replace the 
+    ;grids not in TOP24 with the on-axis tabulated values
+    idx_nontop24 = stx_label2det_ind('bkg+cfl+fine')
+    grid_factors_proc[idx_nontop24] = grid_factors_file[idx_nontop24]
+    grid_factor  = average(grid_factors_proc[grids_used])
   endif else begin
-
     print, 'Using nominal (on axis) grid transmission'
-    grid_transmission_file =  concat_dir(getenv('STX_GRID'), 'nom_grid_transmission.txt')
-    readcol, grid_transmission_file, grid_factors, format = 'f', skip =2
-    grid_factor = average(grid_factors[grids_used])
+    grid_factor = average(grid_factors_file[grids_used])
+    specpar.flare_xyoffset = [0.,0.]
   endelse
 
   if grid_factor eq 0 then begin
     if n_elements(grids_used) eq 1 then if grids_used eq 9 then begin
       print, 'Using nominal (on axis) grid transmission for background detector'
       grid_transmission_file =  concat_dir(getenv('STX_GRID'), 'nom_bkg_grid_transmission.txt')
-      readcol, grid_transmission_file, bk_grid_factors, format = 'f', skip =2
+      readcol, grid_transmission_file, bk_grid_factors, format = 'f', skip = 2
       grid_factor = average(bk_grid_factors[pixels_used])
 
     endif else begin

@@ -109,11 +109,11 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   ;    message, /info, 'For time shift compensation full archive buffer time resolution files are needed.'
   ;endif
   
-  time = data.time
+  time = float(data.time)
   n_time = n_elements(time)
   if n_time gt 1 then begin
     min_time_diff = min(time[1:-1] - time)
-    time_discrep_thrshold = alpha ? -0.2 : -20
+    time_discrep_thrshold = alpha ? -0.2 : -20.
     if min_time_diff lt time_discrep_thrshold then message, 'Time intervals are not monotonically increasing. Possible issue with FITS file.'
   endif
   

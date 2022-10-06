@@ -82,7 +82,7 @@
 ;
 ;-
 pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, $
-  time_shift = time_shift, energy_shift = energy_shift, distance = distance, flare_location= flare_location, $
+  time_shift = time_shift, energy_shift = energy_shift, distance = distance, flare_location = flare_location, $
   replace_doubles = replace_doubles, keep_short_bins = keep_short_bins, apply_time_shift = apply_time_shift,$
   shift_duration = shift_duration, no_attenuation = no_attenuation, sys_uncert = sys_uncert, $
   generate_fits = generate_fits, specfile = specfile, srmfile = srmfile,$
@@ -97,7 +97,6 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
 
   default, flare_location, [0.,0.]
   default, plot, 1
-
 
   stx_read_spectrogram_fits_file, fits_path_data, time_shift, primary_header = primary_header, data_str = data_str, data_header = data_header, control_str = control_str, $
     control_header= control_header, energy_str = energy_str, energy_header = energy_header, t_axis = t_axis, energy_shift = energy_shift,  e_axis = e_axis , use_discriminators = 0,$
@@ -230,8 +229,9 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
 
 
   ;add the rcr information to a specpar structure so it can be included in the spectrum FITS file
-  specpar = { sp_atten_state :  {time:ut_rcr[index], state:state} }
-
+  specpar = { sp_atten_state :  {time:ut_rcr[index], state:state}, flare_xyoffset : fltarr(2), use_flare_xyoffset:0 }
+  specpar.flare_xyoffset = flare_location
+  
   stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, $
     distance = distance, fits_path_data = fits_path_data, flare_location = flare_location, eff_ewidth = eff_ewidth, fits_info_params = fits_info_params, sys_uncert = sys_uncert, $
     background_data = background_data, plot = plot, generate_fits = generate_fits, ospex_obj = ospex_obj

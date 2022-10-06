@@ -190,10 +190,8 @@ pro stx_write_ospex_fits, $
  
   if  is_struct( specpar ) then begin
     specpar = str_sub2top(specpar)
-
     ; add object information as the last extension
     mwrfits, specpar, specfilename, specparheader
-
   endif
 
 

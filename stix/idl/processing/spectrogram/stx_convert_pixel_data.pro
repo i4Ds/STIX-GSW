@@ -287,7 +287,8 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   ; ************************************************************
 
   ;add the rcr information to a specpar structure so it can be included in the spectrum FITS file
-  specpar = { sp_atten_state :  {time:ut_rcr[index], state:state} }
+  specpar = { sp_atten_state :  {time:ut_rcr[index], state:state}, flare_xyoffset : fltarr(2), use_flare_xyoffset:0 }
+  if n_elements(flare_location) ne 0 then specpar.flare_xyoffset = flare_location
 
   stx_convert_science_data2ospex, spectrogram = spectrogram, specpar=specpar, time_shift = time_shift, $
     data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, distance = distance, $
