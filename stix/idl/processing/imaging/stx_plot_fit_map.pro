@@ -95,6 +95,7 @@ xrange=[1,11]
 xtickv = [1:10]
 
 window, this_window, xsize=1200, ysize=500
+cleanplot
 
 set_viewport,0.1, 0.48, 0.27, 0.82
 

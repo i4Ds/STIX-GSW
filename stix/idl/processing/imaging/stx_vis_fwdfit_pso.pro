@@ -264,30 +264,8 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
   srcstr = param_out.srcstr
   fitsigmas = param_out.fitsigmas
   redchisq = param_out.redchisq
-  fwdfit_pso_map = make_map(param_out.data)
-  this_estring=strtrim(fix(vis[0].energy_range[0]),2)+'-'+strtrim(fix(vis[0].energy_range[1]),2)+' keV'
-  fwdfit_pso_map.ID = 'STIX VIS_PSO '+this_estring+': '
-  fwdfit_pso_map.dx = pixel[0]
-  fwdfit_pso_map.dy = pixel[1]
-
-  this_time_range = stx_time2any(vis[0].time_range,/vms)
-
-  fwdfit_pso_map.time = anytim((anytim(this_time_range[1])+anytim(this_time_range[0]))/2.,/vms)
-  fwdfit_pso_map.DUR  = anytim(this_time_range[1])-anytim(this_time_range[0])
-
-  ;rotate map to heliocentric view
-  fwdfit_pso__map = fwdfit_pso_map
-  fwdfit_pso__map.data = rotate(fwdfit_pso_map.data,1)
   
-  this_mapcenter = stx_rtn2stx_coord(vis[0].xyoffset, aux_data, /inverse)
-  fwdfit_pso__map.xc = this_mapcenter[0]
-  fwdfit_pso__map.yc = this_mapcenter[1]
-
-  fwdfit_pso__map=rot_map(fwdfit_pso__map,-aux_data.ROLL_ANGLE,rcenter=[0.,0.])
-  fwdfit_pso__map.ROLL_ANGLE = 0.
-  add_prop,fwdfit_pso__map,rsun = aux_data.RSUN
-  add_prop,fwdfit_pso__map,B0   = aux_data.B0
-  add_prop,fwdfit_pso__map,L0   = aux_data.L0
+  fwdfit_pso_map = stx_make_map(param_out.data, aux_data, pixel, "FWDFIT_PSO", vis)
 
   if ~keyword_set(silent) then begin
 
@@ -332,6 +310,6 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
 
   undefine, srcin
 
-  return, fwdfit_pso__map
+  return, fwdfit_pso_map
 
 end

@@ -115,7 +115,7 @@ add_prop, out_map, rsun = aux_data.RSUN
 add_prop, out_map, b0   = aux_data.B0
 add_prop, out_map, l0   = aux_data.L0
 add_prop, out_map, coord_frame = 'SOLO HPC'
-add_prop, out_map, units = 'photons cm^-2 asec^-2 s^-1 keV^-1'
+add_prop, out_map, units = 'counts cm^-2 asec^-2 s^-1 keV^-1'
 
 return, out_map
 

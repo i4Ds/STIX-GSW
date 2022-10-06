@@ -128,8 +128,7 @@ y = reform(countrates, n_det_used*4)
 countrates_bkg = pixel_data_summed.COUNT_RATES_ERROR_BKG[subc_index,*]
 b = reform(countrates_bkg, n_det_used*4)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; EXPECTATION MAXIMIZATION ALGORITHM
+;;**************** EXPECTATION MAXIMIZATION ALGORITHM
 
 ;Initialization
 x = fltarr((size(H,/dim))[1]) + 1.
@@ -164,34 +163,13 @@ endfor
 
 x_im = reform(x, imsize[0],imsize[1])
 
-;;;;;;;;;;;; After
+;;**************** Create visibility structure to be used in 'stx_make_map'
 
-em_map = make_map(x_im)
-this_estring=strtrim(fix(pixel_data_summed.ENERGY_RANGE[0]),2)+'-'+strtrim(fix(pixel_data_summed.ENERGY_RANGE[1]),2)+' keV'
-em_map.ID = 'STIX EM '+this_estring+': '
-em_map.dx = pixel[0]
-em_map.dy = pixel[1]
+vis = stx_pixel_data_summed2visibility(pixel_data_summed,subc_index=subc_index, mapcenter=mapcenter)
+vis = stx_calibrate_visibility(vis)
 
-time_range = stx_time2any(pixel_data_summed.TIME_RANGE)
-em_map.time = anytim((time_range[0]+time_range[1])/2.,/vms)
+em_map = stx_make_map(x_im, aux_data, pixel, "EM", vis)
 
-em_map.DUR = anytim(time_range[1])-anytim(time_range[0])
-
-;rotate map to heliocentric view
-em__map=em_map
-em__map.data=rotate(em_map.data,1)
-
-; Compute the mapcenter
-this_mapcenter = stx_rtn2stx_coord(mapcenter, aux_data, /inverse)
-em__map.xc = this_mapcenter[0]
-em__map.yc = this_mapcenter[1]
-
-em__map=rot_map(em__map,-aux_data.ROLL_ANGLE,rcenter=[0.,0.])
-em__map.ROLL_ANGLE = 0.
-add_prop,em__map,rsun = aux_data.RSUN
-add_prop,em__map,B0   = aux_data.B0
-add_prop,em__map,L0   = aux_data.L0
-
-return,em__map
+return,em_map
 
 end

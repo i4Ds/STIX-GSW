@@ -143,7 +143,7 @@ niter  = 200
 ; Gain used in each clean iteration
 gain   = 0.1
 ; The plot of the clean components and of the cleaned map is shown at every iteration
-nmap   = 1      
+nmap   = 20      
 
 ;Output are 5 maps
 ;index 0: CLEAN map
@@ -154,6 +154,9 @@ nmap   = 1
 beam_width = 20.
 clean_map=stx_vis_clean(vis,aux_data,niter=niter,image_dim=imsize[0],PIXEL=pixel[0],uni=0,gain=0.1,nmap=nmap,$
                         /plot,/set, beam_width=beam_width)
+
+;; Plot of visibility amplitudes and phases fit: use clean components map
+stx_plot_fit_map, clean_map[3], this_window=1
 
 stop
 
@@ -167,6 +170,8 @@ window, 0
 cleanplot
 plot_map, mem_ge_map, /cbar,title='MEM_GE - CLEAN contour (50%)'
 plot_map,clean_map[0],/over,/perc,level=[50]
+
+stx_plot_fit_map, mem_ge_map, this_window=1
 
 stop
 
@@ -185,6 +190,8 @@ window, 0
 cleanplot
 plot_map, em_map, /cbar,title='EM - CLEAN contour (50%)'
 plot_map,clean_map[0],/over,/perc,level=[50]
+
+stx_plot_fit_map, em_map, this_window=1
 
 stop
 
@@ -207,6 +214,8 @@ window, 0
 cleanplot
 plot_map, vis_fwdfit_pso_map, /cbar,title='VIS_FWDFIT_PSO - CLEAN contour (50%)'
 plot_map,clean_map[0],/over,/perc,level=[50]
+
+stx_plot_fit_map, vis_fwdfit_pso_map, this_window=1
 
 stop
 
