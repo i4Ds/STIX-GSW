@@ -44,7 +44,7 @@
 ;-
 function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shift = time_shift, ph_energy_edges = ph_edges, generate_fits = generate_fits, plotman_obj = pobj, $
   specfilename = specfilename, srmfilename = srmfilename, flare_location = flare_location, gtrans32 = gtrans32, livetime_fraction = livetime_fraction, sys_uncert = sys_uncert, $
-  fits_info_params = fits_info_params, _extra = _extra
+  fits_info_params = fits_info_params, xspec = xspec, background_data = background_data, _extra = _extra
 
   default, sys_uncert, 0.05
   ntimes = n_elements(spectrogram.time_axis.time_start)
@@ -80,14 +80,14 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
       grid_factor = average(bk_grid_factors[pixels_used])
 
     endif else begin
-      message, 'Waring: Grid Factor is 0 - transmission for CFL and BKG detectors is not implemented',/info
+      message, 'Warning: Grid Factor is 0 - transmission for CFL and BKG detectors is not implemented',/info
 
     endelse
   endif
 
   ;make the srm for the appropriate pixel mask and energy edges
-  srm = stx_build_pixel_drm(ct_edges, pixel_mask,  ph_energy_edges = ph_edges, grid_factor = grid_factor, dist_factor = dist_factor, _extra = _extra)
-
+  srm = stx_build_pixel_drm(ct_edges, pixel_mask,  ph_energy_edges = ph_edges, grid_factor = grid_factor, dist_factor = dist_factor,$
+    xspec = xspec, _extra = _extra)
 
   rcr_states = specpar.sp_atten_state.state
   rcr_states = rcr_states[uniq(rcr_states, sort(rcr_states))]
@@ -100,11 +100,14 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
     rcr = rcr_states[i]
 
     srm = stx_build_pixel_drm(ct_edges, pixel_mask, rcr = rcr, ph_energy_edges = ph_edges,  grid_factor = grid_factor,$
-      dist_factor = dist_factor, _extra = _extra)
+      dist_factor = dist_factor, xspec = xspec, _extra = _extra)
     srm_atten[i].srm = srm.smatrix
     srm_atten[i].rcr = rcr
 
   endfor
+
+  detector_label = stx_det_mask2label(spectrogram.detector_mask)
+  pixel_label = stx_pix_mask2label(spectrogram.pixel_mask)
 
   ospex_obj  = ospex(/no)
 
@@ -125,15 +128,31 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
     srmfilename =  fits_info_params.srmfile
 
     fits_info_params.grid_factor = grid_factor
+    fits_info_params.detused = detector_label + ', Pixels: ' + pixel_label
 
-    stx_write_ospex_fits, spectrum = spectrum_in, srmdata = srm,  specpar = specpar, time_shift = time_shift, $
+    if keyword_set(xspec) then begin
+      ;xspec in gneral works with energy depandent systematic errors
+      e_axis = spectrum_in.e_axis
+      n_energies = n_elements(e_axis.mean)
+      sys_err  = fltarr(n_energies)
+
+      idx_below10kev = where(e_axis.mean lt 10, cb10)
+      sys_err[*] = 0.03
+      if cb10 gt 0 then sys_err[idx_below10kev] = 0.05
+      idx_below7kev = where(e_axis.mean lt 7, cb7)
+      if cb7 gt 0 then sys_err[idx_below7kev] = 0.07
+
+      sys_err = rebin(sys_err, n_energies,ntimes)
+    endif
+
+
+    stx_write_ospex_fits, spectrum = spectrum_in, srmdata = srm, specpar = specpar, time_shift = time_shift, $
       srm_atten = srm_atten, specfilename = specfilename, srmfilename = srmfilename, ph_edges = ph_edges, $
       fits_info_params = fits_info_params, xspec = xspec
 
     ospex_obj->set, spex_file_reader = 'stx_read_sp'
     ospex_obj->set, spex_specfile = specfilename   ; name of your spectrum file
     ospex_obj->set, spex_drmfile = srmfilename
-    ospex_obj->set, spex_uncert = sys_uncert
 
   endif else begin
     ;if the generate_fits keyword is not set use the spex_user_data strategy to pass in the data directly to the ospex object
@@ -157,10 +176,15 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
     ospex_obj->set, spex_detectors = 'STIX'
     ospex_obj->set, spex_drm_ct_edges = energy_edges
     ospex_obj->set, spex_drm_ph_edges = ph_edges2
-    ospex_obj->set, spex_uncert = sys_uncert
-    ospex_obj->set, spex_error_use_expected = 0
   endelse
 
+  ospex_obj->set, spex_uncert = sys_uncert
+  ospex_obj->set, spex_error_use_expected = 0
+
+  counts_str = ospex_obj->getdata(spex_units='counts')
+  origunits = ospex_obj->get(/spex_data_origunits)
+  origunits.data_name = 'STIX'
+  ospex_obj->set, spex_data_origunits = origunits
 
   return, ospex_obj
 end

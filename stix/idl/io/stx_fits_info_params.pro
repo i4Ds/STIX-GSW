@@ -79,7 +79,8 @@ function stx_fits_info_params, fits_path_data = fits_path_data, data_level = dat
   default, specfile, ''
   default, srmfile, ''
   default, elut_file, ''
-  default, fits_path_bk, ''
+  default, fits_background_file, ''
+  default, detused, ''
   default, distance, 0.
 
   break_file, fits_path_data, disk, dir, data_file_name, ext
@@ -103,7 +104,7 @@ function stx_fits_info_params, fits_path_data = fits_path_data, data_level = dat
   stx_fits_info = {uid:uid, fits_data_file:fits_data_file, data_level:data_level, $
     distance:distance, time_shift:time_shift, grid_factor:0., $
     background_subtracted:background_subtracted, fits_background_file:fits_background_file, $
-    generate_fits:generate_fits, specfile:specfile, srmfile:srmfile, elut_file:elut_file}
+    generate_fits:generate_fits, specfile:specfile, srmfile:srmfile, elut_file:elut_file, detused:detused}
 
   return, stx_fits_info
 

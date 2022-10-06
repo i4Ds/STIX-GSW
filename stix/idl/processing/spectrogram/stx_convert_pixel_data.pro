@@ -106,19 +106,14 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   default, flare_location, [0.,0.]
   default, shift_duration, 0
   default, plot, 1
+  default, det_ind, 'top24'
 
-  g10=[3,20,22]-1
-  g09=[16,14,32]-1
-  g08=[21,26,4]-1
-  g07=[24,8,28]-1
-  g06=[15,27,31]-1
-  g05=[6,30,2]-1
-  g04=[25,5,23]-1
-  g03=[7,29,1]-1
-  g02=[12,19,17]-1
-  g01=[11,13,18]-1
-  g01_10=[g01,g02,g03,g04,g05,g06,g07,g08,g09,g10]
-  g03_10=[g03,g04,g05,g06,g07,g08,g09,g10]
+  if data_type(det_ind) eq 7 then det_ind = stx_label2det_ind(det_ind)
+  if data_type(pix_ind) eq 7 then pix_ind = stx_label2pix_ind(pix_ind)
+
+  stix_compute_subcollimator_indices, g01,g02,g03,g04,g05,g06,g07,g08,g09,g10,$
+    l01,l02,l03,l04,l05,l06,l07,l08,l09,l10,$
+    res32,res10,o32,g03_10,g01_10,g_plot,l_plot
 
   ; 22-Jul-2022 - ECMD, changed keyword_set to n_elements as [0] is valid detector or pixel index array
   mask_use_detectors = intarr(32)
@@ -139,8 +134,10 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   elut_filename = stx_date2elut_file(start_time)
   uid = control_str.request_id
 
+  if n_elements(distance) ne 0 then fits_distance = distance
+
   fits_info_params = stx_fits_info_params( fits_path_data = fits_path_data, data_level = data_level, $
-    distance = distance, time_shift = time_shift, fits_path_bk = fits_path_bk, uid = uid, $
+    distance = fits_distance, time_shift = time_shift, fits_path_bk = fits_path_bk, uid = uid, $
     generate_fits = generate_fits, specfile = specfile, srmfile = srmfile, elut_file = elut_filename)
 
   counts_in = data_str.counts
@@ -172,9 +169,21 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
 
   detector_mask_used = intarr(32)
   detector_mask_used[detectors_used]  = 1
-  n_detectors =total(detector_mask_used)
+  n_detectors = total(detector_mask_used)
   energy_edges_used = [e_axis.low_fsw_idx, e_axis.high_fsw_idx[-1]+1]
   n_energy_edges = n_elements(energy_edges_used)
+
+  if total(pixel_mask_used[0:3]) eq total(pixel_mask_used[4:7]) then begin
+    count_ratio_threshold = 1.05
+    counts_top = total(counts_in[1:25,0:3,detectors_used,*])
+    counts_bottom = total(counts_in[1:25,4:7,detectors_used,*])
+    case 1 of
+      f_div(counts_top, counts_bottom, default = 2) gt count_ratio_threshold : message, 'Top pixel total 5% higher than bottom row. Possible pixel shadowing. Recommend using only top pixels for analysis.',/info
+      f_div(counts_bottom, counts_top, default = 2) gt count_ratio_threshold : message, 'Bottom pixel total 5% higher than top row. Possible pixel shadowing. Recommend using only bottom pixels for analysis.',/info
+      else:
+    endcase
+  endif
+
 
   stx_read_elut, ekev_actual = ekev_actual, elut_filename = elut_filename
 

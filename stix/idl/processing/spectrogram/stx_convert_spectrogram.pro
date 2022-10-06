@@ -207,6 +207,28 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
   ; ************************************************************
   ; ************************************************************
 
+  ; ******************** TEMPORARY FIX *************************
+  ; ***** ECMD: 2022-Jun-27
+  ; As the reported time of the RCR status change can be inaccurate
+  ; up to several seconds correct this by finding the times where there is a
+  ; large change in counts in the counts of the 5 - 6 keV energy bin.
+  ; find all time intervals where the difference between adjacent bins is large
+  if max(rcr) gt 0 then begin; skip if in the standard state of RCR0 for the full time range
+
+    jumps = where(abs( counts_spec[2,*] - shift(counts_spec[2,*],-1) ) gt 1e4)
+    ; include the starting bin
+    jumps = [0, jumps]
+    ; as the attenuator motion can be present in two consecutive bins select only the first
+    idx_jumps =  where(abs(jumps - shift(jumps, -1)) gt 2)
+    jumps_use= [jumps[idx_jumps]]
+    ; each transition should correspond close in time to a recorded transition in the FITS file
+    ; adjust the time indexes of these transitions to the closest jumps
+    index = jumps_use
+
+  endif
+  ; ************************************************************
+
+
   ;add the rcr information to a specpar structure so it can be included in the spectrum FITS file
   specpar = { sp_atten_state :  {time:ut_rcr[index], state:state} }
 
