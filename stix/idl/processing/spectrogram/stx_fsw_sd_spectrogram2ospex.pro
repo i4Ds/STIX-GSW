@@ -141,7 +141,7 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
     fits_info_params.detused = detector_label + ', Pixels: ' + pixel_label
 
     if keyword_set(xspec) then begin
-      ;xspec in gneral works with energy depandent systematic errors
+      ;xspec in general works with energy depandent systematic errors
       e_axis = spectrum_in.e_axis
       n_energies = n_elements(e_axis.mean)
       sys_err  = fltarr(n_energies)

@@ -157,7 +157,7 @@ pro stx_write_ospex_fits, $
     tstopi = tstopi, tstopf = tstopf, backapp = backapp, backfile = backfile )
 
   fxaddpar, primary_header, 'PARENT', fits_info_params.fits_data_file, "Parent Observation Data File", before='AUTHOR'
-  fxaddpar, primary_header, 'DATA_LEVEL', fits_info_params.data_level, "Observation Data Compression Level", before='AUTHOR'
+  fxaddpar, primary_header, 'DATA_LEVEL', stx_data_level2label(fits_info_params.data_level), "Observation Data Compression Level", before='AUTHOR'
 
   fxaddpar, specheader, 'REQUEST_ID', fits_info_params.uid, "Unique Request ID for the Observation", before='AUTHOR'
   fxaddpar, specheader, 'SUN_DISTANCE', fits_info_params.distance, "Distance in AU to Sun", before='AUTHOR'
