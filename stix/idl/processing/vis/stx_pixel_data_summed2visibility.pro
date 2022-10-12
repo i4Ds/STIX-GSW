@@ -21,7 +21,7 @@
 ;   subc_index: array containing the indexes of the subcollimators to be considered for computing the visibility
 ;               values
 ;               
-;   mapcenter: bi-dimensional array containing the coordinates of the center of the map to reconstruct 
+;   mapcenter: two-element array containing the coordinates of the center of the map to reconstruct 
 ;              from the visibility values (STIX coordinate frame, arcsec)
 ;             
 ;   f2r_sep: distance between the front and the rear grid (mm, used for computing the values of the (u,v) frequencies)
@@ -34,8 +34,8 @@
 ;   - ISC: indices of the considered subcollimators
 ;   - LABEL: labels of the considered subcollimators
 ;   - LIVE_TIME: detector livetime 
-;   - ENERGY_RANGE: bi-dimensional array containing the lower and upper edge of the considered energy interval
-;   - TIME_RANGE: bi-dimensional 'stx_time' array containing the lower and upper edge of the considered time interval
+;   - ENERGY_RANGE: two-element array containing the lower and upper edge of the considered energy interval
+;   - TIME_RANGE: two-element 'stx_time' array containing the lower and upper edge of the considered time interval
 ;   - OBSVIS: complex array containing the visibility values
 ;   - TOT_COUNTS: total number of counts recorded by STIX during the flaring events
 ;   - TOT_COUNTS_BKG: estimate of the total number of background counts recorded during the flaring events
@@ -44,9 +44,9 @@
 ;   - U: u coordinate of the frequencies sampled by the sub-collimators
 ;   - V: v coordinate of the frequencies sampled by the sub-collimators
 ;   - PHASE_SENSE: array containing the sense of the phase measured by the sub-collimator (-1 or 1 values)
-;   - XYOFFSET: bi-dimensional array containing the coordinates of the center of the map to renconstruct from the
+;   - XYOFFSET: two-element array containing the coordinates of the center of the map to renconstruct from the
 ;                visibiity values (STIX coordinate frame, arcsec)
-;   - XY_FLARE: bi-dimensional array containing the coordinates of the estimated flare location (STIX coordinate frame, arcsec). 
+;   - XY_FLARE: two-element array containing the coordinates of the estimated flare location (STIX coordinate frame, arcsec). 
 ;               It is used for computing the grid transmission correction and the phase projection correction. 
 ;               If the 'xy_flare' field of the  input 'stx_pixel_data_summed' structure contains NaN values, no correction is applied 
 ;   - CALIBRATED: 0 if the values of the visibility amplitudes and phases are not calibrated, 1 otherwise   

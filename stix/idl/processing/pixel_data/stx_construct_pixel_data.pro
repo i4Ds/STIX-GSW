@@ -18,7 +18,7 @@
 ;   
 ;   time_range: string array containing the start and the end of the time interval to consider
 ;   
-;   energy_range: bi-dimensional array containing the lower and upper edges of the energy interval to consider
+;   energy_range: two-element array containing the lower and upper edges of the energy interval to consider
 ;
 ; OUTPUTS:
 ; 
@@ -28,8 +28,8 @@
 ;               in the selected time and energy intervals
 ;     - COUNTS_ERROR: array 32x12 containing the errors (statistics + compression) associated with the number of counts 
 ;                     recorded by the detector pixels
-;     - LIVE_TIME: 32-dimensional array containing the live time of each detector in the considered time interval
-;     - TIME_RANGE: bi-dimesional 'stx_time' array containing the lower and upper edge of the selected time interval
+;     - LIVE_TIME: 32-element array containing the live time of each detector in the considered time interval
+;     - TIME_RANGE: two-element 'stx_time' array containing the lower and upper edge of the selected time interval
 ;                   (the time bins containing the start and the end time provided as input are included in the 
 ;                   selected interval)
 ;     - ENERGY_RANGE: array containing the lower and the upper edge of the selected energy interval
@@ -38,8 +38,8 @@
 ;                   time and energy intervals. If no bakground measurement is provided, it is filled with zeros
 ;     - COUNTS_ERROR_BKG: array 32x12 containing the errors (statistics + compression) associated with the estimate of the 
 ;                         number of background counts recorded by the detector pixels in the selected time and energy intervals
-;     - LIVE_TIME_BKG: 32-dimensional array containing the live time of each detector for the background measurement
-;     - XY_FLARE: 2-dimensional array containing the X and Y coordinates of the estimated flare location (STIX coordinate frame, arcsec).
+;     - LIVE_TIME_BKG: 32-element array containing the live time of each detector for the background measurement
+;     - XY_FLARE: two-element array containing the X and Y coordinates of the estimated flare location (STIX coordinate frame, arcsec).
 ;                   If 'xy_flare' is not passed, it is filled with NaN values
 ;     - RCR: rate control regime status in the selcted time interval. If the RCR changes in that interval, an error is thrown
 ;     - PIXEL_MASKS: matrix containing info on the pixels used in the selected time interval
@@ -52,7 +52,7 @@
 ;
 ;   elut_corr: if set, a correction based on a ELUT table is applied to the measured counts
 ;   
-;   xy_flare: bidimensional array containing the X and Y coordinates of the estimated flare location
+;   xy_flare: two-element array containing the X and Y coordinates of the estimated flare location
 ;             (STIX coordinate frame, arcsec). If passed, the grid transmission correction is computed
 ;   
 ;   subc_index: array containing the indices of the selected imaging detectors. Used only for plotting the lightcurve by means of 
@@ -309,17 +309,6 @@ if keyword_set(xy_flare) then begin
     counts_error[*,i] = counts_error[*,i]/subc_transmission[i]*0.25
 
   endfor
-  
-  if keyword_set(path_bkg_file) then begin
-    
-    for i=0,31 do begin
-      
-      counts_bkg[*,i]       = counts_bkg[*,i]/subc_transmission_bkg[i]*0.25
-      counts_error_bkg[*,i] = counts_error_bkg[*,i]/subc_transmission_bkg[i]*0.25
-      
-    endfor
-    
-  endif
 
 endif
 

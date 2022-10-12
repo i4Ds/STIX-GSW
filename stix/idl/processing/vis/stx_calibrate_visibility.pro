@@ -19,7 +19,7 @@
 ;
 ; KEYWORDS:
 ; 
-;   phase_calib_factors: 32-dimensional array containing the phase calibration factors for each detectors (degrees).
+;   phase_calib_factors: 32-element array containing the phase calibration factors for each detectors (degrees).
 ;                        The default phase calibration factors consist of four terms:
 ;                         - a grid correction factor, which keeps into account the phase of the front and the rear grid;
 ;                         - a projection correction factor, if the 'xy_flare' estimate of the flare location is provided 
@@ -29,7 +29,7 @@
 ;                         - a factor which is added so that the reconstructed image is centered in the 
 ;                           coordinates that are saved in the 'XYOFFSET' field of the input visibility structure
 ;   
-;   amp_calib_factors: 32-dimensional array containing amplitude calibration factors. The default values include just the
+;   amp_calib_factors: 32-element array containing amplitude calibration factors. The default values include just the
 ;                       modulation efficiency factor
 ;   
 ;   syserr_sigamp: float, percentage of systematic error to be added to the visibility amplitude errors. 

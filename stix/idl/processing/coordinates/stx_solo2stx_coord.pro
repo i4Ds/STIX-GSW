@@ -6,7 +6,7 @@
 ;
 ; PURPOSE:
 ;
-;   Transform a bi-dimensional array of coordinates from the Solar Orbiter coordinate frame to the STIX coordinate frame 
+;   Transform a two-element array of coordinates from the Solar Orbiter coordinate frame to the STIX coordinate frame 
 ;   and viceversa. Essentially, it performs a 90 deg rotation as STIX is mounted on the side of the spacecraft
 ;
 ; CALLING SEQUENCE:
@@ -15,7 +15,7 @@
 ;
 ; INPUTS:
 ;
-;   xy_coord: bi-dimensional array of coordinates (arcsec). If the 'inverse' keyword is set to 0,
+;   xy_coord: two-element array of coordinates (arcsec). If the 'inverse' keyword is set to 0,
 ;             the coordinates are assumed to be in the Solar Orbiter coordinate frame and they are transformed 
 ;             into the corresponding ones in the STIX coordinate frame
 ;
@@ -29,7 +29,7 @@
 ;
 ; OUTPUTS:
 ;
-;   A bi-dimensional array containing the transformed coordinates
+;   A two-element array containing the transformed coordinates
 ;
 ; HISTORY: August 2022, Massa P., created
 ;

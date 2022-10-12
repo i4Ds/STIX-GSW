@@ -21,7 +21,7 @@
 ;
 ;   energy_range: array containing the values of the lower and upper edge of the energy interval to consider
 ;   
-;   mapcenter: bi-dimensional array containing the coordinates of the center of the map to reconstruct
+;   mapcenter: two-element array containing the coordinates of the center of the map to reconstruct
 ;              from the visibility values (STIX coordinate frame, arcsec)
 ;
 ; KEYWORDS:
@@ -31,7 +31,7 @@
 ;
 ;   elut_corr: if set, a correction based on a ELUT table is applied to the measured counts
 ;
-;   xy_flare: bi-dimensional array containing the coordinates of the estimated flare location (STIX coordinate frame, arcsec).
+;   xy_flare: two-element array containing the coordinates of the estimated flare location (STIX coordinate frame, arcsec).
 ;             It is used for computing the grid transmission correction and the phase projection correction.
 ;             If it is not provided, no correction is applied and the corresponding field in the visibility structure is filled with NaN.
 ;
@@ -49,10 +49,10 @@
 ;   subc_index: array containing the indexes of the subcollimators to be used for computing the visibilities.
 ;               Default, subcollimators labelled from 3 to 10.
 ;
-;   phase_calib_factors: 32-dimensional array containing the phase calibration factors. For information on the default
+;   phase_calib_factors: 32-element array containing the phase calibration factors. For information on the default
 ;                        values see the header of 'stx_calibrate_visibility'
 ;                        
-;   amp_calib_factors: 32-dimensional array containing the amplitude calibration factors. For information on the default
+;   amp_calib_factors: 32-element array containing the amplitude calibration factors. For information on the default
 ;                      values see the header of 'stx_calibrate_visibility'
 ;                      
 ;   syserr_sigamp: percentage of systematic error added in quadrature to the error on the visibility amplitudes derived

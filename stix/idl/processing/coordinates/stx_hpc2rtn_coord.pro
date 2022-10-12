@@ -6,7 +6,7 @@
 ;
 ; PURPOSE:
 ;
-;   Transform a bi-dimensional array of coordinates from Helioprojective Cartesian coordinate frame
+;   Transform a two-element array of coordinates from Helioprojective Cartesian coordinate frame
 ;   (Solar Orbiter vantage point) to the Solar Orbiter - Sun Radial-Tnagential-Normal coordinate frame and viceversa.
 ;   Essentially, it performs a rotation for the spacecraft roll angle
 ;
@@ -16,7 +16,7 @@
 ;
 ; INPUTS:
 ;
-;   xy_coord: bi-dimensional array of coordinates (arcsec). If the 'inverse' keyword is set to 0,
+;   xy_coord: two-element array of coordinates (arcsec). If the 'inverse' keyword is set to 0,
 ;             the coordinates are assumed to be in the Helioprojective Cartesian coordinate frame
 ;             (Solar Orbiter vantage point) and they are transformed into the corresponding ones
 ;             in the Solar Orbiter - Sun Radial-Tnagential-Normal coordinate frame
@@ -33,7 +33,7 @@
 ;
 ; OUTPUTS:
 ;
-;   A bi-dimensional array containing the transformed coordinates
+;   A two-element array containing the transformed coordinates
 ;
 ; HISTORY: August 2022, Massa P., created
 ;

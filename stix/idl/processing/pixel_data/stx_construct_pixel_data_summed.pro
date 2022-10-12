@@ -19,7 +19,7 @@
 ;
 ;   time_range: string array containing the start and the end of the time interval to consider
 ;
-;   energy_range: bi-dimensional array containing the lower and upper edges of the energy interval to consider
+;   energy_range: two-element array containing the lower and upper edges of the energy interval to consider
 ;
 ; OUTPUTS:
 ;
@@ -34,7 +34,7 @@
 ;                  
 ;   elut_corr: if set, a correction based on a ELUT table is applied to the measured counts
 ;   
-;   xy_flare: bidimensional array containing the X and Y coordinates of the estimated flare location
+;   xy_flare: two-element array containing the X and Y coordinates of the estimated flare location
 ;             (STIX coordinate frame, arcsec). If passed, a correction for the subcollimator transmission is applied 
 ;             to the measured count rates
 ;   subc_index:  array containing the indices of the selected imginging detectors. Used only for plotting the lightcurve by means of

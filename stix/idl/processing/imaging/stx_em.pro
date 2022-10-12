@@ -125,7 +125,7 @@ n_det_used = n_elements(subc_index)
 countrates = pixel_data_summed.COUNT_RATES[subc_index,*]
 y = reform(countrates, n_det_used*4)
 
-countrates_bkg = pixel_data_summed.COUNT_RATES_ERROR_BKG[subc_index,*]
+countrates_bkg = pixel_data_summed.COUNT_RATES_BKG[subc_index,*]
 b = reform(countrates_bkg, n_det_used*4)
 
 ;;**************** EXPECTATION MAXIMIZATION ALGORITHM
@@ -146,12 +146,12 @@ for iter = 1, maxiter do begin
 
   x = x * transpose(f_div(Hz, Ht1))
 
-  cstat = 2. / n_elements(y[y_index]) * total(y[y_index] * alog(f_div(y[y_index],Hx[y_index])) + Hx[y_index] - y[y_index])
+  cstat = 2. / n_elements(y[y_index]) * total(y[y_index] * alog(f_div(y[y_index],Hx[y_index] + b[y_index])) + Hx[y_index] + b[y_index] - y[y_index])
 
   ; Stopping rule
   if iter gt 10 and (iter mod 25) eq 0 then begin
     emp_back_res = total((x * (Ht1 - Hz))^2)
-    std_back_res = total(x^2 * (f_div(1.0, Hx) # H2))
+    std_back_res = total(x^2 * (f_div(1.0, Hx + b) # H2))
     std_index = f_div(emp_back_res, std_back_res)
 
     if ~keyword_set(silent) then print, iter, std_index, cstat

@@ -6,7 +6,7 @@
 ;
 ; PURPOSE:
 ;
-;   Construct a summed STIX pixel data structure (i.e., sum the counts to form a 32x4 dimensional matrix, 
+;   Construct a summed STIX pixel data structure (i.e., sum the counts to form a 32x4 element matrix, 
 ;   normalize for livetime, incident area, lenght of the energy interval considered, and correct for grid transmission)
 ;
 ; CALLING SEQUENCE:
@@ -37,8 +37,8 @@
 ;
 ;   'stx_pixel_data_summed' structure containing:
 ;
-;   - LIVE_TIME: 32-dimensional array containing the live time of each detector in the considered time interval
-;   - TIME_RANGE: bi-dimensional STX_TIME array containg the start and the end of the selected time interval
+;   - LIVE_TIME: 32-element array containing the live time of each detector in the considered time interval
+;   - TIME_RANGE: two-element STX_TIME array containg the start and the end of the selected time interval
 ;   - ENERGY_RANGE: array containing the lower and the upper edge of the selected energy interval
 ;   - COUNT_RATES: array 32x4 containing the value of the countrates A,B,C,D recorded by each subcollimator.
 ;                  Pixel measurements are summed (from 12 to 4) and countrates are normalized by live time,
@@ -47,7 +47,7 @@
 ;   - COUNTS_RATES_ERROR: array 32x4 containing the errors associated with the countrates A,B,C,D recorded by each detector
 ;                         (compression errors and statistical errors are taken into account, no systematic errors are added)
 ;   - TOT_COUNTS: total number of counts recorded by the imaging subcollimators selected by means of 'subc_index'
-;   - LIVE_TIME_BKG: 32-dimensional array containing the live time of each detector during the background measurement          
+;   - LIVE_TIME_BKG: 32-element array containing the live time of each detector during the background measurement          
 ;   - COUNT_RATES_BKG: array 32x4 containing the background countrates A,B,C,D recorded by each subcollimator. Pixel measurements 
 ;                       are summed (from 12 to 4) and countrates are normalized by live time, incident area, length of the considered energy 
 ;                       interval. Optionally, they are corrected for the grid internal shadowing and transmission
@@ -56,10 +56,10 @@
 ;   - TOT_COUNTS_BKG: estimate of the total number of background counts recorded by the imaging subcollimators (selected with 'subc_index')
 ;                     in the considered time and energy interval
 ;   - RCR: Rate Control Regime status during the flare measurement
-;   - XY_FLARE: 2-dimensional array containing the X and Y coordinates of the estimated flare location (STIX coordinate frame, arcsec).
+;   - XY_FLARE: 2-element array containing the X and Y coordinates of the estimated flare location (STIX coordinate frame, arcsec).
 ;               If 'xy_flare' is not passed, it is filled with NaN values
 ;   - SUMCASE: string indicating which pixels are summed (see above comment on 'sumcase' keyword for more details)
-;   - DETECTOR_MASKS: 32-dimensional array containing information on the detectors used for the measurement 
+;   - DETECTOR_MASKS: 32-element array containing information on the detectors used for the measurement 
 ;                     (1 if the corresponding detector has been used, 0 otherwise)
 ;
 ; HISTORY: August 2022, Massa P., created
