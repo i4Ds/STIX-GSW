@@ -97,9 +97,9 @@ flare_loc = [srcstr.SRCX, srcstr.SRCY]
 if ~silent then begin
   
   loadct,3, /silent
-  
-  window,this_win,xsize=1200,ysize=600
-  cleanplot
+  device, Window_State=win_state
+  if win_state[this_win] then wset, this_win else window,this_win,xsize=1200,ysize=600
+  cleanplot, /silent
   !p.multi = [0,2,1]
                         
   ;;******* Plot of full-disk Back Projection map                      
