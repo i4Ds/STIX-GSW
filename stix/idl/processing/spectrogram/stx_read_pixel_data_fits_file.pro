@@ -76,7 +76,7 @@
 ;    28-Feb-2022 - ECMD (Graz), fixed issue reading sting rcr values for level 1 files
 ;    05-Jul-2022 - ECMD (Graz), fixed handling of L1 files which don't contain the full set of energy, detector and pixel combinations
 ;    21-Jul-2022 - ECMD (Graz), added automatic check for energy shift
-;    04-Sep-2022 - Paolo (WKU), fixed issue regarding pixel mask
+;    04-Sep-2022 - Paolo (WKU), fixed issue concerning pixel mask
 ;    
 ;-
 pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
