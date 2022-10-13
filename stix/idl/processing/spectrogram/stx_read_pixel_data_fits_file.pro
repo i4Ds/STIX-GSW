@@ -36,10 +36,7 @@
 ;               an output float value;
 ;
 ;    primary_header : out, type="string array"
-;               an output float value;
-;
-;    data_str : out, type="structure"
-;              The header of the primary HDU of the pixel data file
+;               The header of the primary HDU of the pixel data file.
 ;
 ;    data_header : out, type="string array", default="string array"
 ;              The header of the data extension of the pixel data file
