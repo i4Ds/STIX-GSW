@@ -60,7 +60,6 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
   aux_fits_file = aux_data_folder + 'solo_L2_stix-aux-ephemeris_'+day_0+'_V01.fits'
   ; Extract data at requested time
   if ~file_test(aux_fits_file) then message,"Cannot find auxiliary data file "+aux_fits_file
-;  aux_data = stx_create_auxiliary_data(aux_fits_file, time_range, /dont_use_sas)
   aux_data = stx_create_auxiliary_data(aux_fits_file, time_range, use_sas=use_sas, dont_use_sas=dont_use_sas)
   
   ; If an aspect solution is given as input, use that one
@@ -87,16 +86,16 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
     print, xy_flare, format='(" *** INFO: Estimated flare location = (",F7.1,", ",F7.1,") arcsec")'
     print, xy_flare / aux_data.rsun, format='(" ... in units of solar radius = (",F6.3,", ",F6.3,")")'
 
-    ; The coordinates given as input to the imaging pipeline have to be conceived in the STIX reference frame.
-    ; Therefore, we perform a transformation from Helioprojective Cartesian to STIX reference frame with 'stx_hpc2stx_coord'
-    mapcenter = stx_hpc2stx_coord(xy_flare, aux_data)
-    xy_flare  = mapcenter
   endif else mapcenter = xy_flare
   
+  ; The coordinates given as input to the imaging pipeline have to be conceived in the STIX reference frame.
+  ; Therefore, we perform a transformation from Helioprojective Cartesian to STIX reference frame with 'stx_hpc2stx_coord'
+  mapcenter = stx_hpc2stx_coord(xy_flare, aux_data)
+  flare_loc  = mapcenter
+
   ; Compute calibrated visibilities
-  ;; vis=stix2vis_sep2021(path_sci_file, time_range, energy_range, mapcenter, aux_data, path_bkg_file=path_bkg_file, xy_flare=xy_flare)
   vis = stx_construct_calibrated_visibility(path_sci_file, time_range, energy_range, mapcenter, $
-                                            path_bkg_file=path_bkg_file, xy_flare=xy_flare)
+                                            path_bkg_file=path_bkg_file, xy_flare=flare_loc)
 
   ; Finally, generate the map using MEM_GE
   out_map = stx_mem_ge(vis,imsize,pixel,aux_data,total_flux=max(abs(vis.obsvis)), /silent)
