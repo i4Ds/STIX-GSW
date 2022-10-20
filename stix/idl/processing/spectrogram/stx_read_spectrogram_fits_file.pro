@@ -33,10 +33,11 @@
 ;            Set if input file is an alpha e.g. L1A
 ;
 ;    use_discriminators : in, type="boolean", default="0"
-;               an output float value;
+;               If set include the first and last energy channels. These are usually used as LLD
+;               and ULD respectively and so are by default excluded.
 ;
 ;    primary_header : out, type="string array"
-;               an output float value;
+;               The header of the primary HDU of the pixel data file.
 ;
 ;    data_str : out, type="structure"
 ;              The header of the primary HDU of the spectrogram data file
@@ -73,8 +74,8 @@
 ;    18-Jun-2021 - ECMD (Graz), initial release
 ;    22-Feb-2022 - ECMD (Graz), documented, improved handling of alpha and non-alpha files, fixed duration shift issue
 ;    05-Jul-2022 - ECMD (Graz), fixed handling of L1 files which don't contain the full set of energies
-;    21-Jul-2022 - ECMD (Graz), added automatic check for energy shift 
-;    
+;    21-Jul-2022 - ECMD (Graz), added automatic check for energy shift
+;    09-Aug-2022 - ECMD (Graz), determine minimum time bin size using LUT
 ;-
 pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
   control_header= control_header, energy_str = energy, energy_header = energy_header, t_axis = t_axis, e_axis = e_axis, $
@@ -92,25 +93,31 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   data = stx_read_fits(fits_path, 'data', data_header, mversion_full = mversion_full)
   energy = stx_read_fits(fits_path, 'energies', energy_header, mversion_full = mversion_full)
 
-
-  n_time = n_elements(data.time)
-
-  energies_used = where( control.energy_bin_mask eq 1 , nenergies)
-
   processing_level = (sxpar(primary_header, 'LEVEL'))
   if strcompress(processing_level,/remove_all) eq 'L1A' then alpha = 1
 
   hstart_time = alpha ? (sxpar(primary_header, 'date_beg')) : (sxpar(primary_header, 'date-beg'))
 
   trigger_zero = (sxpar(data_header, 'TZERO3'))
-  new_triggers = float(trigger_zero +data.triggers)
+  new_triggers = float(trigger_zero + data.triggers)
   data = rep_tag_value(data, 'TRIGGERS', new_triggers)
+  
   ;TO BE ADDED WHEN FULL_RESOLUTION KEWORD IS INCLUDED
   ;  full_resolution = (sxpar(primary_header, 'FULL_RESOLUTION'))
   ;
   ;if ~full_resolution  and apply_time_shift then begin
   ;    message, /info, 'For time shift compensation full archive buffer time resolution files are needed.'
   ;endif
+  
+  time = data.time
+  n_time = n_elements(time)
+  if n_time gt 1 then begin
+    min_time_diff = min(time[1:-1] - time)
+    time_discrep_thrshold = alpha ? -0.2 : -20
+    if min_time_diff lt time_discrep_thrshold then message, 'Time intervals are not monotonically increasing. Possible issue with FITS file.'
+  endif
+  
+  energies_used = where( control.energy_bin_mask eq 1 , nenergies)
 
   data.counts_err  = sqrt(data.counts_err^2. + data.counts)
   data.triggers_err = sqrt( data.triggers_err^2. + data.triggers)
@@ -172,14 +179,17 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
     ;remove short time bins with low counts
     counts_for_time_bin=total(counts[1:10,*],1)
 
-    idx_short=where(counts_for_time_bin le 1400 )
+    min_count_threshold = 1400
+    idx_short=where(counts_for_time_bin le min_count_threshold )
 
-    ;list when we have 1 second time bins, short or normal bins
+    ;list when we have minimum duration time bins, short or normal bins
     mask_long_bins  =  lonarr(n_time-1) + 1
+
+    min_time = stx_date2min_time(hstart_time) / 10.
 
     if idx_short[0] ne -1 then begin
 
-      idx_double = where(duration[idx_short-1] eq 1)
+      idx_double = where(duration[idx_short-1] eq min_time)
 
       idx_short_plus = idx_double[0] ne -1 ? [idx_short,idx_short[idx_double]-1] : idx_short
 
@@ -216,6 +226,9 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
 
   if alpha then begin
     rcr = tag_exist(data, 'rcr') ? data.rcr :replicate(control.rcr, n_time)
+    ;21-Jul-2022 - ECMD (Graz), Renaming mask variables as they differ between L1 and L1A files
+    control = rep_tag_name(control, 'pixel_mask','pixel_masks')
+    control = rep_tag_name(control, 'detector_mask','detector_masks')
   endif else begin
     rcr =  ((data.rcr).typecode) eq 7 ? fix(strmid(data.rcr,0,1,/reverse_offset)) : (data.rcr)
     ;L1 files
@@ -226,6 +239,7 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
     full_counts_err = dblarr(32, n_time)
     full_counts[energies_used, *] = counts_err
     counts_err = full_counts_err
+
 
   endelse
 

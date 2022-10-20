@@ -47,10 +47,28 @@
 ;                     Shift all time bins by 1 to account for FSW time input discrepancy prior to 09-Dec-2021.
 ;                     N.B. WILL ONLY WORK WITH FULL TIME RESOLUTION DATA WHICH IS OFTEN NOT THE CASE FOR PIXEL DATA.
 ;
-;     plot : in, type="boolean", default="1"
-;                     If set open OSPEX GUI and plot lightcurve in standard quicklook energy bands where there is data present 
-;                                  
-;      ospex_obj : out, type="OSPEX object"
+;    sys_uncert : in, type="float", default="0.05"
+;                 The fractional systematic uncertainty to be added
+;
+;    generate_fits : in, type="boolean", default="1"
+;                    If set spectrum and srm FITS files will be generated and read using the stx_read_sp using the
+;                    SPEX_ANY_SPECFILE strategy. Otherwise use the spex_user_data strategy to pass in the data
+;                    directly to the ospex object.
+;
+;    specfile : in, type="string", default="'stx_spectrum_' + UID + '.fits'"
+;                    File name to use when saving the spectrum FITS file for OSPEX input.
+;
+;    srmfile : in, type="string", default="'stx_srm_'+ UID + '.fits'"
+;                    File name to use when saving the srm FITS file for OSPEX input.
+;
+;    background_data : out, type="stx_background_data structure"
+;                     Structure containing the subtracted background for external plotting.
+;
+;    plot : in, type="boolean", default="1"
+;                     If set open OSPEX GUI and plot lightcurve in standard quicklook energy bands
+;                     where there is data present
+;
+;    ospex_obj : out, type="OSPEX object"
 ;
 ;
 ; :examples:
@@ -62,11 +80,21 @@
 ;    18-Jun-2021 - ECMD (Graz), initial release
 ;    19-Jan-2022 - Andrea (FHNW), added keywords for selecting a subset of pixels and detectors for OSPEX
 ;    22-Feb-2022 - ECMD (Graz), documented, added default warnings, elut is determined by stx_date2elut_file, improved error calculation
-;    04-Jul-2022 - ECMD (Graz), added plot keyword 
+;    04-Jul-2022 - ECMD (Graz), added plot keyword
+;    20-Jul-2022 - ECMD (Graz), distance factor now calculated in stx_convert_science_data2ospex
+;    08-Aug-2022 - ECMD (Graz), can now pass in file names for the output spectrum and srm FITS files
+;                               added keyword to allow the user to specify the systematic uncertainty
+;                               generate structure of info parameters to pass through to FITS file
+;    16-Aug-2022 - ECMD (Graz), information about subtracted background can now be passed out
 ;
 ;-
-pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, time_shift = time_shift, energy_shift = energy_shift, distance = distance, $
-  flare_location= flare_location,  plot = plot, ospex_obj = ospex_obj, det_ind = det_ind, pix_ind = pix_ind, shift_duration = shift_duration, no_attenuation=no_attenuation
+pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, $
+  time_shift = time_shift, energy_shift = energy_shift, distance = distance, flare_location = flare_location, $
+  det_ind = det_ind, pix_ind = pix_ind, $
+  shift_duration = shift_duration, no_attenuation = no_attenuation, sys_uncert = sys_uncert, $
+  generate_fits = generate_fits, specfile = specfile, srmfile = srmfile,$
+  background_data = background_data, plot = plot, ospex_obj = ospex_obj
+
 
   if n_elements(time_shift) eq 0 then begin
     message, 'Time shift value not set using default value of 0 [s].', /info
@@ -75,37 +103,24 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
     time_shift = 0.
   endif
 
-  if n_elements(distance) eq 0 then begin
-    message, 'Distance value not set using default value of 1 [AU].', /info
-    print, 'File averaged values can be obtained from the FITS file header'
-    print, 'using stx_get_header_corrections.pro.'
-    distance = 1.
-  endif
-
   default, flare_location, [0.,0.]
   default, shift_duration, 0
   default, plot, 1
+  default, det_ind, 'top24'
 
-  dist_factor = 1./(distance^2.)
+  if data_type(det_ind) eq 7 then det_ind = stx_label2det_ind(det_ind)
+  if data_type(pix_ind) eq 7 then pix_ind = stx_label2pix_ind(pix_ind)
 
-  g10=[3,20,22]-1
-  g09=[16,14,32]-1
-  g08=[21,26,4]-1
-  g07=[24,8,28]-1
-  g06=[15,27,31]-1
-  g05=[6,30,2]-1
-  g04=[25,5,23]-1
-  g03=[7,29,1]-1
-  g02=[12,19,17]-1
-  g01=[11,13,18]-1
-  g01_10=[g01,g02,g03,g04,g05,g06,g07,g08,g09,g10]
-  g03_10=[g03,g04,g05,g06,g07,g08,g09,g10]
+  stix_compute_subcollimator_indices, g01,g02,g03,g04,g05,g06,g07,g08,g09,g10,$
+    l01,l02,l03,l04,l05,l06,l07,l08,l09,l10,$
+    res32,res10,o32,g03_10,g01_10,g_plot,l_plot
 
+  ; 22-Jul-2022 - ECMD, changed keyword_set to n_elements as [0] is valid detector or pixel index array
   mask_use_detectors = intarr(32)
-  if not keyword_set(det_ind) then mask_use_detectors[g03_10] = 1 else mask_use_detectors[det_ind] = 1
+  if n_elements(det_ind) eq 0 then mask_use_detectors[g03_10] = 1 else mask_use_detectors[det_ind] = 1
 
   mask_use_pixels = intarr(12)
-  if not keyword_set(pix_ind) then mask_use_pixels[*] = 1 else mask_use_pixels[pix_ind] = 1
+  if n_elements(pix_ind) eq 0 then mask_use_pixels[*] = 1 else mask_use_pixels[pix_ind] = 1
 
 
   stx_read_pixel_data_fits_file, fits_path_data, time_shift, primary_header = primary_header, data_str = data_str, data_header = data_header, control_str = control_str, $
@@ -117,6 +132,13 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   start_time = atime(stx_time2any((t_axis.time_start)[0]))
 
   elut_filename = stx_date2elut_file(start_time)
+  uid = control_str.request_id
+
+  if n_elements(distance) ne 0 then fits_distance = distance
+
+  fits_info_params = stx_fits_info_params( fits_path_data = fits_path_data, data_level = data_level, $
+    distance = fits_distance, time_shift = time_shift, fits_path_bk = fits_path_bk, uid = uid, $
+    generate_fits = generate_fits, specfile = specfile, srmfile = srmfile, elut_file = elut_filename)
 
   counts_in = data_str.counts
 
@@ -147,9 +169,21 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
 
   detector_mask_used = intarr(32)
   detector_mask_used[detectors_used]  = 1
-  n_detectors =total(detector_mask_used)
+  n_detectors = total(detector_mask_used)
   energy_edges_used = [e_axis.low_fsw_idx, e_axis.high_fsw_idx[-1]+1]
   n_energy_edges = n_elements(energy_edges_used)
+
+  if total(pixel_mask_used[0:3]) eq total(pixel_mask_used[4:7]) then begin
+    count_ratio_threshold = 1.05
+    counts_top = total(counts_in[1:25,0:3,detectors_used,*])
+    counts_bottom = total(counts_in[1:25,4:7,detectors_used,*])
+    case 1 of
+      f_div(counts_top, counts_bottom, default = 2) gt count_ratio_threshold : message, 'Top pixel total 5% higher than bottom row. Possible pixel shadowing. Recommend using only top pixels for analysis.',/info
+      f_div(counts_bottom, counts_top, default = 2) gt count_ratio_threshold : message, 'Bottom pixel total 5% higher than top row. Possible pixel shadowing. Recommend using only bottom pixels for analysis.',/info
+      else:
+    endcase
+  endif
+
 
   stx_read_elut, ekev_actual = ekev_actual, elut_filename = elut_filename
 
@@ -218,9 +252,9 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   ; ******************** TEMPORARY FIX *************************
   ; ***** Andrea: 2022-April-05
   ; Temporarily creation of the no_attenuation keyword in order
-  ; to avoid attenuation of the fitted curve. This is useful for 
-  ; obtaining thermal fit parameters with the BKG detector in the 
-  ; case the attenuator is inserted. We tested it with the X 
+  ; to avoid attenuation of the fitted curve. This is useful for
+  ; obtaining thermal fit parameters with the BKG detector in the
+  ; case the attenuator is inserted. We tested it with the X
   ; class flare on 2021-Oct-26 and it works nicely.
   if keyword_set(no_attenuation) then begin
     rcr = rcr*0.
@@ -255,8 +289,10 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   ;add the rcr information to a specpar structure so it can be included in the spectrum FITS file
   specpar = { sp_atten_state :  {time:ut_rcr[index], state:state} }
 
-  stx_convert_science_data2ospex, spectrogram = spectrogram, specpar=specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims,  fits_path_bk = fits_path_bk,$
-    dist_factor = dist_factor, flare_location= flare_location, eff_ewidth = eff_ewidth, plot = plot, ospex_obj = ospex_obj
+  stx_convert_science_data2ospex, spectrogram = spectrogram, specpar=specpar, time_shift = time_shift, $
+    data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, distance = distance, $
+    fits_path_data = fits_path_data, flare_location = flare_location, eff_ewidth = eff_ewidth, sys_uncert = sys_uncert, $
+    plot = plot, background_data = background_data, fits_info_params = fits_info_params, ospex_obj = ospex_obj
 
 end
 
