@@ -56,7 +56,8 @@ default, this_win, 4
 
 ;;******* Determine the pixel size from the apparent radius of the Sun for computing a full-disk Back Projection map
 rsun = aux_data.RSUN
-pixel = rsun * 2.6 / imsize
+pixel = rsun * 2.6 / imsize ; 2.6 is chosen arbitrarily so that field of view Back Projection map used 
+                            ; for determining the flare location contains the entire solar disk 
 
 ;;******* Construct the visibility structure
 mapcenter_stix = stx_hpc2stx_coord(mapcenter, aux_data)

@@ -6,8 +6,8 @@
 ;
 ; PURPOSE:
 ;
-;   Read a STIX science L1 fits file (and potentially a STIX background L1 fits file) and contruct a
-;   calibrated 'stx_visibility' structure
+;   Plots the visibility amplitude and phase fit plots corresponding to a STIX map created 
+;   with 'stx_make_map.pro'
 ;
 ; CALLING SEQUENCE:
 ;
