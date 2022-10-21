@@ -52,26 +52,31 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
   default, pixel,  [2.,2.]
 
   ;;;;
-  ; Read auxiliary file: first, extract date from time_range[0]
+
+  ; Extract pointing and other ancillary data from auxiliary file covering the input time_range.
+  ; First, extract date from time_range[0]
   time_0 = anytim2utc(anytim(time_range[0], /tai), /ccsds)
   day_0 = strmid(str_replace(time_0,'-'),0,8)
-;  aux_fits_file = aux_data_folder + 'solo_L2_stix-aux-auxiliary_'+day_0+'_V01.fits'
-  ; AUX files changed name in September 2022, therefore:
   aux_fits_file = aux_data_folder + 'solo_L2_stix-aux-ephemeris_'+day_0+'_V01.fits'
   ; Extract data at requested time
   if ~file_test(aux_fits_file) then message,"Cannot find auxiliary data file "+aux_fits_file
-  aux_data = stx_create_auxiliary_data(aux_fits_file, time_range, use_sas=use_sas, dont_use_sas=dont_use_sas)
+
+  ; If an aspect solution is given as input, then use that one:
+  if keyword_set(x_ptg) and keyword_set(y_ptg) then begin
+    ; we still need to call stx_create_auxiliary_data to get RSUN, L0 and B0 ...
+    aux_data = stx_create_auxiliary_data(aux_fits_file, time_range, /silent)
+    ; ... but overwrite pointing terms with user input
+    aux_data.stx_pointing[0] = x_ptg
+    aux_data.stx_pointing[1] = y_ptg
+  endif else aux_data = stx_create_auxiliary_data(aux_fits_file, time_range, use_sas=use_sas, dont_use_sas=dont_use_sas)
   
-  ; If an aspect solution is given as input, use that one
-  if keyword_set(x_ptg) then aux_data.stx_pointing[0] = x_ptg
-  if keyword_set(y_ptg) then aux_data.stx_pointing[1] = y_ptg
   
   ;;;;
   ; Read and process STIX L1A data
   l1a_file_list = file_search(l1a_data_folder + '*' + stix_uid + '*.fits')
   if l1a_file_list[0] eq '' then message,"Could not find any data for UID "+stix_uid $
      else path_sci_file = l1a_file_list[0]
-  print, " INFO: Found L1A file "+path_sci_file
+  print, " INFO: Found L1(A) file "+path_sci_file
 
   if keyword_set(bkg_uid) then begin
     l1a_file_list = file_search(l1a_data_folder + '*' + bkg_uid + '*.fits')
