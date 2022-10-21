@@ -15,8 +15,8 @@
 ;                array containing the UTC start time and end time of the considered time range      
 ;
 ; :keywords:
-;    use_sas: if set, avoid check on the reliability and use SAS solution for providing an estimate of STIX pointing 
-;    dont_use_sas: if set, bypass SAS solution and use spacecraft pointing (corrected for systematics) instead
+;    force_sas: if set, avoid check on the reliability and use SAS solution for providing an estimate of STIX pointing 
+;    no_sas: if set, bypass SAS solution and use spacecraft pointing (corrected for systematics) instead
 ;    silent: if set, don't dieplay information regarding pointing
 ;
 ; :returns:
@@ -33,15 +33,18 @@
 ;
 ;    May 1, 2022: Massa P. (MIDA, Unige), created
 ;    2022-08-24, F. Schuller (AIP, Germany): implemented interpolation if no measurement found in time range
-;    2022-09-09, FSc: added optional argument 'dont_use_sas'
+;    2022-09-09, FSc: added optional argument 'dont_use_sas' - renamed no_sas [2022-10-21]
 ;    2022-09-23, FSc: keyword 'silent' added; if not set, now displays messages about the pointing correction used
 ;    2022-09-28, FSc: displays a warning if dispersion in pointing > 3 arcsec
 ;-
-function stx_create_auxiliary_data, fits_path, time_range, use_sas=use_sas, dont_use_sas=dont_use_sas, silent=silent
+function stx_create_auxiliary_data, fits_path, time_range, force_sas=force_sas, no_sas=no_sas, silent=silent
 
-  default, use_sas, 0
-  default, dont_use_sas, 0
+  default, force_sas, 0
+  default, no_sas, 0
   default, silent, 0
+
+  if keyword_set(force_sas) and keyword_set(no_sas) then $
+     message, 'WARNING: keywords force_sas and no_sas both set, will not use SAS.', /info, /cont
 
 stx_read_aux_fits, fits_path, aux_data=aux_data_str
 
@@ -173,8 +176,8 @@ if ~X_SAS.isnan() and ~Y_SAS.isnan() then begin
 
   diff_ptg = norm(sas_pointing - spacecraft_pointing)
 
-  if diff_ptg lt 200. or use_sas then begin
-    if not keyword_set(dont_use_sas) then $
+  if diff_ptg lt 200. or force_sas then begin
+    if not keyword_set(no_sas) then $
       STX_POINTING = sas_pointing $
     else if ~silent then print, " --- Using spacecraft pointing (and NOT SAS solution)."
   endif else if ~silent then print," --- difference greater than 200 arcsec, using spacecraft pointing."

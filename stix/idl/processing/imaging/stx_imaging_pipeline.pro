@@ -36,7 +36,7 @@
 ;-
 function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_uid, $
                                xy_flare=xy_flare, imsize=imsize, pixel=pixel, x_ptg=x_ptg, y_ptg=y_ptg, $
-                               use_sas=use_sas, dont_use_sas=dont_use_sas
+                               force_sas=force_sas, no_sas=no_sas
   if n_params() lt 3 then begin
     print, "STX_IMAGING_PIPELINE"
     print, "Syntax: result = stx_imaging_pipeline(stix_uid, time_range, energy_range [, xy_flare=xy_flare, imsize=imsize, pixel=pixel, x_ptg=x_ptg, y_ptg=y_ptg])"
@@ -68,7 +68,7 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
     ; ... but overwrite pointing terms with user input
     aux_data.stx_pointing[0] = x_ptg
     aux_data.stx_pointing[1] = y_ptg
-  endif else aux_data = stx_create_auxiliary_data(aux_fits_file, time_range, use_sas=use_sas, dont_use_sas=dont_use_sas)
+  endif else aux_data = stx_create_auxiliary_data(aux_fits_file, time_range, force_sas=force_sas, no_sas=no_sas)
   
   
   ;;;;
