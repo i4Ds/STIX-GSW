@@ -14,6 +14,8 @@
 ;    scale - default is 4, using the fitted values from the calibration spectra on the 1024 compressed spectra
 ;    If based on the 4096 adc channels, then scale should be 1
 ;    path  - directory path to h5 file
+;    starlet - produce an ELUT csv filr directly compatible with starlet software
+;    
 ; :Results:
 ;   Writes an ELUT CSV file into the current directory
 ; :Author: raschwar, 6-jun-2019
@@ -21,11 +23,12 @@
 ;     add the offset and gain to columns in the ELUT
 ;           30-jun-2019, RAS, added tvac reader for h5 file
 ;           01-jul-2019, RAS, use time2file for date string, change reader in stx_calib_fit_data_prep
+;           31-aug-2022, ECMD, alternative option to produce a starlet compatible version 
 ;           
 ;-
-pro stx_write_elut, gain_in, offset_in, h5 = h5, scale = scale, table_header = table_header, path = path
+pro stx_write_elut, gain_in, offset_in, h5 = h5, scale = scale, table_header = table_header, path = path, starlet = starlet
 
-  default, scale, 4.0 ;scale is 4.0 if the gain is for the 1024 ADC fits. 
+  default, scale, 4.0 ;scale is 4.0 if the gain is for the 1024 ADC fits.
   default, h5, 'fitsresults.h5'
   default, path, [curdir(), concat_dir( concat_dir('ssw_stix','dbase'),'detector')]
   npixel = 12
@@ -50,23 +53,44 @@ pro stx_write_elut, gain_in, offset_in, h5 = h5, scale = scale, table_header = t
   nenergy_edg = n_elements(science_edg)
   ad_channel = reproduce( offset[*], nenergy_edg) + 1.0/gain[*] # science_edg
 
-
   ad_id = bytarr( 2,npixel,ndet)
-  for i=0,31 do ad_id[0,*,i] = indgen(npixel)
-  for i=0,31 do ad_id[1,*,i] = i + intarr(npixel)
-  ad_channel = reform( transpose(ad_channel), nenergy_edg, npixel, ndet)
 
-  table = reform( [ ad_id, round( ad_channel)], nenergy_edg+2, ndetxnpix )
-  stable = strarr( nenergy_edg+4, ndetxnpix)
-  stable[0,*] = string( offset[*], format='(f9.4)')
-  stable[1,*] = string( gain[*], format='(f9.6)')
-  stable[2:*,*] = strtrim( table,2 )
-  header = ['Offset','Gain keV/ADC','Pixel','Detector','ADC Edge '+$
-    strtrim( indgen(nenergy_edg),2)+' - ' + strtrim( fix(science_edg),2) + ' keV']
-  default, table_header, ['Based on the TVAC measurements by O Grimm May/June 2017.' + $
-    ' From STIX_TVAC_Data_MayJune2017\Nominal\FitResults.mat', $
-    'Channel energy edges obtained from stx_science_energy_channels(/edges_1) ']
-  ;Change to date string from time2file which can be read by file2time
-  sdate = time2file( anytim(systime(/sec),fid='sys'),/date)
-  write_csv, 'elut_table_'+sdate+'.csv',stable, header = header, table_header = table_header
+  if keyword_set(starlet) then begin
+
+    for i=0,31 do ad_id[1,*,i] = indgen(npixel)
+    for i=0,31 do ad_id[0,*,i] = i + intarr(npixel) + 1
+    ad_channel = reform( transpose(ad_channel), nenergy_edg, npixel, ndet)
+
+    table = reform( [ ad_id, round( ad_channel)], nenergy_edg+2, ndetxnpix )
+    stable = strarr( nenergy_edg+2, ndetxnpix)
+    stable[0:*,*] = strtrim( table,2 )
+    ;Change to date string from time2file which can be read by file2time
+    sdate = time2file( anytim(systime(/sec),fid='sys'),/date)
+    write_csv, 'elut_table_starlet_'+sdate+'.csv',stable
+
+  endif else begin
+
+    for i=0,31 do ad_id[0,*,i] = indgen(npixel)
+    for i=0,31 do ad_id[1,*,i] = i + intarr(npixel)
+    ad_channel = reform( transpose(ad_channel), nenergy_edg, npixel, ndet)
+
+    table = reform( [ ad_id, round( ad_channel)], nenergy_edg+2, ndetxnpix )
+    stable = strarr( nenergy_edg+4, ndetxnpix)
+    stable[0,*] = string( offset[*], format='(f9.4)')
+    stable[1,*] = string( gain[*], format='(f9.6)')
+    stable[2:*,*] = strtrim( table,2 )
+    header = ['Offset','Gain keV/ADC','Pixel','Detector','ADC Edge '+$
+      strtrim( indgen(nenergy_edg),2)+' - ' + strtrim( fix(science_edg),2) + ' keV']
+    default, table_header, ['Based on ECC fit measurements to calibration runs xxxx to yyyy provided by O Limousin.' + $
+      ' From ELUT_ECC_para_xxx_yyyy.fits', $
+      'Channel energy edges obtained from stx_science_energy_channels(/edges_1) ']
+    ;Change to date string from time2file which can be read by file2time
+    sdate = time2file( anytim(systime(/sec),fid='sys'),/date)
+    write_csv, 'elut_table_'+sdate+'.csv',stable, header = header, table_header = table_header
+
+  endelse
+
+
+
+
 end

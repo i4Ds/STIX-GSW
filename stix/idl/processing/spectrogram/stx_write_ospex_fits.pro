@@ -14,7 +14,7 @@
 ;       helper methods
 ;
 ; :description:
-;       Routine to write a spectrum FITS file from stix spectrogram data. Based on the routine hsi_spectrum__fitswrite.
+;       Routine to write a spectrum FITS file from STIX spectrogram data. Based on the routine hsi_spectrum__fitswrite.
 ;
 ; :keywords:
 ;
@@ -43,6 +43,7 @@
 ;       26-Nov-2017 - RAS   (GSFC), Get ph_edges from srm structure if passed
 ;       03-Dec-2018 - ECMD  (Graz), include information for multiple attenuation states
 ;       23-Feb-2022 - ECMD  (Graz), added information of xspec compatibility and time shift to files
+;       08-Aug-2022 - ECMD  (Graz), can now pass in structure of info parameters to write in FITS file
 ;
 ;-
 pro stx_write_ospex_fits, $
@@ -50,19 +51,20 @@ pro stx_write_ospex_fits, $
   specfilename = specfilename, $
   srmfilename = srmfilename, $
   specpar = specpar, $
-  srm_atten=srm_atten, $
+  srm_atten = srm_atten, $
   srmdata = srm, $
   ph_edges = ph_edges, $
-  time_shift = time_shift,$
-  xspec = xspec,$
-    _extra = extra_keys
+  time_shift = time_shift, $
+  xspec = xspec, $
+  fits_info_params = fits_info_params, $
+  _extra = extra_keys
 
-  default, any_specfile, 0 
+  default, any_specfile, 0
   default, xspec, 0
   if ~keyword_set(any_specfile) then begin
-   print,  'To use SPEX_ANY_SPECFILE strategy '
-   print,  'change self->setstrategy, '+string(39B)+'SPEX_HESSI_SPECFILE' +string(39B)+ ' to self->setstrategy, '+string(39B)+'SPEX_ANY_SPECFILE'+string(39B)
-   print,  'in STIX rate block of spex_data__define.pro'
+    print,  'To use SPEX_ANY_SPECFILE strategy '
+    print,  'change self->setstrategy, '+string(39B)+'SPEX_HESSI_SPECFILE' +string(39B)+ ' to self->setstrategy, '+string(39B)+'SPEX_ANY_SPECFILE'+string(39B)
+    print,  'in STIX rate block of spex_data__define.pro'
   endif
 
 
@@ -145,19 +147,38 @@ pro stx_write_ospex_fits, $
     compatibility = compatibility,$
     any_specfile = any_specfile
 
-
-  units_arr = [ units, units, ' ', ' ', ' ', 's', 's' ]
+  units_arr = [ 'counts/s', 'counts/s', ' ', ' ', ' ', 's', 's' ]
+  
+  backapp = fits_info_params.background_subtracted ? 'T' : 'F'
+  backfile = fits_info_params.fits_background_file
 
   ;make the rate structure
   rate_struct = stx_rate_header( nchan = nchan, exposure = exposure, timezeri = timezeri, tstartf = tstartf, $
-    tstopi = tstopi, tstopf = tstopf )
+    tstopi = tstopi, tstopf = tstopf, backapp = backapp, backfile = backfile )
+
+  fxaddpar, primary_header, 'PARENT', fits_info_params.fits_data_file, "Parent Observation Data File", before='AUTHOR'
+  fxaddpar, primary_header, 'DATA_LEVEL', fits_info_params.data_level, "Observation Data Compression Level", before='AUTHOR'
+
+  fxaddpar, specheader, 'REQUEST_ID', fits_info_params.uid, "Unique Request ID for the Observation", before='AUTHOR'
+  fxaddpar, specheader, 'SUN_DISTANCE', fits_info_params.distance, "Distance in AU to Sun", before='AUTHOR'
+  fxaddpar, specheader, 'GRID_FACTOR', fits_info_params.grid_factor, "Total Grid Transmission Factor", before='AUTHOR'
+  fxaddpar, specheader, 'ELUT_FILENAME', fits_info_params.elut_file, "Filename of ELUT", before='AUTHOR'
+  fxaddpar, specheader, 'DETUSED', fits_info_params.detused, "Label for detectors used", before='AUTHOR'
+  fxaddpar, specheader, 'DETNAM', fits_info_params.detused, "Label for detectors used", before='AUTHOR'
+  fxaddpar, specheader, 'SUMFLAG', 1, "Detectors are summed", before='AUTHOR'
+
+  fxaddpar, srmheader, 'SUN_DISTANCE', fits_info_params.distance, "Distance in AU to Sun", before='AUTHOR'
+  fxaddpar, srmheader, 'GRID_FACTOR', fits_info_params.grid_factor, "Total Grid Transmission Factor used", before='AUTHOR'
+  fxaddpar, srmheader, 'DETUSED', fits_info_params.detused, "Label for detectors used", before='AUTHOR'
+  fxaddpar, srmheader, 'DETNAM', fits_info_params.detused, "Label for detectors used", before='AUTHOR'
+  fxaddpar, srmheader, 'SUMFLAG', 1, "Detectors are summed", before='AUTHOR'
 
 
   ;make the spectrum file
   spectrum2fits, specfilename, rate_struct = rate_struct, write_primary_header = 1, $
     primary_header = primary_header, extension_header = specheader, $
     data = data, error = data_error, $
-    units = units_array, spec_num = specnum, channel = channel, $
+    units = units_arr, spec_num = specnum, channel = channel, $
     timedel = timedel, $
     timecen = timecen, $
     nrows = n_elements( timecen ),$
@@ -166,8 +187,7 @@ pro stx_write_ospex_fits, $
     e_min = reform( ct_edges_2[0,*] ), $
     e_max = reform( ct_edges_2[1,*] ), e_unit = 'kev', $
     err_code = err_code, _extra = extra_keys, err_msg = err_msg
-
-
+ 
   if  is_struct( specpar ) then begin
     specpar = str_sub2top(specpar)
 

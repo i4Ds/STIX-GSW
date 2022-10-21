@@ -53,6 +53,7 @@
 ;    EKEV_ACTUAL   - channel edges with true energies based on full adc 4096 bins
 ;    SCALE1024     - 1 or 0, default 1.  If set, gain and offset are returned
 ;    for the 1024 ADC calibration data. EKEV_ACTUAL is the same regardless
+;    path          - Path to the folder in which to search for elut_table csv files, by default .../ssw/so/stix/dbase/detector is used.
 ;
 ;
 ;
@@ -60,18 +61,24 @@
 ; :Author: rschwartz70@gmail.com, 2-jul-2019
 ; :History: 29-aug-2019, improved the file search for the elut file
 ; :RAS, 11-jun-2020, added ekev_actual, corrected the action of scale1024==0
-; :ECMD, 23-Feb-2022, fixed issue with finding file if current folder is not /stix 
+; :ECMD, 23-Feb-2022, fixed issue with finding file if current folder is not /stix
+; :ECMD, 03-Aug-2022, fixed issue when filename keyword is not used
+;
 ;-
 pro stx_read_elut, gain, offset, adc4096_str, elut_filename = elut_filename, scale1024 = scale1024, $
-  ekev_actual = ekev_actual
+  ekev_actual = ekev_actual, path = path
 
   default, scale1024, 1
 
-  case 1 of
-    file_exist( elut_filename ) : elut_file = elut_filename
-    file_exist( concat_dir( concat_dir('SSW_STIX','dbase'),'detector') + get_delim() + elut_filename) : $
-      elut_file =  concat_dir( concat_dir('SSW_STIX','dbase'),'detector') + get_delim() + elut_filename
-  else : begin
+  if getenv('SSW_STIX') eq '' and ~keyword_set(path) then message, 'Path to ELUT table files not found.'
+
+  if keyword_set(elut_filename) then begin
+    case 1 of
+      file_exist( elut_filename ) : elut_file = elut_filename
+      file_exist( concat_dir( concat_dir('SSW_STIX','dbase'),'detector') + get_delim() + elut_filename) : $
+        elut_file =  concat_dir( concat_dir('SSW_STIX','dbase'),'detector') + get_delim() + elut_filename
+    end
+  endif else begin
 
     default, path, [concat_dir( concat_dir('SSW_STIX','dbase'),'detector')]
 
@@ -100,9 +107,8 @@ pro stx_read_elut, gain, offset, adc4096_str, elut_filename = elut_filename, sca
       ord = reverse( sort( anytim( date )))
       elut_file = elut_file[ ord[0] ]
     endif
-    end
-  endcase
-  
+  end
+
   elut_str = reform_struct( read_csv( elut_file, n_table_header=3 ))
   ;Get the previous offset and gain suitable for the ADC1024 cal spectra
 
