@@ -73,7 +73,7 @@ pred_vis = {mapvis: mapvis, $     ; Complex visibility values predicted from the
 
 out_map = make_map(rotate(im_map,1))
 
-id_map = 'STX ' + method + ' MAP'
+id_map = 'STX ' + method + ': '
 out_map.ID = id_map
 
 out_map.dx = pixel[0]
@@ -109,8 +109,8 @@ add_prop, out_map, obs_vis        = vis                   ; Visibility structure
 add_prop, out_map, pred_vis       = pred_vis              ; Visibility values predicted from the reconstucted map       
 add_prop, out_map, aux_data       = aux_data              ; Auxiliary data structure
 add_prop, out_map, time_range     = time_range            ; Time range considered for image reconstruction
-add_prop, out_map, tot_counts     = vis[0].TOT_COUNTS     ; Total number of counts measured by the selected imaging detector
-add_prop, out_map, tot_counts_bkg = vis[0].TOT_COUNTS_BKG ; Estimate of the total number of background counts measured by the selected imaging detector
+;add_prop, out_map, tot_counts     = vis[0].TOT_COUNTS     ; Total number of counts measured by the selected imaging detector
+;add_prop, out_map, tot_counts_bkg = vis[0].TOT_COUNTS_BKG ; Estimate of the total number of background counts measured by the selected imaging detector
 add_prop, out_map, rsun = aux_data.RSUN
 add_prop, out_map, b0   = aux_data.B0
 add_prop, out_map, l0   = aux_data.L0

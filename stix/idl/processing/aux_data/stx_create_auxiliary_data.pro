@@ -1,7 +1,7 @@
 ;+
 ;
 ; name:
-;       stx_read_aux_fits
+;       stx_create_auxiliary_data
 ;
 ; :description:
 ;    Read an auxiliary fits file an returns the values of the STIX pointing coordinates, apparent radius of the Sun, 
