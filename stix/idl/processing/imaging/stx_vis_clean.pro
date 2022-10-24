@@ -169,15 +169,19 @@ function stx_vis_clean, vis, aux_data, niter = niter, image_dim = image_dim_in, 
       endif
       this_image=box_map.data
     endif else begin
-      ;default is bproj map
-      this_image=rotate(dmap0,1)
+      ;default is bproj map$
+      ;this_image=rotate(dmap0,1)
+      bp_map=stx_bproj(vis,[image_dim_in,image_dim_in],[pixel,pixel],$
+                       aux_data,spatial_freqency_weight = weight_used)
+      this_image=bp_map.data
     endelse
     clean_box_r=hsi_select_box(this_image,separation=separation,list=plist,nop=nop)
     ;rotate back and selected pixel list
     this_image=this_image*0
     this_image(clean_box_r)=1
-    this_image0=rotate(this_image,3)
-    clean_box=where(this_image0 eq 1)
+    this_image0=rot(this_image,aux_data.ROLL_ANGLE)
+    this_image0=rotate(this_image0,3)
+    clean_box=where(this_image0 gt 0.)
   endif
 
   component = {clean_comp,  ixctr: 0, iyctr: 0, flux:0.0}
@@ -234,8 +238,10 @@ function stx_vis_clean, vis, aux_data, niter = niter, image_dim = image_dim_in, 
       endif
       erase
       this_dmap0=dmap0
-      this_dmap0[clean_box[iz]]=0.
-      tvscl,congrid(rotate(this_dmap0,1),this_disp,this_disp),0
+      cc_indices=array_indices(this_dmap0,clean_box[iz]); indices of the clean component location
+      ;this_dmap0[clean_box[iz]]=0.
+      this_dmap0[cc_indices[0]-2:cc_indices[0]+2,cc_indices[1]-2:cc_indices[1]+2]=0.
+      tvscl,congrid(rot(rotate(this_dmap0,1),-aux_data.ROLL_ANGLE),this_disp,this_disp),0
       ;draw clean box on bproj map
       if keyword_set(set_clean_boxes) then begin
         ;for j=0,nop-1 do this_dmap0[plist[0,j],plist[1,j]]=0.
@@ -263,14 +269,15 @@ function stx_vis_clean, vis, aux_data, niter = niter, image_dim = image_dim_in, 
       this_dmap=dmap
       ;this_dmap[iz]=0.
       ;mark current component with max value
-      this_dmap[clean_box[iz]]=max(dmap0)
-      tvscl,congrid(rotate(this_dmap,1),this_disp,this_disp),1
+      ;this_dmap[clean_box[iz]]=max(dmap0)
+      this_dmap[cc_indices[0]-2:cc_indices[0]+2,cc_indices[1]-2:cc_indices[1]+2]=max(dmap0)
+      tvscl,congrid(rot(rotate(this_dmap,1),-aux_data.ROLL_ANGLE),this_disp,this_disp),1
       this_display=clean_map
       this_display(where(this_display ne 0))=1
-      tvscl,congrid(rotate(this_display,1),this_disp,this_disp),2
-      tvscl,congrid(rotate(cleaned_map_iter,1),this_disp,this_disp),3
+      tvscl,congrid(rot(rotate(this_display,1),-aux_data.ROLL_ANGLE),this_disp,this_disp),2
+      tvscl,congrid(rot(rotate(cleaned_map_iter,1),-aux_data.ROLL_ANGLE),this_disp,this_disp),3
       ;clean map (not per arcsec)
-      tvscl,congrid(rotate(cleaned_map_iter+dmap/total(clean_beam),1)  ,this_disp,this_disp),4
+      tvscl,congrid(rot(rotate(cleaned_map_iter+dmap/total(clean_beam),1),-aux_data.ROLL_ANGLE)  ,this_disp,this_disp),4
       this_start=0.015
       xyouts,this_start,0.9,'backprojection',charsize=1.5,/normal
       xyouts,this_start+0.2,0.9,/normal,'residual map',charsize=1.5
