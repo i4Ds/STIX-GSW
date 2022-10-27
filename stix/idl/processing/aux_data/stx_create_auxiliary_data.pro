@@ -152,7 +152,7 @@ ROT_PITCH = -YAW * sin(ROLL_ANGLE * !dtor) + PITCH * cos(ROLL_ANGLE * !dtor)
 ; If aspect solution is available (i.e., ~NaN) and is reliable (i.e. not much different from the spacecraft estimate) 
 ; use it. Otherwise, use spacecraft pointing estimate
 
-readcol, loc_file( 'Mapcenter_correction_factors.csv', path = getenv('STX_VIS_DEMO') ), $
+readcol, loc_file( 'Mapcenter_correction_factors.csv', path = getenv('STX_SAS') ), $
   avg_shift_x, avg_shift_y, offset_x, offset_y, /silent
 
 spacecraft_pointing = [avg_shift_x,avg_shift_y] + [ROT_YAW, ROT_PITCH]

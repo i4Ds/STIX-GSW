@@ -6,9 +6,9 @@ PRO stx_show_bproj,this_vis,aux_data,imsize=imsize,pixel=pixel,out=out,scaled_ou
 ; Sep 2021: works for sc 3-10
 ; stix_show_bproj,this_vis
 
-subc_index = stix_label2ind(['10a','10b','10c','9a','9b','9c','8a','8b','8c','7a','7b','7c','6a','6b','6c',$
+subc_index = stx_label2ind(['10a','10b','10c','9a','9b','9c','8a','8b','8c','7a','7b','7c','6a','6b','6c',$
                              '5a','5b','5c','4a','4b','4c','3a','3b','3c'])
-if ~ARRAY_EQUAL(subc_index, stix_label2ind(this_vis.label)) then message, 'Use all detectors from 10 to 3 (ordered as 10a, 10b, 10c, 9a,..)'
+if ~ARRAY_EQUAL(subc_index, stx_label2ind(this_vis.label)) then message, 'Use all detectors from 10 to 3 (ordered as 10a, 10b, 10c, 9a,..)'
 
 ;number of visibilites
 vdim=n_elements(this_vis)

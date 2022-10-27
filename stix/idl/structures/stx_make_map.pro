@@ -86,15 +86,7 @@ out_map.time = anytim((anytim(this_time_range[1])+anytim(this_time_range[0]))/2.
 out_map.dur  = anytim(this_time_range[1])-anytim(this_time_range[0])
 
 ;; Mapcenter coordinates
-if vis[0].calibrated eq 1 then begin
-
-  mapcenter = stx_rtn2stx_coord(vis[0].xyoffset, aux_data, /inverse)
-
-endif else begin
-
-  mapcenter = vis[0].xyoffset + aux_data.stx_pointing
-
-endelse
+mapcenter = stx_rtn2stx_coord(vis[0].xyoffset, aux_data, /inverse)
 
 out_map.xc = mapcenter[0]
 out_map.yc = mapcenter[1]

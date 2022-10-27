@@ -50,7 +50,7 @@ pro stx_estimate_flare_location, path_sci_file, time_range, aux_data, flare_loc=
 default, energy_range, [6.,10.]
 default, imsize, [512,512]
 default, mapcenter, [0., 0.]
-default, subc_index, stix_label2ind(['10a','10b','10c','9a','9b','9c','8a','8b','8c','7a','7b','7c'])
+default, subc_index, stx_label2ind(['10a','10b','10c','9a','9b','9c','8a','8b','8c','7a','7b','7c'])
 default, silent, 0
 default, this_win, 4
 

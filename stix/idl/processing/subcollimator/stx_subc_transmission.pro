@@ -30,9 +30,9 @@
 
 function stx_subc_transmission, flare_loc
 
-restore,loc_file( 'grid_temp.sav', path = getenv('STX_VIS_DEMO') )
-fff=read_ascii(loc_file( 'grid_param_front.txt', path = getenv('STX_VIS_DEMO') ),temp=grid_temp)
-rrr=read_ascii(loc_file( 'grid_param_rear.txt', path = getenv('STX_VIS_DEMO') ),temp=grid_temp)
+restore,loc_file( 'grid_temp.sav', path = getenv('STX_GRID') )
+fff=read_ascii(loc_file( 'grid_param_front.txt', path = getenv('STX_GRID') ),temp=grid_temp)
+rrr=read_ascii(loc_file( 'grid_param_rear.txt', path = getenv('STX_GRID') ),temp=grid_temp)
 
 grid_orient_front = 180.-fff.o ;; Orientation of the slits of the grid as seen from the detector side
 grid_pitch_front  = fff.p

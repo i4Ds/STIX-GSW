@@ -35,7 +35,7 @@ sock_copy, website_url + uid_sci_file, out_name, status = status, out_dir = out_
            local_file=path_sci_file, clobber=0
 
 ; UID of the background fits file to be dowloaded from the website           
-uid_bkg_file = "1178451984"
+uid_bkg_file = "1178082832"
 ; Download the background fits file (if not already stored in out_dir)
 sock_copy, website_url + uid_bkg_file, out_name, status = status, out_dir = out_dir, $
            local_file=path_bkg_file, clobber=0

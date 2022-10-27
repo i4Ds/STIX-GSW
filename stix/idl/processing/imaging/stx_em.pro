@@ -45,7 +45,7 @@ FUNCTION stx_em, pixel_data_summed, aux_data, imsize=imsize, pixel=pixel, $
                  mapcenter=mapcenter, subc_index=subc_index, $
                  maxiter=maxiter, tolerance=tolerance, silent=silent, makemap=makemap
 
-default, subc_index, stix_label2ind(['3a','3b','3c','4a','4b','4c','5a','5b','5c','6a','6b','6c',$
+default, subc_index, stx_label2ind(['3a','3b','3c','4a','4b','4c','5a','5b','5c','6a','6b','6c',$
                                        '7a','7b','7c','8a','8b','8c','9a','9b','9c','10a','10b','10c'])
 
 default, maxiter, 5000
@@ -64,11 +64,11 @@ if pixel[0] ne pixel[1] then message, 'Error: pixel size per dimension must be e
 ;;***************** Phase calibration factors
 
 ;; Grid phase correction
-tmp = read_csv(loc_file( 'GridCorrection.csv', path = getenv('STX_VIS_DEMO') ), header=header, table_header=tableheader, n_table_header=2 )
+tmp = read_csv(loc_file( 'GridCorrection.csv', path = getenv('STX_VIS_PHASE') ), header=header, table_header=tableheader, n_table_header=2 )
 grid_phase_corr = tmp.field2[subc_index]
 
 ;; "Ad hoc" phase correction (for removing residual errors)
-tmp = read_csv(loc_file( 'PhaseCorrFactors.csv', path = getenv('STX_VIS_DEMO')), header=header, table_header=tableheader, n_table_header=3 )
+tmp = read_csv(loc_file( 'PhaseCorrFactors.csv', path = getenv('STX_VIS_PHASE')), header=header, table_header=tableheader, n_table_header=3 )
 ad_hoc_phase_corr = tmp.field2[subc_index]
 
 ; Sum over top and bottom pixels

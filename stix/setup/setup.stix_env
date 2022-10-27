@@ -20,6 +20,7 @@
 # 17-Sep-2021 - Paolo M. (Unige), added dbase/demo/vis_demo
 # 11-Feb-2021 - ECMD (GRAZ), removed unneeded variables:
 #               STX_SPEC, STX_IVS, STX_IUT_DATA, STX_SIM, STX_SCN_TEST, STX_FPGA & STX_FSW
+# 26-Oct-2021 - Paolo M. (WKU), added dbase/vis_phase, dbase/sas and removed dbase/demo/vis_demo
 #
 #
 # Overview Variables
@@ -52,7 +53,8 @@ setenv STX_GRID		$SSW_STIX/dbase/grid
 setenv STX_DEMO_DATA	$SSW_STIX/dbase/demo
 setenv STX_DET		$SSW_STIX/dbase/detector
 setenv STX_CFL		$SSW_STIX/dbase/cfl
-setenv STX_VIS_DEMO	$SSW_STIX/dbase/demo/vis_demo
+setenv STX_VIS_PHASE	$SSW_STIX/dbase/vis_phase
+setenv STX_SAS		$SSW_STIX/dbase/sas
 
 # hack for case-sensitive operative systems
 setenv stx_conf		$SSW_STIX/dbase/conf
@@ -60,4 +62,6 @@ setenv stx_grid 	$SSW_STIX/dbase/grid
 setenv stx_demo_data 	$SSW_STIX/dbase/demo
 setenv stx_det  	$SSW_STIX/dbase/detector
 setenv stx_cfl  	$SSW_STIX/dbase/cfl
-setenv stx_vis_demo	$SSW_STIX/dbase/demo/vis_demo
+setenv stx_vis_phase	$SSW_STIX/dbase/vis_phase
+setenv stx_sas		$SSW_STIX/dbase/sas
+
