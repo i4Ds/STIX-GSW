@@ -55,10 +55,10 @@
 pro stx_read_aux_fits, fits_path, aux_data=aux_data, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
   control_header= control_header, idb_version_str = idb_version, idb_version_header = idb_version_header 
 
-  !null       = stx_read_fits(fits_path, 0, primary_header,  mversion_full = mversion_full)
-  control     = stx_read_fits(fits_path, 'control', control_header, mversion_full = mversion_full)
-  data        = stx_read_fits(fits_path, 'data', data_header, mversion_full = mversion_full)
-  idb_version = stx_read_fits(fits_path, 'idb_versions', idb_version_header, mversion_full = mversion_full)
+  !null       = stx_read_fits(fits_path, 0, primary_header,  mversion_full = mversion_full, /silent)
+  control     = stx_read_fits(fits_path, 'control', control_header, mversion_full = mversion_full, /silent)
+  data        = stx_read_fits(fits_path, 'data', data_header, mversion_full = mversion_full, /silent)
+  idb_version = stx_read_fits(fits_path, 'idb_versions', idb_version_header, mversion_full = mversion_full, /silent)
   
   ;**** Read the values that are closer to 'time_in'
   n_time_steps = n_elements(data)

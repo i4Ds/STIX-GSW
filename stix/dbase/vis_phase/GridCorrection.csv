@@ -1,0 +1,35 @@
+; Grid phase correction factors (in degrees) computed in September 2021
+; From Matej’s grid measurements and including the ‘m’ factor
+Sub-collimator index, Phase correction factor
+1,58.40
+2,-19.60
+3,-51.90
+4,116.30
+5,91.80
+6,-56.20
+7,-79.60
+8,-147.50
+9,0.00
+10,0.00
+11,0.00
+12,0.00
+13,0.00
+14,89.10
+15,-149.00
+16,-34.00
+17,0.00
+18,0.00
+19,0.00
+20,54.10
+21,-18.00
+22,14.60
+23,-88.70
+24,12.50
+25,107.70
+26,-116.10
+27,121.20
+28,-151.90
+29,77.20
+30,77.10
+31,-135.90
+32,-35.30

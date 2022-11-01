@@ -43,38 +43,13 @@ function stx_map2pixelabcd_matrix, imsize, pixel, u, v, phase_corr, XYOFFSET=xyo
   n_det_idx = n_elements(u)
   default, phase_corr, fltarr(n_det_idx)
 
-;  subc_str = stx_construct_subcollimator()
   fact = 1.
-;  case sumcase of
-;    0: begin
-;      indices = [0, 1] ;two big pixels used
-;    end
-;    1: begin
-;      indices = indgen(3) ;two big pixels and small pixel used
-;    end
-;    2: begin
-;      indices = [0] ;upper row pixels used
-;    end
-;    3: begin
-;      indices = [1] ;'lower row pixels used
-;    end
-;    4: begin
-;      indices = [2] ;small pixels used
-;      fact=2.
-;    end
-;  endcase
-;  
-;  ;Computation of the effective area of the pixels used
-;  tmp = subc_str.det.pixel.area
-;  tmp = reform(tmp[*, 0], 4, 3)
-;  tmp = reform(tmp[0, *])
-;  effective_area = total(tmp[indices])
-  if sumcase eq 4 then fact = 2.
+  if sumcase eq 'SMALL' then fact = 2.
   effective_area = 1.
   
   ; Computation of the constant factors M0 and M1
-  M0 = effective_area/4.
-  M1 = effective_area *fact* 4./(!pi^3.)*sin(!pi/(4.*fact))
+  M0 = 1./4.
+  M1 = fact* 4./(!pi^3.)*sin(!pi/(4.*fact))
   
 
   ; Initialization of the matrix 'H'

@@ -73,20 +73,21 @@
 ;    28-Feb-2022 - ECMD (Graz), fixed issue reading sting rcr values for level 1 files
 ;    05-Jul-2022 - ECMD (Graz), fixed handling of L1 files which don't contain the full set of energy, detector and pixel combinations
 ;    21-Jul-2022 - ECMD (Graz), added automatic check for energy shift
-;
+;    04-Sep-2022 - Paolo (WKU), fixed issue concerning pixel mask
+;    
 ;-
 pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
   control_header= control_header, energy_str = energy, energy_header = energy_header, t_axis = t_axis, e_axis = e_axis, $
-  energy_shift = energy_shift, use_discriminators = use_discriminators, shift_duration = shift_duration
+  energy_shift = energy_shift, use_discriminators = use_discriminators, shift_duration = shift_duration, silent=silent
 
   default, alpha, 0
   default, time_shift, 0
   default, use_discriminators, 1
 
-  !null = stx_read_fits(fits_path, 0, primary_header,  mversion_full = mversion_full)
-  control = stx_read_fits(fits_path, 'control', control_header, mversion_full = mversion_full)
-  data = stx_read_fits(fits_path, 'data', data_header, mversion_full = mversion_full)
-  energy = stx_read_fits(fits_path, 'energies', energy_header, mversion_full = mversion_full)
+  !null = stx_read_fits(fits_path, 0, primary_header,  mversion_full = mversion_full, silent=silent)
+  control = stx_read_fits(fits_path, 'control', control_header, mversion_full = mversion_full, silent=silent)
+  data = stx_read_fits(fits_path, 'data', data_header, mversion_full = mversion_full, silent=silent)
+  energy = stx_read_fits(fits_path, 'energies', energy_header, mversion_full = mversion_full, silent=silent)
 
   processing_level = (sxpar(primary_header, 'LEVEL'))
   if strcompress(processing_level,/remove_all) eq 'L1A' then alpha = 1
@@ -148,14 +149,14 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
     data =  rep_tag_value(data, rcr, 'RCR')
 
     detectors_used = where( (data.detector_masks)[*,0] eq 1, ndets)
-    pixels_used = where( total((data.pixel_masks)[*,*,0],1) eq 1, npix)
+    pixels_used = where( (data.pixel_masks)[*,0] eq 1, npix)
 
     full_counts = dblarr(32, 12, 32, n_times)
-    full_counts[energies_used, pixels_used, detectors_used, *] = counts
+    full_counts[energies_used, pixels_used, detectors_used, *] = counts[*,pixels_used,*,*]
     counts = full_counts
 
     full_counts_err = dblarr(32, 12, 32, n_times)
-    full_counts_err[energies_used, pixels_used, detectors_used, *] = counts_err
+    full_counts_err[energies_used, pixels_used, detectors_used, *] = counts_err[*,pixels_used,*,*]
     counts_err = full_counts_err
 
   endif else begin
