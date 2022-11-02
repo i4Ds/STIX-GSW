@@ -59,7 +59,7 @@
 
 function stx_img_spectra_control
 
-file = file_search( concat_dir( getenv('ssw_stix'), '..'), 'iout.sav', count=count)
+file = file_search( concat_dir( getenv('SSW_STIX'), '..'), 'iout.sav', count=count)
 if count eq 1 then restore,/ver, file[0] else $
   stx_ivs_demo, obs_time = '2002/07/23 ' + ['00:10:00', '00:55:00'], plotting=0, intervals_out = iout
   

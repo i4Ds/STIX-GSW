@@ -17,7 +17,7 @@
 ;                                                                                        
 pro ospex_script_26_jul_2013, obj=obj, demo_input_dir = demo_input_dir                                                    
 if not is_class(obj,'SPEX',/quiet) then obj = ospex()        
-default, demo_input_dir, concat_dir( getenv('stx_demo_data'),'ospex/sample_data/20020220',/dir)                            
+default, demo_input_dir, concat_dir( getenv('STX_DEMO_DATA'),'ospex/sample_data/20020220',/dir)                            
 obj-> set, spex_specfile= file_search( demo_input_dir, 'hsi_spectrum_20020220_105020.fits')       
 obj-> set, spex_drmfile= file_search( demo_input_dir, 'hsi_srm_20020220_105020.fits'  )           
 obj-> set, spex_source_angle= 81.4157                                                    

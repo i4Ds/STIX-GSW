@@ -109,11 +109,11 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   ;    message, /info, 'For time shift compensation full archive buffer time resolution files are needed.'
   ;endif
   
-  time = data.time
+  time = float(data.time)
   n_time = n_elements(time)
   if n_time gt 1 then begin
     min_time_diff = min(time[1:-1] - time)
-    time_discrep_thrshold = alpha ? -0.2 : -20
+    time_discrep_thrshold = alpha ? -0.2 : -20.
     if min_time_diff lt time_discrep_thrshold then message, 'Time intervals are not monotonically increasing. Possible issue with FITS file.'
   endif
   
@@ -227,8 +227,9 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   if alpha then begin
     rcr = tag_exist(data, 'rcr') ? data.rcr :replicate(control.rcr, n_time)
     ;21-Jul-2022 - ECMD (Graz), Renaming mask variables as they differ between L1 and L1A files
-    control = rep_tag_name(control, 'pixel_mask','pixel_masks')
     control = rep_tag_name(control, 'detector_mask','detector_masks')
+    pixel_masks = control.pixel_mask
+
   endif else begin
     rcr =  ((data.rcr).typecode) eq 7 ? fix(strmid(data.rcr,0,1,/reverse_offset)) : (data.rcr)
     ;L1 files
@@ -237,9 +238,12 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
     counts = full_counts
 
     full_counts_err = dblarr(32, n_time)
-    full_counts[energies_used, *] = counts_err
+    full_counts_err[energies_used, *] = counts_err
     counts_err = full_counts_err
-
+    
+    summed_pixel_masks = n_time gt 1 ? total(data.pixel_masks,2) : data.pixel_masks
+    pixel_masks = fltarr(12)
+    pixel_masks[where(summed_pixel_masks ne 0)] = 1
 
   endelse
 
@@ -276,6 +280,7 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
     counts:counts ,$
     counts_err: counts_err ,$
     rcr: rcr,$
+    pixel_masks: pixel_masks,$
     control_index:control_index}
 
   if control.energy_bin_mask[0] || control.energy_bin_mask[-1] and ~keyword_set(use_discriminators) then begin
