@@ -18,25 +18,40 @@
 ;   imsize       : size (in pixels) of the image to be generated (default: [128, 128])
 ;   pixel        : size (in arcsec) of one pixel in the map (default: [2.,2.])
 ;   x_ptg, y_ptg : if provided, use these values instead of those found in the auxiliary file to correct for pointing
+;   force_sas    : if set, uses SAS solution even if it's far off SolO's pointing
+;   no_sas       : if set, don't use SAS solution but rely on SolO's pointing
+;   subc_labels  : list of sub-collimators to be used in imaging algorithm
 ;
 ; OUTPUTS:
 ;   Returns a map object that can be displayed with plot_map
 ;
 ; EXAMPLES:
-;   mem_ge_map = stx_imaging_pipeline('2109230031', ['23-Sep-2021 15:20:30', '23-Sep-2021 15:22:30'], [18,28], [650.,-650.])
-;   map_1 = stx_imaging_pipeline('2110090002', ['2021-10-09T06:29:50','2021-10-09T06:32:30'], [18,28], [20., 420.])
-;   map_2 = stx_imaging_pipeline('2110090002', ['2021-10-09T06:29:50','2021-10-09T06:32:30'], [4,8], [20., 420.])
+;   mem_ge_map = stx_imaging_pipeline('2109230031', ['23-Sep-2021 15:20:30', '23-Sep-2021 15:22:30'], [18,28])
+;   map_1 = stx_imaging_pipeline('2110090002', ['2021-10-09T06:29:50','2021-10-09T06:32:30'], [18,28])
+;   map_2 = stx_imaging_pipeline('2110090002', ['2021-10-09T06:29:50','2021-10-09T06:32:30'], [4,8])
+;; Example with user-provided pointing correction:
+;   map1 = stx_imaging_pipeline('2204020888', ['2022-04-02T13:18:10','2022-04-02T13:20:40'], [25,50], $
+;                               x_ptg=-1901.0, y_ptg=871.3)
+;; User-defined map center and dimensions:
+;   map2 = stx_imaging_pipeline('2204020888', ['2022-04-02T13:22:30','2022-04-02T13:26:50'], [25,50], $
+;                               x_ptg=-1900.0, y_ptg=871.2, xy_flare=[-1900.,550.], imsize=[261,221], pixel=[2.5,2.5])
+;; Using only a sub-set of collimators:
+;   low_res = ['10a','10b','10c','9a','9b','9c','8a','8b','8c','7b','7c','6c']
+;   map_th = stx_imaging_pipeline('2204020888', ['2022-04-02T13:37','2022-04-02T13:44'], [4,8], $
+;                                 x_ptg=-1897., y_ptg=870.3, xy_flare=[-2000.,600.], imsize=[201,201], pixel=[3.,3.], subc_labels = low_res)
 ;
 ; MODIFICATION HISTORY:
 ;    2022-05-19: F. Schuller (AIP, Germany): created
 ;    2022-08-30, FSc: use stx_estimate_location to find source position if not given
 ;    2022-09-09, FSc: added optional argument bkg_uid
 ;    2022-10-06, FSc: adapted to recent changes in other procedures
+;    2022-11-16, FSc: added optional argument subc_labels
 ;
 ;-
 function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_uid, $
                                xy_flare=xy_flare, imsize=imsize, pixel=pixel, x_ptg=x_ptg, y_ptg=y_ptg, $
-                               force_sas=force_sas, no_sas=no_sas
+                               force_sas=force_sas, no_sas=no_sas, subc_labels=subc_labels
+
   if n_params() lt 3 then begin
     print, "STX_IMAGING_PIPELINE"
     print, "Syntax: result = stx_imaging_pipeline(stix_uid, time_range, energy_range [, xy_flare=xy_flare, imsize=imsize, pixel=pixel, x_ptg=x_ptg, y_ptg=y_ptg])"
@@ -47,6 +62,10 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
   aux_data_folder = '/store/data/STIX/L2_FITS_AUX/'
 ;   l1a_data_folder = '/store/data/STIX/L1A_FITS/L1/'
   l1a_data_folder = '/store/data/STIX/L1_FITS_SCI/'
+
+  ; sub-collimator labels
+  default, subc_labels, ['10a','10b','10c','9a','9b','9c','8a','8b','8c','7a','7b','7c','6a','6b','6c','5a','5b','5c','4a','4b','4c','3a','3b','3c']
+  subc_index = stx_label2ind(subc_labels)
 
   default, imsize, [128, 128]
   default, pixel,  [2.,2.]
@@ -87,7 +106,8 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
   ; If not given, try to estimate the location of the source from the data
   !p.background=0
   if not keyword_set(xy_flare) then begin
-    stx_estimate_flare_location, path_sci_file, time_range, aux_data, flare_loc=xy_flare, energy_range=energy_range
+    stx_estimate_flare_location, path_sci_file, time_range, aux_data, $
+                                 flare_loc=xy_flare, energy_range=energy_range, subc_index=subc_index
     print, xy_flare, format='(" *** INFO: Estimated flare location = (",F7.1,", ",F7.1,") arcsec")'
     print, xy_flare / aux_data.rsun, format='(" ... in units of solar radius = (",F6.3,", ",F6.3,")")'
 
@@ -100,9 +120,10 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
 
   ; Compute calibrated visibilities
   vis = stx_construct_calibrated_visibility(path_sci_file, time_range, energy_range, mapcenter, $
-                                            path_bkg_file=path_bkg_file, xy_flare=flare_loc)
+                                            path_bkg_file=path_bkg_file, xy_flare=flare_loc, subc_index=subc_index)
 
   ; Finally, generate the map using MEM_GE
-  out_map = stx_mem_ge(vis,imsize,pixel,aux_data,total_flux=max(abs(vis.obsvis)), /silent)
+  out_map = stx_mem_ge(vis,imsize,pixel,aux_data, /silent)
+;  out_map = stx_mem_ge(vis,imsize,pixel,aux_data,total_flux=max(abs(vis.obsvis)), /silent)
   return, out_map
 end
