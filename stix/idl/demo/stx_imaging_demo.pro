@@ -29,13 +29,13 @@ out_dir = concat_dir( getenv('STX_DEMO_DATA'),'imaging', /d)
 website_url = 'https://datacenter.stix.i4ds.net/download/fits/bsd/'
 
 ; UID of the science fits file to be dowloaded from the website
-uid_sci_file = "1178428688"
+uid_sci_file = '1178428688'
 ; Download the science fits file (if not already stored in out_dir)
 sock_copy, website_url + uid_sci_file, out_name, status = status, out_dir = out_dir, $
            local_file=path_sci_file, clobber=0
 
 ; UID of the background fits file to be dowloaded from the website           
-uid_bkg_file = "1178082832"
+uid_bkg_file = '1178082832'
 ; Download the background fits file (if not already stored in out_dir)
 sock_copy, website_url + uid_bkg_file, out_name, status = status, out_dir = out_dir, $
            local_file=path_bkg_file, clobber=0
