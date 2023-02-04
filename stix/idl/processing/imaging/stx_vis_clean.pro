@@ -98,6 +98,7 @@
 ; 20-jan-2022  Säm and Paolo: added box_map keyword
 ; 05-jun-2022  Paolo: added 'aux_data' input
 ; 05-oct-2022  Paolo: updated for using 'stx_make_map'
+; 02-jan-2023  Paolo: 'image_dim' casted as integer and fixed bug in the iterative plot. The PSF is now created with 'stx_vis_clean_psf'
 ;-
 
 
@@ -138,8 +139,9 @@ function stx_vis_clean, vis, aux_data, niter = niter, image_dim = image_dim_in, 
   default, niter, 100
   default, gain, 0.05
   first_time=1
-  image_dim = image_dim_in[0]
+  image_dim = long(image_dim_in[0])
   image_dim = image_dim / 2 *2 + 1 ;forces odd image_dim
+  if n_elements(image_dim) eq 1 then image_dim=[image_dim,image_dim]
 
   ;realize the dirty map and build a psf at the center, use odd numbers of pixels to center the map
   weight_used = vis_spatial_frequency_weighting( vis, spatial_frequency_weight, UNIFORM_WEIGHTING = uniform_weighting )
@@ -172,7 +174,7 @@ function stx_vis_clean, vis, aux_data, niter = niter, image_dim = image_dim_in, 
       ;default is bproj map$
       ;this_image=rotate(dmap0,1)
       bp_map=stx_bproj(vis,[image_dim_in,image_dim_in],[pixel,pixel],$
-                       aux_data,spatial_freqency_weight = weight_used)
+        aux_data,spatial_freqency_weight = weight_used)
       this_image=bp_map.data
     endelse
     clean_box_r=hsi_select_box(this_image,separation=separation,list=plist,nop=nop)
@@ -186,7 +188,7 @@ function stx_vis_clean, vis, aux_data, niter = niter, image_dim = image_dim_in, 
 
   component = {clean_comp,  ixctr: 0, iyctr: 0, flux:0.0}
   clean_components = replicate( component, niter) ;positions in pixel units from center
-
+  
   ;Now we can begin a clean loop
   ;Find the max of the dirty map, save the component, subtract the psf at the peak from dirty
   iter = 0
@@ -205,8 +207,10 @@ function stx_vis_clean, vis, aux_data, niter = niter, image_dim = image_dim_in, 
       print,'maximal negative residual: ',max(abs(dmap[clean_box]))
       break ;leave while loop
     endif
-    psf = vis_psf( vis, clean_box[iz], pixel = pixel, psf00 = psf00, image_dim = image_dim, $
-      spatial_freqency_weight = weight )
+     
+    psf = stx_vis_clean_psf(vis, clean_box[iz], imsize=image_dim, pixel_size=pixel, $
+      spatial_frequency_weight =weight_used)
+
     default, pkpsf, max( psf )
     flux = zflux * gain / pkpsf
     ;I think this is wrong, the residual map needs to be updated for all pixels
@@ -239,9 +243,18 @@ function stx_vis_clean, vis, aux_data, niter = niter, image_dim = image_dim_in, 
       erase
       this_dmap0=dmap0
       cc_indices=array_indices(this_dmap0,clean_box[iz]); indices of the clean component location
-      ;this_dmap0[clean_box[iz]]=0.
-      this_dmap0[cc_indices[0]-2:cc_indices[0]+2,cc_indices[1]-2:cc_indices[1]+2]=0.
+
       tvscl,congrid(rot(rotate(this_dmap0,1),-aux_data.ROLL_ANGLE,/interp),this_disp,this_disp),0
+      set_viewport,0,0.2,0,1
+      plot,[0,1],[0,1],xrange=[0,1],yrange=[0,1],xst=1+4,yst=1+4,/nodata,/noe
+
+      x_sym = 1.-[float(cc_indices[1])]/image_dim[1] -0.5
+      y_sym = [float(cc_indices[0])]/image_dim[0] -0.5
+
+      x_sym_rot = cos(aux_data.ROLL_ANGLE * !dtor)*x_sym - sin(aux_data.ROLL_ANGLE * !dtor)*y_sym+0.5
+      y_sym_rot = sin(aux_data.ROLL_ANGLE * !dtor)*x_sym + cos(aux_data.ROLL_ANGLE * !dtor)*y_sym+0.5
+
+      oplot,x_sym_rot,y_sym_rot,psym=4,color=0,SYMSIZE=2,thick=2
       ;draw clean box on bproj map
       if keyword_set(set_clean_boxes) then begin
         ;for j=0,nop-1 do this_dmap0[plist[0,j],plist[1,j]]=0.
@@ -249,8 +262,8 @@ function stx_vis_clean, vis, aux_data, niter = niter, image_dim = image_dim_in, 
         ;overplot boxes
         ;how many boxes
         bdim=n_elements(nop)
-        set_viewport,0,0.2,0,1
-        plot,[0,1],[0,1],xrange=[0,1],yrange=[0,1],xst=1+4,yst=1+4,/nodata,/noe
+        ;        set_viewport,0,0.2,0,1
+        ;        plot,[0,1],[0,1],xrange=[0,1],yrange=[0,1],xst=1+4,yst=1+4,/nodata,/noe
         for n=0,bdim-1 do begin
           ;corners of the current box
           if n eq 0 then this_box=plist(*,0:nop(n)-1) else this_box=plist(*,nop(n-1):total(nop(0:n))-1)
@@ -265,13 +278,15 @@ function stx_vis_clean, vis, aux_data, niter = niter, image_dim = image_dim_in, 
           ;oplot,[this_box[1,nop[n]-1],this_box[1,0]]/image_dim[1],1-[this_box[0,nop[n]-1],this_box[0,0]]/image_dim[0]
         endfor
       endif
-      ;stop
+
       this_dmap=dmap
-      ;this_dmap[iz]=0.
-      ;mark current component with max value
-      ;this_dmap[clean_box[iz]]=max(dmap0)
-      this_dmap[cc_indices[0]-2:cc_indices[0]+2,cc_indices[1]-2:cc_indices[1]+2]=max(dmap0)
-      tvscl,congrid(rot(rotate(this_dmap,1),-aux_data.ROLL_ANGLE,/interp),this_disp,this_disp),1
+      this_dmap=congrid(rot(rotate(this_dmap,1),-aux_data.ROLL_ANGLE,/interp),this_disp,this_disp)
+      this_dmap[0,0]=max(dmap0)
+      tvscl,this_dmap,1
+      set_viewport,0.2,0.4,0,1
+      plot,[0,1],[0,1],xrange=[0,1],yrange=[0,1],xst=1+4,yst=1+4,/nodata,/noe
+      oplot,x_sym_rot,y_sym_rot,psym=4,color=255,SYMSIZE=2,thick=2
+
       this_display=clean_map
       this_display(where(this_display ne 0))=1
       tvscl,congrid(rot(rotate(this_display,1),-aux_data.ROLL_ANGLE),this_disp,this_disp),2
@@ -324,7 +339,7 @@ function stx_vis_clean, vis, aux_data, niter = niter, image_dim = image_dim_in, 
     clean_components: clean_components, $
     clean_sources_map: clean_sources_map, $
     resid_map: resid_map }
-  
+
   ;Sep 4: make map structure default output; and rotate images
   ;output has
   ; 0: clean map
@@ -333,18 +348,18 @@ function stx_vis_clean, vis, aux_data, niter = niter, image_dim = image_dim_in, 
   ; 3: component map
   ; 4: convolved component map (ie. residual not added)
   ; 5: clean beam map
-  
+
   ; CLEAN MAP
   out0 = stx_make_map(clean_image, aux_data, [pixel,pixel], "CLEAN", vis)
   out1 = stx_make_map(bproj_map, aux_data, [pixel,pixel], "BPROJ", vis)
   out2 = stx_make_map(resid_map, aux_data, [pixel,pixel], "CLEAN RESIDUAL", vis)
   out3 = stx_make_map(clean_sources_map, aux_data, [pixel,pixel], "CLEAN COMPONENTS", vis)
   out4 = stx_make_map(clean_map, aux_data, [pixel,pixel], "CLEAN CONVOLVED", vis)
- 
+
   resid_map         = out2.data
   clean_sources_map = out3.data
   clean_map         = out4.data
-  
+
 
   if keyword_set(plot) then begin
     window,6,xsize=5*this_disp,ysize=2*this_disp
