@@ -94,8 +94,8 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
 
   hstart_time = alpha ? (sxpar(primary_header, 'date_beg')) : (sxpar(primary_header, 'date-beg'))
 
-  data.counts_err  = sqrt(data.counts_err^2. + data.counts)
-  data.triggers_err = sqrt(data.triggers_err^2. + data.triggers)
+  data.counts_comp_err  = sqrt(data.counts_comp_err^2. + data.counts)
+  data.triggers_comp_err = sqrt(data.triggers_comp_err^2. + data.triggers)
 
 
   ; ************************************
@@ -107,7 +107,7 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
     shifted_counts[*,*,*,0:-2]=counts[*,*,*,1:-1]
     counts = shifted_counts[*,*,*,0:-2]
 
-    counts_err = data.counts_err
+    counts_err = data.counts_comp_err
     shifted_counts_err =counts_err
     shifted_counts_err[*,*,*,0:-2]=counts_err[*,*,*,1:-1]
     counts_err = shifted_counts_err[*,*,*,0:-2]
@@ -117,7 +117,7 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
     shifted_triggers[*,0:-2]=triggers[*,1:-1]
     triggers = shifted_triggers[*,0:-2]
 
-    triggers_err = data.triggers_err
+    triggers_err = data.triggers_comp_err
     shifted_triggers_err = triggers_err
     shifted_triggers_err[*,0:-2]=triggers_err[*,1:-1]
     triggers_err = shifted_triggers_err[*,0:-2]
@@ -129,9 +129,9 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
   endif else begin
 
     counts = data.counts
-    counts_err = data.counts_err
+    counts_err = data.counts_comp_err
     triggers = data.triggers
-    triggers_err =  data.triggers_err
+    triggers_err =  data.triggers_comp_err
     duration = (data.timedel)
     time_bin_center = (data.time)
     control_index = data.control_index
@@ -171,8 +171,8 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
     data.counts[0,*,*,*] = 0.
     data.counts[-1,*,*,*] = 0.
 
-    data.counts_err[0,*,*,*] = 0.
-    data.counts_err[-1,*,*,*] = 0.
+    data.counts_comp_err[0,*,*,*] = 0.
+    data.counts_comp_err[-1,*,*,*] = 0.
 
   endif
 
