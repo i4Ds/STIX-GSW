@@ -152,6 +152,23 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
     detectors_used = where( (data.detector_masks)[*,0] eq 1, ndets)
     pixels_used = where( (data.pixel_masks)[*,0] eq 1, npix)
 
+    ; Make sure that shape(counts) agrees with the masks - FSc, 2023-02-13
+    sz_cnt = size(counts)
+    ; Quick fix when detectors were misconfigured and nb requested detectors is < dimension of counts
+    ; (affects files taken between 2020-11-22 and 2021-03-10)
+    if ndets lt sz_cnt[3] then begin
+      msg = string(sz_cnt[3], format='("1 to ",I2)')
+      message,'WARNING: found shape of counts larger than used detector mask - assuming detectors '+msg+' in use.',/info
+      detectors_used = indgen(sz_cnt[3])
+    endif
+    ; Quick fix when using energy grouping, and nb(energies_used) is < dimension of counts
+    if nenergies lt sz_cnt[1] then begin
+      msg = string(sz_cnt[1], format='("1 to ",I2)')
+      message,'WARNING: found shape of counts larger than used energy bins - data were probably requested with energy grouping.',/info
+      message,'WARNING ... assuming energy bins '+msg+' in use.',/info
+      energies_used = indgen(sz_cnt[1])
+    endif
+
     full_counts = dblarr(32, 12, 32, n_times)
     full_counts[energies_used, pixels_used, detectors_used, *] = counts[*,pixels_used,*,*]
     counts = full_counts
