@@ -75,6 +75,7 @@
 ;    21-Jul-2022 - ECMD (Graz), added automatic check for energy shift
 ;    04-Sep-2022 - Paolo (WKU), fixed issue concerning pixel mask
 ;    10-Feb-2023 - FSc (AIP), adapted to recent changes in L1 files (see PR #296 in STIXcore GitHub)
+;    21-Feb-2023 - FSc (AIP), fix for more changes in L1 files (energy_bin_edge_mask vs. energy_bin_mask)
 ;    
 ;-
 pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
@@ -141,8 +142,10 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
 
   n_times = n_elements(time_bin_center) ; update number of time bins
 
-  energies_used = where( control.energy_bin_mask eq 1, nenergies)
-
+  ; energies_used = where( control.energy_bin_mask eq 1, nenergies)
+  ; changed 2023-02-21 - FIX ME: this is not correct when using energy-bin grouping
+  energies_used = where( control.energy_bin_edge_mask eq 1, nenergies)
+  energies_used = energies_used[0:-2]  ; because further down we index the bins and not the edges
 
   if ~keyword_set(alpha) then begin
 
@@ -151,23 +154,6 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
 
     detectors_used = where( (data.detector_masks)[*,0] eq 1, ndets)
     pixels_used = where( (data.pixel_masks)[*,0] eq 1, npix)
-
-    ; Make sure that shape(counts) agrees with the masks - FSc, 2023-02-13
-    sz_cnt = size(counts)
-    ; Quick fix when detectors were misconfigured and nb requested detectors is < dimension of counts
-    ; (affects files taken between 2020-11-22 and 2021-03-10)
-    if ndets lt sz_cnt[3] then begin
-      msg = string(sz_cnt[3], format='("1 to ",I2)')
-      message,'WARNING: found shape of counts larger than used detector mask - assuming detectors '+msg+' in use.',/info
-      detectors_used = indgen(sz_cnt[3])
-    endif
-    ; Quick fix when using energy grouping, and nb(energies_used) is < dimension of counts
-    if nenergies lt sz_cnt[1] then begin
-      msg = string(sz_cnt[1], format='("1 to ",I2)')
-      message,'WARNING: found shape of counts larger than used energy bins - data were probably requested with energy grouping.',/info
-      message,'WARNING ... assuming energy bins '+msg+' in use.',/info
-      energies_used = indgen(sz_cnt[1])
-    endif
 
     full_counts = dblarr(32, 12, 32, n_times)
     full_counts[energies_used, pixels_used, detectors_used, *] = counts[*,pixels_used,*,*]
@@ -182,10 +168,10 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
   endelse
 
 
-  if control.energy_bin_mask[0] || control.energy_bin_mask[-1] and ~keyword_set(use_discriminators) then begin
+  if control.energy_bin_edge_mask[0] || control.energy_bin_edge_mask[-1] and ~keyword_set(use_discriminators) then begin
 
-    control.energy_bin_mask[0] = 0
-    control.energy_bin_mask[-1] = 0
+    control.energy_bin_edge_mask[0] = 0
+    control.energy_bin_edge_mask[-1] = 0
     data.counts[0,*,*,*] = 0.
     data.counts[-1,*,*,*] = 0.
 
@@ -226,18 +212,20 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
   expected_energy_shift = stx_check_energy_shift(hstart_time)
   default, energy_shift, expected_energy_shift
 
-  energies_used = where( control.energy_bin_mask eq 1, nenergies)
-  energy_edges_2 = transpose([[energy[energies_used].e_low], [energy[energies_used].e_high]])
+  ; energy_edges_2 = transpose([[energy[energies_used].e_low], [energy[energies_used].e_high]])
+  ; changed 2023-02-21: Now only the used energies are in table energy, therefore:
+  energy_edges_2 = transpose([[energy.e_low], [energy.e_high]])
   edge_products, energy_edges_2, edges_1 = energy_edges_1
 
-  energy_edges_all2 = transpose([[energy.e_low], [energy.e_high]])
-  edge_products, energy_edges_all2, edges_1 = energy_edges_all1
+;  energy_edges_all2 = transpose([[energy.e_low], [energy.e_high]])
+;  edge_products, energy_edges_all2, edges_1 = energy_edges_all1
 
-  use_energies = where_arr(energy_edges_all1,energy_edges_1)
-  energy_edge_mask = intarr(33)
-  energy_edge_mask[use_energies] = 1
+;  use_energies = where_arr(energy_edges_all1,energy_edges_1)
+;  energy_edge_mask = intarr(33)
+;  energy_edge_mask[use_energies] = 1
 
-  e_axis = stx_construct_energy_axis(energy_edges = energy_edges_all1 + energy_shift, select = use_energies)
+;  e_axis = stx_construct_energy_axis(energy_edges = energy_edges_all1 + energy_shift, select = use_energies)
+  e_axis = stx_construct_energy_axis(energy_edges = energy_edges_1 + energy_shift)
 
   data = {time: time_bin_center,$
     timedel:duration , $
