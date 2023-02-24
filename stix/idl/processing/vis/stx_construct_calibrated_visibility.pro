@@ -80,6 +80,10 @@ function stx_construct_calibrated_visibility, path_sci_file, time_range, energy_
                                               amp_calib_factors=amp_calib_factors, syserr_sigamp = syserr_sigamp, $
                                               no_small=no_small, no_rcr_check=no_rcr_check, _extra=extra
                                               
+
+default, sumcase, 'ALL'   ; to be consistent with documentation
+                          ; Note that in function stx_construct_pixel_data, the default is "TOP+BOT"
+
 ;;*********** Create visibility structure
 
 vis = stx_construct_visibility(path_sci_file, time_range, energy_range, mapcenter, path_bkg_file=path_bkg_file, $

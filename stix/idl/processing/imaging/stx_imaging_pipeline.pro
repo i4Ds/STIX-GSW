@@ -19,6 +19,11 @@
 ;   pixel        : size (in arcsec) of one pixel in the map (default: [2.,2.])
 ;   x_ptg, y_ptg : if provided, use these values instead of those found in the auxiliary file to correct for pointing
 ;
+; OPTIONAL KEYWORDS:
+;   force_sas    : if set, use SAS pointing solution even if very different from s/c pointing
+;   no_sas       : if set, bypass SAS solution and use spacecraft pointing (corrected for systematics) instead
+;   no_small     : if set, don't use small pixels data to generate the map
+;
 ; OUTPUTS:
 ;   Returns a map object that can be displayed with plot_map
 ;
@@ -32,11 +37,12 @@
 ;    2022-08-30, FSc: use stx_estimate_location to find source position if not given
 ;    2022-09-09, FSc: added optional argument bkg_uid
 ;    2022-10-06, FSc: adapted to recent changes in other procedures
+;    2023-02-24, FSc: added optional keyword no_small
 ;
 ;-
 function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_uid, $
                                xy_flare=xy_flare, imsize=imsize, pixel=pixel, x_ptg=x_ptg, y_ptg=y_ptg, $
-                               force_sas=force_sas, no_sas=no_sas
+                               force_sas=force_sas, no_sas=no_sas, no_small=no_small
   if n_params() lt 3 then begin
     print, "STX_IMAGING_PIPELINE"
     print, "Syntax: result = stx_imaging_pipeline(stix_uid, time_range, energy_range [, xy_flare=xy_flare, imsize=imsize, pixel=pixel, x_ptg=x_ptg, y_ptg=y_ptg])"
@@ -99,8 +105,11 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
   flare_loc  = mapcenter
 
   ; Compute calibrated visibilities
-  vis = stx_construct_calibrated_visibility(path_sci_file, time_range, energy_range, mapcenter, $
-                                            path_bkg_file=path_bkg_file, xy_flare=flare_loc)
+  if keyword_set(no_small) then $
+     vis = stx_construct_calibrated_visibility(path_sci_file, time_range, energy_range, mapcenter, $
+                                               path_bkg_file=path_bkg_file, xy_flare=flare_loc, /no_small, sumcase='TOP+BOT') $
+     else vis = stx_construct_calibrated_visibility(path_sci_file, time_range, energy_range, mapcenter, $
+                                               path_bkg_file=path_bkg_file, xy_flare=flare_loc)
 
   ; Finally, generate the map using MEM_GE
   out_map = stx_mem_ge(vis,imsize,pixel,aux_data,total_flux=max(abs(vis.obsvis)), /silent)
