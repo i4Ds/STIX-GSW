@@ -14,8 +14,9 @@
 ;     lightcurve
 ;
 ; :params:
-;    fits_path : in, required, type="string"
-;                The path to the STIX science data FITS file.
+;    fits_path : in, required, type="string" or "str array"
+;                The path to the STIX science data FITS file. An array of paths can also be given: In such a case, the code
+;                will iterate on all FITS files concatenating the time profiles.
 ;
 ; :keywords:
 ;    energy_ranges : in, type="float array", default="[[4.,10.],[10,15],[15,25]]"
@@ -42,7 +43,8 @@
 ;
 ;    time_range : in, type="dbl array" or "str array", default="all times present in observation"
 ;               It allows to extract a sub-interval from the FITS file. Particularly useful if one wants to extract only
-;               a sub-interval around a flare from a long spectrogram file
+;               a sub-interval around a flare from a long spectrogram file. 
+;               Since by default time_shift is taken from the FITS header, this time_range has to be specified in Earth UT.
 ;               
 ;    sys_uncert : in, optional keyword, default="0.05"
 ;               The level of systematic uncertainty to be added to the data
