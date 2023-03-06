@@ -6,7 +6,6 @@
 # Description
 # -----------
 # TBD
-
 # Modification History
 # --------------------
 # 14-Apr-2013 - Laszlo I. Etesi (FHNW), initial release
@@ -43,8 +42,6 @@
 # STX_VIS_DEMO
 #	Points to the visibility imaging demonstration folder
 #
-
-
 # Variable Definitions and Assignements
 # -------------------------------------
 setenv STX_CONF		$SSW_STIX/dbase/conf
@@ -54,5 +51,3 @@ setenv STX_DET		$SSW_STIX/dbase/detector
 setenv STX_CFL		$SSW_STIX/dbase/cfl
 setenv STX_VIS_PHASE	$SSW_STIX/dbase/vis_phase
 setenv STX_SAS		$SSW_STIX/dbase/sas
-
-
