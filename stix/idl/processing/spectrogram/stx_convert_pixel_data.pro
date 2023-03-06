@@ -111,7 +111,7 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   if data_type(det_ind) eq 7 then det_ind = stx_label2det_ind(det_ind)
   if data_type(pix_ind) eq 7 then pix_ind = stx_label2pix_ind(pix_ind)
 
-  stix_compute_subcollimator_indices, g01,g02,g03,g04,g05,g06,g07,g08,g09,g10,$
+  stx_compute_subcollimator_indices, g01,g02,g03,g04,g05,g06,g07,g08,g09,g10,$
     l01,l02,l03,l04,l05,l06,l07,l08,l09,l10,$
     res32,res10,o32,g03_10,g01_10,g_plot,l_plot
 

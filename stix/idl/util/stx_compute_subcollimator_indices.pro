@@ -4,10 +4,12 @@
 ;   stix_compute_subcollimator_indices
 ;
 ; PURPOSE:
-;   Procedure for computing subcollimator indices and resolutions. Needed only for plots
+;   Procedure for computing subcollimator indices and resolutions. 
+;
+;    16-Feb-2022 - ECMD (Graz), changed neame to stx_compute_subcollimator_indices
 ;
 ;-
-pro stix_compute_subcollimator_indices, g01,g02,g03,g04,g05,g06,g07,g08,g09,g10,$
+pro stx_compute_subcollimator_indices, g01,g02,g03,g04,g05,g06,g07,g08,g09,g10,$
   l01,l02,l03,l04,l05,l06,l07,l08,l09,l10,$
   res32,res10,o32,g03_10,g01_10,g_plot,l_plot
 
