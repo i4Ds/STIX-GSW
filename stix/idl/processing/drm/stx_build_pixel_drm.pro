@@ -62,6 +62,7 @@ function stx_build_pixel_drm, ct_energy_edges, pixel_mask, ph_energy_edges = ph_
   default, dist_factor, 1.
 
   default, ph_energy_edges, findgen(1471)*.1+3
+  edge_products,ph_energy_edges, mean=ph_in
   rcr_area  = stx_rcr_area(rcr)
   attenuator = rcr < 1
   pixel_mask = pixel_mask <1
@@ -92,12 +93,16 @@ function stx_build_pixel_drm, ct_energy_edges, pixel_mask, ph_energy_edges = ph_
   scale_factor  = total_area/drm.area
 
   ;scale the relevant parameters
-  drm.area *= scale_factor*grid_factor*rcr_factor*dist_factor
+  drm.area *= scale_factor*rcr_factor*dist_factor
 
   det_mask = total(pixel_mask,1) <1
   smatrix = drm.smatrix
   transmission = stx_transmission(drm.emean, det_mask, attenuator = attenuator)
   dim_drm = size(/dim, smatrix) > 1
+
+if n_elements(grid_factor) eq  n_elements(ph_in) then grid_factor=10^(interpol(alog10(grid_factor),alog10(ph_in),alog10(drm.emean)))
+
+  transmission  = transmission*grid_factor
 
   smatrix = smatrix * rebin( transpose(transmission), dim_drm)
 
