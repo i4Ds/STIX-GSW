@@ -207,9 +207,9 @@ function stx_vis_clean, vis, aux_data, niter = niter, image_dim = image_dim_in, 
       print,'maximal negative residual: ',max(abs(dmap[clean_box]))
       break ;leave while loop
     endif
-     
-    psf = stx_vis_clean_psf(vis, clean_box[iz], imsize=image_dim, pixel_size=pixel, $
-      spatial_frequency_weight =weight_used)
+      
+    psf = vis_psf( vis, clean_box[iz], pixel = pixel, psf00 = psf00, image_dim = image_dim, $
+      spatial_freqency_weight = weight_used )
 
     default, pkpsf, max( psf )
     flux = zflux * gain / pkpsf
