@@ -156,7 +156,7 @@ function stx_vis_clean, vis, aux_data, niter = niter, image_dim = image_dim_in, 
   this_disp=256. ; used for setting plot dimensions
 
   vis_bpmap, vis, map = dmap0, bp_fov = image_dim[0] * pixel, pixel = pixel, /data_only, $
-    spatial_freqency_weight = weight_used
+    spatial_frequency_weight = weight_used
 
   default, clean_box, where( abs( dmap0)+1) ;every pixel is the default
 
@@ -174,7 +174,7 @@ function stx_vis_clean, vis, aux_data, niter = niter, image_dim = image_dim_in, 
       ;default is bproj map$
       ;this_image=rotate(dmap0,1)
       bp_map=stx_bproj(vis,[image_dim_in,image_dim_in],[pixel,pixel],$
-        aux_data,spatial_freqency_weight = weight_used)
+        aux_data,spatial_frequency_weight = weight_used)
       this_image=bp_map.data
     endelse
     clean_box_r=hsi_select_box(this_image,separation=separation,list=plist,nop=nop)
@@ -209,7 +209,7 @@ function stx_vis_clean, vis, aux_data, niter = niter, image_dim = image_dim_in, 
     endif
       
     psf = vis_psf( vis, clean_box[iz], pixel = pixel, psf00 = psf00, image_dim = image_dim, $
-      spatial_freqency_weight = weight_used )
+      spatial_frequency_weight = weight_used )
 
     default, pkpsf, max( psf )
     flux = zflux * gain / pkpsf
