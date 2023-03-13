@@ -98,7 +98,7 @@
 ; 20-jan-2022  Säm and Paolo: added box_map keyword
 ; 05-jun-2022  Paolo: added 'aux_data' input
 ; 05-oct-2022  Paolo: updated for using 'stx_make_map'
-; 02-jan-2023  Paolo: 'image_dim' casted as integer and fixed bug in the iterative plot. The PSF is now created with 'stx_vis_clean_psf'
+; 02-jan-2023  Paolo: 'image_dim' casted as integer and fixed bug in the iterative plot.
 ;-
 
 
