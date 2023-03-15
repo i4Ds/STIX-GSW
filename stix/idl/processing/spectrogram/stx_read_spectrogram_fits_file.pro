@@ -77,6 +77,7 @@
 ;    21-Jul-2022 - ECMD (Graz), added automatic check for energy shift
 ;    09-Aug-2022 - ECMD (Graz), determine minimum time bin size using LUT
 ;    13-Feb-2023 - FSc (AIP), adapted to recent changes in L1 files
+;    15-Mar-2023 - ECMD (Graz), updated to handle release version of L1 FITS files
 ;-
 pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
   control_header= control_header, energy_str = energy, energy_header = energy_header, t_axis = t_axis, e_axis = e_axis, $
@@ -102,14 +103,14 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   trigger_zero = (sxpar(data_header, 'TZERO3'))
   new_triggers = float(trigger_zero + data.triggers)
   data = rep_tag_value(data, 'TRIGGERS', new_triggers)
-  
+
   ;TO BE ADDED WHEN FULL_RESOLUTION KEWORD IS INCLUDED
   ;  full_resolution = (sxpar(primary_header, 'FULL_RESOLUTION'))
   ;
   ;if ~full_resolution  and apply_time_shift then begin
   ;    message, /info, 'For time shift compensation full archive buffer time resolution files are needed.'
   ;endif
-  
+
   time = float(data.time)
   n_time = n_elements(time)
   if n_time gt 1 then begin
@@ -117,8 +118,10 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
     time_discrep_thrshold = alpha ? -0.2 : -20.
     if min_time_diff lt time_discrep_thrshold then message, 'Time intervals are not monotonically increasing. Possible issue with FITS file.'
   endif
-  
-  energies_used = where( control.energy_bin_mask eq 1 , nenergies)
+
+  ; changed 2023-03-15 - FIX ME: this is not correct when using energy-bin grouping
+  edges_used = where( control.energy_bin_edge_mask eq 1, nedges)
+  energies_used = edges_used[0:-2]  ; because further down we index the bins and not the edges
 
   data.counts_comp_err  = sqrt(data.counts_comp_err^2. + data.counts)
   data.triggers_comp_err = sqrt( data.triggers_comp_err^2. + data.triggers)
@@ -241,7 +244,7 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
     full_counts_err = dblarr(32, n_time)
     full_counts_err[energies_used, *] = counts_err
     counts_err = full_counts_err
-    
+
     summed_pixel_masks = n_time gt 1 ? total(data.pixel_masks,2) : data.pixel_masks
     pixel_masks = fltarr(12)
     pixel_masks[where(summed_pixel_masks ne 0)] = 1
@@ -284,10 +287,10 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
     pixel_masks: pixel_masks,$
     control_index:control_index}
 
-  if control.energy_bin_mask[0] || control.energy_bin_mask[-1] and ~keyword_set(use_discriminators) then begin
+  if control.energy_bin_edge_mask[0] || control.energy_bin_edge_mask[-1] and ~keyword_set(use_discriminators) then begin
 
-    control.energy_bin_mask[0] = 0
-    control.energy_bin_mask[-1] = 0
+    control.energy_bin_edge_mask[0] = 0
+    control.energy_bin_edge_mask[-1] = 0
     data.counts[0,*] = 0.
     data.counts[-1,*] = 0.
 
@@ -296,18 +299,18 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
 
   endif
 
-  energies_used = where( control.energy_bin_mask eq 1, nenergies)
-  energy_edges_2 = transpose([[energy[energies_used].e_low], [energy[energies_used].e_high]])
+
+  ; changed 2023-03-15: Now only the used energies are in table energy, therefore:
+  energy_edges_2 = transpose([[energy.e_low], [energy.e_high]])
   edge_products, energy_edges_2, edges_1 = energy_edges_1
 
-  energy_edges_all2 = transpose([[energy.e_low], [energy.e_high]])
-  edge_products, energy_edges_all2, edges_1 = energy_edges_all1
+  use_energies = indgen(n_elements(energy_edges_1))
 
-  use_energies = where_arr(energy_edges_all1,energy_edges_1)
-  energy_edge_mask = intarr(33)
-  energy_edge_mask[use_energies] = 1
+  e_axis = stx_construct_energy_axis(energy_edges = energy_edges_1 + energy_shift, select =  use_energies )
+  e_axis.low_fsw_idx = edges_used[0:-2]
+  e_axis.high_fsw_idx = edges_used[1:-1]
 
-  e_axis = stx_construct_energy_axis(energy_edges = energy_edges_all1 + energy_shift, select = use_energies)
+
 
 
 end
