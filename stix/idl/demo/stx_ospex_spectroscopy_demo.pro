@@ -64,7 +64,7 @@ pro stx_ospex_spectroscopy_demo
 
   ; the start time of the event is contained in the primary header
   ; most times contained in the file are relative to this
-  header_start_time = (sxpar(primary_header, 'DATE_BEG'))
+  header_start_time = (sxpar(primary_header, 'DATE-BEG'))
   print, 'Event start time :  ',  header_start_time
   print, " "
   ;For correct energy calibration in is necessary to determine the Energy Lookup Table (ELUT)
