@@ -43,15 +43,15 @@ pro stx_ospex_spectroscopy_demo
   l4_filename = 'solo_L1_stix-sci-xray-spec_20220208T212353-20220208T223255_V01_2202080003-58150.fits'
 
   ;Download the spectrogram fits file to the stix/dbase/demo/ospex/ directory
-  sock_copy, site + '08/' + l4_filename, status = status, out_dir = out_dir
+  sock_copy, site + '08/SCI/' + l4_filename, status = status, out_dir = out_dir
 
   ;An observation of a non-flaring quiet time close to the flare observation can be used as a background estimate
   bk_filename  = 'solo_L1_stix-sci-xray-cpd_20220209T002721-20220209T021401_V01_2202090020-58535.fits'
-  sock_copy, site + '09/'+ bk_filename, status = status, out_dir = out_dir
+  sock_copy, site + '09/SCI/'+ bk_filename, status = status, out_dir = out_dir
 
   ;As well as the summed spectrogram a pixel data observation of the same event is also available
   l1_filename = 'solo_L1_stix-sci-xray-cpd_20220208T212833-20220208T222055_V01_2202080013-58504.fits'
-  sock_copy, site + '08/' + l1_filename, status = status, out_dir = out_dir
+  sock_copy, site + '08/SCI/' + l1_filename, status = status, out_dir = out_dir
 
   ;Now they have been dowloaded set the paths of the science data files
   fits_path_data_l4 = loc_file(l4_filename, path = out_dir )

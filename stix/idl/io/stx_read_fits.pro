@@ -67,8 +67,8 @@ function stx_read_fits, fits_path, extension, header, silent = silent, mversion_
 ;  if nlevel_keywords gt 0 then begin
 ;    processing_level = header_str.level
     processing_level = sxpar(header,'level')
-    if strcompress(processing_level,/remove_all) eq 'L1A'  and ~keyword_set(silent) then message, $
-      'WARNING: Alpha level (L1A) files will no longer be supported in future.', /info
+    if strcompress(processing_level,/remove_all) eq 'L1A' then message, $
+      'WARNING: Alpha level (L1A) files will not currently supported, we recommend downloading the latest L1 file.'
 ;  endif
 
 
