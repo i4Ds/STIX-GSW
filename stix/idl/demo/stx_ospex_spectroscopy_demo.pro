@@ -31,8 +31,9 @@ pro stx_ospex_spectroscopy_demo
   ;The files used for this demonstration are hosted on a STIX server and downloaded when the demo is first run
   ;16-Mar-2023 - ECMD (Graz), updated data archive URL
   site = 'http://dataarchive.stix.i4ds.net/fits/L1/2022/02/'
+  
   ;The OSPEX folder in under stx_demo_data will usually start off empty on initial installation of the STIX software
-  out_dir = '/Users/ewd/release_demo_test'
+  out_dir = concat_dir( getenv('STX_DEMO_DATA'),'ospex', /d)
 
   ;if the OSPEX demo database folder is not present then create it
   if ~file_test(out_dir, /directory) then begin
