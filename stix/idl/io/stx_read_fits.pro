@@ -39,7 +39,8 @@
 ;    09-Nov-2021 - ECMD (Graz), initial release
 ;    26-Jan-2022 - ECMD (Graz), added check_ver keyword which is set to 0 after check it is set to 0 and can be passed out
 ;                               added warning about L1A data
-;    22-Feb-2022 - ECMD (Graz), fixed typos and clarified L1A warning, now calls stx_get_mrd_version to get mrdfits version 
+;    22-Feb-2022 - ECMD (Graz), fixed typos and clarified L1A warning, now calls stx_get_mrd_version to get mrdfits version
+;    16-Mar-2023 - ECMD (Graz), changed L1A warning as current software is only compatible with L1 files.
 ;
 ;-
 function stx_read_fits, fits_path, extension, header, silent = silent, mversion_full = mversion_full
@@ -50,9 +51,9 @@ function stx_read_fits, fits_path, extension, header, silent = silent, mversion_
     ver = mrdfits(/version)
     mversion_full = stx_get_mrd_version()
     mversion = mversion_full.split('\.')
-    if ~(fix(mversion[0]) ge 2 and fix(mversion[1]) ge 27) then begin
+    if ~(fix(mversion[0]) ge 2 and fix(mversion[1]) ge 27) and ~silent then begin
       message,'Check you have the up to date version of mrdfits compiled',/info
-      message,'Avaliable at: https://github.com/wlandsman/IDLAstro/blob/master/pro/mrdfits.pro',/info
+      message,'Available at: https://github.com/wlandsman/IDLAstro/blob/master/pro/mrdfits.pro',/info
 
     endif
 
@@ -63,11 +64,13 @@ function stx_read_fits, fits_path, extension, header, silent = silent, mversion_
   fits_data = mrdfits( fits_path, extension, header, silent = silent, /unsigned )
   header_str = fitshead2struct( header )
 
-  level_keywords = where(header.matches('level'),nlevel_keywords)
-  if nlevel_keywords gt 0 then begin
-    processing_level = header_str.level
-    if strcompress(processing_level,/remove_all) eq 'L1A'  and ~keyword_set(silent) then message, $
-      'WARNING: Alpha level (L1A) files will no longer be supported in future.', /info
+  processing_level = sxpar(header,'level')
+  if strcompress(processing_level,/remove_all) eq 'L1A' then begin
+    message,'WARNING: Alpha level (L1A) files are not currently supported, we recommend downloading the latest L1 file.', /con
+    control = mrdfits( fits_path, 'control', control_header, /silent, /unsigned )
+    uid = strtrim(control.request_id,2)
+    message,'Available at:                      ',/cont
+    message,'https://datacenter.stix.i4ds.net/download/fits/bsd/'+uid
   endif
 
 
