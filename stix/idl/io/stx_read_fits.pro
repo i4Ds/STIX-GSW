@@ -50,9 +50,9 @@ function stx_read_fits, fits_path, extension, header, silent = silent, mversion_
     ver = mrdfits(/version)
     mversion_full = stx_get_mrd_version()
     mversion = mversion_full.split('\.')
-    if ~(fix(mversion[0]) ge 2 and fix(mversion[1]) ge 27) then begin
+    if ~(fix(mversion[0]) ge 2 and fix(mversion[1]) ge 27) and ~silent then begin
       message,'Check you have the up to date version of mrdfits compiled',/info
-      message,'Avaliable at: https://github.com/wlandsman/IDLAstro/blob/master/pro/mrdfits.pro',/info
+      message,'Available at: https://github.com/wlandsman/IDLAstro/blob/master/pro/mrdfits.pro',/info
 
     endif
 
@@ -63,12 +63,13 @@ function stx_read_fits, fits_path, extension, header, silent = silent, mversion_
   fits_data = mrdfits( fits_path, extension, header, silent = silent, /unsigned )
   header_str = fitshead2struct( header )
 
-  level_keywords = where(header.matches('level'),nlevel_keywords)
-  if nlevel_keywords gt 0 then begin
-    processing_level = header_str.level
+;  level_keywords = where(header.matches('level'),nlevel_keywords)
+;  if nlevel_keywords gt 0 then begin
+;    processing_level = header_str.level
+    processing_level = sxpar(header,'level')
     if strcompress(processing_level,/remove_all) eq 'L1A'  and ~keyword_set(silent) then message, $
       'WARNING: Alpha level (L1A) files will no longer be supported in future.', /info
-  endif
+;  endif
 
 
 

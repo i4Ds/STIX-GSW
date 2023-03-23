@@ -76,6 +76,7 @@
 ;    05-Jul-2022 - ECMD (Graz), fixed handling of L1 files which don't contain the full set of energies
 ;    21-Jul-2022 - ECMD (Graz), added automatic check for energy shift
 ;    09-Aug-2022 - ECMD (Graz), determine minimum time bin size using LUT
+;    13-Feb-2023 - FSc (AIP), adapted to recent changes in L1 files
 ;-
 pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
   control_header= control_header, energy_str = energy, energy_header = energy_header, t_axis = t_axis, e_axis = e_axis, $
@@ -119,8 +120,8 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   
   energies_used = where( control.energy_bin_mask eq 1 , nenergies)
 
-  data.counts_err  = sqrt(data.counts_err^2. + data.counts)
-  data.triggers_err = sqrt( data.triggers_err^2. + data.triggers)
+  data.counts_comp_err  = sqrt(data.counts_comp_err^2. + data.counts)
+  data.triggers_comp_err = sqrt( data.triggers_comp_err^2. + data.triggers)
 
   duration_shift_needed = (anytim(hstart_time) lt anytim('2021-12-09T00:00:00')) ? 1 : 0
   default, shift_duration, duration_shift_needed
@@ -143,7 +144,7 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
     shifted_counts[*,0:-2]=counts[*,1:-1]
     counts = shifted_counts[*,0:-2]
 
-    counts_err = data.counts_err
+    counts_err = data.counts_comp_err
     shifted_counts_err =counts_err
     shifted_counts_err[*,0:-2]=counts_err[*,1:-1]
     counts_err = shifted_counts_err[*,0:-2]
@@ -153,7 +154,7 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
     shifted_triggers[0:-2]=triggers[1:-1]
     triggers = shifted_triggers[0:-2]
 
-    triggers_err = data.triggers_err
+    triggers_err = data.triggers_comp_err
     shifted_triggers_err = triggers_err
     shifted_triggers_err[0:-2]=triggers_err[1:-1]
     triggers_err = shifted_triggers_err[0:-2]
@@ -165,9 +166,9 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   endif else begin
 
     counts = data.counts
-    counts_err = data.counts_err
+    counts_err = data.counts_comp_err
     triggers = data.triggers
-    triggers_err =  data.triggers_err
+    triggers_err =  data.triggers_comp_err
     duration = (data.timedel)
     time_bin_center = (data.time)
     control_index = (data.control_index)
