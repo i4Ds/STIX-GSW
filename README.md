@@ -2,6 +2,19 @@
 
 Welcome to the GitHub repository of the IDL-based [STIX](https://stix.i4ds.net) ground analysis software. Please visit [stixpy](https://github.com/samaloney/stixpy) for the Python version.
 
+## Who to contact
+If you have any question, need assistance or found a bug, please don't hesitate to contact the people below.
+| Topic   |      Contact      |  E-Mail | GitHub Account |
+|----------|-------------|------|------|
+Aspect and pointing | Frédéric Schuller | fschuller [at] aip [dot] de | [@FredSchuller](https://github.com/FredSchuller)
+Spectroscopy and OSPEX | Ewan Dickson | ewan [dot] dickson [at] uni-graz [dot] at | [@grazwegian](https://github.com/grazwegian) |
+Imaging | Paolo Massa | massa [dot] p [at] dima [dot] unige [dot] it | [@paolomassa](https://github.com/paolomassa) |
+Website | Hualin Xiao | hualin [dot] xiao [at] fhnw [dot] ch | [@drhlxiao](https://github.com/drhlxiao)
+IDL tools | Ewan Dickson | ewan [dot] dickson [at] uni-graz [dot] at | [@grazwegian](https://github.com/grazwegian) |
+Python tools | Shane Maloney | shane [dot] maloney [at] dias [dot] ie | [@samaloney](https://github.com/samaloney) |
+Data requests | Säm Krucker | krucker [at] berkeley [dot] edu | |
+General issues | Säm Krucker | krucker [at] berkeley [dot] edu | |
+SolarSoftware | Säm Freeland | freeland [at] lmsal [dot] com | |
 
 ## A few words on the software development workflow and how to contribute
 

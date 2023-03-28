@@ -75,6 +75,7 @@
 ;                               added keyword to allow the user to specify the systematic uncertainty
 ;                               pass through structure of info parameters to write in FITS file
 ;    16-Aug-2022 - ECMD (Graz), pass out background data structure for plotting
+;
 ;-
 pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims,  fits_path_bk = fits_path_bk,$
   distance = distance, fits_path_data = fits_path_data, fits_info_params = fits_info_params, flare_location = flare_location, eff_ewidth = eff_ewidth, sys_uncert = sys_uncert,  $
@@ -199,7 +200,7 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
       type          : "stx_background_data", $
       counts        : 0L*corrected_counts, $
       error         : 0L*corrected_error}
-      
+
   endelse
 
 
@@ -221,7 +222,7 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
   spec_in_corr = spec_in_corr[new_energies,*]
   total_error = total_error[new_energies,*]
   n_energies = n_energy_edges-1
- 
+
   ;insert the information from the telemetry file into the expected stx_fsw_sd_spectrogram structure
   spectrogram = { $
     type          : "stx_fsw_sd_spectrogram", $
@@ -251,8 +252,11 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
   endif
 
   fits_info_params.distance = distance
-  fits_info_params.specfile = specfilename
-  fits_info_params.srmfile = srmfilename
+  ;15-Feb-2023 - ECMD, fix for file name issue suggested by William Setterberg
+  cur_spec_fn = fits_info_params.specfile
+  cur_srm_fn = fits_info_params.srmfile
+  fits_info_params.specfile = (cur_spec_fn eq '') ? specfilename : cur_spec_fn
+  fits_info_params.srmfile = (cur_srm_fn eq '') ? srmfilename : cur_srm_fn
 
   transmission = read_csv(loc_file( 'stix_trans_by_component.csv', path = getenv('STX_GRID')))
 

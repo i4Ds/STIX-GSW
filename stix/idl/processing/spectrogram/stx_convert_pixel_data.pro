@@ -86,6 +86,7 @@
 ;                               added keyword to allow the user to specify the systematic uncertainty
 ;                               generate structure of info parameters to pass through to FITS file
 ;    16-Aug-2022 - ECMD (Graz), information about subtracted background can now be passed out
+;    15-Mar-2023 - ECMD (Graz), updated to handle release version of L1 FITS files
 ;
 ;-
 pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, $
@@ -111,7 +112,7 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   if data_type(det_ind) eq 7 then det_ind = stx_label2det_ind(det_ind)
   if data_type(pix_ind) eq 7 then pix_ind = stx_label2pix_ind(pix_ind)
 
-  stix_compute_subcollimator_indices, g01,g02,g03,g04,g05,g06,g07,g08,g09,g10,$
+  stx_compute_subcollimator_indices, g01,g02,g03,g04,g05,g06,g07,g08,g09,g10,$
     l01,l02,l03,l04,l05,l06,l07,l08,l09,l10,$
     res32,res10,o32,g03_10,g01_10,g_plot,l_plot
 
@@ -146,8 +147,10 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
 
   n_times = n_elements(dim_counts) gt 3 ? dim_counts[3] : 1
 
-  energy_bin_mask = control_str.energy_bin_mask
-
+  energy_edges_used = [e_axis.low_fsw_idx, e_axis.high_fsw_idx[-1]]
+  n_energy_edges = n_elements(energy_edges_used)
+  energy_bins = energy_edges_used[0:-2]
+  n_energies = n_elements(energy_bins)
 
   if n_times eq 1 then begin
 
@@ -161,8 +164,7 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
 
   endelse
 
-  energy_bins = where( energy_bin_mask eq 1 )
-  n_energies = n_elements(energy_bins)
+
   pixel_mask_used = intarr(12)
   pixel_mask_used[pixels_used] = 1
   n_pixels = total(pixel_mask_used)
@@ -170,8 +172,6 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   detector_mask_used = intarr(32)
   detector_mask_used[detectors_used]  = 1
   n_detectors = total(detector_mask_used)
-  energy_edges_used = [e_axis.low_fsw_idx, e_axis.high_fsw_idx[-1]+1]
-  n_energy_edges = n_elements(energy_edges_used)
 
   if total(pixel_mask_used[0:3]) eq total(pixel_mask_used[4:7]) then begin
     count_ratio_threshold = 1.05

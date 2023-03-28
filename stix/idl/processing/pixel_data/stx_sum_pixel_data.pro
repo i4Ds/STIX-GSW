@@ -23,7 +23,7 @@
 ;            - 'ALL': top row + bottom row + small pixels
 ;            - 'TOP': top row pixels only
 ;            - 'BOTTOM': bottom row pixels only
-;            - 'TOP+BOTTOM': top row + bottom row pixels
+;            - 'TOP+BOT': top row + bottom row pixels
 ;            - 'SMALL': small pixels only
 ;            Default, 'TOP+BOT'
 ;            
