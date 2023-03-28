@@ -77,6 +77,7 @@
 ;    10-Feb-2023 - FSc (AIP), adapted to recent changes in L1 files (see PR #296 in STIXcore GitHub)
 ;    21-Feb-2023 - FSc (AIP), fix for more changes in L1 files (energy_bin_edge_mask vs. energy_bin_mask)
 ;    15-Mar-2023 - ECMD (Graz), updated to handle release version of L1 FITS files
+;    27-Mar-2023 - ECMD (Graz), added check for duration shift already applied in FITS file
 ;
 ;-
 pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
@@ -95,11 +96,17 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
   processing_level = (sxpar(primary_header, 'LEVEL'))
   if strcompress(processing_level,/remove_all) eq 'L1A' then alpha = 1
 
+  stx_check_duration_shift, primary_header, duration_shifted = duration_shifted, duration_shift_not_possible = duration_shift_not_possible
+
   hstart_time = alpha ? (sxpar(primary_header, 'date_beg')) : (sxpar(primary_header, 'date-beg'))
 
   data.counts_comp_err  = sqrt(data.counts_comp_err^2. + data.counts)
   data.triggers_comp_err = sqrt(data.triggers_comp_err^2. + data.triggers)
 
+  shift_duration = shift_duration && ~duration_shifted && ~duration_shift_not_possible
+
+  if keyword_set(shift_duration) and (anytim(hstart_time) gt anytim('2021-12-09T00:00:00') ) then $
+    message, 'Shift of duration with respect to time bins is no longer needed after 09-Dec-21'
 
   ; ************************************
   ; Andrea (19-Jan-2022)
