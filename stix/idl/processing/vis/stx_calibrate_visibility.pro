@@ -54,8 +54,8 @@
 function stx_calibrate_visibility, vis, phase_calib_factors=phase_calib_factors, amp_calib_factors=amp_calib_factors, $
                                         syserr_sigamp = syserr_sigamp, r2d_sep=r2d_sep, f2r_sep=f2r_sep
 
-default, f2r_sep, 550.0
-default, r2d_sep, 47.0
+default, f2r_sep, 545.30
+default, r2d_sep, 47.78
 
 n_vis = n_elements(vis)
 
