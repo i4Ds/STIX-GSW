@@ -36,7 +36,7 @@
 ;             If it is not provided, no correction is applied and the corresponding field in the visibility structure is filled with NaN.
 ;
 ;   sumcase: string containing information on the pixels to be considered for computing the visibilities (see
-;            the header of 'stx_calibrate_pixel_data' for more information). Default, 'ALL'
+;            the header of 'stx_calibrate_pixel_data' for more information). Default, 'TOP+BOT'
 ;
 ;   f2r_sep: distance between the front and the rear grid (mm, used for computing the values of the (u,v) frequencies).
 ;            Default, 550 mm
@@ -81,8 +81,8 @@ function stx_construct_calibrated_visibility, path_sci_file, time_range, energy_
                                               no_small=no_small, no_rcr_check=no_rcr_check, _extra=extra
                                               
 
-default, sumcase, 'ALL'   ; to be consistent with documentation
-                          ; Note that in function stx_construct_pixel_data, the default is "TOP+BOT"
+; default, sumcase, 'ALL'   ; to be consistent with documentation
+default, sumcase, 'TOP+BOT'   ; changed 2023-03-29: don't use small pixels by default
 
 ;;*********** Create visibility structure
 
