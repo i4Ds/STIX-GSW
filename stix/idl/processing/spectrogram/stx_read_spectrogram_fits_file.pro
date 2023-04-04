@@ -118,8 +118,9 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
 
   ; changed 2023-03-15 - FIX ME: this is not correct when using energy-bin grouping
   edges_used = where( control.energy_bin_edge_mask eq 1, nedges)
-  energies_used = edges_used[0:-2]  ; because further down we index the bins and not the edges
-
+  energy_bin_mask = stx_energy_edge2bin_mask(control.energy_bin_edge_mask)
+  energies_used = where(energy_bin_mask eq 1)
+  
   data.counts_comp_err  = sqrt(data.counts_comp_err^2. + data.counts)
   data.triggers_comp_err = sqrt( data.triggers_comp_err^2. + data.triggers)
 
@@ -286,30 +287,38 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
     pixel_masks: pixel_masks,$
     control_index:control_index}
 
-  if control.energy_bin_edge_mask[0] || control.energy_bin_edge_mask[-1] and ~keyword_set(use_discriminators) then begin
+  energy_edges_2 = transpose([[energy.e_low], [energy.e_high]])
 
+  if control.energy_bin_edge_mask[0] and ~keyword_set(use_discriminators) then begin
+    
     control.energy_bin_edge_mask[0] = 0
-    control.energy_bin_edge_mask[-1] = 0
     data.counts[0,*] = 0.
-    data.counts[-1,*] = 0.
-
     data.counts_err[0,*] = 0.
-    data.counts_err[-1,*] = 0.
+    energy_edges_2 = energy_edges_2[*,1:-1]
 
   endif
 
+  if control.energy_bin_edge_mask[-1]  and ~keyword_set(use_discriminators) then begin
 
+    control.energy_bin_edge_mask[-1] = 0
+    data.counts[-1,*] = 0.
+    data.counts_err[-1,*] = 0.
+    energy_edges_2 = energy_edges_2[*,0:-2]
+
+  endif
+
+  edges_used = where( control.energy_bin_edge_mask eq 1, nedges)
+  energy_bin_mask = stx_energy_edge2bin_mask(control.energy_bin_edge_mask)
+  energies_used = where(energy_bin_mask eq 1)
+  
   ; changed 2023-03-15: Now only the used energies are in table energy, therefore:
-  energy_edges_2 = transpose([[energy.e_low], [energy.e_high]])
   edge_products, energy_edges_2, edges_1 = energy_edges_1
 
-  use_energies = indgen(n_elements(energy_edges_1))
+  use_edges = indgen(n_elements(energy_edges_1))
 
-  e_axis = stx_construct_energy_axis(energy_edges = energy_edges_1 + energy_shift, select =  use_energies )
-  e_axis.low_fsw_idx = edges_used[0:-2]
-  e_axis.high_fsw_idx = edges_used[1:-1]
-
-
+  e_axis = stx_construct_energy_axis(energy_edges = energy_edges_1 + energy_shift, select =  use_edges )
+  e_axis.low_fsw_idx = energies_used
+  e_axis.high_fsw_idx = energies_used
 
 
 end
