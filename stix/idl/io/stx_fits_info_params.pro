@@ -61,6 +61,7 @@
 ;
 ; :history:
 ;    17-Aug-2022 - ECMD (Graz), initial release
+;    05-Apr-2023 - ECMD (Graz), fix issue with taking header distance as default 
 ;
 ;-
 function stx_fits_info_params, fits_path_data = fits_path_data, data_level = data_level, $
@@ -81,8 +82,12 @@ function stx_fits_info_params, fits_path_data = fits_path_data, data_level = dat
   default, elut_file, ''
   default, fits_background_file, ''
   default, detused, ''
-  default, distance, 0.
-
+  
+  ;if distance is not set use the average value from the fits header
+  stx_get_header_corrections, fits_path_data, distance = header_distance
+  default, distance, header_distance
+  print, 'Using Solar Orbiter distance of : ' + strtrim(distance,2) +  ' AU'
+  
   break_file, fits_path_data, disk, dir, data_file_name, ext
   fits_data_file = data_file_name + '.fits'
   if background_subtracted then begin
