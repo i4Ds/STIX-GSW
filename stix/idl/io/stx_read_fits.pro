@@ -64,7 +64,7 @@ function stx_read_fits, fits_path, extension, header, silent = silent, mversion_
   fits_data = mrdfits( fits_path, extension, header, silent = silent, /unsigned )
   header_str = fitshead2struct( header )
 
-  compatible  = stx_check_fits_compatiblity( fits_path )
+  compatible  = stx_check_fits_compatibility( fits_path )
 
   if ~(fix(mversion[0]) ge 2 and fix(mversion[1]) ge 27) then begin
     ;corrections needed depend on version of mrdfits being called
