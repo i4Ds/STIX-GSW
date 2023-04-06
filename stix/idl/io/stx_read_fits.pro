@@ -64,16 +64,7 @@ function stx_read_fits, fits_path, extension, header, silent = silent, mversion_
   fits_data = mrdfits( fits_path, extension, header, silent = silent, /unsigned )
   header_str = fitshead2struct( header )
 
-  processing_level = sxpar(header,'level')
-  if strcompress(processing_level,/remove_all) eq 'L1A' then begin
-    message,'WARNING: Alpha level (L1A) files are not currently supported, we recommend downloading the latest L1 file.', /con
-    control = mrdfits( fits_path, 'control', control_header, /silent, /unsigned )
-    uid = strtrim(control.request_id,2)
-    message,'Available at:                      ',/cont
-    message,'https://datacenter.stix.i4ds.net/download/fits/bsd/'+uid
-  endif
-
-
+  compatible  = stx_check_fits_compatibility( fits_path )
 
   if ~(fix(mversion[0]) ge 2 and fix(mversion[1]) ge 27) then begin
     ;corrections needed depend on version of mrdfits being called
