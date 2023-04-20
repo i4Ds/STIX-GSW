@@ -150,9 +150,9 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
   endif else begin
     ; Compute calibrated visibilities
     if keyword_set(no_small) then $
-      vis = stx_construct_calibrated_visibility(path_sci_file, time_range, energy_range, mapcenter, $
+      vis = stx_construct_calibrated_visibility(path_sci_file, time_range, energy_range, mapcenter, subc_index=subc_index, $
       path_bkg_file=path_bkg_file, xy_flare=flare_loc, /no_small, sumcase='TOP+BOT') $
-    else vis = stx_construct_calibrated_visibility(path_sci_file, time_range, energy_range, mapcenter, $
+    else vis = stx_construct_calibrated_visibility(path_sci_file, time_range, energy_range, mapcenter, subc_index=subc_index, $
       path_bkg_file=path_bkg_file, xy_flare=flare_loc)
 
     case method of
