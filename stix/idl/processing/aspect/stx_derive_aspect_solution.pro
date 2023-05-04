@@ -130,6 +130,9 @@ pro stx_derive_aspect_solution, data, simu_data_file, interpol_r=interpol_r, int
 
   ; prepare array of results
   foclen = 0.55         ; SAS focal length, in [m]
+  ; replace nominal focal length with actual distance from lens to aperture plate (= image plane)
+  ; (changed 2023-04-21)
+  foclen = 548.16e-3
   rsol = foclen * (data.SPICE_DISC_SIZE * !pi/180. / 3600.)
   nb = n_elements(rsol)
   x_sas = fltarr(nb)  &  y_sas = fltarr(nb)
