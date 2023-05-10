@@ -7,8 +7,8 @@
 ;       stx_transmission
 ;
 ; :description:
-; 
-;    This procedure calculates the transmission probality of photons at specified energy range from the front entrance to 
+;
+;    This procedure calculates the transmission probality of photons at specified energy range from the front entrance to
 ;    the detector
 ;
 ;
@@ -16,40 +16,41 @@
 ;    response
 ;
 ; :params:
-; 
+;
 ;    ein : in, required, type="fltarr"
 ;             an array of energies at which to calculate the transmission
-;             
+;
 ;    det_mask :in, type="fltarr", default="intarr(32)+1"
 ;              An array of detector indices to use
 ;
 ; :keywords:
-; 
+;
 ;    attenuator : in, type="boolean", default="0"
-;               If set include transmission through aluminium attenuator 
-;               
+;               If set include transmission through aluminium attenuator
+;
 ;    xcom : in, type="boolean", default="0"
 ;               If set calculate transmission using IDL xcom rather than supplied tables
-;               
+;
 ;    transmission_table : in, type="string", default="stix_transmission_highres_20210303.csv'"
-;              path to csv file of transmission table to use             
+;              path to csv file of transmission table to use
 ;
 ;    sbo : in, type="boolean", default="0"
-;               if set use SolarBlack (Oxygen) composition rather than SolarBlack (Carbon) 
+;               if set use SolarBlack (Oxygen) composition rather than SolarBlack (Carbon)
 ;
 ; :returns:
 ;   fltarr with the transmission fraction at the specified energies
 ;
 ;
 ; :history:
-;    25-Jan-2021 - ECMD (Graz), initial release 
-;    12-Mar-2021 - ECMD (Graz), added xcom keyword by default now uses file stix_transmission_highres_20210303.csv 
+;    25-Jan-2021 - ECMD (Graz), initial release
+;    12-Mar-2021 - ECMD (Graz), added xcom keyword by default now uses file stix_transmission_highres_20210303.csv
 ;                               to calculate transmission
 ;    25-Jan-2022 - ECMD (Graz), attenuator and transmission_table keywords added
-;    22-Feb-2022 - ECMD (Graz), documented 
-;    29-Jun-2022 - ECMD (Graz), updated to call transmission table stix_transmission_highres_20220621.csv which includes 
-;                               alloys to describe the Be window and Al attenuator. Attenuator transmission is included in 
-;                               standard table so a separate call to a component separated table is no longer needed. 
+;    22-Feb-2022 - ECMD (Graz), documented
+;    29-Jun-2022 - ECMD (Graz), updated to call transmission table stix_transmission_highres_20220621.csv which includes
+;                               alloys to describe the Be window and Al attenuator. Attenuator transmission is included in
+;                               standard table so a separate call to a component separated table is no longer needed.
+;   10-May-2023 - ECMD (Graz),  direct xcom calculation updated to use Be and Al alloys                       
 ;
 ;-
 function stx_transmission, ein, det_mask, attenuator = attenuator, xcom = xcom, transmission_table = transmission_table, sbo = sbo, verbose = verbose
@@ -75,14 +76,37 @@ function stx_transmission, ein, det_mask, attenuator = attenuator, xcom = xcom, 
     default, type, 'AB'
     costheta = 1.0d0
 
-    ;Al (Z=13)  Al  13: 1.0 2.7
-    rho_al = 2.7d0
-    tr_al =   (xsec(emin, 13,type,/cm2perg , /use_xcom , error=error) * rho_al/costheta)
+    ;    ;Al (Z=13)  Al  13: 1.0 2.7 - Original pure Al transmission parameters kept for reference 
+    ;    rho_al = 2.7d0
+    ;    tr_al =   (xsec(emin, 13,type,/cm2perg , /use_xcom , error=error) * rho_al/costheta)
+
+    ; alloy transmission information from STIXCore/stixcore/calibration/transmission.py see https://github.com/i4Ds/STIXCore/pull/240
+    rho_al_alloy = 2.8
+    tr_al_alloy =( (xsec(emin, (Element2Z('Al'))[0],type,/cm2perg , /use_xcom )*0.89345 + $
+      xsec(emin, (Element2Z('Si'))[0], type, /cm2perg, /use_xcom )*0.002   + $
+      xsec(emin, (Element2Z('Fe'))[0], type, /cm2perg, /use_xcom )*0.0025  + $
+      xsec(emin, (Element2Z('Cu'))[0], type, /cm2perg, /use_xcom )*0.016   + $
+      xsec(emin, (Element2Z('Mn'))[0], type, /cm2perg, /use_xcom )*0.0015  + $
+      xsec(emin, (Element2Z('Mg'))[0], type, /cm2perg, /use_xcom )*0.025   + $
+      xsec(emin, (Element2Z('Cr'))[0], type, /cm2perg, /use_xcom )*0.0023  + $
+      xsec(emin, (Element2Z('Ni'))[0], type, /cm2perg, /use_xcom )*0.00025 + $
+      xsec(emin, (Element2Z('Zn'))[0], type, /cm2perg, /use_xcom )*0.056   + $
+      xsec(emin, (Element2Z('Ti'))[0], type, /cm2perg, /use_xcom )*0.001) * rho_al_alloy/costheta)
 
 
-    ;Be (z=4) Be  4: 1.0  1.85
-    rho_be =  1.85d0
-    tr_be =  (xsec(emin, 4,type,/cm2perg,  /use_xcom, error=error) * rho_be/costheta)
+    ;Be (z=4) Be  4: 1.0  1.85 - Original pure Be transmission parameters kept for reference 
+    ;    rho_be =  1.85d0
+    ;    tr_be =  (xsec(emin, 4,type,/cm2perg,  /use_xcom, error=error) * rho_be/costheta)
+
+    rho_be_alloy = 1.84
+    tr_be_alloy = ((xsec(emin, (Element2Z('Al'))[0],type,/cm2perg , /use_xcom )*0.0005 + $
+      xsec(emin, (Element2Z('Be'))[0], type,/cm2perg, /use_xcom )*0.9974  + $
+      xsec(emin, (Element2Z('C'))[0] , type,/cm2perg, /use_xcom )*0.00075 + $
+      xsec(emin, (Element2Z('Fe'))[0], type,/cm2perg, /use_xcom )*0.00065 + $
+      xsec(emin, (Element2Z('Mg'))[0], type,/cm2perg, /use_xcom )*0.0004  + $
+      xsec(emin, (Element2Z('Si'))[0], type,/cm2perg, /use_xcom )*0.0003) * rho_be_alloy/costheta)
+
+    ;TODO - convert other components to using Element2Z for clarity.   
 
     ;Kapton C22H10N2O5  1: 0.026362, 6: 0.691133, 7: 0.073270, 8: 0.209235  1.43
     rho_kapton  = 1.43d0
@@ -113,10 +137,10 @@ function stx_transmission, ein, det_mask, attenuator = attenuator, xcom = xcom, 
     ;Front window Compound  -
     ;- SolarBlack 0.005 mm
     ;-  Be  2 mm
-    fw = (1.d0/exp( (tr_be)*(2d0*mm) ))*(1.d0/exp( (tr_sb)*(0.005d0*mm)) )
+    fw = (1.d0/exp( (tr_be_alloy)*(2d0*mm) ))*(1.d0/exp( (tr_sb)*(0.005d0*mm)) )
 
     ;Rear window  Be  1 mm
-    rw = (1.d0/exp((tr_be)*(1d0*mm)))
+    rw = (1.d0/exp((tr_be_alloy)*(1d0*mm)))
 
     ;Fine grid covers: Kapton  4 x 2 mils
     grid_covers = 1.d0/exp((tr_kapton)*(4*2*mil))
@@ -125,7 +149,7 @@ function stx_transmission, ein, det_mask, attenuator = attenuator, xcom = xcom, 
     dem_entrance = 1.d0/exp((tr_kapton)*(6*mil))
 
     ; Attenuator: Al 0.6 mm
-    att = 1.d0/exp((tr_al)*(0.6*mm))
+    att = 1.d0/exp((tr_al_alloy)*(0.6*mm))
 
     ;
     ;MLI  Compound  -
@@ -142,12 +166,12 @@ function stx_transmission, ein, det_mask, attenuator = attenuator, xcom = xcom, 
     ; Kapton = 3 mils
     ; Dacron = not included
     ;
-    mli = (1d0/exp( (tr_al)*(42d0 * 1000.d0*angstrom) )) * ( 1.d0/exp( (tr_kapton)*(3d0*mil)  )) * (1d0/exp( (tr_mylar) *(20d0*.25d0*mil + 3d0*mil)))
+    mli = (1d0/exp( (tr_al_alloy)*(42d0 * 1000.d0*angstrom) )) * ( 1.d0/exp( (tr_kapton)*(3d0*mil)  )) * (1d0/exp( (tr_mylar) *(20d0*.25d0*mil + 3d0*mil)))
 
     ;Calibration Foil   -
     ;-  AL  4 x 1000 Å
     ;-  Kapton  4 x 2 mils
-    cal_foil = (1d0/exp( (tr_al)*(4d0 * 1000.d0*angstrom) )) * ( 1.d0/exp( (tr_kapton)*(8*mil) ))
+    cal_foil = (1d0/exp( (tr_al_alloy)*(4d0 * 1000.d0*angstrom) )) * ( 1.d0/exp( (tr_kapton)*(8*mil) ))
 
     ;Dead Layer: TeO2  392 n
     dead_layer = 1.d0/exp((tr_dl)*(392*nm))
