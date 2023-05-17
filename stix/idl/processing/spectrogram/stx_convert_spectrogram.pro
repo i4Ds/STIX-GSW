@@ -125,10 +125,10 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
   pixels_used = where(data_str.pixel_masks eq 1)
   detectors_used = where(control_str.detector_masks eq 1)
 
-  energy_edges_used = [e_axis.low_fsw_idx, e_axis.high_fsw_idx[-1]]
-  n_energy_edges = n_elements(energy_edges_used)
-  energy_bins = energy_edges_used[0:-2]
-  n_energies = n_elements(energy_bins)
+  energy_edges_used = where(control_str.energy_bin_edge_mask eq 1, n_energy_edges)
+  energy_bin_mask = stx_energy_edge2bin_mask(control_str.energy_bin_edge_mask)
+  energy_bins = where(energy_bin_mask eq 1, n_energies)
+  
   pixel_mask_used = intarr(12)
   pixel_mask_used[pixels_used] = 1
   n_pixels = total(pixel_mask_used)

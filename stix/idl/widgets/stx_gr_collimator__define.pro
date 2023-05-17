@@ -1,7 +1,7 @@
 function stx_gr_collimator::init, _extra=ex, front=front, rear=rear, distance_front_rear=distance_front_rear
   if (~self->idlgrmodel::init(_extra=ex)) then return, 0b
   
-  default, distance_front_rear, 550d3
+  default, distance_front_rear, 545.30d3
   
   
   

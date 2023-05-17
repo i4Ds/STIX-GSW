@@ -9,6 +9,7 @@ If you have any question, need assistance or found a bug, please don't hesitate 
 Aspect and pointing | Frédéric Schuller | fschuller [at] aip [dot] de | [@FredSchuller](https://github.com/FredSchuller)
 Spectroscopy and OSPEX | Ewan Dickson | ewan [dot] dickson [at] uni-graz [dot] at | [@grazwegian](https://github.com/grazwegian) |
 Imaging | Paolo Massa | massa [dot] p [at] dima [dot] unige [dot] it | [@paolomassa](https://github.com/paolomassa) |
+Imaging-spectroscopy | Andrea F. Battaglia | andrea [dot] battaglia [at] fhnw [dot] ch | [@afbattaglia](https://github.com/afbattaglia) |
 Website | Hualin Xiao | hualin [dot] xiao [at] fhnw [dot] ch | [@drhlxiao](https://github.com/drhlxiao)
 IDL tools | Ewan Dickson | ewan [dot] dickson [at] uni-graz [dot] at | [@grazwegian](https://github.com/grazwegian) |
 Python tools | Shane Maloney | shane [dot] maloney [at] dias [dot] ie | [@samaloney](https://github.com/samaloney) |
