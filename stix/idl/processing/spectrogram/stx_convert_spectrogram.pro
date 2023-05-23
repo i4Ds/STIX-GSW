@@ -79,6 +79,8 @@
 ;                               added keyword to allow the user to specify the systematic uncertainty
 ;                               generate structure of info parameters to pass through to FITS file
 ;    16-Aug-2022 - ECMD (Graz), information about subtracted background can now be passed out
+;    15-Mar-2023 - ECMD (Graz), updated to handle release version of L1 FITS files
+;
 ;
 ;-
 pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, $
@@ -120,14 +122,13 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
 
   n_times = n_elements(dim_counts) gt 1 ? dim_counts[1] : 1
 
-  energy_bin_mask = control_str.energy_bin_mask
-
   pixels_used = where(data_str.pixel_masks eq 1)
   detectors_used = where(control_str.detector_masks eq 1)
 
-
-  energy_bins = where( energy_bin_mask eq 1 )
-  n_energies = n_elements(energy_bins)
+  energy_edges_used = where(control_str.energy_bin_edge_mask eq 1, n_energy_edges)
+  energy_bin_mask = stx_energy_edge2bin_mask(control_str.energy_bin_edge_mask)
+  energy_bins = where(energy_bin_mask eq 1, n_energies)
+  
   pixel_mask_used = intarr(12)
   pixel_mask_used[pixels_used] = 1
   n_pixels = total(pixel_mask_used)
@@ -135,9 +136,6 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
   detector_mask_used = intarr(32)
   detector_mask_used[detectors_used] = 1
   n_detectors = total(detector_mask_used)
-
-  energy_edges_used = [e_axis.low_fsw_idx, e_axis.high_fsw_idx[-1]+1]
-  n_energy_edges = n_elements(energy_edges_used)
 
   stx_read_elut, ekev_actual = ekev_actual, elut_filename = elut_filename
 
@@ -231,7 +229,7 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
   ;add the rcr information to a specpar structure so it can be included in the spectrum FITS file
   specpar = { sp_atten_state :  {time:ut_rcr[index], state:state}, flare_xyoffset : fltarr(2), use_flare_xyoffset:0 }
   specpar.flare_xyoffset = flare_location
-  
+
   stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, $
     distance = distance, fits_path_data = fits_path_data, flare_location = flare_location, eff_ewidth = eff_ewidth, fits_info_params = fits_info_params, sys_uncert = sys_uncert, $
     background_data = background_data, plot = plot, generate_fits = generate_fits, ospex_obj = ospex_obj

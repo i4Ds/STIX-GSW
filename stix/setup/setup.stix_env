@@ -20,6 +20,7 @@
 # 11-Feb-2021 - ECMD (GRAZ), removed unneeded variables:
 #               STX_SPEC, STX_IVS, STX_IUT_DATA, STX_SIM, STX_SCN_TEST, STX_FPGA & STX_FSW
 # 26-Oct-2021 - Paolo M. (WKU), added dbase/vis_phase, dbase/sas and removed dbase/demo/vis_demo
+# 03-Apr-2023 - ECMD (GRAZ), added newline at end and replaced line endings for better compatibility
 #
 #
 # Overview Variables

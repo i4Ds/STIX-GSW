@@ -21,6 +21,7 @@
 ;
 ; :history:
 ;   03-Mar-2022 - ECMD (Graz), initial release
+;   16-Mar-2023 - ECMD (Graz), updated to use release version L1 files
 ;
 ;-
 pro stx_ospex_spectroscopy_demo
@@ -28,9 +29,9 @@ pro stx_ospex_spectroscopy_demo
   ;*********************************************** 1- AQUIRE DATA ******************************************************
 
   ;The files used for this demonstration are hosted on a STIX server and downloaded when the demo is first run
-  ;03-Jul-2022 - ECMD (Graz), updated data archive URL
-  site = 'http://dataarchive.stix.i4ds.net/data/demo/ospex/'
-
+  ;16-Mar-2023 - ECMD (Graz), updated data archive URL
+  site = 'http://dataarchive.stix.i4ds.net/fits/L1/2022/02/'
+  
   ;The OSPEX folder in under stx_demo_data will usually start off empty on initial installation of the STIX software
   out_dir = concat_dir( getenv('STX_DEMO_DATA'),'ospex', /d)
 
@@ -40,30 +41,30 @@ pro stx_ospex_spectroscopy_demo
   endif
 
   ;As an example a spectrogram (Level 4) file for a flare on 8th February 2022 is used
-  l4_filename = 'solo_L1A_stix-sci-spectrogram-2202080003_20220208T212353-20220208T223255_035908_V01.fits'
+  l4_filename = 'solo_L1_stix-sci-xray-spec_20220208T212353-20220208T223255_V01_2202080003-58150.fits'
 
   ;Download the spectrogram fits file to the stix/dbase/demo/ospex/ directory
-  sock_copy, site + l4_filename, status = status, out_dir = out_dir
+  sock_copy, site + '08/SCI/' + l4_filename, status = status, out_dir = out_dir
 
   ;An observation of a non-flaring quiet time close to the flare observation can be used as a background estimate
-  bk_filename  = 'solo_L1A_stix-sci-xray-l1-2202090020_20220209T002720-20220209T021400_036307_V01.fits'
-  sock_copy, site + bk_filename, status = status, out_dir = out_dir
+  bk_filename  = 'solo_L1_stix-sci-xray-cpd_20220209T002721-20220209T021401_V01_2202090020-58535.fits'
+  sock_copy, site + '09/SCI/'+ bk_filename, status = status, out_dir = out_dir
 
   ;As well as the summed spectrogram a pixel data observation of the same event is also available
-  l1_filename = 'solo_L1A_stix-sci-xray-l1-2202080013_20220208T212833-20220208T222055_036275_V01.fits'
-  sock_copy, site + l1_filename, status = status, out_dir = out_dir
+  l1_filename = 'solo_L1_stix-sci-xray-cpd_20220208T212833-20220208T222055_V01_2202080013-58504.fits'
+  sock_copy, site + '08/SCI/' + l1_filename, status = status, out_dir = out_dir
 
   ;Now they have been dowloaded set the paths of the science data files
   fits_path_data_l4 = loc_file(l4_filename, path = out_dir )
   fits_path_bk   = loc_file(bk_filename, path = out_dir )
   fits_path_data_l1   = loc_file(l1_filename, path = out_dir)
-
+  
   ;read the of the primary HDU of the spectrogram file to obtain the header which contains key information
   !null = mrdfits(fits_path_data_l4, 0, primary_header)
 
   ; the start time of the event is contained in the primary header
   ; most times contained in the file are relative to this
-  header_start_time = (sxpar(primary_header, 'DATE_BEG'))
+  header_start_time = (sxpar(primary_header, 'DATE-BEG'))
   print, 'Event start time :  ',  header_start_time
   print, " "
   ;For correct energy calibration in is necessary to determine the Energy Lookup Table (ELUT)

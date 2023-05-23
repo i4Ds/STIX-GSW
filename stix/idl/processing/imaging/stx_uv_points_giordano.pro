@@ -3,8 +3,8 @@ function stx_uv_points_giordano
 
 subc_str = stx_construct_subcollimator()
 
-L1 = 550.
-L2 = 47.
+L1 = 545.30
+L2 = 47.78
 
 pitch_f = 1./subc_str.front.pitch * (L2 + L1) / 3600.0d / !RADEG
 pitch_r = 1./subc_str.rear.pitch * L2 / 3600.0d / !RADEG

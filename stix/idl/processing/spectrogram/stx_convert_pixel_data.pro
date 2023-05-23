@@ -86,6 +86,7 @@
 ;                               added keyword to allow the user to specify the systematic uncertainty
 ;                               generate structure of info parameters to pass through to FITS file
 ;    16-Aug-2022 - ECMD (Graz), information about subtracted background can now be passed out
+;    15-Mar-2023 - ECMD (Graz), updated to handle release version of L1 FITS files
 ;
 ;-
 pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, $
@@ -146,8 +147,9 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
 
   n_times = n_elements(dim_counts) gt 3 ? dim_counts[3] : 1
 
-  energy_bin_mask = control_str.energy_bin_mask
-
+  energy_edges_used = where(control_str.energy_bin_edge_mask eq 1, n_energy_edges)
+  energy_bin_mask = stx_energy_edge2bin_mask(control_str.energy_bin_edge_mask)
+  energy_bins = where(energy_bin_mask eq 1, n_energies)
 
   if n_times eq 1 then begin
 
@@ -161,8 +163,7 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
 
   endelse
 
-  energy_bins = where( energy_bin_mask eq 1 )
-  n_energies = n_elements(energy_bins)
+
   pixel_mask_used = intarr(12)
   pixel_mask_used[pixels_used] = 1
   n_pixels = total(pixel_mask_used)
@@ -170,8 +171,6 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   detector_mask_used = intarr(32)
   detector_mask_used[detectors_used]  = 1
   n_detectors = total(detector_mask_used)
-  energy_edges_used = [e_axis.low_fsw_idx, e_axis.high_fsw_idx[-1]+1]
-  n_energy_edges = n_elements(energy_edges_used)
 
   if total(pixel_mask_used[0:3]) eq total(pixel_mask_used[4:7]) then begin
     count_ratio_threshold = 1.05

@@ -61,6 +61,9 @@ pro stx_auto_scale_sas_data, data, simu_data_file, aperfile, n_iter=n_iter, do_p
   xx = smo_data.z_srf / 0.375e6  ; convert back from arcsec to mic
   yy = smo_data.y_srf / 0.375e6
   foclen = 0.55         ; SAS focal length, in [m]
+  ; replace nominal focal length with actual distance from lens to aperture plate (= image plane)
+  ; (changed 2023-04-21)
+  foclen = 548.16e-3
   rsol = foclen * (smo_data.SPICE_DISC_SIZE * !pi/180. / 3600.)
   simu_data = stx_compute_sas_signals(xx, yy, rsol, aperfile, /quiet)
 ;  if keyword_set(do_plot) then plot4sig, smo_data, exp=simu_data
