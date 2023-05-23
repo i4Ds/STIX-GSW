@@ -106,7 +106,7 @@ if n_elements(grid_factor) eq  n_elements(ph_in) then grid_factor=10^(interpol(a
 
   smatrix = smatrix * rebin( transpose(transmission), dim_drm)
 
-  data_grouper_edg,smatrix , drm.edges_out, ct_energy_edges, /perwidth, epsilon =0.0001, error=error, emsg=emsg
+  data_grouper_edg, smatrix, drm.edges_out, ct_energy_edges, /perwidth, epsilon =0.0001, error=error, emsg=emsg
   drm = rep_tag_value(drm, ct_energy_edges, 'edges_out')
   drm = rep_tag_value(drm, smatrix, 'smatrix')
 

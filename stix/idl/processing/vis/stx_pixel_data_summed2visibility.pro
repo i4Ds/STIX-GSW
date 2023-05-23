@@ -61,7 +61,7 @@ function stx_pixel_data_summed2visibility, pixel_data_summed, subc_index=subc_in
                                            f2r_sep=f2r_sep
 
 default, mapcenter, [0.,0.]
-default, f2r_sep, 550.0
+default, f2r_sep, 545.30
 default, subc_index, stx_label2ind(['10a','10b','10c','9a','9b','9c','8a','8b','8c','7a','7b','7c',$
                                     '6a','6b','6c','5a','5b','5c','4a','4b','4c','3a','3b','3c'])
 

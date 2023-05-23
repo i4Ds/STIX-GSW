@@ -77,6 +77,7 @@
 ;    10-Feb-2023 - FSc (AIP), adapted to recent changes in L1 files (see PR #296 in STIXcore GitHub)
 ;    21-Feb-2023 - FSc (AIP), fix for more changes in L1 files (energy_bin_edge_mask vs. energy_bin_mask)
 ;    15-Mar-2023 - ECMD (Graz), updated to handle release version of L1 FITS files
+;    27-Mar-2023 - ECMD (Graz), added check for duration shift already applied in FITS file
 ;
 ;-
 pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
@@ -86,7 +87,8 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
   default, alpha, 0
   default, time_shift, 0
   default, use_discriminators, 1
-
+  default, shift_duration, 0
+  
   !null = stx_read_fits(fits_path, 0, primary_header,  mversion_full = mversion_full, silent=silent)
   control = stx_read_fits(fits_path, 'control', control_header, mversion_full = mversion_full, silent=silent)
   data = stx_read_fits(fits_path, 'data', data_header, mversion_full = mversion_full, silent=silent)
@@ -95,11 +97,17 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
   processing_level = (sxpar(primary_header, 'LEVEL'))
   if strcompress(processing_level,/remove_all) eq 'L1A' then alpha = 1
 
+  stx_check_duration_shift, primary_header, duration_shifted = duration_shifted, duration_shift_not_possible = duration_shift_not_possible
+
   hstart_time = alpha ? (sxpar(primary_header, 'date_beg')) : (sxpar(primary_header, 'date-beg'))
 
   data.counts_comp_err  = sqrt(data.counts_comp_err^2. + data.counts)
   data.triggers_comp_err = sqrt(data.triggers_comp_err^2. + data.triggers)
 
+  shift_duration = shift_duration && ~duration_shifted && ~duration_shift_not_possible
+
+  if keyword_set(shift_duration) and (anytim(hstart_time) gt anytim('2021-12-09T00:00:00') ) then $
+    message, 'Shift of duration with respect to time bins is no longer needed after 09-Dec-21'
 
   ; ************************************
   ; Andrea (19-Jan-2022)
@@ -145,8 +153,9 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
 
   ; changed 2023-02-21 - FIX ME: this is not correct when using energy-bin grouping
   edges_used = where( control.energy_bin_edge_mask eq 1, nedges)
-  energies_used = edges_used[0:-2]  ; because further down we index the bins and not the edges
-
+  energy_bin_mask = stx_energy_edge2bin_mask(control.energy_bin_edge_mask)
+  energies_used = where(energy_bin_mask eq 1) 
+  
   if ~keyword_set(alpha) then begin
 
     rcr =  ((data.rcr).typecode) eq 7 ? fix(strmid(data.rcr,0,1,/reverse_offset)) : (data.rcr)
@@ -168,18 +177,25 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
   endelse
 
 
-  if control.energy_bin_edge_mask[0] || control.energy_bin_edge_mask[-1] and ~keyword_set(use_discriminators) then begin
+  energy_edges_2 = transpose([[energy.e_low], [energy.e_high]])
 
+  if control.energy_bin_edge_mask[0] and ~keyword_set(use_discriminators) then begin
+    
     control.energy_bin_edge_mask[0] = 0
-    control.energy_bin_edge_mask[-1] = 0
     data.counts[0,*,*,*] = 0.
-    data.counts[-1,*,*,*] = 0.
-
     data.counts_comp_err[0,*,*,*] = 0.
-    data.counts_comp_err[-1,*,*,*] = 0.
+    energy_edges_2 = energy_edges_2[*,1:-1]
 
   endif
 
+  if control.energy_bin_edge_mask[-1]  and ~keyword_set(use_discriminators) then begin
+
+    control.energy_bin_edge_mask[-1] = 0
+    data.counts[-1,*,*,*] = 0.
+    data.counts_comp_err[-1,*,*,*] = 0.
+    energy_edges_2 = energy_edges_2[*,0:-2]
+
+  endif
 
 
   ; create time object
@@ -212,15 +228,17 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
   expected_energy_shift = stx_check_energy_shift(hstart_time)
   default, energy_shift, expected_energy_shift
 
-  ; changed 2023-02-21: Now only the used energies are in table energy, therefore:
-  energy_edges_2 = transpose([[energy.e_low], [energy.e_high]])
+  
+  edges_used = where( control.energy_bin_edge_mask eq 1, nedges)
+  energy_bin_mask = stx_energy_edge2bin_mask(control.energy_bin_edge_mask)
+  energies_used = where(energy_bin_mask eq 1)
+  
+  ; changed 2023-03-15: Now only the used energies are in table energy, therefore:
   edge_products, energy_edges_2, edges_1 = energy_edges_1
 
-  use_energies = indgen(n_elements(energy_edges_1))
-
-  e_axis = stx_construct_energy_axis(energy_edges = energy_edges_1 + energy_shift, select =  use_energies )
-  e_axis.low_fsw_idx = edges_used[0:-2]
-  e_axis.high_fsw_idx = edges_used[1:-1]
+  e_axis = stx_construct_energy_axis(energy_edges = energy_edges_1 + energy_shift, select =  indgen(n_elements(energy_edges_1)) )
+  e_axis.low_fsw_idx = energies_used
+  e_axis.high_fsw_idx = energies_used
 
   data = {time: time_bin_center,$
     timedel:duration , $

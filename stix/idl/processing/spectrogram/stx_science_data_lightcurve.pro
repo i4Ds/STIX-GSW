@@ -14,8 +14,9 @@
 ;     lightcurve
 ;
 ; :params:
-;    fits_path : in, required, type="string"
-;                The path to the STIX science data FITS file.
+;    fits_path : in, required, type="string" or "str array"
+;                The path to the STIX science data FITS file. An array of paths can also be given: In such a case, the code
+;                will iterate on all FITS files concatenating the time profiles.
 ;
 ; :keywords:
 ;    energy_ranges : in, type="float array", default="[[4.,10.],[10,15],[15,25]]"
@@ -40,6 +41,11 @@
 ;    pix_ind : in, type="int array", default="all pixels present in observation"
 ;               indices of pixels to sum when making spectrogram - N.B. only applicable when input file is pixel data
 ;
+;    time_range : in, type="dbl array" or "str array", default="all times present in observation"
+;               It allows to extract a sub-interval from the FITS file. Particularly useful if one wants to extract only
+;               a sub-interval around a flare from a long spectrogram file. 
+;               Since by default time_shift is taken from the FITS header, this time_range has to be specified in Earth UT.
+;               
 ;    sys_uncert : in, optional keyword, default="0.05"
 ;               The level of systematic uncertainty to be added to the data
 ;
@@ -67,11 +73,14 @@
 ;                               added keyword to allow the user to specify the systematic uncertainty
 ;    05-Sep-2022 - ECMD (Graz), added rcr info to output structure
 ;                               suppress plotting when ospex object is created  
+;    15-Dec-2023 - AFB (FHNW), keyword time_range added, to extract only a sub-interval
+;    31-Jan-2023 - AFB (FHNW), it is now possible to pass multiple FITS files in fits_path and the output
+;                              structure will be the concatenation of all the input files
 ;
 ;-
 function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time_min = time_min,  $
   fits_path_bk =  fits_path_bk, plot_obj = plot_obj, time_shift = time_shift, rate = rate, shift_duration = shift_duration, $
-  det_ind = det_ind, pix_ind = pix_ind, sys_uncert = sys_uncert
+  det_ind = det_ind, pix_ind = pix_ind, sys_uncert = sys_uncert, time_range = time_range
 
 
   default, time_min, 20
@@ -83,110 +92,163 @@ function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time
 
   ;for the light curve the standard default corrections are applied
   ; If the user manually defines time_shift, then use that
-  stx_get_header_corrections, fits_path, distance = distance, time_shift = tmp_shift
+  stx_get_header_corrections, fits_path[0], distance = distance, time_shift = tmp_shift
   default, time_shift, tmp_shift
 
   edge_products, edges_in, edges_2 = energy_ranges
 
   ; Get the original filename
-  !null = mrdfits(fits_path, 0, primary_header)
+  !null = mrdfits(fits_path[0], 0, primary_header)
   orig_filename = sxpar(primary_header, 'FILENAME')
 
-  if strpos(orig_filename, 'cpd') gt -1 or strpos(orig_filename, 'xray-l1') gt -1 then begin
-    stx_convert_pixel_data, fits_path_data = fits_path, fits_path_bk =  fits_path_bk, distance = distance, time_shift = time_shift, ospex_obj = ospex_obj, $
-      det_ind = det_ind, pix_ind = pix_ind, sys_uncert = sys_uncert, plot = 0, _extra= _extra
-  endif else if strpos(orig_filename, 'spec') gt -1 or strpos(orig_filename, 'spectrogram') gt -1 then begin
-    stx_convert_spectrogram, fits_path_data = fits_path, fits_path_bk =  fits_path_bk, distance = distance, time_shift = time_shift, ospex_obj = ospex_obj, $
-      sys_uncert = sys_uncert, plot = 0, _extra= _extra
-    if keyword_set(det_ind) or keyword_set(pix_ind) then  message, 'ERROR: Detector and pixel selection not possible with spectrogram files.'
-  endif else begin
-    message, 'ERROR: the FILENAME field in the primary header should contain either cpd, xray-l1 or spec'
-  endelse
+  ; Multiple FITS files can be providedand the output will be the concatenation of all files
+  nfiles = n_elements(fits_path)
+  data_all = []
+  error_all = []
+  ltime_all = []
+  ut2_time_all = []
+  duration_all = []
+  rcr_all = []
+  for this_file = 0,nfiles-1 do begin
 
-  data_obj = ospex_obj->get(/obj,class='spex_data')
-  counts_str = ospex_obj->getdata(spex_units='counts')
-
-  ut_time = ospex_obj->getaxis(/ut, /edges_1)
-  ut2_time = ospex_obj->getaxis(/ut, /edges_2)
-  ut2_time_all = ut2_time
-  duration = ospex_obj->getaxis(/ut, /width)
-  filters_all = ospex_obj->get(/spex_interval_filter) 
+    if strpos(orig_filename, 'cpd') gt -1 or strpos(orig_filename, 'xray-l1') gt -1 then begin
+      stx_convert_pixel_data, fits_path_data = fits_path[this_file], fits_path_bk =  fits_path_bk, distance = distance, time_shift = time_shift, ospex_obj = ospex_obj, $
+        det_ind = det_ind, pix_ind = pix_ind, sys_uncert = sys_uncert, plot = 0, _extra= _extra
+    endif else if strpos(orig_filename, 'spec') gt -1 or strpos(orig_filename, 'spectrogram') gt -1 then begin
+      stx_convert_spectrogram, fits_path_data = fits_path[this_file], fits_path_bk =  fits_path_bk, distance = distance, time_shift = time_shift, ospex_obj = ospex_obj, $
+        sys_uncert = sys_uncert, plot = 0, _extra= _extra
+      if keyword_set(det_ind) or keyword_set(pix_ind) then  message, 'ERROR: Detector and pixel selection not possible with spectrogram files.'
+    endif else begin
+      message, 'ERROR: the FILENAME field in the primary header should contain either cpd, xray-l1 or spec'
+    endelse
   
-  ;use OSPEX bin_data method to bin counts in given energy bands
-  energy_summed_counts = data_obj->bin_data(data = counts_str, intervals = energy_ranges, $
-    eresult = energy_summed_error, ltime = energy_summed_ltime)
-
-  energy_summed_str = {data:energy_summed_counts, edata:energy_summed_error, ltime:energy_summed_ltime}
-
-  ; determine time bins with minimum duration - keep adding consecutive bins until the minimum
-  ; value is at least reached
-  i=0
-  j=0
-  total=0
-  iall=[]
-
-  while (i lt n_elements(duration)-1) do begin
-    while (total lt time_min)  and (i+j le n_elements(duration)-1) do begin
-      total = total(duration[i:i+j])
-      j++
+    data_obj = ospex_obj->get(/obj,class='spex_data')
+    counts_str = ospex_obj->getdata(spex_units='counts')
+  
+    ut_time = ospex_obj->getaxis(/ut, /edges_1)
+    ut2_time = ospex_obj->getaxis(/ut, /edges_2)
+    ;ut2_time_all = ut2_time
+    duration = ospex_obj->getaxis(/ut, /width)
+    filters_all = ospex_obj->get(/spex_interval_filter) 
+    
+    ;use OSPEX bin_data method to bin counts in given energy bands
+    energy_summed_counts = data_obj->bin_data(data = counts_str, intervals = energy_ranges, $
+      eresult = energy_summed_error, ltime = energy_summed_ltime)
+  
+    energy_summed_str = {data:energy_summed_counts, edata:energy_summed_error, ltime:energy_summed_ltime}
+  
+    ; determine time bins with minimum duration - keep adding consecutive bins until the minimum
+    ; value is at least reached
+    i=0
+    j=0
+    total=0
+    iall=[]
+  
+    while (i lt n_elements(duration)-1) do begin
+      while (total lt time_min)  and (i+j le n_elements(duration)-1) do begin
+        total = total(duration[i:i+j])
+        j++
+      endwhile
+      iall = [iall,i]
+      i = i+j
+      j = 0
+      total = 0
     endwhile
-    iall = [iall,i]
-    i = i+j
-    j = 0
-    total = 0
-  endwhile
-
-  intervals = [ut2_time[0,iall[0:-2]],ut2_time[1,iall[1:-1]-1]]
-  intervals = [[intervals],[ ut2_time[0,iall[-1]], ut2_time[1,-1]]]
-
-  ;use OSPEX bin_data method to bin counts in given time bands
-  time_summed_counts = data_obj->bin_data(data = energy_summed_str, intervals = intervals, /do_time, $
-    eresult = time_summed_error, ltime = time_summed_livetime)
-
-  ; insert the data summed in time and energy back into the OSPEX object
-  ospex_obj->set, spex_data_source = 'spex_user_data'
-  ospex_obj->set, spectrum = time_summed_counts,  $
-    spex_ct_edges = energy_ranges, $
-    errors = time_summed_error, $
-    spex_ut_edges = intervals, $
-    livetime = time_summed_livetime, $
-    spex_detectors = 'STIX'
-  origunits = ospex_obj->get(/spex_data_origunits)
-  origunits.data_name = 'STIX'
-  ospex_obj->set, spex_data_origunits = origunits
-  ospex_obj->set, spex_uncert = 0.05
-  ospex_obj ->set, spex_eband = energy_ranges
-  ospex_obj ->set, spex_tband = intervals
-  ospex_obj->set, spex_fit_time_interval = intervals
   
-  idx = transpose([[iall],[shift(iall,-1)-1]])
-  rcr  = spex_get_filter(filters_all,idx)
+    intervals = [ut2_time[0,iall[0:-2]],ut2_time[1,iall[1:-1]-1]]
+    intervals = [[intervals],[ ut2_time[0,iall[-1]], ut2_time[1,-1]]]
   
-  ; if the plot_obj keyword is present create a plotman window and plot the lightcurve
-  if arg_present(plot_obj) then begin
-    ospex_obj->plot_time,  spex_units=spex_units, /show_err, /show_filter
-    pobj = ospex_obj->get_plotman_obj()
-    ut_plot = pobj->get(/data)
-    plot_obj = plotman(desc='STIX Lightcurve', input = ut_plot, /ylog, xst = 1)
+    ;use OSPEX bin_data method to bin counts in given time bands
+    time_summed_counts = data_obj->bin_data(data = energy_summed_str, intervals = intervals, /do_time, $
+      eresult = time_summed_error, ltime = time_summed_livetime)
+  
+    ; insert the data summed in time and energy back into the OSPEX object
+    ospex_obj->set, spex_data_source = 'spex_user_data'
+    ospex_obj->set, spectrum = time_summed_counts,  $
+      spex_ct_edges = energy_ranges, $
+      errors = time_summed_error, $
+      spex_ut_edges = intervals, $
+      livetime = time_summed_livetime, $
+      spex_detectors = 'STIX'
+    origunits = ospex_obj->get(/spex_data_origunits)
+    origunits.data_name = 'STIX'
+    ospex_obj->set, spex_data_origunits = origunits
+    ospex_obj->set, spex_uncert = 0.05
+    ospex_obj ->set, spex_eband = energy_ranges
+    ospex_obj ->set, spex_tband = intervals
+    ospex_obj->set, spex_fit_time_interval = intervals
+    
+    idx = transpose([[iall],[shift(iall,-1)-1]])
+    rcr  = spex_get_filter(filters_all,idx)
+    
+    ; if the plot_obj keyword is present create a plotman window and plot the lightcurve
+    if arg_present(plot_obj) then begin
+      ospex_obj->plot_time,  spex_units=spex_units, /show_err, /show_filter
+      pobj = ospex_obj->get_plotman_obj()
+      ut_plot = pobj->get(/data)
+      plot_obj = plotman(desc='STIX Lightcurve', input = ut_plot, /ylog, xst = 1)
+      print,''
+      print,'=====>  Press SPACEBAR to continue  <====='
+      print,''
+      pause
+    endif
+  
+    ;retrieve the data from the OSPEX object for the output structure
+    flux_str = ospex_obj->getdata(spex_units=spex_units)
+    units = data_obj->getunits()
+    ut2_time = ospex_obj->getaxis(/ut, /edges_2)
+    duration = ospex_obj->getaxis(/ut, /width)
+  
+    ; Concatenate the data
+    data_all = [[data_all], [flux_str.data]]
+    error_all = [[error_all], [flux_str.edata]]
+    ltime_all = [[ltime_all], [flux_str.ltime]]
+    ut2_time_all = [ut2_time_all, transpose(ut2_time[0,*])]
+    duration_all = [duration_all, duration]
+    rcr_all = [rcr_all, rcr]
+  
+  endfor ; End of the loop for all files
+  
+  
+  ; Check for duplicates and delete them
+  sorted_list = sort(anytim(ut2_time_all))
+  this_diff = anytim(ut2_time_all) * 0.
+  this_diff[1:*] = anytim(ut2_time_all[sorted_list[1:*]])-anytim(ut2_time_all[sorted_list[0:-2]])
+  keeplist = where(abs(this_diff) ge 0.45)
+  ut2_time_all = ut2_time_all[sorted_list[keeplist]]
+  data_all = data_all[*,sorted_list[keeplist]]
+  error_all = error_all[*,sorted_list[keeplist]]
+  ltime_all = ltime_all[*,sorted_list[keeplist]]
+  duration_all = duration_all[sorted_list[keeplist]]
+  
+  ; Extract a sub-interval, if requested
+  if keyword_set(time_range) then begin
+
+    time_range = anytim(time_range)
+    this_ut = anytim(ut2_time_all)
+
+    start_ind = where(abs(this_ut-time_range[0]) eq min(abs(this_ut-time_range[0])))
+    end_ind = where(abs(this_ut-time_range[1]) eq min(abs(this_ut-time_range[1])))
+
+    ut2_time_all = ut2_time_all[start_ind:end_ind]
+    data_all = data_all[*,start_ind:end_ind]
+    error_all = error_all[*,start_ind:end_ind]
+    ltime_all = ltime_all[*,start_ind:end_ind]
+    duration_all = duration_all[start_ind:end_ind]
+    rcr_all = rcr_all[start_ind:end_ind]
+
   endif
-
-  ;retrieve the data from the OSPEX object for the output structure
-  flux_str = ospex_obj->getdata(spex_units=spex_units)
-  units = data_obj->getunits()
-  ut2_time = ospex_obj->getaxis(/ut, /edges_2)
-  duration = ospex_obj->getaxis(/ut, /width)
-
-
+  
   light_curve_str = {$
-    data:flux_str.data, $
+    data:data_all, $
     data_type:units.data_type, $
     data_units:units.data, $
-    error:flux_str.edata, $
-    livetime : flux_str.ltime, $
-    ut:ut2_time, $
-    duration:duration, $
+    error:error_all, $
+    livetime : ltime_all, $
+    ut:ut2_time_all, $
+    duration:duration_all, $
     time_shift:time_shift, $
-    rcr:rcr, $
+    rcr:rcr_all, $
     energy_bands:energy_ranges}
 
   obj_destroy, ospex_obj
