@@ -74,6 +74,7 @@
 ;             
 ; HISTORY: July 2022, Massa P., created
 ;          September 2022, Massa P., added 'shift_duration' keyword
+;          May 2023, Massa P., do not call 'stx_plot_selected_time_range' if the science fits file contains a single time bin
 ;
 ; CONTACT:
 ;   paolo.massa@wku.edu
@@ -171,7 +172,7 @@ endif
 
 ;;************** Plot lightcurve (if ~silent)
 
-if ~silent then begin
+if ~silent and (n_elements(size(live_time_bins, /dim)) gt 1) then begin
   
   if keyword_set(path_bkg_file) then begin
     stx_plot_selected_time_range, stx_time2any(t_axis.MEAN), energy_ind, time_ind, data.COUNTS, live_time_bins, subc_index, $
