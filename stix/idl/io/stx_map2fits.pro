@@ -1,26 +1,21 @@
 ;+
-; Project     : STIX
+; Project     : STX
 ;
 ; Name        : STX_MAP2FITS
 ;
-; Purpose     : Write STIX image reconstructed map to FITS file. The header of
-;               newly created FITS file depends on the reconstruction algorithm
-;               used.
+; Purpose     : Write STIX reconstructed map to FITS file.
 ;
 ; Category    : imaging
 ;
 ; Syntax      : stx_map2fits,map,file,path_sci_file
 ;
 ; Inputs      : MAP = image map structure
-;               FILE = FITS file name
+;               FILE = filename of the newly created FITS file
 ;               PATH_SCI_FILE = path to the L1 file used for reconstructing the STIX image
 ;
 ; Keywords    : PATH_BKG_FILE = path to the L1 BKG file included for the reconstruction of the STIX image
-;               XY_SHIFT = applied shift to the location of the map. Provide the aspect if applied
 ;               ERR = error string
 ;               BYTE_SCALE = byte scale data
-;               ALL_CLEAN = store all maps of the clean map structure 
-;                           (by default only the clean map is stored, i.e., clean_map[0])
 ;
 ; Comments    : Based on map2fits in sswidl, but adapted for STIX images
 ; History     : 05-04-2022, Hualin Xiao (hualin.xiao@fhnw.ch)
@@ -40,34 +35,26 @@
 ;                  
 ;                - 03.04.2023: A. F. Battaglia
 ;                  RSUN_REF added. The same value as in the EUI FITS files has been added
+;                  
+;                - 24.05.2023: A. F. Battaglia
+;                  Extensive update of the procedure. Now aspect data are used and the header
+;                  is more conformed with the FITS standard
 ; -
 
-   pro stx_map2fits,in_map,file,path_sci_file,path_bkg_file=path_bkg_file,$
-    xy_shift=xy_shift, err=err,byte_scale=byte_scale,verbose=verbose,all_clean=all_clean
+   pro stx_map2fits,map,file,path_sci_file,path_bkg_file=path_bkg_file,$
+    err=err,byte_scale=byte_scale,verbose=verbose
 
    err=''
    verbose=keyword_set(verbose)
 
-  ; ******************** ADAPTED FOR STIX ************************
-
-  ; Check if the L1 file is given
+  ;; Check if the L1 file is given
   if not keyword_set(path_sci_file) then begin
     print, ''
     print, ' >>>>>>>>>> path_sci_file has to be defined!! <<<<<<<<<<'
     print, ''
-    message, 'Please, define path_sci_file (path to the science file used for imaging)'
+    message, 'Please, define path_sci_file (path to the science file that has been used for imaging)'
   endif
     
-  ; Check if the algorithm used is CLEAN.
-  ; If this is the case, then store only the CLEAN map and discard all other maps
-  this_id = in_map[0].id
-  if this_id.Contains('CLEAN') eq 1 and not keyword_set(all_clean) then begin
-    map = in_map[0]
-  endif else begin
-    map = in_map
-  endelse
-
-  ; *************************************************************
 
    if ~valid_map(map) || is_blank(file) then begin
     pr_syntax,'map2fits,map,file'
@@ -90,7 +77,6 @@
    filename=filename.Replace("'","")
    
    if verbose then message,'Writing map to - '+filename,/info
-   use_rtime=tag_exist(map,'rtime')
    in_tags=tag_names(map)
    def_map,rmap
    def_fits=['SIMPLE','BITPIX','NAXIS','NAXIS1','NAXIS2','DATE','FILENAME','END',$
@@ -112,63 +98,82 @@
 
     fxhmake,header,data,/date
 
-;-- add FITS parameters CRPIX, CRVAL, etc.
+;-- FITS parameters CRPIX, CRVAL, etc.
 
     crpix1=comp_fits_crpix(xcen,cdelt1,naxis1,0)
     crpix2=comp_fits_crpix(ycen,cdelt2,naxis2,0)
-
-    fxaddpar, header, 'ctype1', 'solar_x','Solar X (cartesian west) axis'
-    fxaddpar, header, 'ctype2', 'solar_y','Solar Y (cartesian north) axis'
-
-;    fxaddpar, header, 'cunit1', 'arcsecs','Arcseconds from center of Sun'
-;    fxaddpar, header, 'cunit2', 'arcsecs','Arcseconds from center of Sun'
-
-    fxaddpar, header, 'crpix1', crpix1, 'Reference pixel along X dimension'
-    fxaddpar, header, 'crpix2', crpix2, 'Reference pixel along Y dimension'
-
-    fxaddpar, header, 'crval1',0, 'Reference position along X dimension'
-    fxaddpar, header, 'crval2',0, 'Reference position along Y dimension'
-
-    fxaddpar, header, 'cdelt1',cdelt1,'Increments along X dimension'
-    fxaddpar, header, 'cdelt2',cdelt2,'Increments along Y dimension'
-
-    if use_rtime then obs_time=map[i].rtime else obs_time=map[i].time
-
-    fxaddpar,header,'date_obs',obs_time,'Observation date'
-    fxaddpar,header,'date-obs',obs_time,'Observation date'
-    if tag_exist(map,'dur') then fxaddpar,header,'exptime',map[i].dur,'Exposure duration'
-    fxaddpar,header,'origin',map[i].id,'Data description'
+        
+    ;; Extract the time and energy ranges from the map
+    time_range = [anytim(map[i].time)-map[i].dur/2.,anytim(map[i].time)+map[i].dur/2.]
+    energy_range = map[i].energy_range
     
+    ;; Algorithm used
+    alg = map[i].id
+    algo_used = alg.remove(-2,-1)
     
-    ; ******************** ADAPTED FOR STIX ************************
+    ;; Extract pointing information
+    aux_data = map[i].aux_data
+    stx_x = aux_data.stx_pointing[0]
+    stx_y = aux_data.stx_pointing[1]
+    rsun_arc = aux_data.rsun
+    roll_angle = aux_data.roll_angle
+    l0_ang = aux_data.l0
+    b0_ang = aux_data.b0
     
-    ; Extract the time and energy ranges from the map
-    time_range = [anytim(map.time)-map.dur/2.,anytim(map.time)+map.dur/2.]
-    ;energy_axis = map.energy_range
+    ;; Component of the PC matrix
+    roll_angle_rad = roll_angle * !dpi / 180.
+    pc1_1 = cos(roll_angle_rad) 
+    pc1_2 = -sin(roll_angle_rad) 
+    pc2_1 = sin(roll_angle_rad) 
+    pc2_2 = cos(roll_angle_rad) 
     
-    ; Algorithm used
-    ;algo_used = map.image_alg
+    ;; Get the current time for the creation date of the FITS file
+    jul2greg, systime(/jul), Month, Day, Year, Hour, Minute, Second
+    fits_creation_datetime = num2str(year,format='(I10.4)')+'-'$
+      +num2str(month,format='(I10.2)')+'-'$
+      +num2str(day,format='(I10.2)')+' '$
+      +num2str(minute,format='(I10.2)')+':'$
+      +num2str(second,format='(I10.2)')+'.'$
+      +num2str(000,format='(I10.3)')
     
-    ; If xy_shift is not provided, then put the average shift values in the header
-    if not keyword_set(xy_shift) then xy_shift = [26.1, 58.2]
-    
-    ; Get the header of the L1 FITS file used for creating the STIX map
+    ;; Get the header of the L1 FITS file used for creating the STIX map
     this_header = headfits(path_sci_file)
     
-    ; Extract the filename of the L1 data used for the visibilities
+    ;; Extract the filename of the L1 data used for the visibilities
     break_file,path_sci_file,disk_log,dir_l1,fn_sci_file,ext_sci_file
     if keyword_set(path_bkg_file) then break_file,path_bkg_file,disk_log,dir_bkg,fn_bkg_file,ext_bkg_file
     
-    ; Get the proper time format
-    time_structure = anytim(time_range[0],/utc_ext)
-    this_date_str = num2str(time_structure.year,format='(I10.4)')+'-'$
-      +num2str(time_structure.month,format='(I10.2)')+'-'$
-      +num2str(time_structure.day,format='(I10.2)')
-    this_time_str = num2str(time_structure.hour,format='(I10.2)')+':'$
-      +num2str(time_structure.minute,format='(I10.2)')+':'$
-      +num2str(time_structure.second,format='(I10.2)')+'.'$
-      +num2str(time_structure.millisecond,format='(I10.3)')
+    ;;; Get the proper time format
+    ; Begin time of the interval of integration
+    time_beg_structure = anytim(time_range[0],/utc_ext)
+    time_end_structure = anytim(time_range[1],/utc_ext)
+    time_avg_structure = anytim(mean(time_range),/utc_ext)
+    this_date_str = num2str(time_beg_structure.year,format='(I10.4)')+'-'$
+      +num2str(time_beg_structure.month,format='(I10.2)')+'-'$
+      +num2str(time_beg_structure.day,format='(I10.2)')
+    this_time_str = num2str(time_beg_structure.hour,format='(I10.2)')+':'$
+      +num2str(time_beg_structure.minute,format='(I10.2)')+':'$
+      +num2str(time_beg_structure.second,format='(I10.2)')+'.'$
+      +num2str(time_beg_structure.millisecond,format='(I10.3)')
     this_date_obs = this_date_str + ' ' + this_time_str
+    ; The same but with the end time
+    this_date_str_end = num2str(time_end_structure.year,format='(I10.4)')+'-'$
+      +num2str(time_end_structure.month,format='(I10.2)')+'-'$
+      +num2str(time_end_structure.day,format='(I10.2)')
+    this_time_str_end = num2str(time_end_structure.hour,format='(I10.2)')+':'$
+      +num2str(time_end_structure.minute,format='(I10.2)')+':'$
+      +num2str(time_end_structure.second,format='(I10.2)')+'.'$
+      +num2str(time_end_structure.millisecond,format='(I10.3)')
+    this_date_obs_end = this_date_str_end + ' ' + this_time_str_end
+    ; The same but with the average time
+    this_date_str_avg = num2str(time_avg_structure.year,format='(I10.4)')+'-'$
+      +num2str(time_avg_structure.month,format='(I10.2)')+'-'$
+      +num2str(time_avg_structure.day,format='(I10.2)')
+    this_time_str_avg = num2str(time_avg_structure.hour,format='(I10.2)')+':'$
+      +num2str(time_avg_structure.minute,format='(I10.2)')+':'$
+      +num2str(time_avg_structure.second,format='(I10.2)')+'.'$
+      +num2str(time_avg_structure.millisecond,format='(I10.3)')
+    this_date_obs_avg = this_date_str_avg + ' ' + this_time_str_avg
     
     ; Let us add parameters to the header structure
     fxaddpar, header, 'TELESCOP', sxpar(this_header,'TELESCOP'), 'Telescope name'
@@ -178,33 +183,31 @@
     if keyword_set(path_bkg_file) then fxaddpar, header, 'FLNM_BKG', fn_bkg_file+ext_bkg_file, 'Filename background L1 file'
     fxaddpar, header, 'LEVEL   ', sxpar(this_header,'LEVEL   '), 'Processing level of the data used for the map'
     fxaddpar, header, 'TIMESYS ', sxpar(this_header,'TIMESYS '), 'System used for time keywords'
-    fxaddpar, header, 'DATE_CRE', sxpar(this_header,'DATE    '), 'FITS file creation time in UTC'
-    fxaddpar, header, 'ORIGIN  ', sxpar(this_header,'ORIGIN  '), 'Location where file has been generated'
+    fxaddpar, header, 'DATE_CRE', fits_creation_datetime, 'FITS file creation time in UTC'
+    ;fxaddpar, header, 'ORIGIN  ', sxpar(this_header,'ORIGIN  '), 'Location where file has been generated'
+    fxaddpar, header, 'ORIGIN  ', 'User', 'Location where file has been generated'
     fxaddpar, header, 'CREATOR ', 'stx_map2fits, IDL', 'FITS creation software'
     fxaddpar, header, 'OBS_TYPE', 'STIX-map'
     fxaddpar, header, 'DATE-OBS', this_date_obs, 'Start time of the map interval - SolO UT'
-    ;fxaddpar, header, 'DATE-OBS', anytim(time_range[0],/ccsds), 'Start time of the map interval - SolO UT'
-    fxaddpar, header, 'DATE_OBS', anytim(time_range[0],/ccsds), 'Start time of the map interval - SolO UT'
-    fxaddpar, header, 'DATE_BEG', anytim(time_range[0],/ccsds), 'Start time of the map interval - SolO UT'
-    fxaddpar, header, 'DATE_AVG', anytim((anytim(time_range[0])+anytim(time_range[1]))/2,/ccsds), 'Average time of the map interval - SolO UT'
-    fxaddpar, header, 'DATE_END', anytim(time_range[1],/ccsds), 'End time of the map interval - SolO UT'
+    fxaddpar, header, 'DATE-BEG', this_date_obs, 'Start time of the map interval - SolO UT'
+    fxaddpar, header, 'DATE-AVG', this_date_obs_avg, 'Average time of the map interval - SolO UT'
+    fxaddpar, header, 'DATE-END', this_date_obs_end, 'End time of the map interval - SolO UT'
     fxaddpar, header, 'MJDREF  ', sxpar(this_header,'MJDREF  ')
     fxaddpar, header, 'DATEREF ', sxpar(this_header,'DATEREF ')
-   ; fxaddpar, header, 'ENERGY_L', string(energy_axis[0]), '[keV] Low energy range of the map interval'
-   ; fxaddpar, header, 'ENERGY_H', string(energy_axis[1]), '[keV] High energy range of the map interval'
-    ;fxaddpar, header, 'MAP_CENX', string(this_mapcenter[0,0]), '[arcsec] Map center X - STIX RF'
-    ;fxaddpar, header, 'MAP_CENY', string(this_mapcenter[1,0]), '[arcsec] Map center Y - STIX RF'
-    fxaddpar, header, 'X_SHIFT ', string(xy_shift[0]), '[arcsec] Applied shift to map X - SolO RF'
-    fxaddpar, header, 'Y_SHIFT ', string(xy_shift[1]), '[arcsec] Applied shift to map Y - SolO RF'
+    fxaddpar, header, 'ALG_USED', algo_used, 'Algo used for imaging reconstr'
+    fxaddpar, header, 'ENERGY_L', string(energy_range[0]), '[keV] Low energy bound of the map'
+    fxaddpar, header, 'ENERGY_H', string(energy_range[1]), '[keV] High energy bound of the map'
+    fxaddpar, header, 'STX_X   ', stx_x, '[arcsec] STIX pointing estimate'
+    fxaddpar, header, 'STX_Y   ', stx_y, '[arcsec] STIX pointing estimate'
     fxaddpar, header, 'TARGET  ', 'Sun'
     fxaddpar, header, 'SPICE_MK', sxpar(this_header,'SPICE_MK'), 'SPICE meta kernel file'
     fxaddpar, header, 'RSUN_REF', 695700000.0, '[m] Assumed physical solar radius'
-    fxaddpar, header, 'RSUN_OBS', sxpar(this_header,'RSUN_ARC'), '[arcsec] Apparent photospheric solar radius'
-    fxaddpar, header, 'RSUN_ARC', sxpar(this_header,'RSUN_ARC'), '[arcsec] Apparent photospheric solar radius'
-    fxaddpar, header, 'HGLT_OBS', sxpar(this_header,'HGLT_OBS'), '[deg] s/c heliographic latitude (B0 angle)'
+    fxaddpar, header, 'RSUN_OBS', rsun_arc, '[arcsec] Apparent photospheric solar radius'
+    fxaddpar, header, 'RSUN_ARC', rsun_arc, '[arcsec] Apparent photospheric solar radius'
+    fxaddpar, header, 'HGLT_OBS', b0_ang, '[deg] s/c heliographic latitude (B0 angle)'
     fxaddpar, header, 'HGLN_OBS', sxpar(this_header,'HGLN_OBS'), '[deg] s/c heliographic longitude'
-    fxaddpar, header, 'CRLT_OBS', sxpar(this_header,'CRLT_OBS'), '[deg] s/c Carrington latitude (B0 angle)'
-    fxaddpar, header, 'CRLN_OBS', sxpar(this_header,'CRLN_OBS'), '[deg] s/c Carrington longitude (L0 angle)'
+    fxaddpar, header, 'CRLT_OBS', b0_ang, '[deg] s/c Carrington latitude (B0 angle)'
+    fxaddpar, header, 'CRLN_OBS', l0_ang, '[deg] s/c Carrington longitude (L0 angle)'
     fxaddpar, header, 'DSUN_OBS', sxpar(this_header,'DSUN_OBS'), '[m] s/c distance from Sun'
     fxaddpar, header, 'HEEX_OBS', sxpar(this_header,'HEEX_OBS'), '[m] s/c Heliocentric Earth Ecliptic X'
     fxaddpar, header, 'HEEY_OBS', sxpar(this_header,'HEEY_OBS'), '[m] s/c Heliocentric Earth Ecliptic Y'
@@ -232,23 +235,25 @@
     sun_time = anytim(time_range[0]) - anytim(sxpar(this_header,'SUN_TIME'))
     fxaddpar, header, 'DATE_SUN', anytim(sun_time,/ccsds), 'Start time vis interval, corrected to Sun'
     
-    ; Entries that depend from the map
-    fxaddpar,header,'CROTA1',map[i].roll_angle,'[deg] Roll angle'
-    fxaddpar,header,'CROTA2',map[i].roll_angle,'[deg] Roll angle'
+    ; FITS parameters CRPIX, CRVAL
+    fxaddpar, header, 'CTYPE1', 'HPLN-TAN','Solar X (cartesian west) axis'
+    fxaddpar, header, 'CTYPE2', 'HPLT-TAN','Solar Y (cartesian north) axis'
+    fxaddpar, header, 'CRPIX1', crpix1, 'Reference pixel along X dimension'
+    fxaddpar, header, 'CRPIX2', crpix2, 'Reference pixel along Y dimension'
+    fxaddpar, header, 'CRVAL1',0, 'Reference position along X dimension'
+    fxaddpar, header, 'CRVAL2',0, 'Reference position along Y dimension'
+    fxaddpar, header, 'CDELT1',cdelt1,'Increments along X dimension'
+    fxaddpar, header, 'CDELT2',cdelt2,'Increments along Y dimension'
+    fxaddpar,header,'PC1_1',pc1_1,'WCS coordinate transformation matrix'
+    fxaddpar,header,'PC1_2',pc1_2,'WCS coordinate transformation matrix'
+    fxaddpar,header,'PC2_1',pc2_1,'WCS coordinate transformation matrix'
+    fxaddpar,header,'PC2_2',pc2_2,'WCS coordinate transformation matrix'
+    fxaddpar,header,'CROTA1',roll_angle,'[deg] Roll angle'
+    fxaddpar,header,'CROTA2',roll_angle,'[deg] Roll angle'
     fxaddpar,header,'CUNIT1','arcsec  ','units along axis 1'
     fxaddpar,header,'CUNIT2','arcsec  ','units along axis 2'
     fxaddpar,header,'CROTACN1',map[i].roll_center[0],'[arcsec] Rotation x center'
     fxaddpar,header,'CROTACN1',map[i].roll_center[1],'[arcsec] Rotation y center'
-    if tag_exist(map[i],'L0') then fxaddpar,header,'L0',map[i].l0,'L0 (degrees)'
-    if tag_exist(map[i],'B0') then fxaddpar,header,'B0',map[i].b0,'B0 (degrees)'
-    if tag_exist(map[i],'RSUN') then fxaddpar,header,'RSUN',map[i].rsun,'Solar radius (arcsecs)'
-    ;if tag_exist(map[i],'RSUN') then fxaddpar,header,'RSUN_OBS',map[i].rsun,'Solar radius (arcsecs)'
-    ;if tag_exist(map[i],'DSUN') then fxaddpar,header,'DSUN_OBS',map[i].dsun,'S/C distance to Sun (meters)'
-    ;if tag_exist(map[i],'L0') then fxaddpar,header,'HGLN_OBS',map[i].l0,'S/C longitude in HeliographicStonyhurst coord. (degrees)'
-    ;f tag_exist(map[i],'B0') then fxaddpar,header,'HGLT_OBS',map[i].b0,'S/C latitude in HeliographicStonyhurst coord. (degrees)'
-    
-    ; **************************************************************
-
 
 ;-- add in user-specified properties
 
