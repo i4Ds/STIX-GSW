@@ -1,5 +1,5 @@
 ;+
-; Project     : STX
+; Project     : STIX
 ;
 ; Name        : STX_MAP2FITS
 ;
