@@ -36,8 +36,10 @@
 ;    2022-09-09, FSc: added optional argument 'dont_use_sas' - renamed no_sas [2022-10-21]
 ;    2022-09-23, FSc: keyword 'silent' added; if not set, now displays messages about the pointing correction used
 ;    2022-09-28, FSc: displays a warning if dispersion in pointing > 3 arcsec
+;    2023-05-25, A. F. Battaglia (FHNW, Switzerland): added a few keywords for returing header informations of the FITS file
 ;-
-function stx_create_auxiliary_data, fits_path, time_range, force_sas=force_sas, no_sas=no_sas, silent=silent
+function stx_create_auxiliary_data, fits_path, time_range, force_sas=force_sas, no_sas=no_sas, silent=silent, $
+  primary_header = primary_header, data_header = data_header, control_header= control_header, idb_version_header = idb_version_header
 
   default, force_sas, 0
   default, no_sas, 0
@@ -46,7 +48,8 @@ function stx_create_auxiliary_data, fits_path, time_range, force_sas=force_sas, 
   if keyword_set(force_sas) and keyword_set(no_sas) then $
      message, 'WARNING: keywords force_sas and no_sas both set, will not use SAS.', /info, /cont
 
-stx_read_aux_fits, fits_path, aux_data=aux_data_str
+stx_read_aux_fits, fits_path, aux_data=aux_data_str, primary_header = primary_header, data_header = data_header, $
+     control_header= control_header, idb_version_header = idb_version_header
 
 ;************** Get the indices corresponding to the considered time range
 this_time_range = anytim(time_range)
