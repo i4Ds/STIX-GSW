@@ -115,10 +115,10 @@
     aux_data = map[i].aux_data
     stx_x = aux_data.stx_pointing[0]
     stx_y = aux_data.stx_pointing[1]
-    rsun_arc = aux_data.rsun
-    roll_angle = aux_data.roll_angle
-    l0_ang = aux_data.l0
-    b0_ang = aux_data.b0
+    rsun_arc = map[i].rsun
+    roll_angle = map[i].roll_angle
+    l0_ang = map[i].l0
+    b0_ang = map[i].b0
     
     ;; Component of the PC matrix
     roll_angle_rad = roll_angle * !dpi / 180.
@@ -132,9 +132,9 @@
     fits_creation_datetime = num2str(year,format='(I10.4)')+'-'$
       +num2str(month,format='(I10.2)')+'-'$
       +num2str(day,format='(I10.2)')+' '$
+      +num2str(hour,format='(I10.2)')+':'$
       +num2str(minute,format='(I10.2)')+':'$
-      +num2str(second,format='(I10.2)')+'.'$
-      +num2str(000,format='(I10.3)')
+      +num2str(second,format='(I10.2)')
     
     ;; Get the header of the L1 FITS file used for creating the STIX map
     this_header = headfits(path_sci_file)
