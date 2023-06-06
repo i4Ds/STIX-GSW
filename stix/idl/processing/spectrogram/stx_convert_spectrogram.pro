@@ -35,7 +35,7 @@
 ;               in calibration before a new ELUT can be uploaded.
 ;
 ;    flare_location : in, type="float array", default="[0.,0.]"
-;               the location of the flare in heliocentric coordinates as seen from Solar Orbiter
+;              the location of the flare in arcsec in Helioprojective Cartesian coordinates as seen from Solar Orbiter
 ;
 ;    shift_duration : in, type="boolean", default="0"
 ;                     Shift all time bins by 1 to account for FSW time input discrepancy prior to 09-Dec-2021.

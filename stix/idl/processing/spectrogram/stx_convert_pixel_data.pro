@@ -35,7 +35,7 @@
 ;               in calibration before a new ELUT can be uploaded.
 ;
 ;    flare_location : in, type="float array", default="[0.,0.]"
-;               the location of the flare in heliocentric coordinates as seen from Solar Orbiter
+;               the location of the flare in arcsec in Helioprojective Cartesian coordinates as seen from Solar Orbiter
 ;
 ;    det_ind : in, type="int array", default="all detectors  present in observation"
 ;              indices of detectors to sum when making spectrogram

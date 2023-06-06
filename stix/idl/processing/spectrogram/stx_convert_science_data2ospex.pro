@@ -38,7 +38,7 @@
 ;               The distance between Solar Orbiter and the Sun centre in Astronomical Units needed to correct flux.
 ;
 ;    flare_location : in, type="float array", default="[0.,0.]"
-;               the location of the flare in heliocentric coordinates as seen from Solar Orbiter
+;               the location of the flare in arcsec in Helioprojective Cartesian coordinates as seen from Solar Orbiter
 ;
 ;    eff_ewidth : in, type="float arr"
 ;               an output float value
