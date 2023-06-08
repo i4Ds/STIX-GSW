@@ -143,32 +143,9 @@
     time_beg_structure = anytim(time_range[0],/utc_ext)
     time_end_structure = anytim(time_range[1],/utc_ext)
     time_avg_structure = anytim(mean(time_range),/utc_ext)
-    this_date_str = num2str(time_beg_structure.year,format='(I10.4)')+'-'$
-      +num2str(time_beg_structure.month,format='(I10.2)')+'-'$
-      +num2str(time_beg_structure.day,format='(I10.2)')
-    this_time_str = num2str(time_beg_structure.hour,format='(I10.2)')+':'$
-      +num2str(time_beg_structure.minute,format='(I10.2)')+':'$
-      +num2str(time_beg_structure.second,format='(I10.2)')+'.'$
-      +num2str(time_beg_structure.millisecond,format='(I10.3)')
-    this_date_obs = this_date_str + ' ' + this_time_str
-    ; The same but with the end time
-    this_date_str_end = num2str(time_end_structure.year,format='(I10.4)')+'-'$
-      +num2str(time_end_structure.month,format='(I10.2)')+'-'$
-      +num2str(time_end_structure.day,format='(I10.2)')
-    this_time_str_end = num2str(time_end_structure.hour,format='(I10.2)')+':'$
-      +num2str(time_end_structure.minute,format='(I10.2)')+':'$
-      +num2str(time_end_structure.second,format='(I10.2)')+'.'$
-      +num2str(time_end_structure.millisecond,format='(I10.3)')
-    this_date_obs_end = this_date_str_end + ' ' + this_time_str_end
-    ; The same but with the average time
-    this_date_str_avg = num2str(time_avg_structure.year,format='(I10.4)')+'-'$
-      +num2str(time_avg_structure.month,format='(I10.2)')+'-'$
-      +num2str(time_avg_structure.day,format='(I10.2)')
-    this_time_str_avg = num2str(time_avg_structure.hour,format='(I10.2)')+':'$
-      +num2str(time_avg_structure.minute,format='(I10.2)')+':'$
-      +num2str(time_avg_structure.second,format='(I10.2)')+'.'$
-      +num2str(time_avg_structure.millisecond,format='(I10.3)')
-    this_date_obs_avg = this_date_str_avg + ' ' + this_time_str_avg
+    this_date_obs = anytim(time_range[0], /ccsds)
+    this_date_obs_end = anytim(time_range[1], /ccsds)
+    this_date_obs_avg = anytim(mean(time_range), /ccsds)
     
     ; Let us add parameters to the header structure
     fxaddpar, header, 'TELESCOP', sxpar(this_header,'TELESCOP'), 'Telescope name'
