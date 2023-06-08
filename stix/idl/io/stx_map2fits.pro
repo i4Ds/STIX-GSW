@@ -128,13 +128,8 @@
     pc2_2 = cos(roll_angle_rad) 
     
     ;; Get the current time for the creation date of the FITS file
-    jul2greg, systime(/jul), Month, Day, Year, Hour, Minute, Second
-    fits_creation_datetime = num2str(year,format='(I10.4)')+'-'$
-      +num2str(month,format='(I10.2)')+'-'$
-      +num2str(day,format='(I10.2)')+' '$
-      +num2str(hour,format='(I10.2)')+':'$
-      +num2str(minute,format='(I10.2)')+':'$
-      +num2str(second,format='(I10.2)')
+    get_date, cur_date, /time
+    fits_creation_datetime = anytim(cur_date,/ccsds)
     
     ;; Get the header of the L1 FITS file used for creating the STIX map
     this_header = headfits(path_sci_file)
