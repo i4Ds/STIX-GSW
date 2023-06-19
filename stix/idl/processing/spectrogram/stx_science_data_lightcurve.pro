@@ -76,11 +76,12 @@
 ;    15-Dec-2023 - AFB (FHNW), keyword time_range added, to extract only a sub-interval
 ;    31-Jan-2023 - AFB (FHNW), it is now possible to pass multiple FITS files in fits_path and the output
 ;                              structure will be the concatenation of all the input files
+;    19-Jun-2023 - ECMD (Graz), added _extra keyword for pass through to stx_convert_... routines 
 ;
 ;-
 function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time_min = time_min,  $
   fits_path_bk =  fits_path_bk, plot_obj = plot_obj, time_shift = time_shift, rate = rate, shift_duration = shift_duration, $
-  det_ind = det_ind, pix_ind = pix_ind, sys_uncert = sys_uncert, time_range = time_range
+  det_ind = det_ind, pix_ind = pix_ind, sys_uncert = sys_uncert, time_range = time_range, _extra= _extra
 
 
   default, time_min, 20
