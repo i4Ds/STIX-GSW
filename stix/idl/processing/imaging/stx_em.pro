@@ -38,6 +38,7 @@
 ;          June 2022, Massa P., 'aux_data' added
 ;          August 2022, Massa P., made it compatible with the up-to-date imaging software and added backrgound correction
 ;                       in the EM iterative scheme
+;          July 2023, Massa P., made it compatible with the new definition of (u,v)-points (see stx_uv_points)
 ;             
 ;CONTACT: massa.p@dima.unige.it
 
@@ -104,15 +105,11 @@ end
 phase_corr = grid_phase_corr + ad_hoc_phase_corr + phase_factor
 phase_corr *= !dtor
 
-;;**************** Giordano's (u,v) points
+;;**************** Define (u,v) points
 
-subc_str = stx_construct_subcollimator()
-
-uv = stx_uv_points_giordano()
-u = -uv.u * subc_str.phase
-v = -uv.v * subc_str.phase
-u = u[subc_index]
-v = v[subc_index]
+uv_data = stx_uv_points(subc_index)
+u = uv_data.u
+v = uv_data.v
 
 ;;**************** Transmission matrix
 
