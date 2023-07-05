@@ -79,7 +79,12 @@
 ;-
 pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims,  fits_path_bk = fits_path_bk,$
   distance = distance, fits_path_data = fits_path_data, fits_info_params = fits_info_params, flare_location = flare_location, eff_ewidth = eff_ewidth, sys_uncert = sys_uncert,  $
-  xspec = xspec, background_data = background_data, plot = plot, generate_fits = generate_fits, pickfile = pickfile, ospex_obj = ospex_obj
+  xspec = xspec, background_data = background_data, plot = plot, generate_fits = generate_fits, pickfile = pickfile, ospex_obj = ospex_obj, $
+  ; ********************************* ADDED BY ANDREA (29-Mar-2022) *********************************
+  ; This has to be removed once the Github issue #154 (https://github.com/i4Ds/STIX-GSW/issues/154)
+  ; is solved. Afterwards, we can think of merging the imaging-spectroscopy branch to the main branch
+  sav_srm = sav_srm
+  ; *************************************************************************************************
 
   default, plot, 0
 
@@ -267,7 +272,7 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
 
   ospex_obj = stx_fsw_sd_spectrogram2ospex( spectrogram, specpar = specpar, time_shift= time_shift, ph_energy_edges = ph_in, $
     /include_damage, generate_fits = generate_fits, xspec = xspec, /tail, livetime_fraction = eff_livetime_fraction, $
-    dist_factor = dist_factor, flare_location = flare_location, sys_uncert = sys_uncert, fits_info_params = fits_info_params, background_data = background_data)
+    dist_factor = dist_factor, flare_location = flare_location, sys_uncert = sys_uncert, fits_info_params = fits_info_params, background_data = background_data, sav_srm=sav_srm)
 
   if keyword_set(plot) then begin
     ospex_obj ->gui
