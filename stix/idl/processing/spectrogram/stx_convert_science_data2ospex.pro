@@ -84,14 +84,15 @@
 ;
 ;-
 pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims,  fits_path_bk = fits_path_bk,$
-  distance = distance, fits_path_data = fits_path_data, fits_info_params = fits_info_params, aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc,$
+  distance = distance, fits_path_data = fits_path_data, fits_info_params = fits_info_params, aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
    eff_ewidth = eff_ewidth, sys_uncert = sys_uncert, xspec = xspec, background_data = background_data, plot = plot, generate_fits = generate_fits, pickfile = pickfile, ospex_obj = ospex_obj
 
   default, plot, 0
 
     time_range = atime(stx_time2any([spectrogram.time_axis.time_start[0], spectrogram.time_axis.time_end[-1]]))
-    flare_location_stx = stx_location4spectroscopy( flare_location_hpc = flare_location_hpc, aux_fits_file = aux_fits_file, time_range = time_range)
-    specpar.flare_xyoffset = flare_location_hpc
+    
+    if n_elements(flare_location_stx) eq 0 then flare_location_stx = stx_location4spectroscopy( flare_location_hpc = flare_location_hpc, aux_fits_file = aux_fits_file, time_range = time_range)
+    specpar.flare_xyoffset = flare_location_stx
 
   ;if distance is not set use the average value from the fits header
   stx_get_header_corrections, fits_path_data, distance = header_distance
