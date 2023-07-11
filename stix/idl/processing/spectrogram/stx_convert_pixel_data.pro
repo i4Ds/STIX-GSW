@@ -34,9 +34,12 @@
 ;               Shift all energies by this value in keV. Rarely needed only for cases where there is a significant shift
 ;               in calibration before a new ELUT can be uploaded.
 ;
-;    flare_location : in, type="float array", default="[0.,0.]"
-;               the location of the flare in heliocentric coordinates as seen from Solar Orbiter
+;    flare_location_hpc : in, type="2 element float array"
+;               the location of the flare (X,Y) in Helioprojective Cartesian coordinates as seen from Solar Orbiter [arcsec]
 ;
+;    aux_fits_file : in, required if flare_location_hpc is passed in, type="string"
+;                the path of the auxiliary ephemeris FITS file to be read."
+;               
 ;    det_ind : in, type="int array", default="all detectors  present in observation"
 ;              indices of detectors to sum when making spectrogram
 ;
@@ -87,10 +90,12 @@
 ;                               generate structure of info parameters to pass through to FITS file
 ;    16-Aug-2022 - ECMD (Graz), information about subtracted background can now be passed out
 ;    15-Mar-2023 - ECMD (Graz), updated to handle release version of L1 FITS files
+;    16-Jun-2023 - ECMD (Graz), for a source location dependent response estimate, the location in HPC and the auxiliary ephemeris file must be provided.
 ;
 ;-
 pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, $
-  time_shift = time_shift, energy_shift = energy_shift, distance = distance, flare_location = flare_location, $
+  time_shift = time_shift, energy_shift = energy_shift, distance = distance, $
+  aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
   det_ind = det_ind, pix_ind = pix_ind, $
   shift_duration = shift_duration, no_attenuation = no_attenuation, sys_uncert = sys_uncert, $
   generate_fits = generate_fits, specfile = specfile, srmfile = srmfile,$
@@ -98,13 +103,12 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
 
 
   if n_elements(time_shift) eq 0 then begin
-    message, 'Time shift value not set using default value of 0 [s].', /info
+    message, 'Time shift value not set, using default value of 0 [s].', /info
     print, 'File averaged values can be obtained from the FITS file header'
     print, 'using stx_get_header_corrections.pro.'
     time_shift = 0.
   endif
 
-  default, flare_location, [0.,0.]
   default, shift_duration, 0
   default, plot, 1
   default, det_ind, 'top24'
@@ -287,12 +291,12 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
 
   ;add the rcr information to a specpar structure so it can be included in the spectrum FITS file
   specpar = { sp_atten_state :  {time:ut_rcr[index], state:state}, flare_xyoffset : fltarr(2), use_flare_xyoffset:0 }
-  if n_elements(flare_location) ne 0 then specpar.flare_xyoffset = flare_location
 
   stx_convert_science_data2ospex, spectrogram = spectrogram, specpar=specpar, time_shift = time_shift, $
-    data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, distance = distance, $
-    fits_path_data = fits_path_data, flare_location = flare_location, eff_ewidth = eff_ewidth, sys_uncert = sys_uncert, $
-    plot = plot, background_data = background_data, fits_info_params = fits_info_params, ospex_obj = ospex_obj
+    data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, distance = distance, fits_path_data = fits_path_data,$
+    aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
+    eff_ewidth = eff_ewidth, sys_uncert = sys_uncert, plot = plot, background_data = background_data, $
+    fits_info_params = fits_info_params, ospex_obj = ospex_obj
 
 end
 
