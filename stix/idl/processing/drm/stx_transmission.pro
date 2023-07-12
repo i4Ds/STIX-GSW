@@ -76,9 +76,10 @@ function stx_transmission, ein, det_mask, attenuator = attenuator, xcom = xcom, 
     default, type, 'AB'
     costheta = 1.0d0
 
-    ;    ;Al (Z=13)  Al  13: 1.0 2.7 - pure Al transmission
+     ;Al (Z=13)  Al  13: 1.0 2.7 - pure Al transmission
         rho_al = 2.7d0
         tr_al =   (xsec(emin, 13,type,/cm2perg , /use_xcom , error=error) * rho_al/costheta)
+
 
     ; alloy transmission information from STIXCore/stixcore/calibration/transmission.py see https://github.com/i4Ds/STIXCore/pull/240
     rho_al_alloy = 2.8
@@ -167,6 +168,7 @@ function stx_transmission, ein, det_mask, attenuator = attenuator, xcom = xcom, 
     ; Dacron = not included
     ;
     mli = (1d0/exp((tr_al)*(42d0 * 1000.d0*angstrom) )) * ( 1.d0/exp( (tr_kapton)*(3d0*mil)  )) * (1d0/exp( (tr_mylar) *(20d0*.25d0*mil + 3d0*mil)))
+
 
     ;Calibration Foil   -
     ;-  AL  4 x 1000 Å
