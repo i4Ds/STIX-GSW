@@ -76,7 +76,9 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
   
   
   if (keyword_set(gtrans32) and n_elements(flare_location_stx) ne 0) then begin
-    grid_factors_proc = stx_subc_transmission(flare_location_stx, ph_in)
+  ;  grid_factors_proc = stx_subc_transmission(flare_location_stx, ph_in)
+    grid_factors_proc = stx_subc_transmission(flare_location_stx)
+
     ;05-Oct-2022 - ECMD until fine grid tranmission is ready replace the 
     ;grids not in TOP24 with the on-axis tabulated values
     idx_nontop24 = stx_label2det_ind('bkg+cfl+fine')

@@ -26,15 +26,16 @@
 ; HISTORY: August 2022, Massa P., first version (working only for detectors 3 to 10)
 ;          11-Jul-2023, ECMD (Graz), updated following Recipe for STIX Flux and Amplitude Calibration (8-Nov 2022 gh)
 ;                                    to include transparency and corner cutting for pure Tungsten grids
+;          17-Jul-2023, ECMD (Graz), including roughness parameter
 ;
 ; CONTACT:
 ;   paolo.massa@wku.edu
 ;-
 
 
-function stx_subc_transmission, flare_loc, ph_in
+function stx_subc_transmission, flare_loc, ph_in, flux = flux 
 
-  restore,loc_file( 'grid_temp.sav', path = getenv('STX_GRID') )
+  restore,loc_file( 'grid_temp2.sav', path = getenv('STX_GRID') )
   fff=read_ascii(loc_file( 'grid_param_front.txt', path = getenv('STX_GRID') ),temp=grid_temp)
   rrr=read_ascii(loc_file( 'grid_param_rear.txt', path = getenv('STX_GRID') ),temp=grid_temp)
 
@@ -55,6 +56,7 @@ function stx_subc_transmission, flare_loc, ph_in
   grid_thick_front  = fff.thick
   bridge_width_front = fff.bwidth
   bridge_pitch_front = fff.bpitch
+  roughness_param_front = fff.rough
 
   grid_orient_rear = 180.-rrr.o ;; Orientation of the slits of the grid as seen from the detector side
   grid_pitch_rear  = rrr.p
@@ -62,6 +64,7 @@ function stx_subc_transmission, flare_loc, ph_in
   grid_thick_rear  = rrr.thick
   bridge_width_rear = rrr.bwidth
   bridge_pitch_rear = rrr.bpitch
+  roughness_param_rear = rrr.rough
 
 
   sc = fff.sc
@@ -72,10 +75,12 @@ function stx_subc_transmission, flare_loc, ph_in
     if (sc[i] ne 11) and (sc[i] ne 12) and (sc[i] ne 13) and (sc[i] ne 17) and (sc[i] ne 18) and (sc[i] ne 19) then begin
 
       transm_front = stx_grid_transmission(flare_loc[0], flare_loc[1], grid_orient_front[i], $
-        grid_pitch_front[i], grid_slit_front[i], grid_thick_front[i], bridge_width_front[i], bridge_pitch_front[i], linear_attenuation, flux = 1.)
+        grid_pitch_front[i], grid_slit_front[i], grid_thick_front[i], bridge_width_front[i], bridge_pitch_front[i], $
+        roughness_param_front[i], linear_attenuation, flux = flux)
 
       transm_rear  = stx_grid_transmission(flare_loc[0], flare_loc[1], grid_orient_rear[i], $
-        grid_pitch_rear[i], grid_slit_rear[i], grid_thick_rear[i], bridge_width_rear[i], bridge_pitch_rear[i], linear_attenuation, flux = 1.)
+        grid_pitch_rear[i], grid_slit_rear[i], grid_thick_rear[i], bridge_width_rear[i], bridge_pitch_rear[i], $
+        roughness_param_rear[i], linear_attenuation, flux = flux)
 
       transm[*,sc[i]-1] = transm_front * transm_rear
 
