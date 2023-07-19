@@ -99,7 +99,12 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   det_ind = det_ind, pix_ind = pix_ind, $
   shift_duration = shift_duration, no_attenuation = no_attenuation, sys_uncert = sys_uncert, $
   generate_fits = generate_fits, specfile = specfile, srmfile = srmfile,$
-  background_data = background_data, plot = plot, ospex_obj = ospex_obj
+  background_data = background_data, plot = plot, ospex_obj = ospex_obj, $
+  ; ********************************* ADDED BY ANDREA (29-Mar-2022) *********************************
+  ; This has to be removed once the Github issue #154 (https://github.com/i4Ds/STIX-GSW/issues/154)
+  ; is solved. Afterwards, we can think of merging the imaging-spectroscopy branch to the main branch
+  sav_srm = sav_srm
+  ; *************************************************************************************************
 
 
   if n_elements(time_shift) eq 0 then begin
@@ -296,7 +301,7 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
     data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, distance = distance, fits_path_data = fits_path_data,$
     aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
     eff_ewidth = eff_ewidth, sys_uncert = sys_uncert, plot = plot, background_data = background_data, $
-    fits_info_params = fits_info_params, ospex_obj = ospex_obj
+    fits_info_params = fits_info_params, ospex_obj = ospex_obj, sav_srm=sav_srm
 
 end
 

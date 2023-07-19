@@ -51,7 +51,12 @@
 ;-
 function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shift = time_shift, ph_energy_edges = ph_edges, generate_fits = generate_fits, plotman_obj = pobj, $
   specfilename = specfilename, srmfilename = srmfilename, flare_location_stx = flare_location_stx, gtrans32 = gtrans32, livetime_fraction = livetime_fraction, sys_uncert = sys_uncert, $
-  fits_info_params = fits_info_params, xspec = xspec, background_data = background_data, _extra = _extra
+  fits_info_params = fits_info_params, xspec = xspec, background_data = background_data, _extra = _extra, $
+  ; ********************************* ADDED BY ANDREA (29-Mar-2022) *********************************
+  ; This has to be removed once the Github issue #154 (https://github.com/i4Ds/STIX-GSW/issues/154)
+  ; is solved. Afterwards, we can think of merging the imaging-spectroscopy branch to the main branch
+  sav_srm = sav_srm
+  ; *************************************************************************************************
 
   default, sys_uncert, 0.05
   default, gtrans32, 1
@@ -203,6 +208,16 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
   origunits = ospex_obj->get(/spex_data_origunits)
   origunits.data_name = 'STIX'
   ospex_obj->set, spex_data_origunits = origunits
+
+  ; ********************************* ADDED BY ANDREA (29-Mar-2022) *********************************
+  ; This has to be removed once the Github issue #154 (https://github.com/i4Ds/STIX-GSW/issues/154)
+  ; is solved. Afterwards, we can think of merging the imaging-spectroscopy branch to the main branch
+  if keyword_set(sav_srm) then begin
+    srm = rep_tag_name(srm,'smatrix','drm')
+    break_file,srmfilename,disk_log,ddir,fn_srm_file,ext_srm_file
+    save,filename=fn_srm_file+'_IDL-save.sav',srm
+  endif
+  ;;; ***********************************************************************************************
 
   return, ospex_obj
 end
