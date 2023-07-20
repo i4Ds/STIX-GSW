@@ -84,8 +84,8 @@
 ;
 ;-
 pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims,  fits_path_bk = fits_path_bk,$
-  distance = distance, fits_path_data = fits_path_data, fits_info_params = fits_info_params, , flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, eff_ewidth = eff_ewidth, sys_uncert = sys_uncert,  $
-  xspec = xspec, background_data = background_data, plot = plot, generate_fits = generate_fits, pickfile = pickfile, ospex_obj = ospex_obj, $
+  distance = distance, fits_path_data = fits_path_data, fits_info_params = fits_info_params, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, eff_ewidth = eff_ewidth, sys_uncert = sys_uncert,  $
+  xspec = xspec, aux_fits_file = aux_fits_file,background_data = background_data, plot = plot, generate_fits = generate_fits, pickfile = pickfile, ospex_obj = ospex_obj, $
   ; ********************************* ADDED BY ANDREA (29-Mar-2022) *********************************
   ; This has to be removed once the Github issue #154 (https://github.com/i4Ds/STIX-GSW/issues/154)
   ; is solved. Afterwards, we can think of merging the imaging-spectroscopy branch to the main branch
