@@ -25,7 +25,7 @@
 ;    2023-02-21, FSc (AIP): added hlon, hlat as optional outputs
 ;
 ;-
-pro fit_map_2dgauss, in_map, do_plot=do_plot, hlon=hlon, hlat=hlat
+pro fit_map_2dgauss, in_map, do_plot=do_plot, hlon=hlon, hlat=hlat, gauss_X=gauss_X, gauss_Y=gauss_Y
   ; Dimensions of the map array
   if not is_struct(in_map) then begin
     print,"ERROR: input variable is not a structure."

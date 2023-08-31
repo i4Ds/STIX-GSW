@@ -31,6 +31,9 @@
 ;
 ; OUTPUTS:
 ;   Returns a map object that can be displayed with plot_map
+;   
+; OPTIONAL OUTPUT:
+;   path_sci_file : contains the full path to the L1 SCI data file used as input
 ;
 ; EXAMPLES:
 ;   mem_ge_map = stx_imaging_pipeline('2109230031', ['23-Sep-2021 15:20:30', '23-Sep-2021 15:22:30'], [18,28])
@@ -59,12 +62,14 @@
 ;-
 function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_uid, xy_flare=xy_flare, $
                                imsize=imsize, pixel=pixel, x_ptg=x_ptg, y_ptg=y_ptg, force_sas=force_sas, no_sas=no_sas, $
-                               subc_labels=subc_labels, no_small=no_small, method=method, w_clean=w_clean
+                               subc_labels=subc_labels, no_small=no_small, method=method, w_clean=w_clean, $
+                               path_sci_file=path_sci_file
+
   if n_params() lt 3 then begin
     print, "STX_IMAGING_PIPELINE"
     print, "Syntax: result = stx_imaging_pipeline(stix_uid, time_range, energy_range [, bkg_uid=bkg_uid, xy_flare=xy_flare, $"
     print, "                 imsize=imsize, pixel=pixel, x_ptg=x_ptg, y_ptg=y_ptg, force_sas=force_sas, no_sas=no_sas, $"
-    print, "                 subc_labels=subc_labels, no_small=no_small, method=method, w_clean=w_clean ])"
+    print, "                 subc_labels=subc_labels, no_small=no_small, method=method, w_clean=w_clean, path_sci_file=path_sci_file])"
     return, 0
   endif
 
@@ -73,6 +78,7 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
 ;   l1a_data_folder = '/store/data/STIX/L1A_FITS/L1/'
   l1a_data_folder = '/store/data/STIX/L1_FITS_SCI/'
 
+  
   ; sub-collimator labels
   default, subc_labels, ['10a','10b','10c','9a','9b','9c','8a','8b','8c','7a','7b','7c','6a','6b','6c','5a','5b','5c','4a','4b','4c','3a','3b','3c']
   subc_index = stx_label2ind(subc_labels)
