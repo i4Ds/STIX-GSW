@@ -125,7 +125,6 @@ end
 ;
 ;-
 pro stx_check_config_files, directory
- tic
   default, directory, getenv('STX_DET')
   run_update = 0
   net  = have_network()
@@ -157,5 +156,5 @@ pro stx_check_config_files, directory
       str2file, online_version, version_file
     endif
   endelse
-toc
+
 end
