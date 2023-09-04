@@ -34,6 +34,7 @@ stx_show_sas_info, data
 print,"Calibrating data..."
 ; First, substract dark currents and applies relative gains
 stx_calib_sas_data, data, calib_file
+
 ; copy result in a new object
 data_calib = data
 ; Added 2023-09-18: remove data points with some error detected during calibration
