@@ -4,7 +4,7 @@
 ;
 ; Category    : analysis
 ;
-; Syntax      : calib_sas_data, data , calibfile  [, factor=factor ]
+; Syntax      : stx_calib_sas_data, data , calibfile  [, factor=factor ]
 ;
 ; Inputs      :
 ;   data      = a structure as returned by read_hk_data
@@ -27,7 +27,7 @@ pro stx_calib_sas_data, data, calibfile, factor=factor
 
   default, factor, 1.
   
-  if n_params() lt 2 then message,' SYNTAX: calib_sas_data, data, calibfile [, factor=factor]'
+  if n_params() lt 2 then message,' SYNTAX: stx_calib_sas_data, data, calibfile [, factor=factor]'
   
   if not is_struct(data) then message," ERROR: input variable is not a structure."
   
@@ -49,7 +49,7 @@ pro stx_calib_sas_data, data, calibfile, factor=factor
   nb_rows = n_elements(data)
   if nb_ok lt nb_rows then begin
     print,nb_rows - nb_ok,format='(" CALIB_SAS_DATA Warning: Found",I5," entries with wrong duration.")'
-    ind_bad = where(abs(data.duration-64.) ge 0.1,nb_bad)
+    ind_bad = where(abs(data.duration-64.) ge 0.5,nb_bad)
     for i=0,nb_bad-1 do data[ind_bad[i]].ERROR = "SAS_DATA_WRONG_DURATION"
   endif
   data[ind_ok].CHA_DIODE0 = (data[ind_ok].CHA_DIODE0 / 16. - V_base) / R_m

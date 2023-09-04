@@ -35,10 +35,10 @@ show_info, data
 
 print,"Calibrating data..."
 ; First, substract dark currents and applies relative gains
-calib_sas_data, data, calib_file
+stx_calib_sas_data, data, calib_file
 ; Now automatically compute global calibration correction factor and applies it
 ; Note: this takes a bit of time
-auto_scale_sas_data, data, simu_data_file, aperfile
+stx_auto_scale_sas_data, data, simu_data_file, aperfile
 
 print,"Plotting the signals..."
 show_info, data
