@@ -39,3 +39,8 @@ stx_scenario_*
 /*.fits
 
 .vscode
+
+# ignore some personal / IDL stuff
+.project
+stix/idl/fred
+

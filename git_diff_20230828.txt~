@@ -1,0 +1,17 @@
+fschuller@galilei:~/Documents/IDL/Fred_STIX-GSW> git status
+On branch aspect
+Your branch is ahead of 'origin/aspect' by 12 commits.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   .gitignore
+        modified:   stix/idl/io/stx_check_fits_compatibility.pro
+        modified:   stix/idl/io/stx_read_fits.pro
+        modified:   stix/idl/processing/aspect/SAS_test.pro
+        modified:   stix/idl/processing/aux_data/stx_create_auxiliary_data.pro
+        modified:   stix/idl/processing/imaging/fit_map_2dgauss.pro
+        modified:   stix/idl/processing/imaging/stx_imaging_pipeline.pro
+        modified:   stix/idl/processing/pixel_data/stx_plot_selected_time_range.pro
+
