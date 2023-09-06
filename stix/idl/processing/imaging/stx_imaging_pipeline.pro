@@ -23,14 +23,15 @@
 ;   force_sas    : if set, use SAS pointing solution even if very different from s/c pointing
 ;   no_sas       : if set, bypass SAS solution and use spacecraft pointing (corrected for systematics) instead
 ;   no_small     : if set, don't use small pixels data to generate the map
+;   method       : select imaging algorithm; should be one of: "MEM" [default], "EM", or "clean"
 ;
 ; OUTPUTS:
 ;   Returns a map object that can be displayed with plot_map
 ;
 ; EXAMPLES:
-;   mem_ge_map = stx_imaging_pipeline('2109230031', ['23-Sep-2021 15:20:30', '23-Sep-2021 15:22:30'], [18,28], [650.,-650.])
-;   map_1 = stx_imaging_pipeline('2110090002', ['2021-10-09T06:29:50','2021-10-09T06:32:30'], [18,28], [20., 420.])
-;   map_2 = stx_imaging_pipeline('2110090002', ['2021-10-09T06:29:50','2021-10-09T06:32:30'], [4,8], [20., 420.])
+;   mem_ge_map = stx_imaging_pipeline('2109230031', ['23-Sep-2021 15:20:30', '23-Sep-2021 15:22:30'], [18,28], xy_flare=[350.,-800.])
+;   map_1 = stx_imaging_pipeline('2110090002', ['2021-10-09T06:29:50','2021-10-09T06:32:30'], [18,28])
+;   map_2 = stx_imaging_pipeline('2110090002', ['2021-10-09T06:29:50','2021-10-09T06:32:30'], [4,8]])
 ;
 ; MODIFICATION HISTORY:
 ;    2022-05-19: F. Schuller (AIP, Germany): created
@@ -38,14 +39,17 @@
 ;    2022-09-09, FSc: added optional argument bkg_uid
 ;    2022-10-06, FSc: adapted to recent changes in other procedures
 ;    2023-02-24, FSc: added optional keyword no_small
+;    2023-09-06, FSc: added optional keyord method
 ;
 ;-
 function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_uid, $
                                xy_flare=xy_flare, imsize=imsize, pixel=pixel, x_ptg=x_ptg, y_ptg=y_ptg, $
-                               force_sas=force_sas, no_sas=no_sas, no_small=no_small
+                               force_sas=force_sas, no_sas=no_sas, no_small=no_small, method=method
   if n_params() lt 3 then begin
     print, "STX_IMAGING_PIPELINE"
-    print, "Syntax: result = stx_imaging_pipeline(stix_uid, time_range, energy_range [, xy_flare=xy_flare, imsize=imsize, pixel=pixel, x_ptg=x_ptg, y_ptg=y_ptg])"
+    print, "Syntax: result = stx_imaging_pipeline(stix_uid, time_range, energy_range [, $"
+    print, "                 xy_flare=xy_flare, imsize=imsize, pixel=pixel, x_ptg=x_ptg, y_ptg=y_ptg, $"
+    print, "                 force_sas=force_sas, no_sas=no_sas, no_small=no_small, method=method ])"
     return, 0
   endif
 
@@ -56,6 +60,17 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
 
   default, imsize, [128, 128]
   default, pixel,  [2.,2.]
+  
+  default, method, "MEM"
+  method = strupcase(method)
+  known_methods = ["MEM", "EM", "CLEAN"]
+  tst = where(known_methods eq method, i_tst)
+  
+  if ~i_tst then begin
+    print, method, format='("Method ",A," not known. Please use one of the following:")'
+    print, known_methods
+    return, 0
+  endif
 
   ;;;;
 
@@ -104,14 +119,44 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
   mapcenter = stx_hpc2stx_coord(xy_flare, aux_data)
   flare_loc  = mapcenter
 
-  ; Compute calibrated visibilities
-  if keyword_set(no_small) then $
-     vis = stx_construct_calibrated_visibility(path_sci_file, time_range, energy_range, mapcenter, $
-                                               path_bkg_file=path_bkg_file, xy_flare=flare_loc, /no_small, sumcase='TOP+BOT') $
-     else vis = stx_construct_calibrated_visibility(path_sci_file, time_range, energy_range, mapcenter, $
-                                               path_bkg_file=path_bkg_file, xy_flare=flare_loc)
+  ; Next, we call the functions that take the data as input and generate the emission map. The functions
+  ; to be called depend on the imaging algorithm.
+  
+  if method eq "EM" then begin
+    pixel_data_summed = stx_construct_pixel_data_summed(path_sci_file, time_range, energy_range, path_bkg_file=path_bkg_file, $
+                                                        xy_flare=xy_flare, /silent)
 
-  ; Finally, generate the map using MEM_GE
-  out_map = stx_mem_ge(vis,imsize,pixel,aux_data,total_flux=max(abs(vis.obsvis)), /silent)
+    out_map = stx_em(pixel_data_summed, aux_data, imsize=imsize, pixel=pixel,mapcenter=mapcenter)
+
+  endif else begin
+    ; Compute calibrated visibilities
+    if keyword_set(no_small) then $
+      vis = stx_construct_calibrated_visibility(path_sci_file, time_range, energy_range, mapcenter, $
+      path_bkg_file=path_bkg_file, xy_flare=flare_loc, /no_small, sumcase='TOP+BOT') $
+    else vis = stx_construct_calibrated_visibility(path_sci_file, time_range, energy_range, mapcenter, $
+      path_bkg_file=path_bkg_file, xy_flare=flare_loc)
+
+    case method of
+      "MEM": out_map = stx_mem_ge(vis,imsize,pixel,aux_data,total_flux=max(abs(vis.obsvis)), /silent)
+      "CLEAN": begin
+        niter  = 100   ; Number of iterations
+        gain   = 0.1   ; Gain used in each clean iteration
+        nmap   = 10    ; Plot clean components and cleaned map every 10 iterations
+        weight = 0     ; for natural weighting (1 for uniform)
+        beam_width = 10. ; clean components are convolved with this beam
+        clean_map=stx_vis_clean(vis,aux_data,niter=niter,image_dim=imsize[0],PIXEL=pixel[0],uni=weight,gain=gain,nmap=nmap,$
+                                /plot,/set, beam_width=beam_width)
+
+        ;Output are 5 maps
+        ;index 0: CLEAN map
+        ;index 1: Bproj map
+        ;index 2: residual map
+        ;index 3: clean component map
+        ;index 4: clean map without residuals added
+        out_map = clean_map[0]
+      end
+    endcase
+  endelse
+
   return, out_map
 end
