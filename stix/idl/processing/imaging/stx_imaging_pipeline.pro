@@ -27,6 +27,7 @@
 ;   no_sas       : if set, bypass SAS solution and use spacecraft pointing (corrected for systematics) instead
 ;   no_small     : if set, don't use small pixels data to generate the map
 ;   method       : select imaging algorithm; should be one of: "MEM" [default], "EM", or "clean"
+;   w_clean      : for clean method, choose between uniform weighting (w_clean=1, default) and natural weighting (w_clean=0)
 ;
 ; OUTPUTS:
 ;   Returns a map object that can be displayed with plot_map
@@ -56,14 +57,14 @@
 ;    2023-09-06, FSc: added optional keyord method
 ;
 ;-
-function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_uid, $
-                               xy_flare=xy_flare, imsize=imsize, pixel=pixel, x_ptg=x_ptg, y_ptg=y_ptg, $
-                               force_sas=force_sas, no_sas=no_sas, subc_labels=subc_labels, no_small=no_small, method=method
+function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_uid, xy_flare=xy_flare, $
+                               imsize=imsize, pixel=pixel, x_ptg=x_ptg, y_ptg=y_ptg, force_sas=force_sas, no_sas=no_sas, $
+                               subc_labels=subc_labels, no_small=no_small, method=method, w_clean=w_clean
   if n_params() lt 3 then begin
     print, "STX_IMAGING_PIPELINE"
-    print, "Syntax: result = stx_imaging_pipeline(stix_uid, time_range, energy_range [, $"
-    print, "                 xy_flare=xy_flare, imsize=imsize, pixel=pixel, x_ptg=x_ptg, y_ptg=y_ptg, $"
-    print, "                 force_sas=force_sas, no_sas=no_sas, no_small=no_small, method=method ])"
+    print, "Syntax: result = stx_imaging_pipeline(stix_uid, time_range, energy_range [, bkg_uid=bkg_uid, xy_flare=xy_flare, $"
+    print, "                 imsize=imsize, pixel=pixel, x_ptg=x_ptg, y_ptg=y_ptg, force_sas=force_sas, no_sas=no_sas, $"
+    print, "                 subc_labels=subc_labels, no_small=no_small, method=method, w_clean=w_clean ])"
     return, 0
   endif
 
@@ -79,11 +80,11 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
   default, imsize, [128, 128]
   default, pixel,  [2.,2.]
   
+  ; Imaging algorithm to be used: make sure that the method is implemented
   default, method, "MEM"
   method = strupcase(method)
   known_methods = ["MEM", "EM", "CLEAN"]
   tst = where(known_methods eq method, i_tst)
-  
   if ~i_tst then begin
     print, method, format='("Method ",A," not known. Please use one of the following:")'
     print, known_methods
@@ -158,21 +159,16 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
     case method of
       "MEM": out_map = stx_mem_ge(vis,imsize,pixel,aux_data,total_flux=max(abs(vis.obsvis)), /silent)
       "CLEAN": begin
+        default, w_clean, 1  ; 1 = uniform weighting, 0 = natural weighting
         niter  = 100   ; Number of iterations
         gain   = 0.1   ; Gain used in each clean iteration
         nmap   = 10    ; Plot clean components and cleaned map every 10 iterations
-        weight = 0     ; for natural weighting (1 for uniform)
         beam_width = 10. ; clean components are convolved with this beam
-        clean_map=stx_vis_clean(vis,aux_data,niter=niter,image_dim=imsize[0],PIXEL=pixel[0],uni=weight,gain=gain,nmap=nmap,$
-                                /plot,set=0, beam_width=beam_width)
+        clean_map=stx_vis_clean(vis, aux_data, niter=niter, image_dim=imsize[0], PIXEL=pixel[0], $
+                                uniform_weighting = w_clean, gain=gain, nmap=nmap, $
+                                /plot, set_clean_boxes = 0, beam_width=beam_width)
 
-        ;Output are 5 maps
-        ;index 0: CLEAN map
-        ;index 1: Bproj map
-        ;index 2: residual map
-        ;index 3: clean component map
-        ;index 4: clean map without residuals added
-        out_map = clean_map[0]
+        out_map = clean_map[0]   ; contains the CLEAN map
       end
     endcase
   endelse

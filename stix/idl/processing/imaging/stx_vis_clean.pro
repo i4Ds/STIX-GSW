@@ -364,7 +364,7 @@ function stx_vis_clean, vis, aux_data, niter = niter, image_dim = image_dim_in, 
 
   if keyword_set(plot) then begin
     window,6,xsize=5*this_disp,ysize=2*this_disp
-    cleanplot
+    cleanplot, /silent
     !p.multi=[0,3,1]
     chs2=2.
     plot_map,out0,charsize=chs2
