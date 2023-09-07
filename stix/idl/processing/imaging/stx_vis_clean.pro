@@ -52,6 +52,7 @@
 ;     input visibility bag
 ;   - spatial_frequency_weight - an array with the same number of elements as the input vis bag computed
 ;     by the user's preference.
+;   - set_clean_boxes  If set, let the user define a clean box or polygon
 ;   - box_map       map that is displayed for selecting the clean box
 ;
 ;

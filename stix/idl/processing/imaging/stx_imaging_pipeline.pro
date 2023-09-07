@@ -164,7 +164,7 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
         weight = 0     ; for natural weighting (1 for uniform)
         beam_width = 10. ; clean components are convolved with this beam
         clean_map=stx_vis_clean(vis,aux_data,niter=niter,image_dim=imsize[0],PIXEL=pixel[0],uni=weight,gain=gain,nmap=nmap,$
-                                /plot,/set, beam_width=beam_width)
+                                /plot,set=0, beam_width=beam_width)
 
         ;Output are 5 maps
         ;index 0: CLEAN map
