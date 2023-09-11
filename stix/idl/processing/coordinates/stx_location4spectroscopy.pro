@@ -42,7 +42,7 @@
 ;-
 function stx_location4spectroscopy, flare_location_hpc = flare_location_hpc, aux_fits_file = aux_fits_file, time_range = time_range
 
-  if n_elements(flares_location_hpc) ne 0 then begin
+  if n_elements(flare_location_hpc) ne 0 then begin
     
     if n_elements(aux_fits_file) eq 0 then $
       message, 'To correct for flare location the corresponding auxiliary ephemeris file must be provided.' $
