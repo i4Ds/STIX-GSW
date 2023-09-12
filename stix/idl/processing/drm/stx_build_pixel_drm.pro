@@ -100,7 +100,7 @@ function stx_build_pixel_drm, ct_energy_edges, pixel_mask, ph_energy_edges = ph_
   transmission = stx_transmission(drm.emean, det_mask, attenuator = attenuator)
   dim_drm = size(/dim, smatrix) > 1
 
-if n_elements(grid_factor) eq  n_elements(ph_in) then grid_factor=10^(interpol(alog10(grid_factor),alog10(ph_in),alog10(drm.emean)))
+  if n_elements(grid_factor) eq  n_elements(ph_in) then grid_factor=10^(interpol(alog10(grid_factor),alog10(ph_in),alog10(drm.emean)))
 
   transmission  = transmission*grid_factor
 
