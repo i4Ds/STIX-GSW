@@ -77,7 +77,7 @@ bridge_factor =1.0
   roughness_e =  replicate(roughness, nenergies)
 
   rough_shadow_width_e  = sqrt(shadow_width_e^2. + roughness_e^2.)
-r
+
   effective_slit_width = grid_slit_e + rough_shadow_width_e * (1. - 2.* (1- edge_transmission)/(1. - slat_transmission))
 
   flux_calibration = 2*(slat_transmission + (1.- slat_transmission)*effective_slit_width*bridge_factor/grid_pitch_e)
