@@ -81,13 +81,14 @@
 ;-
 function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time_min = time_min,  $
   fits_path_bk =  fits_path_bk, plot_obj = plot_obj, time_shift = time_shift, rate = rate, shift_duration = shift_duration, $
-  det_ind = det_ind, pix_ind = pix_ind, sys_uncert = sys_uncert, time_range = time_range, _extra= _extra
+  det_ind = det_ind, pix_ind = pix_ind, elut_correction = elut_correction, sys_uncert = sys_uncert, time_range = time_range, _extra= _extra
 
 
   default, time_min, 20
   default, edges_in, [[4.,10.],[10,15],[15,25]]
   default, spex_units, 'flux'
-
+  default, elut_correction, 0 
+  
   ; If /rate is set, return the rate units
   if keyword_set(rate) then spex_units = 'rate'
 
@@ -114,10 +115,10 @@ function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time
 
     if strpos(orig_filename, 'cpd') gt -1 or strpos(orig_filename, 'xray-l1') gt -1 then begin
       stx_convert_pixel_data, fits_path_data = fits_path[this_file], fits_path_bk =  fits_path_bk, distance = distance, time_shift = time_shift, ospex_obj = ospex_obj, $
-        det_ind = det_ind, pix_ind = pix_ind, sys_uncert = sys_uncert, plot = 0, _extra= _extra
+        det_ind = det_ind, pix_ind = pix_ind, sys_uncert = sys_uncert, elut_correction = elut_correction, plot = 0, _extra= _extra
     endif else if strpos(orig_filename, 'spec') gt -1 or strpos(orig_filename, 'spectrogram') gt -1 then begin
       stx_convert_spectrogram, fits_path_data = fits_path[this_file], fits_path_bk =  fits_path_bk, distance = distance, time_shift = time_shift, ospex_obj = ospex_obj, $
-        sys_uncert = sys_uncert, plot = 0, _extra= _extra
+        sys_uncert = sys_uncert, elut_correction = elut_correction, plot = 0, _extra= _extra
       if keyword_set(det_ind) or keyword_set(pix_ind) then  message, 'ERROR: Detector and pixel selection not possible with spectrogram files.'
     endif else begin
       message, 'ERROR: the FILENAME field in the primary header should contain either cpd, xray-l1 or spec'
