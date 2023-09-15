@@ -151,11 +151,11 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
 
   spec_in = counts_in
 
-  counts_spec =  spec_in[energy_bins, *]/ reproduce(eff_ewidth, n_times)
+  counts_spec =  spec_in[energy_bins, *] * reproduce(eff_ewidth, n_times)
 
   counts_spec =  reform(counts_spec,[n_energies, n_times])
 
-  counts_err = data_str.counts_err[energy_bins,*]/ reproduce(eff_ewidth, n_times)
+  counts_err = data_str.counts_err[energy_bins,*] * reproduce(eff_ewidth, n_times)
 
   counts_err =  reform(counts_err,[n_energies, n_times])
 
