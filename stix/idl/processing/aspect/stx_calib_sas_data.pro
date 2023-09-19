@@ -7,7 +7,7 @@
 ; Syntax      : stx_calib_sas_data, data , calibfile  [, factor=factor ]
 ;
 ; Inputs      :
-;   data      = a structure as returned by read_hk_data
+;   data      = a structure as returned by prepare_aspect_data
 ;   calibfile = name of the file with calibration parameters (gains and bias values), including full absolute path
 ;
 ; Output      : The input structure is modified

@@ -113,8 +113,8 @@ function solve_aspect_one_plane, inputA_B, inputC_D, plane_AB, plane_CD, all_X, 
 end
 
 pro stx_derive_aspect_solution, data, simu_data_file, interpol_r=interpol_r, interpol_xy=interpol_xy
-  default, interpol_r, 0
-  default, interpol_xy, 0
+  default, interpol_r, 1
+  default, interpol_xy, 1
   
   if n_params() lt 2 then message," SYNTAX: derive_aspect_solution, data, simu_data_file"
 
@@ -126,7 +126,6 @@ pro stx_derive_aspect_solution, data, simu_data_file, interpol_r=interpol_r, int
   result = file_test(simu_data_file)
   if not result then message," ERROR: File "+simu_data_file+" not found."
   restore, simu_data_file
-  y_center = where(abs(all_Y) eq min(abs(all_Y)))  &  y_center = y_center[0]   ; index corresponding to closest to no-offset in orthogonal direction
 
   ; prepare array of results
   foclen = 0.55         ; SAS focal length, in [m]
@@ -138,41 +137,47 @@ pro stx_derive_aspect_solution, data, simu_data_file, interpol_r=interpol_r, int
   x_sas = fltarr(nb)  &  y_sas = fltarr(nb)
   
   for i=0,nb-1 do begin
-    delta_r = rsol[i] - all_r
-    tmp = where(abs(delta_r) eq min(abs(delta_r)))
-    ind_r = tmp[0]   ; index of the plane where rsol is the closest to the input value
+    ; Test if rsol is less than the mininum value to get usable signals
+    rsol_mini = 3.28e-3  ; corresponds to 0.75 AU
+    if rsol[i] lt rsol_mini then data[i].ERROR = 'SUN_TOO_FAR'
+    ; also catch error messages previously set:
+    if data[i].ERROR eq '' then begin
+      delta_r = rsol[i] - all_r
+      tmp = where(abs(delta_r) eq min(abs(delta_r)))
+      ind_r = tmp[0]   ; index of the plane where rsol is the closest to the input value
 
-    inputA_B = (data[i].CHA_DIODE0 - data[i].CHA_DIODE1)*1.e9
-    inputC_D = (data[i].CHB_DIODE0 - data[i].CHB_DIODE1)*1.e9
+      inputA_B = (data[i].CHA_DIODE0 - data[i].CHA_DIODE1)*1.e9
+      inputC_D = (data[i].CHB_DIODE0 - data[i].CHB_DIODE1)*1.e9
 
-    if keyword_set(interpol_r) then begin
-      ; find the 2nd closest r_sol
-      if rsol[i]-all_r[ind_r] lt 0. then begin
-        ind_r1 = ind_r -1  &  ind_r2 = ind_r
+      if keyword_set(interpol_r) then begin
+        ; find the 2nd closest r_sol
+        if rsol[i]-all_r[ind_r] lt 0. then begin
+          ind_r1 = ind_r -1  &  ind_r2 = ind_r
+        endif else begin
+          ind_r1 = ind_r  &  ind_r2 = ind_r +1
+        endelse
+        plane_AB1 = reform(sigA_sigB[*,*,ind_r1])
+        plane_CD1 = reform(sigC_sigD[*,*,ind_r1])
+        res_AB_CD_1 = solve_aspect_one_plane(inputA_B, inputC_D, plane_AB1, plane_CD1, all_X, all_Y, interpol_xy=interpol_xy)
+        x_AB1 = res_AB_CD_1.x_AB  &  x_CD1 = res_AB_CD_1.x_CD
+        plane_AB2 = reform(sigA_sigB[*,*,ind_r2])
+        plane_CD2 = reform(sigC_sigD[*,*,ind_r2])
+        res_AB_CD_2 = solve_aspect_one_plane(inputA_B, inputC_D, plane_AB2, plane_CD2, all_X, all_Y, interpol_xy=interpol_xy)
+        x_AB2 = res_AB_CD_2.x_AB  &  x_CD2 = res_AB_CD_2.x_CD
+        x_AB = ((all_r[ind_r2]-rsol[i]) * x_AB1 + (rsol[i]-all_r[ind_r1]) * x_AB2) / (all_r[ind_r2]-all_r[ind_r1])
+        x_CD = ((all_r[ind_r2]-rsol[i]) * x_CD1 + (rsol[i]-all_r[ind_r1]) * x_CD2) / (all_r[ind_r2]-all_r[ind_r1])
       endif else begin
-        ind_r1 = ind_r  &  ind_r2 = ind_r +1
+        plane_AB = reform(sigA_sigB[*,*,ind_r])
+        plane_CD = reform(sigC_sigD[*,*,ind_r])
+        res_AB_CD = solve_aspect_one_plane(inputA_B, inputC_D, plane_AB, plane_CD, all_X, all_Y, interpol_xy=interpol_xy)
+        x_AB = res_AB_CD.x_AB  &  x_CD = res_AB_CD.x_CD
       endelse
-      plane_AB1 = reform(sigA_sigB[*,*,ind_r1])
-      plane_CD1 = reform(sigC_sigD[*,*,ind_r1])
-      res_AB_CD_1 = solve_aspect_one_plane(inputA_B, inputC_D, plane_AB1, plane_CD1, all_X, all_Y, interpol_xy=interpol_xy)
-      x_AB1 = res_AB_CD_1.x_AB  &  x_CD1 = res_AB_CD_1.x_CD
-      plane_AB2 = reform(sigA_sigB[*,*,ind_r2])
-      plane_CD2 = reform(sigC_sigD[*,*,ind_r2])
-      res_AB_CD_2 = solve_aspect_one_plane(inputA_B, inputC_D, plane_AB2, plane_CD2, all_X, all_Y, interpol_xy=interpol_xy)
-      x_AB2 = res_AB_CD_2.x_AB  &  x_CD2 = res_AB_CD_2.x_CD
-      x_AB = ((all_r[ind_r2]-rsol[i]) * x_AB1 + (rsol[i]-all_r[ind_r1]) * x_AB2) / (all_r[ind_r2]-all_r[ind_r1])
-      x_CD = ((all_r[ind_r2]-rsol[i]) * x_CD1 + (rsol[i]-all_r[ind_r1]) * x_CD2) / (all_r[ind_r2]-all_r[ind_r1])
-    endif else begin
-      plane_AB = reform(sigA_sigB[*,*,ind_r])
-      plane_CD = reform(sigC_sigD[*,*,ind_r])
-      res_AB_CD = solve_aspect_one_plane(inputA_B, inputC_D, plane_AB, plane_CD, all_X, all_Y, interpol_xy=interpol_xy)
-      x_AB = res_AB_CD.x_AB  &  x_CD = res_AB_CD.x_CD
-    endelse
-    
-    ; convert to SAS frame
-    x_sas[i] = -1.*(x_AB - x_CD) / sqrt(2.) * 1.e-6
-    y_sas[i] = -1.*(x_AB + x_CD) / sqrt(2.) * 1.e-6
-    if (~finite(x_AB)  or ~finite(x_CD)) then data[i].ERROR = 'NO_ASPECT_SOL'
+
+      ; convert to SAS frame
+      x_sas[i] = -1.*(x_AB - x_CD) / sqrt(2.) * 1.e-6
+      y_sas[i] = -1.*(x_AB + x_CD) / sqrt(2.) * 1.e-6
+      if (~finite(x_AB)  or ~finite(x_CD)) then data[i].ERROR = 'NO_ASPECT_SOL'
+    endif
   endfor
   
   ; Store results as arcsec in SRF in the data structure
