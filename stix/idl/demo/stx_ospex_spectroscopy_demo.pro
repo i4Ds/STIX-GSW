@@ -18,13 +18,18 @@
 ;
 ; :categories:
 ;    demo, spectroscopy
-;
+;    
+; :keywords:
+;    out_dir : in, type="string", default="concat_dir( getenv('STX_DEMO_DATA'),'ospex', /d)"
+;              a path to an output directroy where downloaded data can be saved 
+;               
 ; :history:
 ;   03-Mar-2022 - ECMD (Graz), initial release
 ;   16-Mar-2023 - ECMD (Graz), updated to use release version L1 files
+;   11-Sep-2023 - ECMD (Graz), allow user to specify output directory 
 ;
 ;-
-pro stx_ospex_spectroscopy_demo
+pro stx_ospex_spectroscopy_demo, out_dir = out_dir
 
   ;*********************************************** 1- AQUIRE DATA ******************************************************
 
@@ -33,7 +38,7 @@ pro stx_ospex_spectroscopy_demo
   site = 'http://dataarchive.stix.i4ds.net/fits/L1/2022/02/'
   
   ;The OSPEX folder in under stx_demo_data will usually start off empty on initial installation of the STIX software
-  out_dir = concat_dir( getenv('STX_DEMO_DATA'),'ospex', /d)
+  default, out_dir, concat_dir( getenv('STX_DEMO_DATA'),'ospex', /d)
 
   ;if the OSPEX demo database folder is not present then create it
   if ~file_test(out_dir, /directory) then begin
