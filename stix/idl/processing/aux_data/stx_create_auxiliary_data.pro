@@ -160,11 +160,6 @@ ROT_PITCH = -YAW * sin(ROLL_ANGLE * !dtor) + PITCH * cos(ROLL_ANGLE * !dtor)
 readcol, loc_file( 'Mapcenter_correction_factors.csv', path = getenv('STX_SAS') ), $
   avg_shift_x, avg_shift_y, offset_x, offset_y, /silent
 
- ;;;;;;;
- ; 2023-07-27: reset (avg_shift_x, avg_shift_y) to (0,0) in order to measure it again
- ; with a larger sample of events
- ;; avg_shift_x = 0.  &  avg_shift_y = 0.   ; commented out 2023-08-31
-
 spacecraft_pointing = [avg_shift_x,avg_shift_y] + [ROT_YAW, ROT_PITCH]
 STX_POINTING = spacecraft_pointing
 
@@ -176,8 +171,6 @@ if ~X_SAS.isnan() and ~Y_SAS.isnan() then begin
   endif
   
   ; Correct SAS solution for systematic error measured in 2021
-  ; 2023-09-05 - but also reset these to (0,0) in order to measure it again...
-  ;; offset_X = 0.  &  offset_Y = 0.
   X_SAS += offset_X  &  Y_SAS += offset_Y
   sas_pointing = [X_SAS, Y_SAS]
 
