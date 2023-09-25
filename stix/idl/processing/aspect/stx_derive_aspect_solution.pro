@@ -28,7 +28,7 @@
 ;   2022-01-18, FSc: added optional arguments 'interpol_r' and 'interpol_xy'; major rewriting
 ;   2022-01-28, FSc (AIP) : adapted to STX_ASPECT_DTO structure
 ;   2022-04-22, FSc (AIP) : changed name from "derive_aspect_solution" to "stx_derive_aspect_solution"
-;   
+;   2023-09-19, FSc (AIP) : implemented more error messages
 ;-
 
 function solve_aspect_one_plane, inputA_B, inputC_D, plane_AB, plane_CD, all_X, all_Y, max_iter=max_iter, delta_conv=delta_conv, interpol_xy=interpol_xy
@@ -126,6 +126,7 @@ pro stx_derive_aspect_solution, data, simu_data_file, interpol_r=interpol_r, int
   result = file_test(simu_data_file)
   if not result then message," ERROR: File "+simu_data_file+" not found."
   restore, simu_data_file
+  rsol_maxi = all_r[-1]
 
   ; prepare array of results
   foclen = 0.55         ; SAS focal length, in [m]
@@ -136,10 +137,12 @@ pro stx_derive_aspect_solution, data, simu_data_file, interpol_r=interpol_r, int
   nb = n_elements(rsol)
   x_sas = fltarr(nb)  &  y_sas = fltarr(nb)
   
+  rsol_mini = 3.28e-3  ; corresponds to 0.75 AU
   for i=0,nb-1 do begin
-    ; Test if rsol is less than the mininum value to get usable signals
-    rsol_mini = 3.28e-3  ; corresponds to 0.75 AU
+    ; Test if rsol is less than the mininum value to get usable signals...
     if rsol[i] lt rsol_mini then data[i].ERROR = 'SUN_TOO_FAR'
+    ; ... or above the max radius covered by the simu. data
+    if rsol[i] gt rsol_maxi then data[i].ERROR = 'SUN_TOO_BIG'
     ; also catch error messages previously set:
     if data[i].ERROR eq '' then begin
       delta_r = rsol[i] - all_r
