@@ -172,11 +172,11 @@ if keyword_set(elut_correction) then begin
 
   eff_ewidth =  (e_axis.width)/ewidth
   
-  counts_spec =  counts_spec/ reproduce(eff_ewidth, n_times)
+  counts_spec =  counts_spec * reproduce(eff_ewidth, n_times)
 
   counts_spec =  reform(counts_spec,[n_energies, n_times])
 
-  counts_err = counts_err/ reproduce(eff_ewidth, n_times)
+  counts_err = counts_err * reproduce(eff_ewidth, n_times)
 
   counts_err =  reform(counts_err,[n_energies, n_times])
 endif

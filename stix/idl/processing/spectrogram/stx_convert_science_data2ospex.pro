@@ -168,7 +168,7 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
 
     energy_bins = spectrogram.energy_axis.low_fsw_idx
 
-    corrected_counts_bk =  corrected_counts_bk[energy_bins,*]/reproduce(eff_ewidth, n_times)
+    corrected_counts_bk =  corrected_counts_bk[energy_bins,*] * reproduce(eff_ewidth, n_times)
 
     corrected_counts_bk =  reform(corrected_counts_bk,[n_elements(energy_bins), n_times])
 
@@ -179,7 +179,7 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
 
     spec_in_bk  = reform(spec_in_bk,dim_counts_bk[0], n_times)
 
-    spec_in_bk =  spec_in_bk[energy_bins,*]/reproduce(eff_ewidth, n_times)
+    spec_in_bk =  spec_in_bk[energy_bins,*] * reproduce(eff_ewidth, n_times)
 
     spec_in_bk =  reform(spec_in_bk,[n_elements(energy_bins), n_times])
 
@@ -190,7 +190,7 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
 
     error_bk  = reform(error_bk, dim_counts_bk[0], n_times)
 
-    error_bk =  error_bk[energy_bins,*]/reproduce(eff_ewidth, n_times)
+    error_bk =  error_bk[energy_bins,*] * reproduce(eff_ewidth, n_times)
 
     error_bk =  reform(error_bk,[n_elements(energy_bins), n_times])
 

@@ -233,12 +233,12 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   eff_ewidth =  (e_axis.width)/ewidth
 
 
-  counts_spec =  counts_spec/ reform(reproduce(eff_ewidth, n_detectors*n_times),n_energies, n_detectors, n_times)
+  counts_spec =  counts_spec * reform(reproduce(eff_ewidth, n_detectors*n_times),n_energies, n_detectors, n_times)
 
   counts_spec =  reform(counts_spec,[n_energies, n_detectors, n_times])
 
 
-  counts_err =  counts_err/ reform(reproduce(eff_ewidth, n_detectors*n_times),n_energies, n_detectors, n_times)
+  counts_err =  counts_err * reform(reproduce(eff_ewidth, n_detectors*n_times),n_energies, n_detectors, n_times)
 
   counts_err =  reform(counts_err,[n_energies, n_detectors, n_times])
   
