@@ -149,8 +149,8 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
   ; to be called depend on the imaging algorithm.
   
   if method eq "EM" then begin
-    pixel_data_summed = stx_construct_pixel_data_summed(path_sci_file, time_range, energy_range, path_bkg_file=path_bkg_file, $
-                                                        xy_flare=xy_flare, /silent)
+    pixel_data_summed = stx_construct_pixel_data_summed(path_sci_file, time_range, energy_range, $
+                                                        path_bkg_file=path_bkg_file, xy_flare=xy_flare)
 
     out_map = stx_em(pixel_data_summed, aux_data, imsize=imsize, pixel=pixel,mapcenter=mapcenter)
 
