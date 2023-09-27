@@ -71,8 +71,7 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
   
   
   if (keyword_set(gtrans32) and n_elements(flare_location) ne 0) then begin
-    grid_factors_proc = stx_subc_transmission(flare_location)
-    ;grid_factors_proc = stx_subc_transmission_ed(flare_location,ph_in, full =full)
+    grid_factors_proc = stx_subc_transmission(flare_location, ph_in)
 
     ;05-Oct-2022 - ECMD until fine grid tranmission is ready replace the 
     ;grids not in TOP24 with the on-axis tabulated values
@@ -80,10 +79,9 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
     grid_factors_proc[idx_nontop24] = grid_factors_file[idx_nontop24]
     grid_factor  = average(grid_factors_proc[grids_used])
    
-;   grid_factors_proc = stx_tungsten_transmission(flare_location, ph_in)
- ;  grid_factors_proc[*,idx_nontop24] = transpose(rebin(grid_factors_file[idx_nontop24],n_elements(idx_nontop24),n_elements(ph_in)))
- ;   grid_factors  = average(grid_factors_proc[*,grids_used],2)
-;    grid_factor = grid_factors
+    grid_factors_proc[*,idx_nontop24] = transpose(rebin(grid_factors_file[idx_nontop24],n_elements(idx_nontop24),n_elements(ph_in)))
+    grid_factors  = average(grid_factors_proc[*,grids_used],2)
+    grid_factor = grid_factors
   endif else begin
     print, 'Using nominal (on axis) grid transmission'
     grid_factor = average(grid_factors_file[grids_used])
