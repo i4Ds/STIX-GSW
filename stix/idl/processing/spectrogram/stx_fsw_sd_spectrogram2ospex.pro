@@ -81,14 +81,15 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
   
   
   if (keyword_set(gtrans32) and n_elements(flare_location_stx) ne 0) then begin
-  ;  grid_factors_proc = stx_subc_transmission(flare_location_stx, ph_in)
-    grid_factors_proc = stx_subc_transmission(flare_location_stx)
+   grid_factors_proc = stx_subc_transmission(flare_location_stx, ph_in)
 
     ;05-Oct-2022 - ECMD until fine grid tranmission is ready replace the 
     ;grids not in TOP24 with the on-axis tabulated values
     idx_nontop24 = stx_label2det_ind('bkg+cfl+fine')
-    grid_factors_proc[idx_nontop24] = grid_factors_file[idx_nontop24]
-    grid_factor  = average(grid_factors_proc[grids_used])
+   
+    grid_factors_proc[*,idx_nontop24] = transpose(rebin(grid_factors_file[idx_nontop24],n_elements(idx_nontop24),n_elements(ph_in)))
+    grid_factors  = average(grid_factors_proc[*,grids_used],2)
+    grid_factor = grid_factors
   endif else begin
     print, 'Using nominal (on axis) grid transmission'
     grid_factor = average(grid_factors_file[grids_used])
