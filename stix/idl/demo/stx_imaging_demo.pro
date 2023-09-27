@@ -16,14 +16,15 @@
 ; :history:
 ;   02-september-2021, Massa P., first release
 ;   23-august-2022, Massa P., made compatible with the up-to-date imaging sofwtare
+;   11-september-2023 - ECMD (Graz), allow user to specify output directory
+;
 ;
 ;-
 
 ;;******************************** LOAD DATA - June 7 2020, 21:41 UT ********************************
 
 ; Folder in which the files downloaded for this demonstration are stored
-out_dir = concat_dir( getenv('STX_DEMO_DATA'),'imaging', /d)
-
+ default, out_dir, concat_dir( getenv('STX_DEMO_DATA'),'imaging', /d)
 
 ; URL of the STIX data center
 website_url = 'https://datacenter.stix.i4ds.net/download/fits/bsd/'
