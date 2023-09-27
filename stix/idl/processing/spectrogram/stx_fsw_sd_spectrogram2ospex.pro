@@ -76,9 +76,7 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
     ;05-Oct-2022 - ECMD until fine grid tranmission is ready replace the 
     ;grids not in TOP24 with the on-axis tabulated values
     idx_nontop24 = stx_label2det_ind('bkg+cfl+fine')
-    grid_factors_proc[idx_nontop24] = grid_factors_file[idx_nontop24]
-    grid_factor  = average(grid_factors_proc[grids_used])
-   
+  
     grid_factors_proc[*,idx_nontop24] = transpose(rebin(grid_factors_file[idx_nontop24],n_elements(idx_nontop24),n_elements(ph_in)))
     grid_factors  = average(grid_factors_proc[*,grids_used],2)
     grid_factor = grid_factors
