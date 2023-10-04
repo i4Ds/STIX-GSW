@@ -304,7 +304,7 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   stx_convert_science_data2ospex, spectrogram = spectrogram, specpar=specpar, time_shift = time_shift, $
     data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, distance = distance, $
     fits_path_data = fits_path_data, flare_location = flare_location, eff_ewidth = eff_ewidth, sys_uncert = sys_uncert, $
-    plot = plot, background_data = background_data, fits_info_params = fits_info_params, ospex_obj = ospex_obj
+    plot = plot, elut_correction = elut_correction, background_data = background_data, fits_info_params = fits_info_params, ospex_obj = ospex_obj
 
 end
 
