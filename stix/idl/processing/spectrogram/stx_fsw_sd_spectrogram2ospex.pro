@@ -82,7 +82,7 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
     idx_nontop24 = stx_label2det_ind('bkg+cfl+fine')
   
     grid_factors_proc[*,idx_nontop24] = transpose(rebin(grid_factors_file[idx_nontop24],n_elements(idx_nontop24),n_elements(ph_in)))
-    grid_factors  = average(grid_factors_proc[*,grids_used],2)
+    grid_factors  = average(rebin(grid_factors_proc[*,grids_used],n_elements(ph_in), n_elements(idx_nontop24)),2)
     grid_factor = grid_factors
   endif else begin
     print, 'Using nominal (on axis) grid transmission'
