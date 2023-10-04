@@ -248,7 +248,7 @@ endif
   specpar = { sp_atten_state :  {time:ut_rcr[index], state:state}, flare_xyoffset : fltarr(2), use_flare_xyoffset:0 }
 
   stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, $
-    distance = distance, fits_path_data = fits_path_data,  eff_ewidth = eff_ewidth, fits_info_params = fits_info_params, sys_uncert = sys_uncert, $
+    distance = distance, fits_path_data = fits_path_data,  eff_ewidth = eff_ewidth, elut_correction = elut_correction, fits_info_params = fits_info_params, sys_uncert = sys_uncert, $
     aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
     background_data = background_data, plot = plot, generate_fits = generate_fits, ospex_obj = ospex_obj
 
