@@ -81,7 +81,6 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
 
   ; Input directories - TO BE ADAPTED depending on local installation - FIX ME!
   aux_data_folder = '/net/galilei/store/data/STIX/L2_FITS_AUX/'
-;   l1a_data_folder = '/store/data/STIX/L1A_FITS/L1/'
   l1a_data_folder = '/net/galilei/store/data/STIX/L1_FITS_SCI/'
 
   
@@ -106,16 +105,30 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
   ;;;;
 
   ; Extract pointing and other ancillary data from auxiliary file covering the input time_range.
-  ; First, find out the date from time_range[0]
-  ; FIX-ME (issue #162):  special case when time range runs over two consecutive days
+  ; First, find out the starting date from time_range[0]:
   time_0 = anytim2utc(anytim(time_range[0], /tai), /ccsds)
   day_0 = strmid(str_replace(time_0,'-'),0,8)
+  
   aux_fits_file = aux_data_folder + 'solo_L2_stix-aux-ephemeris_'+day_0+'*.fits'
   aux_file_list = file_search(aux_fits_file, count=nb_aux)
   if nb_aux gt 0 then begin
     aux_fits_file = aux_file_list[-1]  ; this should be the highest version, since FILE_SEARCH sorts the list of files returned
     print, " STX_IMAGING_PIPELINE - INFO: Found AUX file " + aux_fits_file
   endif else message,"Cannot find auxiliary data file " + aux_fits_file
+  
+  ; Check if the time range runs over two consecutive days (fixes issue #162)
+  time_end = anytim2utc(anytim(time_range[1], /tai), /ccsds)
+  day_end = strmid(str_replace(time_end,'-'),0,8)
+  if day_end ne day_0 then begin
+    aux_fits_file_1 = aux_fits_file
+    aux_fits_file_2 = aux_data_folder + 'solo_L2_stix-aux-ephemeris_'+day_end+'*.fits'
+    aux_file_list_2 = file_search(aux_fits_file_2, count=nb_aux)
+    if nb_aux gt 0 then begin
+      aux_fits_file_2 = aux_file_list_2[-1]
+      print, " STX_IMAGING_PIPELINE - INFO: Found AUX file " + aux_fits_file_2
+    endif else message,"Cannot find auxiliary data file " + aux_fits_file_2
+    aux_fits_file = [aux_fits_file_1, aux_fits_file_2]
+  endif
 
   ; Extract data at requested time
   ; If an aspect solution is given as input, then use that one:
@@ -126,8 +139,7 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
     aux_data.stx_pointing[0] = x_ptg
     aux_data.stx_pointing[1] = y_ptg
   endif else aux_data = stx_create_auxiliary_data(aux_fits_file, time_range, force_sas=force_sas, no_sas=no_sas)
-  
-  
+
   ;;;;
   ; Read and process STIX L1A data
   l1a_file_list = file_search(l1a_data_folder + '*' + stix_uid + '*.fits')

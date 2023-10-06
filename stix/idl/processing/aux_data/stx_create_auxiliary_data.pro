@@ -37,6 +37,8 @@
 ;    2022-09-23, FSc: keyword 'silent' added; if not set, now displays messages about the pointing correction used
 ;    2022-09-28, FSc: displays a warning if dispersion in pointing > 3 arcsec
 ;    2023-05-25, A. F. Battaglia (FHNW, Switzerland): added a few keywords for returing header informations of the FITS file
+;    2023-10-06, FSc (AIP): also allow input fits_path to be a list of (two) strings, to deal with cases where a change of day
+;                           in the time range requires to read two files
 ;-
 function stx_create_auxiliary_data, fits_path, time_range, force_sas=force_sas, no_sas=no_sas, silent=silent, $
   primary_header = primary_header, data_header = data_header, control_header= control_header, idb_version_header = idb_version_header
@@ -48,8 +50,15 @@ function stx_create_auxiliary_data, fits_path, time_range, force_sas=force_sas, 
   if keyword_set(force_sas) and keyword_set(no_sas) then $
      message, 'WARNING: keywords force_sas and no_sas both set, will not use SAS.', /info, /cont
 
-stx_read_aux_fits, fits_path, aux_data=aux_data_str, primary_header = primary_header, data_header = data_header, $
-     control_header= control_header, idb_version_header = idb_version_header
+  n_files = n_elements(fits_path)
+  if n_files eq 2 then begin
+    stx_read_aux_fits, fits_path[0], aux_data=aux_data_str_1, primary_header = primary_header, data_header = data_header, $
+                       control_header= control_header, idb_version_header = idb_version_header
+    stx_read_aux_fits, fits_path[1], aux_data=aux_data_str_2, primary_header = primary_header, data_header = data_header, $
+                       control_header= control_header, idb_version_header = idb_version_header
+    aux_data_str = [aux_data_str_1, aux_data_str_2]
+  endif else stx_read_aux_fits, fits_path, aux_data=aux_data_str, primary_header = primary_header, data_header = data_header, $
+                                control_header= control_header, idb_version_header = idb_version_header
 
 ;************** Get the indices corresponding to the considered time range
 this_time_range = anytim(time_range)
@@ -62,6 +71,7 @@ if this_time_range[1] lt min(time_data) or $
    message, "The aux fits file does not contain information for the considered time range."
 
 time_ind = where((time_data ge this_time_range[0]) and (time_data le this_time_range[1]), nb_within)
+
 ; if time range is too short to contain any measurement, interpolate between nearest values
 if ~nb_within then begin
   if ~silent then print, " + STX_CREATE_AUXILIARY_DATA : no measurement found, doing interpolation."
