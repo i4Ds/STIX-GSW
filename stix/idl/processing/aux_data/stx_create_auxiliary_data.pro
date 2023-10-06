@@ -85,6 +85,8 @@ if ~nb_within then begin
   sigma_X = 0.  &  sigma_Y = 0.
   ; convert to single precision
   X_SAS = float(X_SAS)  &  Y_SAS = float(Y_SAS)
+  ; SAS_OK: can the aspect solution be used? (added 2023-10-06)
+  nb_sas_ok = aux_data_str[t_before].sas_ok AND aux_data_str[t_after].sas_ok
 
   ; Apparent solar radius (arcsec)
   RSUN = ((time_data[t_after]-time_middle) * aux_data_str[t_before].spice_disc_size + $
@@ -124,15 +126,22 @@ if ~nb_within then begin
 
 endif else begin
   ;************* Compute the average of the values of interest over the considered time range
-  ; Aspect solution
-  X_SAS = average(aux_data_str[time_ind].Y_SRF)
-  Y_SAS = -average(aux_data_str[time_ind].Z_SRF)
-  ; Also compute sigma and issue a warning if above 3 arcsec
-  tolerance = 3.
-  if nb_within gt 1 then sigma_X = sigma(aux_data_str[time_ind].Y_SRF) else sigma_X = 0.
-  if nb_within gt 1 then sigma_Y = sigma(aux_data_str[time_ind].Z_SRF) else sigma_Y = 0.
-  if sigma_X gt tolerance then print, sigma_X, format='(" *** WARNING - pointing unstable [rms(X) = ",F6.1," arcsec]")'
-  if sigma_Y gt tolerance then print, sigma_Y, format='(" *** WARNING - pointing unstable [rms(Y) = ",F6.1," arcsec]")'
+  ; Aspect solution: use only the data marked as "SAS_OK"
+  sas_ok = where(aux_data_str[time_ind].sas_ok eq 1, nb_sas_ok)
+  if nb_sas_ok lt nb_within then $
+    print, nb_sas_ok, nb_within, format='(" *** WARNING - STIX Aspect solution only available for",I4," out of",I4," time stamps.")'
+  if nb_sas_ok gt 0 then begin
+    X_SAS = average(aux_data_str[time_ind[sas_ok]].Y_SRF)
+    Y_SAS = -average(aux_data_str[time_ind[sas_ok]].Z_SRF)
+    ; Also compute sigma and issue a warning if above 3 arcsec
+    tolerance = 3.
+    if nb_sas_ok gt 1 then sigma_X = sigma(aux_data_str[time_ind[sas_ok]].Y_SRF) else sigma_X = 0.
+    if nb_sas_ok gt 1 then sigma_Y = sigma(aux_data_str[time_ind[sas_ok]].Z_SRF) else sigma_Y = 0.
+    if sigma_X gt tolerance then print, sigma_X, format='(" *** WARNING - pointing unstable [rms(X) = ",F6.1," arcsec]")'
+    if sigma_Y gt tolerance then print, sigma_Y, format='(" *** WARNING - pointing unstable [rms(Y) = ",F6.1," arcsec]")'
+  endif else begin
+    X_SAS = 0.  &  Y_sas = 0.
+  endelse
   
   ; Apparent solar radius (arcsec)
   RSUN = average(aux_data_str[time_ind].spice_disc_size)
@@ -160,15 +169,10 @@ ROT_PITCH = -YAW * sin(ROLL_ANGLE * !dtor) + PITCH * cos(ROLL_ANGLE * !dtor)
 readcol, loc_file( 'Mapcenter_correction_factors.csv', path = getenv('STX_SAS') ), $
   avg_shift_x, avg_shift_y, offset_x, offset_y, /silent
 
- ;;;;;;;
- ; 2023-07-27: reset (avg_shift_x, avg_shift_y) to (0,0) in order to measure it again
- ; with a larger sample of events
-;;   avg_shift_x = 0.  &  avg_shift_y = 0.   ; commented out 2023-08-31
-
 spacecraft_pointing = [avg_shift_x,avg_shift_y] + [ROT_YAW, ROT_PITCH]
 STX_POINTING = spacecraft_pointing
 
-if ~X_SAS.isnan() and ~Y_SAS.isnan() then begin
+if ~X_SAS.isnan() and ~Y_SAS.isnan() and nb_sas_ok gt 0 then begin
   if ~silent then begin
     print, " + STX_CREATE_AUXILIARY_DATA : "
     print, X_SAS, Y_SAS, format='(" --- found (Y_SRF, -Z_SRF) = ", F7.1,",",F7.1)'
@@ -181,6 +185,7 @@ if ~X_SAS.isnan() and ~Y_SAS.isnan() then begin
 
   if ~silent then begin
     print, X_SAS, Y_SAS, format='("  ==>  STIX (SAS) pointing = ", F7.1,",",F7.1)'
+    print
     print, ROT_YAW, ROT_PITCH, format='(" --- spacecraft pointing = ", F7.1,",",F7.1)'
     print, spacecraft_pointing[0], spacecraft_pointing [1], format='("  ==> s/c pointing + systematics = ", F7.1,",",F7.1)'
   endif

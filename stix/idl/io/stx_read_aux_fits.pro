@@ -68,6 +68,8 @@ pro stx_read_aux_fits, fits_path, aux_data=aux_data, primary_header = primary_he
   aux_data.spice_disc_size            = data.spice_disc_size
   aux_data.y_srf                      = data.y_srf
   aux_data.z_srf                      = data.z_srf
+  if tag_exist(data, "sas_ok") then $
+    aux_data.sas_ok                   = data.sas_ok
   aux_data.solo_loc_carrington_lonlat = data.solo_loc_carrington_lonlat
   aux_data.solo_loc_carrington_dist   = data.solo_loc_carrington_dist
   aux_data.solo_loc_heeq_zxy          = data.solo_loc_heeq_zxy
