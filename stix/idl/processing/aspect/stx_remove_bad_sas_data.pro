@@ -38,7 +38,7 @@ pro stx_remove_bad_sas_data, data
                 time: data[good[i]].time, duration: data[good[i]].duration, $
                 spice_disc_size: data[good[i]].spice_disc_size, $
                 y_srf: data[good[i]].y_srf, z_srf: data[good[i]].z_srf, $
-                calib: data[good[i]].calib, error : ""}
+                calib: data[good[i]].calib, sas_ok : 1, error : ""}
     result = [result, one_data]
   endfor
   data = result

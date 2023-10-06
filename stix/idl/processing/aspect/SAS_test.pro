@@ -58,7 +58,7 @@ print,"Computing aspect solution..."
 stx_derive_aspect_solution, data, simu_data_file, interpol_r=1, interpol_xy=1
 !p.multi = [0,1,2]
 ; Only plot solution with no error message
-good = where(data.ERROR eq '')
+good = where(data.sas_ok eq 1)
 utplot, data[good].TIME, data[good].y_srf, /xs, /ynoz, ytit='!6Y!dSRF !n [arcsec]',chars=1.4,/psym
 utplot, data[good].TIME, data[good].z_srf, /xs, /ynoz, ytit='!6Z!dSRF !n [arcsec]',chars=1.4,/psym
 ;;;;;;;;;;;;;;;;

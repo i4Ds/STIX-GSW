@@ -194,6 +194,8 @@ pro stx_derive_aspect_solution, data, simu_data_file, interpol_r=interpol_r, int
           if dist_center gt 1.1 * rsol[i] then data[i].ERROR = 'SAS_SOL_TOO_FAR'
         endelse
     endif
+    ; Flag data with sas_ok=0 in case of any error
+    if data[i].ERROR eq '' then data[i].sas_ok = 1 else data[i].sas_ok = 0
   endfor
   
   ; Store results as arcsec in SRF in the data structure

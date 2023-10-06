@@ -52,15 +52,17 @@ pro stx_smooth_sas_data, data
 
   ; ERROR strings: keep an error message if present for one of the two rebinned values
   new_err = strarr(new_dim)
+  new_sas_ok = intarr(new_dim)
   for i=0,new_dim-1 do if data[2*i].ERROR then new_err[i] = data[2*i].ERROR
   for i=0,new_dim-1 do if data[2*i+1].ERROR then new_err[i] = data[2*i+1].ERROR
-    
+  for i=0,new_dim-1 do if (data[2*i].sas_ok eq 1 AND data[2*i+1].sas_ok eq 1) then new_sas_ok[i] = 1
+
   ; build new array of data structures
   for i=0,new_dim-1 do begin
-    ; FSc, 2022-02-15: use anonymous structure here to be independant of changes made to STX_ASPECT_DTO on STIXcore side
-    a = {cha_diode0: new_sigA[i], cha_diode1: new_sigB[i], chb_diode0: new_sigC[i], chb_diode1: new_sigD[i], $
+    a = {stx_aspect_dto, $
+         cha_diode0: new_sigA[i], cha_diode1: new_sigB[i], chb_diode0: new_sigC[i], chb_diode1: new_sigD[i], $
          time: new_utc[i], duration: new_dura[i], spice_disc_size: new_rsol[i], y_srf: new_y[i], z_srf: new_z[i], $
-         calib: new_cal[i], error: new_err[i]}
+         calib: new_cal[i], sas_ok: new_sas_ok[i], error: new_err[i]}
     if i eq 0 then data = [a] else data = [data, a]
   endfor
 
