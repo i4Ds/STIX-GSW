@@ -24,6 +24,9 @@ print,"Reading L1 data file..."
 
 one_day = '20230330'    ; case where the HK file contains too many rows (duplicate entries, many with duration close to 0)
 ; one_day = '20220509'    ; solar distance gets beyond 0.75 AU at the end of that day
+; one_day = '20230321'    ; pointing mostly at Sun centre, with a flat-field calib. from 19:00 to 20:00
+; one_day = '20230329'    ; includes pointing at pole, and other off-centre pointings
+
 in_file = "solo_L1_stix-hk-maxi_"+one_day+"_V01.fits"
 data = prepare_aspect_data(data_dir + in_file, quiet=0)
 show_info, data
@@ -54,8 +57,10 @@ data.CHB_DIODE1 *= cal_corr_factor
 print,"Computing aspect solution..."
 stx_derive_aspect_solution, data, simu_data_file, interpol_r=1, interpol_xy=1
 !p.multi = [0,1,2]
-utplot, data.TIME, data.y_srf, /xs, /ynoz, ytit='!6Y!dSRF !n [arcsec]',chars=1.4
-utplot, data.TIME, data.z_srf, /xs, /ynoz, ytit='!6Z!dSRF !n [arcsec]',chars=1.4
-;;;;;;;;;;;;;;;;;
+; Only plot solution with no error message
+good = where(data.ERROR eq '')
+utplot, data[good].TIME, data[good].y_srf, /xs, /ynoz, ytit='!6Y!dSRF !n [arcsec]',chars=1.4,/psym
+utplot, data[good].TIME, data[good].z_srf, /xs, /ynoz, ytit='!6Z!dSRF !n [arcsec]',chars=1.4,/psym
+;;;;;;;;;;;;;;;;
 
 end

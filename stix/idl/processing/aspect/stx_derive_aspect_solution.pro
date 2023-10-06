@@ -37,6 +37,9 @@ function solve_aspect_one_plane, inputA_B, inputC_D, plane_AB, plane_CD, all_X, 
   default, max_iter, 10      ; stop after iterations...
   default, delta_conv, 10.   ; or if successive solutions don't differ by more than 10 mic
 
+  ; Store number of elements along main direction in simulated data
+  nb_X = n_elements(all_X)
+  
   ; Test: if inputA_B or inputC_D is not within the range covered by simulated data,
   ; then we cannot derive any solution: set results to NaN
   if inputA_B lt min(plane_AB) or inputC_D lt min(plane_CD) or $
@@ -82,30 +85,33 @@ function solve_aspect_one_plane, inputA_B, inputC_D, plane_AB, plane_CD, all_X, 
       if n_iter ge max_iter or sol_diff lt delta_conv then do_more = 0
     endwhile
 
-    if keyword_set(interpol_XY) then begin
-      ; refine solution by interpolating between two nearest points on the grid
-      delta_AB = inputA_B - plane_AB[tmpAB,ind_Y_AB]
-      ; by construction, plane_AB[*,ind_Y] is monotonically decreasing, therefore:
-      if delta_AB lt 0 then begin
-        ind_AB_pos = max([0,tmpAB-1])  &  ind_AB_neg = tmpAB
-      endif else begin
-        ind_AB_pos = tmpAB  &  ind_AB_neg = min([tmpAB+1,1000])
-      endelse
-      delta_pos = inputA_B - plane_AB[ind_AB_pos,ind_Y_AB]
-      delta_neg = plane_AB[ind_AB_neg,ind_Y_AB] - inputA_B
-      x_AB = delta_pos / (delta_pos+delta_neg) * all_X[ind_AB_neg] + delta_neg / (delta_pos+delta_neg) * all_X[ind_AB_pos]
+    if keyword_set(interpol_XY) then $
+      ; refine solution by interpolating between two nearest points on the grid,
+      ; but only if not on the edge of the parameter space:
+      if tmpAB gt 0 and tmpAB lt nb_X-1 and tmpCD gt 0 and tmpCD lt nb_X-1 then begin
+        delta_AB = inputA_B - plane_AB[tmpAB,ind_Y_AB]
+        ; At least near Sun centre, plane_AB[*,ind_Y] is monotonically increasing, 
+        ; therefore delta_AB is decreasing. Thus:
+        if delta_AB lt 0 then begin
+          ind_AB_pos = tmpAB-1  &  ind_AB_neg = tmpAB
+        endif else begin
+          ind_AB_pos = tmpAB  &  ind_AB_neg = tmpAB+1
+        endelse
+        delta_pos = inputA_B - plane_AB[ind_AB_pos,ind_Y_AB]
+        delta_neg = plane_AB[ind_AB_neg,ind_Y_AB] - inputA_B
+        x_AB = delta_pos / (delta_pos+delta_neg) * all_X[ind_AB_neg] + delta_neg / (delta_pos+delta_neg) * all_X[ind_AB_pos]
 
-      ; Same game for x_CD
-      delta_CD = inputC_D - plane_CD[tmpCD,ind_Y_CD]
-      if delta_CD lt 0 then begin
-        ind_CD_pos = tmpCD-1  &  ind_CD_neg = tmpCD
-      endif else begin
-        ind_CD_pos = tmpCD  &  ind_CD_neg = tmpCD+1
-      endelse
-      delta_pos = inputC_D - plane_CD[ind_CD_pos,ind_Y_CD]
-      delta_neg = plane_CD[ind_CD_neg,ind_Y_CD] - inputC_D
-      x_CD = delta_pos / (delta_pos+delta_neg) * all_X[ind_CD_neg] + delta_neg / (delta_pos+delta_neg) * all_X[ind_CD_pos]
-    endif
+        ; Same game for x_CD
+        delta_CD = inputC_D - plane_CD[tmpCD,ind_Y_CD]
+        if delta_CD lt 0 then begin
+          ind_CD_pos = tmpCD-1  &  ind_CD_neg = tmpCD
+        endif else begin
+          ind_CD_pos = tmpCD  &  ind_CD_neg = tmpCD+1
+        endelse
+        delta_pos = inputC_D - plane_CD[ind_CD_pos,ind_Y_CD]
+        delta_neg = plane_CD[ind_CD_neg,ind_Y_CD] - inputC_D
+        x_CD = delta_pos / (delta_pos+delta_neg) * all_X[ind_CD_neg] + delta_neg / (delta_pos+delta_neg) * all_X[ind_CD_pos]
+      endif
   endelse
 
   result = {x_AB:x_AB, x_CD:x_CD}
@@ -179,12 +185,20 @@ pro stx_derive_aspect_solution, data, simu_data_file, interpol_r=interpol_r, int
       ; convert to SAS frame
       x_sas[i] = -1.*(x_AB - x_CD) / sqrt(2.) * 1.e-6
       y_sas[i] = -1.*(x_AB + x_CD) / sqrt(2.) * 1.e-6
-      if (~finite(x_AB)  or ~finite(x_CD)) then data[i].ERROR = 'NO_ASPECT_SOL'
+      
+      ; Test whether the solution can be used:
+      if (~finite(x_AB) or ~finite(x_CD)) then data[i].ERROR = 'NO_ASPECT_SOL' $
+        else begin
+          ; also not good if too far off the solar limb:
+          dist_center = norm([x_AB,x_CD]) * 1.e-6
+          if dist_center gt 1.1 * rsol[i] then data[i].ERROR = 'SAS_SOL_TOO_FAR'
+        endelse
     endif
   endfor
   
   ; Store results as arcsec in SRF in the data structure
-  data.y_srf = y_sas * 0.375e6
-  data.z_srf = x_sas * 0.375e6
+  linear_to_asec = (1./foclen) * 180./!pi * 3600.  ; conversion factor from m to arcsec
+  data.y_srf = y_sas * linear_to_asec
+  data.z_srf = x_sas * linear_to_asec
   
 end
