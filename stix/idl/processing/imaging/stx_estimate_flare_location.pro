@@ -38,6 +38,7 @@
 ;           (default, 0)
 ;   
 ; HISTORY: October 2022, Massa P. (WKU), initial release
+;          July 2023, Massa P., made it compatible with the new definition of (u,v)-points (see stx_uv_points)
 ;
 ; CONTACT:
 ;   paolo.massa@wku.edu
@@ -62,19 +63,9 @@ pixel = rsun * 2.6 / imsize ; 2.6 is chosen arbitrarily so that field of view Ba
 ;;******* Construct the visibility structure
 mapcenter_stix = stx_hpc2stx_coord(mapcenter, aux_data)
 
-vis = stx_construct_visibility(path_sci_file, time_range, energy_range, mapcenter_stix, $
+vis = stx_construct_calibrated_visibility(path_sci_file, time_range, energy_range, mapcenter_stix, $
                                           path_bkg_file=path_bkg_file,subc_index=subc_index,  /silent, $
                                           _extra=extra)
-
-;;******* Use Giordano's (u,v) points: no need to perform projection correction (see Giordano et al., 2015)
-subc_str = stx_construct_subcollimator()
-uv = stx_uv_points_giordano()
-u = -uv.u * subc_str.phase
-v = -uv.v * subc_str.phase
-vis.u = u[subc_index]
-vis.v = v[subc_index]
-
-vis = stx_calibrate_visibility(vis)
 
 ;;******* Compute the Back Projection map
 bp_nat_map = stx_bproj(vis,imsize,pixel,aux_data)

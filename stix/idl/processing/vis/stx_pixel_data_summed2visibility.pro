@@ -52,6 +52,7 @@
 ;   - CALIBRATED: 0 if the values of the visibility amplitudes and phases are not calibrated, 1 otherwise   
 ;   
 ; HISTORY: August 2022, Massa P., created
+;          July 2023, Massa P., made it compatible with the new definition of (u,v)-points (see stx_uv_points)
 ;
 ; CONTACT:
 ;   paolo.massa@wku.edu
@@ -77,16 +78,9 @@ subc_str = subc_str[subc_index]
 
 ;;************** Define (u,v) points
 
-; take average of front and rear grid pitches (mm)
-pitch = (subc_str.front.pitch + subc_str.rear.pitch) / 2.0d
-; take average of front and rear grid orientation
-orientation = (subc_str.front.angle + subc_str.rear.angle) / 2.0d
-; convert pitch from mm to arcsec
-pitch = pitch / f2r_sep * 3600.0d * !RADEG
-; calculate u and v
-uv = 1.0 / pitch
-u = uv * cos(orientation * !DTOR) * (-subc_str.PHASE) ; TO BE REMOVED!
-v = uv * sin(orientation * !DTOR) * (-subc_str.PHASE) ; TO BE REMOVED!
+uv_data = stx_uv_points(subc_index)
+u = uv_data.u
+v = uv_data.v
 
 ;;************** Define visibility values
 
