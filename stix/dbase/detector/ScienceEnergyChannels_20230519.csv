@@ -1,0 +1,57 @@
+ENERGY BINNING,,,,,,ECMD,19.05.23
+,,,,,,,
+Revised Suggestion for Science Energy Binning,,,,,,,
+,,,,,,,
+Criteria,,,,,,,
+,Generally increasing bin width between 4 keV and 150 keV,,,,Include LLD and ULD channels < 4kev and > 150keV,,
+,"Fine (< 1kev) resolution through microflare regime, 4-11 keV",,,,"Bracket Ba-133 lines at 31, 35 and 81 keV",,
+,Bin centres at 6.7 and 8.0 keV (Fe and Fe/Ni line complexes),,,,,,
+,Sufficient coverage over full range,,,,,,
+,"Match current QL boundaries at 4, 10, 15, 25, 50, and 84 keV",,,,,,
+,Sufficient coverage over full range,,,,,,
+,,,,,,,
+,,,,,,,
+Basic constraint,,,,,,,
+,Emin,0,,,,,
+,Emax,>1000,,,,,
+,Number of bins,32,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+Channel Number,Channel Edge,Energy Edge ,Elower,Eupper ,BinWidth,dE/E,QL channel
+,,,,,,,
+,,,,,,,
+0,0,0,0,4,4,2,n/a
+1,1,4,4,5.5,1.5,0.32,0
+2,2,5.5,5.5,6.3,0.8,0.14,0
+3,3,6.3,6.3,6.56,0.26,0.04,0
+4,4,6.56,6.56,6.8,0.24,0.04,0
+5,5,6.8,6.8,7.3,0.5,0.07,0
+6,6,7.3,7.3,8,0.7,0.09,0
+7,7,8,8,9,1,0.12,0
+8,8,9,9,10,1,0.11,0
+9,9,10,10,11,1,0.1,1
+10,10,11,11,13,2,0.17,1
+11,11,13,13,15,2,0.14,1
+12,12,15,15,17,2,0.13,2
+13,13,17,17,19,2,0.11,2
+14,14,19,19,21,2,0.1,2
+15,15,21,21,23,2,0.09,2
+16,16,23,23,25,2,0.08,2
+17,17,25,25,28,3,0.11,3
+18,18,28,28,32,4,0.13,3
+19,19,32,32,36,4,0.12,3
+20,20,36,36,40,4,0.11,3
+21,21,40,40,45,5,0.12,3
+22,22,45,45,50,5,0.11,3
+23,23,50,50,56,6,0.11,4
+24,24,56,56,63,7,0.12,4
+25,25,63,63,70,7,0.11,4
+26,26,70,70,76,6,0.08,4
+27,27,76,76,84,8,0.1,4
+28,28,84,84,100,16,0.17,n/a
+29,29,100,100,120,20,0.18,n/a
+30,30,120,120,150,30,0.22,n/a
+31,31,150,150,max ADC,n/a,n/a,n/a
+,32,max ADC,,,,,
