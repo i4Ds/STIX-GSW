@@ -44,34 +44,38 @@
 ;
 ;
 ; HISTORY: September 2022, Massa P., created
+;          October 2023, Massa P., fixed bug in the selection of the energy bin indices
 ;
 ; CONTACT:
 ;   paolo.massa@wku.edu
 ;-
 
 pro stx_plot_selected_time_range, tim_axis, energy_ind, time_ind, counts, live_time_bins, subc_index, sumcase, energy_range, $
-                                  time_range, counts_bkg=counts_bkg, live_time_bkg=live_time_bkg
-
-;;********** Exclude first and last energy bin
-
-lightcurve = counts[1:30,*,*,*]
-
-if keyword_set(counts_bkg) then bkg_level = counts_bkg[1:30,*,*]
-
-;;********** Sum in energy
+                                  time_range, counts_bkg=counts_bkg, live_time_bkg=live_time_bkg, energy_ind_bkg=energy_ind_bkg
 
 if n_elements(energy_ind) eq 1 then begin
-  
-  lightcurve = reform(lightcurve[energy_ind,*,*,*])
-  if keyword_set(counts_bkg) then bkg_level = reform(bkg_level[energy_ind,*,*])
-  
 
+  lightcurve = reform(counts[energy_ind,*,*,*])
+  
 endif else begin
-  
-  lightcurve = total(lightcurve[energy_ind,*,*,*],1)
-  if keyword_set(counts_bkg) then bkg_level = total(bkg_level[energy_ind,*,*],1)
-  
+
+  lightcurve = total(counts[energy_ind,*,*,*],1)
+
 endelse
+
+if keyword_set(counts_bkg) then begin
+
+  if n_elements(energy_ind_bkg) eq 1 then begin
+    
+    bkg_level = reform(counts_bkg[energy_ind_bkg,*,*])
+    
+  endif else begin
+    
+    bkg_level = total(counts_bkg[energy_ind_bkg,*,*],1)
+    
+  endelse
+
+endif
 
 ;;********** Sum counts of selected imaging detectors
 
