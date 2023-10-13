@@ -63,6 +63,7 @@
 ;                     (1 if the corresponding detector has been used, 0 otherwise)
 ;
 ; HISTORY: August 2022, Massa P., created
+;          October 2023, Massa P., fixed bug in the estimation of the total number of bkg counts 
 ;
 ; CONTACT:
 ;   paolo.massa@wku.edu
