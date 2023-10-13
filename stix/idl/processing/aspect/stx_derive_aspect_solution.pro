@@ -148,7 +148,7 @@ pro stx_derive_aspect_solution, data, simu_data_file, interpol_r=interpol_r, int
     ; Test if rsol is less than the mininum value to get usable signals...
     if rsol[i] lt rsol_mini then data[i].ERROR = 'SUN_TOO_FAR'
     ; ... or above the max radius covered by the simu. data
-    if rsol[i] gt rsol_maxi then data[i].ERROR = 'SUN_TOO_BIG'
+    if rsol[i] gt rsol_maxi then data[i].ERROR = 'SUN_TOO_CLOSE'
     ; also catch error messages previously set:
     if data[i].ERROR eq '' then begin
       delta_r = rsol[i] - all_r
@@ -187,11 +187,11 @@ pro stx_derive_aspect_solution, data, simu_data_file, interpol_r=interpol_r, int
       y_sas[i] = -1.*(x_AB + x_CD) / sqrt(2.) * 1.e-6
       
       ; Test whether the solution can be used:
-      if (~finite(x_AB) or ~finite(x_CD)) then data[i].ERROR = 'NO_ASPECT_SOL' $
+      if (~finite(x_AB) or ~finite(x_CD)) then data[i].ERROR = 'NO_SOLUTION' $
         else begin
           ; also not good if too far off the solar limb:
           dist_center = norm([x_AB,x_CD]) * 1.e-6
-          if dist_center gt 1.1 * rsol[i] then data[i].ERROR = 'SAS_SOL_TOO_FAR'
+          if dist_center gt 1.1 * rsol[i] then data[i].ERROR = 'OFFPOINT_TOO_LARGE'
         endelse
     endif
     ; Flag data with sas_ok=0 in case of any error
