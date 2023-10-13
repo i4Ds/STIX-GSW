@@ -201,7 +201,7 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
 
   spec_in = reform(spec_in,[dim_counts[0],n_detectors, n_times])
 
-  counts_spec =  spec_in[energy_bins,*, *]/ reform(reproduce(eff_ewidth, n_detectors*n_times),n_energies, n_detectors, n_times)
+  counts_spec =  spec_in[energy_bins,*, *] * reform(reproduce(eff_ewidth, n_detectors*n_times),n_energies, n_detectors, n_times)
 
   counts_spec =  reform(counts_spec,[n_energies, n_detectors, n_times])
 
@@ -212,7 +212,7 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
 
   counts_err = reform(counts_err,[dim_counts[0],n_detectors, n_times])
 
-  counts_err =  counts_err[energy_bins,*, *]/ reform(reproduce(eff_ewidth, n_detectors*n_times),n_energies, n_detectors, n_times)
+  counts_err =  counts_err[energy_bins,*, *] * reform(reproduce(eff_ewidth, n_detectors*n_times),n_energies, n_detectors, n_times)
 
   counts_err =  reform(counts_err,[n_energies, n_detectors, n_times])
 
