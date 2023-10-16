@@ -28,7 +28,9 @@
 ;   no_small     : if set, don't use small pixels data to generate the map
 ;   method       : select imaging algorithm; should be one of: "MEM" [default], "EM", or "clean"
 ;   w_clean      : for clean method, choose between uniform weighting (w_clean=1, default) and natural weighting (w_clean=0)
-;
+;   clean_beam_width : for clean method, size of the beam to convolve the clean components with
+;   set_clean_boxes  : should the user define the clean boxes interactively? (default: NO)
+;   
 ; OUTPUTS:
 ;   Returns a map object that can be displayed with plot_map
 ;   
@@ -57,19 +59,22 @@
 ;    2022-10-06, FSc: adapted to recent changes in other procedures
 ;    2022-11-16, FSc: added optional argument subc_labels
 ;    2023-02-24, FSc: added optional keyword no_small
-;    2023-09-06, FSc: added optional keyord method
+;    2023-09-06, FSc: added optional keyword method
+;    2023-10-16, FSc: added optional keywords clean_beam_width and set_clean_boxes
 ;
 ;-
 function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_uid, xy_flare=xy_flare, $
                                imsize=imsize, pixel=pixel, x_ptg=x_ptg, y_ptg=y_ptg, force_sas=force_sas, no_sas=no_sas, $
-                               subc_labels=subc_labels, no_small=no_small, method=method, w_clean=w_clean, $
+                               subc_labels=subc_labels, no_small=no_small, method=method, $
+                               w_clean=w_clean, clean_beam_width=clean_beam_width, set_clean_boxes=set_clean_boxes, $
                                path_sci_file=path_sci_file
 
   if n_params() lt 3 then begin
     print, "STX_IMAGING_PIPELINE"
     print, "Syntax: result = stx_imaging_pipeline(stix_uid, time_range, energy_range [, bkg_uid=bkg_uid, xy_flare=xy_flare, $"
     print, "                 imsize=imsize, pixel=pixel, x_ptg=x_ptg, y_ptg=y_ptg, force_sas=force_sas, no_sas=no_sas, $"
-    print, "                 subc_labels=subc_labels, no_small=no_small, method=method, w_clean=w_clean, path_sci_file=path_sci_file])"
+    print, "                 subc_labels=subc_labels, no_small=no_small, method=method, w_clean=w_clean, $
+    print, "                 clean_beam_width=clean_beam_width, set_clean_boxes=set_clean_boxes, path_sci_file=path_sci_file])"
     return, 0
   endif
 
@@ -169,10 +174,11 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
         niter  = 100   ; Number of iterations
         gain   = 0.1   ; Gain used in each clean iteration
         nmap   = 10    ; Plot clean components and cleaned map every 10 iterations
-        beam_width = 10. ; clean components are convolved with this beam
+        if not keyword_set(clean_beam_width) then clean_beam_width = 14. ; clean components are convolved with this beam
+        if not keyword_set(set_clean_boxes) then set_clean_boxes = 0
         clean_map=stx_vis_clean(vis, aux_data, niter=niter, image_dim=imsize[0], PIXEL=pixel[0], $
                                 uniform_weighting = w_clean, gain=gain, nmap=nmap, $
-                                /plot, set_clean_boxes = 0, beam_width=beam_width)
+                                /plot, set_clean_boxes = set_clean_boxes, beam_width=clean_beam_width)
 
         out_map = clean_map[0]   ; contains the CLEAN map
       end
