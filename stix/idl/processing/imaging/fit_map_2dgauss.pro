@@ -18,7 +18,8 @@
 ;             (note that the map has to be already plotted in the active window) 
 ;
 ; OPTIONAL OUTPUTS:
-;   The heliographic coordinates can be returned in variables hlon, hlat
+;   hlon, hlat       : Heliographic Stonyhurst coordinates of source center
+;   gauss_X, gauss_Y : Helioprojective Cartesian coordinates of source center
 ;
 ; MODIFICATION HISTORY:
 ;    2022-01-07: F. Schuller (AIP, Germany): created
