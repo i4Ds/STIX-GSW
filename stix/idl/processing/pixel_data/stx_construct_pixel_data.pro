@@ -269,7 +269,7 @@ if elut_corr then begin
   energy_bin_low           = fltarr(32,12,32)
   energy_bin_low[1:31,*,*] = ekev_actual
   
-  energy_bin_high = fltarr(32,12,32)
+  energy_bin_high           = fltarr(32,12,32)
   energy_bin_high[0:30,*,*] = ekev_actual
   energy_bin_high[31,*,*]   = !VALUES.F_NaN
   
@@ -289,7 +289,7 @@ if elut_corr then begin
     energy_bin_low_bkg           = fltarr(32,12,32)
     energy_bin_low_bkg[1:31,*,*] = ekev_actual_bkg
     
-    energy_bin_high_bkg = fltarr(32,12,32)
+    energy_bin_high_bkg           = fltarr(32,12,32)
     energy_bin_high_bkg[0:30,*,*] = ekev_actual_bkg
     energy_bin_high_bkg[31,*,*]   = !VALUES.F_NaN
     
