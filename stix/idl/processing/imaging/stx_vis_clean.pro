@@ -52,6 +52,7 @@
 ;     input visibility bag
 ;   - spatial_frequency_weight - an array with the same number of elements as the input vis bag computed
 ;     by the user's preference.
+;   - set_clean_boxes  If set, let the user define a clean box or polygon
 ;   - box_map       map that is displayed for selecting the clean box
 ;
 ;
@@ -363,7 +364,7 @@ function stx_vis_clean, vis, aux_data, niter = niter, image_dim = image_dim_in, 
 
   if keyword_set(plot) then begin
     window,6,xsize=5*this_disp,ysize=2*this_disp
-    cleanplot
+    cleanplot, /silent
     !p.multi=[0,3,1]
     chs2=2.
     plot_map,out0,charsize=chs2
