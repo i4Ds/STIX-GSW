@@ -23,7 +23,7 @@
 ;
 ; :keywords:
 ;
-;    silent : in, type="int", default="0"
+;    silent : in, type="int", default="1"
 ;             If set prevents informational messages being displayed. Passed through to mrdfits.
 ;
 ; :returns:
@@ -45,10 +45,10 @@
 ;-
 function stx_read_fits, fits_path, extension, header, silent = silent, mversion_full = mversion_full
 
-  default, silent, 0
+  default, silent, 1
 
   if  ~keyword_set(mversion_full) then begin
-    ver = mrdfits(/version)
+    ;; ver = mrdfits(/version, /silent)  ; commented out (FSc, 2023-09-26) since not used anywhere
     mversion_full = stx_get_mrd_version()
     mversion = mversion_full.split('\.')
     if ~(fix(mversion[0]) ge 2 and fix(mversion[1]) ge 27) and ~silent then begin

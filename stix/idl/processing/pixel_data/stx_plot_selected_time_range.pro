@@ -52,6 +52,10 @@
 pro stx_plot_selected_time_range, tim_axis, energy_ind, time_ind, counts, live_time_bins, subc_index, sumcase, energy_range, $
                                   time_range, counts_bkg=counts_bkg, live_time_bkg=live_time_bkg
 
+  ; re-initialise UTBASE to handle UTC times properly when calling utplot
+  common utcommon
+  utbase = 0
+
 ;;********** Exclude first and last energy bin
 
 lightcurve = counts[1:30,*,*,*]
@@ -169,7 +173,7 @@ wset,2
 chsize=1.2
 chsize_leg=1.8
 clearplot
-utplot,tim_axis,lightcurve, psym=10,ytitle='STIX count rate [s!U-1!N cm!U-2!N keV!U-1!N]', charsize=chsize,$
+utplot,tim_axis,lightcurve, psym=10, /xs, ytitle='STIX count rate [s!U-1!N cm!U-2!N keV!U-1!N]', charsize=chsize,$
        title = this_date + ' ' + this_start_time + '-' + this_end_time + ' UT, ' + $
        trim(energy_range[0],'(f12.1)') + '-' + trim(energy_range[1],'(f12.1)') + ' keV'
 outplot,tim_axis[time_ind],lightcurve[time_ind],psym=10,color=122
