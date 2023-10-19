@@ -174,6 +174,7 @@ if ~X_SAS.isnan() and ~Y_SAS.isnan() then begin
     print, X_SAS, Y_SAS, format='(" --- found (Y_SRF, -Z_SRF) = ", F7.1,",",F7.1)'
     print, sigma_X, sigma_Y, format='("                 std. dev. = ", F7.1,",",F7.1)'
   endif
+  
   ; Correct SAS solution for systematic error measured in 2021
   X_SAS += offset_X  &  Y_SAS += offset_Y
   sas_pointing = [X_SAS, Y_SAS]
