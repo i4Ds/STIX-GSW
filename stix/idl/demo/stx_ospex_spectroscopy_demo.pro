@@ -27,6 +27,7 @@
 ;   03-Mar-2022 - ECMD (Graz), initial release
 ;   16-Mar-2023 - ECMD (Graz), updated to use release version L1 files
 ;   11-Sep-2023 - ECMD (Graz), allow user to specify output directory 
+;   23-Oct-2023 - ECMD (Graz), include specification of flare location  
 ;
 ;-
 pro stx_ospex_spectroscopy_demo, out_dir = out_dir
@@ -96,6 +97,25 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   print, " "
   print, "Press SPACE to continue"
   print, " "
+  
+  ;The fit interval selected for this demonstration covers one minute over the first non-thermal peak
+  spex_fit_time_interval = ['8-Feb-2022 21:38:59.937', '8-Feb-2022 21:40:00.437']
+  
+  ;xy_coord = [1050., -375.]
+  aux_fits_file = stx_get_ephemeris_file( spex_fit_time_interval[0], spex_fit_time_interval[1])
+  aux_data = stx_create_auxiliary_data(aux_fits_file, spex_fit_time_interval)
+
+  ;*************************************** ESTIMATE FLARE LOCATION **************************************
+
+  ; Returns the coordinates of the estimated flare location (arcsec, Helioprojective Cartesian coordinates
+  ; from Solar Orbiter vantage point) in the 'flare_loc' keyword. These coordinates are used for setting the
+  ; center of the maps to be reconstructed
+
+  stx_estimate_flare_location, fits_path_data_l1, spex_fit_time_interval, aux_data, flare_loc = flare_loc, $
+    path_bkg_file = fits_path_bk
+  
+  flare_location_stx = stx_hpc2stx_coord(flare_loc, aux_data)
+    
   pause
 
   ;*********************************************** 2 - DEFINE OSPEX PARAMETERS  ******************************************************
@@ -116,8 +136,7 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   ;calibration source are 31 and 35 keV. For this events it is reasonable to fit up to 28 keV
   spex_erange= [4.0000000D, 28.000000D]
 
-  ;The fit interval selected for this demonstration covers one minute over the first non-thermal peak
-  spex_fit_time_interval = ['8-Feb-2022 21:38:59.937', '8-Feb-2022 21:40:00.437']
+
 
   ;The pre-flare background is taken as a five minute interval before the start of the flare
   ;where the count rate in all bands are steady
@@ -156,6 +175,8 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   fit_comp_spectrum = ['full', '']
   fit_comp_model = ['chianti', '']
 
+  mcurvefit_itmax= 100
+
   ;Set the relevant plotting options
   spex_autoplot_units= 'Flux'
   spex_autoplot_enable = 1
@@ -170,6 +191,7 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   ;can be applied and the fitting performed.
   stx_convert_spectrogram, $
     fits_path_data = fits_path_data_l4, $
+    flare_location_hpc = flare_loc, aux_fits_file  = aux_fits_file, $
     distance = distance, $
     time_shift = time_shift, $
     ospex_obj = ospex_obj_l4
@@ -193,7 +215,9 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   ospex_obj_l4-> set, spex_autoplot_units = spex_autoplot_units
   ospex_obj_l4-> set, spex_autoplot_show_err = spex_fitcomp_plot_err
   ospex_obj_l4-> set, spex_fitcomp_plot_err = spex_fitcomp_plot_err
-
+  ospex_obj_l4-> set, mcurvefit_itmax= mcurvefit_itmax
+  
+  
   print, " "
   print, 'Please fit the spectrum - When you are satisfied select "Accept -> and continue looping" '
   print, " "
@@ -226,6 +250,7 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   stx_convert_spectrogram, $
     fits_path_data = fits_path_data_l4, $
     fits_path_bk = fits_path_bk, $
+    flare_location_stx = flare_location_stx, $
     distance = distance, $
     time_shift = time_shift, $
     ospex_obj = ospex_obj_l4b
@@ -248,6 +273,7 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   ospex_obj_l4b-> set, spex_autoplot_units = spex_autoplot_units
   ospex_obj_l4b-> set, spex_autoplot_show_err = spex_fitcomp_plot_err
   ospex_obj_l4b-> set, spex_fitcomp_plot_err = spex_fitcomp_plot_err
+  ospex_obj_l4b-> set, mcurvefit_itmax= mcurvefit_itmax
 
   print, " "
   print, 'Please fit the spectrum - When you are satisfied select "Accept -> and continue looping" '
@@ -263,6 +289,7 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   stx_convert_pixel_data, $
     fits_path_data = fits_path_data_l1,$
     fits_path_bk = fits_path_bk, $
+    flare_location_stx = flare_location_stx, $
     distance = distance, $
     time_shift = time_shift, $
     ospex_obj = ospex_obj_l1
@@ -286,11 +313,41 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   ospex_obj_l1-> set, spex_autoplot_units = spex_autoplot_units
   ospex_obj_l1-> set, spex_autoplot_show_err = spex_fitcomp_plot_err
   ospex_obj_l1-> set, spex_fitcomp_plot_err = spex_fitcomp_plot_err
+  ospex_obj_l1-> set, mcurvefit_itmax= mcurvefit_itmax
 
   print, " "
   print, 'Please fit the spectrum - When you are satisfied select "Accept -> and continue looping" '
   print, " "
 
+  ospex_obj_l1-> dofit
+
+  solar_radius = (sxpar(primary_header, 'RSUN_ARC'))
+  spex_source_angle = asin( (sqrt(total(flare_loc^2.))/solar_radius) < 1) * !radeg
+
+  ospex_obj_l1->set, spex_source_angle = spex_source_angle
+
+  ;the fit is done using a combination of thermal (f_vth) and non-thermal power-law (f_thick2) functions plus an albedo component
+  fit_function= 'vth+thick2+albedo'
+
+
+  ;As there are a limited number of science energy channels the non-thermal thick target fit is limited to a
+  ;single powerlaw index.
+  ;Emission Measure, Temperature, Thick target normalisation, Power-law index of the electron flux distribution function below
+  ;the break energy and the low energy cutoff are free all other parameters are fixed.
+  fit_comp_free_mask= [1B, 1B, 0B, 1B, 1B, 0B, 0B, 1B, 0B ,0B]
+
+  ;For the other fitting parameters the OSPEX defaults are adequate
+  fit_comp_minima= [1.00000e-20, 0.500000, 0.0100000, 1.00000e-10, 1.10000, $
+    1.00000, 1.10000, 1.00000, 100.000,0.1]
+  fit_comp_maxima= [1.00000e+20, 8.00000, 10.0000, 1.00000e+10, 20.0000, 100000., $
+    20.0000, 1000.00, 1.00000e+07,10]
+  fit_comp_spectrum = ['full', '','']
+  fit_comp_model = ['chianti', '','']
+
+  ospex_obj_l1-> set, fit_function = fit_function
+  ospex_obj_l1-> set, fit_comp_params = fit_comp_params
+  ospex_obj_l1-> set, fit_comp_minima = fit_comp_minima
+  ospex_obj_l1-> set, fit_comp_maxima= fit_comp_maxima
   ospex_obj_l1-> dofit
 
   ;*********************************************** 6 - COMPARISON ******************************************************
