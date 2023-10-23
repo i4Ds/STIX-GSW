@@ -384,7 +384,7 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
     ytitle ='Parameters Normalised to expected value',xtitle = 'Parameter name',yrange  = [0, 2], xtickname = [ 'EM','kT', 'NT Flux','Delta','Ebrk','E0' ], $
     xst = 2, title = 'Spectrogram'
   oploterr, findgen(nfree), fit_params_expected_l4[idx_free]/fit_params_expected_l4[idx_free], fit_params_l4[idx_free]*0., fit_sigmas_expected_l4[idx_free]/fit_params_expected_l4[idx_free], color = 9, line = 2, errcolor = 9
-  al_legend,['Expected','Fitted'],colors=[255,9],linest=[0,2],textcolors=[255,9],charsize=1.3
+  al_legend,['Initial Guess','Fitted'],colors=[255,9],linest=[0,2],textcolors=[255,9],charsize=1.3
 
   ;plot a comparison and the expected and newly fit values for the spectrogram with background observation subtracted case
   window, 1
@@ -392,7 +392,7 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
     ytitle ='Parameters Normalised to expected value',xtitle = 'Parameter name',yrange  = [0, 2], xtickname = [ 'EM','kT', 'NT Flux','Delta','Ebrk','E0' ],$
     xst = 2, title = 'Spectrogram presubtracted'
   oploterr, findgen(nfree), fit_params_expected_l4b[idx_free]/fit_params_expected_l4b[idx_free], fit_params_l4b[idx_free]*0., fit_sigmas_expected_l4b[idx_free]/fit_params_expected_l4b[idx_free], color = 9, line = 2, errcolor = 9
-  al_legend,['Expected','Fitted'],colors=[255,9],linest=[0,2],textcolors=[255,9],charsize=1.3
+  al_legend,['Initial Guess','Fitted'],colors=[255,9],linest=[0,2],textcolors=[255,9],charsize=1.3
 
   ;plot a comparison and the expected and newly fit values for the pixel data with background observation subtracted case
   window, 2
@@ -400,12 +400,12 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
     ytitle ='Parameters Normalised to expected value',xtitle = 'Parameter name',yrange  = [0, 2], xtickname = [ 'EM','kT', 'NT Flux','Delta','Ebrk','E0' ], $
     xst = 2, title = 'Pixel Data'
   oploterr, findgen(nfree), fit_params_expected_l1[idx_free]/fit_params_expected_l1[idx_free], fit_params_l1[idx_free]*0., fit_sigmas_expected_l1[idx_free]/fit_params_expected_l1[idx_free], color = 9, line = 2, errcolor = 9
-  al_legend,['Expected','Fitted'],colors=[255,9],linest=[0,2],textcolors=[255,9],charsize=1.3
+  al_legend,['Initial Guess','Fitted'],colors=[255,9],linest=[0,2],textcolors=[255,9],charsize=1.3
 
   ;plot a comparison of the newly fit values for all three cases
   window, 3
   ploterr, findgen(nfree), fit_params_l4b[idx_free]/fit_params_l4b[idx_free], fit_params_l4[idx_free]*0., fit_sigmas_l4[idx_free]/fit_params_l4b[idx_free], $
-    ytitle ='Prarmeter Normalised to Spectrogram estimate',xtitle = 'Parameter name',yrange  = [0, 2], xtickname = [ 'EM','kT', 'NT Flux','Delta','Ebrk','E0' ], xst = 2, HATLENGTH = 15
+    ytitle ='Parmeter Normalised to Spectrogram estimate',xtitle = 'Parameter name',yrange  = [0, 2], xtickname = [ 'EM','kT', 'NT Flux','Delta','Ebrk','E0' ], xst = 2, HATLENGTH = 15
   oploterr, findgen(nfree), fit_params_l1[idx_free]/fit_params_l4b[idx_free], fit_params_l4[idx_free]*0., fit_sigmas_l1[idx_free]/fit_params_l4b[idx_free], color = 4, line = 2, errcolor = 4
   oploterr, findgen(nfree), fit_params_l4[idx_free]/fit_params_l4b[idx_free], fit_params_l4[idx_free]*0., fit_sigmas_l4[idx_free]/fit_params_l4b[idx_free], color = 2, line = 2, errcolor = 2
   al_legend,['Spectrogram presubtracted','Spectrogram','Pixel Data'],colors=[255,2,4],linest=[0,2,2],textcolors=[255,2,4],charsize=1.3
