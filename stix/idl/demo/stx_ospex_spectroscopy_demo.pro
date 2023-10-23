@@ -321,34 +321,6 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
 
   ospex_obj_l1-> dofit
 
-  solar_radius = (sxpar(primary_header, 'RSUN_ARC'))
-  spex_source_angle = asin( (sqrt(total(flare_loc^2.))/solar_radius) < 1) * !radeg
-
-  ospex_obj_l1->set, spex_source_angle = spex_source_angle
-
-  ;the fit is done using a combination of thermal (f_vth) and non-thermal power-law (f_thick2) functions plus an albedo component
-  fit_function= 'vth+thick2+albedo'
-
-
-  ;As there are a limited number of science energy channels the non-thermal thick target fit is limited to a
-  ;single powerlaw index.
-  ;Emission Measure, Temperature, Thick target normalisation, Power-law index of the electron flux distribution function below
-  ;the break energy and the low energy cutoff are free all other parameters are fixed.
-  fit_comp_free_mask= [1B, 1B, 0B, 1B, 1B, 0B, 0B, 1B, 0B ,0B]
-
-  ;For the other fitting parameters the OSPEX defaults are adequate
-  fit_comp_minima= [1.00000e-20, 0.500000, 0.0100000, 1.00000e-10, 1.10000, $
-    1.00000, 1.10000, 1.00000, 100.000,0.1]
-  fit_comp_maxima= [1.00000e+20, 8.00000, 10.0000, 1.00000e+10, 20.0000, 100000., $
-    20.0000, 1000.00, 1.00000e+07,10]
-  fit_comp_spectrum = ['full', '','']
-  fit_comp_model = ['chianti', '','']
-
-  ospex_obj_l1-> set, fit_function = fit_function
-  ospex_obj_l1-> set, fit_comp_params = fit_comp_params
-  ospex_obj_l1-> set, fit_comp_minima = fit_comp_minima
-  ospex_obj_l1-> set, fit_comp_maxima= fit_comp_maxima
-  ospex_obj_l1-> dofit
 
   ;*********************************************** 6 - COMPARISON ******************************************************
   ;Compare the results of the three different approaches to fitting a given interval
@@ -412,4 +384,36 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
 
 
   stop
+  
+  ;*********************************************** 7 - INCLUDING ALBEDO ******************************************************
+
+  solar_radius = (sxpar(primary_header, 'RSUN_ARC'))
+  spex_source_angle = asin( (sqrt(total(flare_loc^2.))/solar_radius) < 1) * !radeg
+
+  ospex_obj_l1->set, spex_source_angle = spex_source_angle
+
+  ;the fit is done using a combination of thermal (f_vth) and non-thermal power-law (f_thick2) functions plus an albedo component
+  fit_function= 'vth+thick2+albedo'
+
+
+  ;As there are a limited number of science energy channels the non-thermal thick target fit is limited to a
+  ;single powerlaw index.
+  ;Emission Measure, Temperature, Thick target normalisation, Power-law index of the electron flux distribution function below
+  ;the break energy and the low energy cutoff are free all other parameters are fixed.
+  fit_comp_free_mask= [1B, 1B, 0B, 1B, 1B, 0B, 0B, 1B, 0B ,0B]
+
+  ;For the other fitting parameters the OSPEX defaults are adequate
+  fit_comp_minima= [1.00000e-20, 0.500000, 0.0100000, 1.00000e-10, 1.10000, $
+    1.00000, 1.10000, 1.00000, 100.000,0.1]
+  fit_comp_maxima= [1.00000e+20, 8.00000, 10.0000, 1.00000e+10, 20.0000, 100000., $
+    20.0000, 1000.00, 1.00000e+07,10]
+  fit_comp_spectrum = ['full', '','']
+  fit_comp_model = ['chianti', '','']
+
+  ospex_obj_l1-> set, fit_function = fit_function
+  ospex_obj_l1-> set, fit_comp_params = fit_comp_params
+  ospex_obj_l1-> set, fit_comp_minima = fit_comp_minima
+  ospex_obj_l1-> set, fit_comp_maxima= fit_comp_maxima
+  ospex_obj_l1-> dofit
+
 end
