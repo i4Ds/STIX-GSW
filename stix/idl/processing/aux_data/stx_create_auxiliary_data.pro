@@ -83,6 +83,8 @@ if ~nb_within then begin
            (time_middle-time_data[t_before]) * aux_data_str[t_after].Z_SRF) / $
            (time_data[t_after]-time_data[t_before])
   sigma_X = 0.  &  sigma_Y = 0.
+  ; convert to single precision
+  X_SAS = float(X_SAS)  &  Y_SAS = float(Y_SAS)
 
   ; Apparent solar radius (arcsec)
   RSUN = ((time_data[t_after]-time_middle) * aux_data_str[t_before].spice_disc_size + $
@@ -167,6 +169,7 @@ if ~X_SAS.isnan() and ~Y_SAS.isnan() then begin
     print, X_SAS, Y_SAS, format='(" --- found (Y_SRF, -Z_SRF) = ", F7.1,",",F7.1)'
     print, sigma_X, sigma_Y, format='("                 std. dev. = ", F7.1,",",F7.1)'
   endif
+  
   ; Correct SAS solution for systematic error measured in 2021
   X_SAS += offset_X  &  Y_SAS += offset_Y
   sas_pointing = [X_SAS, Y_SAS]

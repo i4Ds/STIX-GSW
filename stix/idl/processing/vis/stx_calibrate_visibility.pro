@@ -19,11 +19,9 @@
 ;
 ; KEYWORDS:
 ; 
-;   phase_calib_factors: 32-element array containing the phase calibration factors for each detectors (degrees).
+;   phase_calib_factors: 32-element array containing the phase calibration factors for each detector (degrees).
 ;                        The default phase calibration factors consist of four terms:
 ;                         - a grid correction factor, which keeps into account the phase of the front and the rear grid;
-;                         - a projection correction factor, if the 'xy_flare' estimate of the flare location is provided 
-;                           in the visibility structure;
 ;                         - an "ad hoc" phase correction factor, which removes systematic residual errors. 
 ;                           The cause of these systematic errors is still under investigation;
 ;                         - a factor which is added so that the reconstructed image is centered in the 
@@ -46,6 +44,8 @@
 ;   Calibrated 'stx_visibility' structure.
 ;
 ; HISTORY: August 2022, Massa P., created
+;          July 2023, Massa P., removed visibility phase 'projection correction' since the new definition of 
+;          (u,v)-points is adopted (see stx_uv_points).
 ;
 ; CONTACT:
 ;   paolo.massa@wku.edu
@@ -63,26 +63,17 @@ modulation_efficiency = !pi^3./(8.*sqrt(2.))
 
 ;; Grid phase correction
 tmp = read_csv(loc_file( 'GridCorrection.csv', path = getenv('STX_VIS_PHASE') ), header=header, table_header=tableheader, n_table_header=2 )
-grid_phase_corr = tmp.field2[vis.ISC - 1]; * (-vis.phase_sense)
-
-;; Projection correction factor
-xy_flare = vis[0].XY_FLARE
-phase_proj_corr  = fltarr(n_vis)
-if ~xy_flare[0].isnan() then begin
-  proj_corr_factor = -xy_flare[0] * 360. * !pi / (180. * 3600. * 8.8) * (r2d_sep + f2r_sep/2.)
-  phase_proj_corr = phase_proj_corr + proj_corr_factor
-  ;phase_proj_corr  = phase_proj_corr * (-vis.phase_sense)
-endif
+grid_phase_corr = tmp.field2[vis.ISC - 1]
 
 ;; "Ad hoc" phase correction (for removing residual errors)
 tmp = read_csv(loc_file( 'PhaseCorrFactors.csv', path = getenv('STX_VIS_PHASE')), header=header, table_header=tableheader, n_table_header=3 )
-ad_hoc_phase_corr = tmp.field2[vis.ISC - 1]; * (-vis.phase_sense)
+ad_hoc_phase_corr = tmp.field2[vis.ISC - 1]
 
 ;; Mapcenter correction
 phase_mapcenter_corr = -2 * !pi * (vis.XYOFFSET[0] * vis.U + vis.XYOFFSET[1] * vis.V ) * !radeg
 
 default, amp_calib_factors, fltarr(n_vis) + modulation_efficiency
-default, phase_calib_factors, grid_phase_corr + ad_hoc_phase_corr + phase_proj_corr + phase_mapcenter_corr
+default, phase_calib_factors, grid_phase_corr + ad_hoc_phase_corr + phase_mapcenter_corr
 default, syserr_sigamp, 0.05 ;; 5% systematic error in the visibility amplitudes; arbitrary choice
 
 if vis[0].CALIBRATED eq 1 then message, "This visibility structure is already calibrated"
