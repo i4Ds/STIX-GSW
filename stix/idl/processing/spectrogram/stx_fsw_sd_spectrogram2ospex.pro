@@ -73,17 +73,16 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
   if (keyword_set(gtrans32) and n_elements(flare_location) ne 0) then begin
     grid_factors_proc = stx_subc_transmission(flare_location, ph_in)
 
+    nph = n_elements(ph_in)
+    ngrids = n_elements(grids_used)
+    
     ;05-Oct-2022 - ECMD until fine grid tranmission is ready replace the 
     ;grids not in TOP24 with the on-axis tabulated values
     idx_nontop24 = stx_label2det_ind('bkg+cfl+fine')
   
-    grid_factors_proc[*,idx_nontop24] = transpose(rebin(grid_factors_file[idx_nontop24],n_elements(idx_nontop24),n_elements(ph_in)))
-<<<<<<< HEAD
-    grid_factors  = average(grid_factors_proc[*,grids_used],2)
-=======
-    grid_factors  = average(rebin(grid_factors_proc[*,grids_used],n_elements(ph_in), n_elements(grids_used)),2)
->>>>>>> d3155da (fix grid factor rebinning)
-    grid_factor = grid_factors
+    grid_factors_proc[*,idx_nontop24] = transpose(rebin(grid_factors_file[idx_nontop24],n_elements(idx_nontop24),nph))
+    grid_factor = average(reform(rebin(grid_factors_proc[*,grids_used], nph, ngrids), nph, ngrids),2)
+        
   endif else begin
     print, 'Using nominal (on axis) grid transmission'
     grid_factor = average(grid_factors_file[grids_used])
@@ -95,6 +94,7 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
       print, 'Using nominal (on axis) grid transmission for background detector'
       grid_transmission_file =  concat_dir(getenv('STX_GRID'), 'nom_bkg_grid_transmission.txt')
       readcol, grid_transmission_file, bk_grid_factors, format = 'f', skip = 2
+      
       grid_factor = average(bk_grid_factors[pixels_used])
 
     endif else begin
