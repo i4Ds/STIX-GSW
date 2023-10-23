@@ -30,7 +30,7 @@
 ;-
 function stx_check_fits_compatibility, fits_path
 
-  fits_data = mrdfits( fits_path, 0, primary_header, silent = silent, /unsigned )
+  fits_data = mrdfits( fits_path, 0, primary_header, /silent, /unsigned )
 
   processing_level = sxpar(primary_header,'level')
 
