@@ -24,6 +24,7 @@
 ;           30-jun-2019, RAS, added tvac reader for h5 file
 ;           01-jul-2019, RAS, use time2file for date string, change reader in stx_calib_fit_data_prep
 ;           31-aug-2022, ECMD, alternative option to produce a starlet compatible version 
+;           11-jul-2023, ECMD, allow pass in of energy bin edges and non-integer edge values
 ;           
 ;-
 pro stx_write_elut, gain_in, offset_in, h5 = h5, scale = scale, table_header = table_header, path = path, $
