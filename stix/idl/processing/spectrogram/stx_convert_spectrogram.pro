@@ -103,7 +103,7 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
 
 
   default, plot, 1
-  default, elut_correction, 0 
+  default, elut_correction, 1 
   
   stx_read_spectrogram_fits_file, fits_path_data, time_shift, primary_header = primary_header, data_str = data_str, data_header = data_header, control_str = control_str, $
     control_header= control_header, energy_str = energy_str, energy_header = energy_header, t_axis = t_axis, energy_shift = energy_shift,  e_axis = e_axis , use_discriminators = 0,$
