@@ -35,6 +35,8 @@
 
 function stx_subc_transmission, flare_loc, ph_in, flux = flux 
 
+  default, ph_in, 1. 
+
   restore,loc_file( 'grid_temp2.sav', path = getenv('STX_GRID') )
   fff=read_ascii(loc_file( 'grid_param_front.txt', path = getenv('STX_GRID') ),temp=grid_temp)
   rrr=read_ascii(loc_file( 'grid_param_rear.txt', path = getenv('STX_GRID') ),temp=grid_temp)
@@ -46,7 +48,7 @@ function stx_subc_transmission, flare_loc, ph_in, flux = flux
 
   linear_attenuation = mass_attenuation*gmcm/10.
 
-  theta = sqrt( ( flare_loc[0]* flare_loc[0]) +( flare_loc[1]* flare_loc[1]) ) / 3600./!radeg
+  theta = sqrt( ( flare_loc[0]* flare_loc[0]) + ( flare_loc[1]* flare_loc[1]) ) / 3600./!radeg
   costheta = cos( theta )
 
 
