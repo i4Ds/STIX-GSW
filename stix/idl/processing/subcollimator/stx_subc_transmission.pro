@@ -26,6 +26,7 @@
 ; HISTORY: August 2022, Massa P., first version (working only for detectors 3 to 10)
 ;          11-Jul-2023, ECMD (Graz), updated following Recipe for STIX Flux and Amplitude Calibration (8-Nov 2022 gh)
 ;                                    to include transparency and corner cutting for pure Tungsten grids
+;          24-Oct-2023, ECMD (Graz), added default to calculate low energy approximation if no input photon energies are passed                  
 ;
 ; CONTACT:
 ;   paolo.massa@wku.edu
@@ -33,6 +34,11 @@
 
 
 function stx_subc_transmission, flare_loc, ph_in
+
+if ~keyword_set(ph_in) then begin
+  message, 'No photon energies passed, calculating low energy approximation at 1 keV.', /info
+  ph_in = 1.
+endif
 
   restore,loc_file( 'grid_temp.sav', path = getenv('STX_GRID') )
   fff=read_ascii(loc_file( 'grid_param_front.txt', path = getenv('STX_GRID') ),temp=grid_temp)
@@ -45,7 +51,7 @@ function stx_subc_transmission, flare_loc, ph_in
 
   linear_attenuation = mass_attenuation*gmcm/10.
 
-  theta = sqrt( ( flare_loc[0]* flare_loc[0]) +( flare_loc[1]* flare_loc[1]) ) / 3600./!radeg
+  theta = sqrt( ( flare_loc[0]* flare_loc[0]) + ( flare_loc[1]* flare_loc[1]) ) / 3600./!radeg
   costheta = cos( theta )
 
 
