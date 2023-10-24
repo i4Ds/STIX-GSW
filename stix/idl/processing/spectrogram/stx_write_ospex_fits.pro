@@ -164,7 +164,7 @@ pro stx_write_ospex_fits, $
 
   fxaddpar, specheader, 'REQUEST_ID', fits_info_params.uid, "Unique Request ID for the Observation", before='AUTHOR'
   fxaddpar, specheader, 'SUN_DISTANCE', fits_info_params.distance, "Distance in AU to Sun", before='AUTHOR'
-  fxaddpar, specheader, 'GRID_FACTOR', (fits_info_params.grid_factor.toarray())[0], "Total Grid Transmission Factor", before='AUTHOR'
+  fxaddpar, specheader, 'GRID_FACTOR', ((fits_info_params.grid_factor.toarray())[0]), "Total Grid Transmission Factor", before='AUTHOR'
   fxaddpar, specheader, 'ELUT_FILENAME', fits_info_params.elut_file, "Filename of ELUT", before='AUTHOR'
   fxaddpar, specheader, 'DETUSED', fits_info_params.detused, "Label for detectors used", before='AUTHOR'
   fxaddpar, specheader, 'DETNAM', fits_info_params.detused, "Label for detectors used", before='AUTHOR'
