@@ -406,5 +406,9 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
 
 
   stop
+ 
+ obj_destroy, ospex_obj_spec
+ obj_destroy, ospex_obj_spec_bksub
+ obj_destroy, ospex_obj_cpd
 
 end
