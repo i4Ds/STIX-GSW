@@ -290,7 +290,10 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
 
   phe = transmission.field9
   phe = phe[where(phe gt emin-1 and phe lt 2*emax)]
-  edge_products, phe, mean = mean_phe, width = w_phe
+  
+  ph_edges = stx_drm_photon_edges(phe)
+  
+  edge_products, ph_edges, mean = mean_phe, width = w_phe
   ph_in = [mean_phe[0] - w_phe[0], mean_phe]
 
   ospex_obj = stx_fsw_sd_spectrogram2ospex( spectrogram, specpar = specpar, time_shift= time_shift, ph_energy_edges = ph_in, $
