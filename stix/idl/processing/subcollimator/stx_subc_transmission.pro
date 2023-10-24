@@ -27,6 +27,7 @@
 ;          11-Jul-2023, ECMD (Graz), updated following Recipe for STIX Flux and Amplitude Calibration (8-Nov 2022 gh)
 ;                                    to include transparency and corner cutting for pure Tungsten grids
 ;          17-Jul-2023, ECMD (Graz), including roughness parameter
+;          24-Oct-2023, ECMD (Graz), added default to calculate low energy approximation if no input photon energies are passed
 ;
 ; CONTACT:
 ;   paolo.massa@wku.edu
@@ -35,7 +36,11 @@
 
 function stx_subc_transmission, flare_loc, ph_in, flux = flux 
 
-  default, ph_in, 1. 
+if ~keyword_set(ph_in) then begin
+message, 'No photon energies passed, calculating low energy approximation at 1 keV.', /info
+ph_in = 1.
+endif
+
 
   restore,loc_file( 'grid_temp2.sav', path = getenv('STX_GRID') )
   fff=read_ascii(loc_file( 'grid_param_front.txt', path = getenv('STX_GRID') ),temp=grid_temp)
