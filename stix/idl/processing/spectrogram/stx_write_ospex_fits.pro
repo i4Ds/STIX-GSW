@@ -171,7 +171,7 @@ pro stx_write_ospex_fits, $
   fxaddpar, specheader, 'SUMFLAG', 1, "Detectors are summed", before='AUTHOR'
 
   fxaddpar, srmheader, 'SUN_DISTANCE', fits_info_params.distance, "Distance in AU to Sun", before='AUTHOR'
-  fxaddpar, srmheader, 'GRID_FACTOR', (fits_info_params.grid_factor.toarray())[0], "Total Grid Transmission Factor used", before='AUTHOR'
+  fxaddpar, srmheader, 'GRID_FACTOR', ((fits_info_params.grid_factor.toarray())[0]), "Total Grid Transmission Factor used", before='AUTHOR'
   fxaddpar, srmheader, 'DETUSED', fits_info_params.detused, "Label for detectors used", before='AUTHOR'
   fxaddpar, srmheader, 'DETNAM', fits_info_params.detused, "Label for detectors used", before='AUTHOR'
   fxaddpar, srmheader, 'SUMFLAG', 1, "Detectors are summed", before='AUTHOR'
