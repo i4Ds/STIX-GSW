@@ -86,7 +86,7 @@ bridge_factor =1.0
 
   amplitude_calibration = (1. - slat_transmission) * bridge_factor * sin(!pi * effective_slit_width / grid_pitch_e )
 
-  transmission = keyword_set(flux) ? amplitude_calibration : flux_calibration
+  transmission = keyword_set(flux) ? flux_calibration : amplitude_calibration 
 
   ; factors are relative to 0.5 value for ideal grids
   return, transmission/2.
