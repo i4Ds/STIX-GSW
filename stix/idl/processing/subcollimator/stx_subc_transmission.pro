@@ -34,27 +34,33 @@
 ;-
 
 
-function stx_subc_transmission, flare_loc, ph_in, flux = flux 
-
-if ~keyword_set(ph_in) then begin
-message, 'No photon energies passed, calculating low energy approximation at 1 keV.', /info
-ph_in = 1.
-endif
+function stx_subc_transmission, flare_loc, ph_in, flux = flux
 
 
   restore,loc_file( 'grid_temp2.sav', path = getenv('STX_GRID') )
   fff=read_ascii(loc_file( 'grid_param_front.txt', path = getenv('STX_GRID') ),temp=grid_temp)
   rrr=read_ascii(loc_file( 'grid_param_rear.txt', path = getenv('STX_GRID') ),temp=grid_temp)
 
-  transm = fltarr(n_elements(ph_in),32)
+; To determine the transmission through the tungsten slats a Linear Attenuation Coefficient [mm-1] 
+; (1/absorption length in mm) is estimated for an each expected incoming photon energy and passed to stx_grid_transmission. 
+; The mass attenuation coefficient [cm^2/gm] is calculated using the xcom tabulated values in xsec.pro 
+; and a value of 19.3 g/cm3 is used for the density of tungsten. This is then divided by 10 to convert from [cm-1] to [mm-1].
+;
+; For backwards compatibility if no photon energy array is passed in the transmission is calculated for 1 keV
+; (the lowest tabulated value). This should provide a reasonable approximation to the previously assumed 
+; fully opaque grids. 
 
-  mass_attenuation = xsec(ph_in, 74,'AB',/cm2perg, error=error,use_xcom=1)
+  if ~keyword_set(ph_in) then begin
+    message, 'No photon energies passed, calculating low energy approximation at 1 keV.', /info
+    ph_in = 1.
+  endif
+
+  transm = fltarr(n_elements(ph_in), 32) ; the tranmission is calculated 
+
+  mass_attenuation = xsec(ph_in, (Element2Z('W'))[0], 'AB', /cm2perg, error=error, use_xcom=1)
   gmcm = 19.30
 
   linear_attenuation = mass_attenuation*gmcm/10.
-
-  theta = sqrt( ( flare_loc[0]* flare_loc[0]) + ( flare_loc[1]* flare_loc[1]) ) / 3600./!radeg
-  costheta = cos( theta )
 
 
   grid_orient_front = 180.-fff.o ;; Orientation of the slits of the grid as seen from the detector side
