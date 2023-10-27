@@ -81,7 +81,7 @@ function stx_grid_transmission, x_flare, y_flare, grid_orient, grid_pitch, grid_
 
   amplitude_calibration = (1. - slat_transmission) * bridge_factor * sin(!pi * effective_slit_width / grid_pitch_e )
 
-  transmission = n_elements(flux) eq 0 ? amplitude_calibration : flux_calibration
+  transmission = keyword_set(flux) ? flux_calibration : amplitude_calibration 
 
   ; factors are relative to 0.5 value for ideal grids
   return, transmission/2.
