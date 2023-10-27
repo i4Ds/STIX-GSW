@@ -22,14 +22,14 @@ simu_data_file = param_dir + getenv('SAS_DATA_SIMU')
 ;
 print,"Reading L1 data file..."
 
-one_day = '20230330'    ; case where the HK file contains too many rows (duplicate entries, many with duration close to 0)
+; one_day = '20230330'    ; case where the HK file contains too many rows (duplicate entries, many with duration close to 0)
 ; one_day = '20220509'    ; solar distance gets beyond 0.75 AU at the end of that day
 ; one_day = '20230321'    ; pointing mostly at Sun centre, with a flat-field calib. from 19:00 to 20:00
-; one_day = '20230329'    ; includes pointing at pole, and other off-centre pointings
+one_day = '20230329'    ; includes pointing at pole, and other off-centre pointings, and too many rows in HK file
 
 in_file = "solo_L1_stix-hk-maxi_"+one_day+"_V01.fits"
 data = prepare_aspect_data(data_dir + in_file, quiet=0)
-show_info, data
+stx_show_sas_info, data
 
 print,"Calibrating data..."
 ; First, substract dark currents and applies relative gains
@@ -44,7 +44,7 @@ stx_remove_bad_sas_data, data_calib
 stx_auto_scale_sas_data, data_calib, simu_data_file, aperfile
 
 print,"Plotting the signals..."
-show_info, data_calib
+stx_show_sas_info, data_calib
 plot4sig, data_calib
 
 ; apply same calibration correction factor to all data (including data points that were removed due to errors)

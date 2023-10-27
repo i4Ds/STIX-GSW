@@ -37,8 +37,10 @@ pro stx_remove_bad_sas_data, data
                 chb_diode0: data[good[i]].chb_diode0, chb_diode1: data[good[i]].chb_diode1, $
                 time: data[good[i]].time, duration: data[good[i]].duration, $
                 spice_disc_size: data[good[i]].spice_disc_size, $
+                scet_time_c: data[good[i]].scet_time_c, scet_time_f: data[good[i]].scet_time_f, $
                 y_srf: data[good[i]].y_srf, z_srf: data[good[i]].z_srf, $
-                calib: data[good[i]].calib, sas_ok : 1, error : ""}
+                calib: data[good[i]].calib, sas_ok : 1, error : "", $
+                control_index: data[good[i]].control_index, parentfits: data[good[i]].parentfits}
     result = [result, one_data]
   endfor
   data = result
