@@ -76,11 +76,12 @@
 ;    15-Dec-2023 - AFB (FHNW), keyword time_range added, to extract only a sub-interval
 ;    31-Jan-2023 - AFB (FHNW), it is now possible to pass multiple FITS files in fits_path and the output
 ;                              structure will be the concatenation of all the input files
+;    19-Jun-2023 - ECMD (Graz), added _extra keyword for pass through to stx_convert_... routines as suggested by ianan
 ;
 ;-
 function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time_min = time_min,  $
   fits_path_bk =  fits_path_bk, plot_obj = plot_obj, time_shift = time_shift, rate = rate, shift_duration = shift_duration, $
-  det_ind = det_ind, pix_ind = pix_ind, sys_uncert = sys_uncert, time_range = time_range
+  det_ind = det_ind, pix_ind = pix_ind, sys_uncert = sys_uncert, time_range = time_range, _extra= _extra
 
 
   default, time_min, 20
@@ -101,7 +102,7 @@ function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time
   !null = mrdfits(fits_path[0], 0, primary_header)
   orig_filename = sxpar(primary_header, 'FILENAME')
 
-  ; Multiple FITS files can be providedand the output will be the concatenation of all files
+  ; Multiple FITS files can be provided and the output will be the concatenation of all files
   nfiles = n_elements(fits_path)
   data_all = []
   error_all = []
@@ -109,7 +110,7 @@ function stx_science_data_lightcurve, fits_path, energy_ranges = edges_in,  time
   ut2_time_all = []
   duration_all = []
   rcr_all = []
-  for this_file = 0,nfiles-1 do begin
+  for this_file = 0, nfiles-1 do begin
 
     if strpos(orig_filename, 'cpd') gt -1 or strpos(orig_filename, 'xray-l1') gt -1 then begin
       stx_convert_pixel_data, fits_path_data = fits_path[this_file], fits_path_bk =  fits_path_bk, distance = distance, time_shift = time_shift, ospex_obj = ospex_obj, $
@@ -263,10 +264,10 @@ end
 ; :description:
 ;    This takes the demonstration science data files and plots a lightcurve binned to the given energy and time bins.
 ;    Four cases are shown:
-;    1) L4 spectrogram without background subtraction
-;    1) L4 spectrogram with background subtraction
-;    1) L1 pixel data without background subtraction
-;    1) L4 pixel data with background subtraction
+;    1) spectrogram without background subtraction
+;    1) spectrogram with background subtraction
+;    1) pixel data without background subtraction
+;    1) pixel data with background subtraction
 ;
 ;
 ; :categories:
@@ -274,12 +275,13 @@ end
 ;
 ; :history:
 ;    02-Jul-2022 - ECMD (Graz), initial release
+;    23-Oct-2023 - ECMD (Graz), updated demo to L1 files 
 ;
 ;-
 pro stx_demo_lightcurve
 
   ;The files used for this demonstration are hosted on a STIX server and downloaded when the demo is first run
-  site = 'http://dataarchive.stix.i4ds.net/data/demo/ospex/'
+  site = 'http://dataarchive.stix.i4ds.net/fits/L1/2022/02/' 
 
   ;The OSPEX folder in under stx_demo_data will usually start off empty on initial installation of the STIX software
   out_dir = concat_dir( getenv('STX_DEMO_DATA'),'ospex', /d)
@@ -291,27 +293,33 @@ pro stx_demo_lightcurve
 
 
   ;As an example a spectrogram (Level 4) file for a flare on 8th February 2022 is used
-  l4_filename = 'solo_L1A_stix-sci-spectrogram-2202080003_20220208T212353-20220208T223255_035908_V01.fits'
-  sock_copy, site + l4_filename, status = status, out_dir = out_dir
+  spec_filename = 'solo_L1_stix-sci-xray-spec_20220208T212353-20220208T223255_V01_2202080003-58150.fits'
+
+  ;Download the spectrogram fits file to the stix/dbase/demo/ospex/ directory
+  sock_copy, site + '08/SCI/' + spec_filename, status = status, out_dir = out_dir
 
   ;An observation of a non-flaring quiet time close to the flare observation can be used as a background estimate
-  bk_filename  = 'solo_L1A_stix-sci-xray-l1-2202090020_20220209T002720-20220209T021400_036307_V01.fits'
-  sock_copy, site + bk_filename, status = status, out_dir = out_dir
+  bk_filename  = 'solo_L1_stix-sci-xray-cpd_20220209T002721-20220209T021401_V01_2202090020-58535.fits'
+  sock_copy, site + '09/SCI/'+ bk_filename, status = status, out_dir = out_dir
 
   ;As well as the summed spectrogram a pixel data observation of the same event is also available
-  l1_filename = 'solo_L1A_stix-sci-xray-l1-2202080013_20220208T212833-20220208T222055_036275_V01.fits'
-  sock_copy, site + l1_filename, status = status, out_dir = out_dir
+  cpd_filename = 'solo_L1_stix-sci-xray-cpd_20220208T212833-20220208T222055_V01_2202080013-58504.fits'
+  sock_copy, site + '08/SCI/' + cpd_filename, status = status, out_dir = out_dir
+
 
   ;Now they have been dowloaded set the paths of the science data files
-  fits_path_data_l4 = loc_file(l4_filename, path = out_dir )
+  fits_path_data_spec = loc_file(spec_filename, path = out_dir )
   fits_path_bk   = loc_file(bk_filename, path = out_dir )
-  fits_path_data_l1   = loc_file(l1_filename, path = out_dir)
+  fits_path_data_cpd   = loc_file(cpd_filename, path = out_dir)
 
   ; set the example time and energy binning
   time_min = 4
   energy_ranges = [4,6,10,28]
 
-  light_curve_str = stx_science_data_lightcurve(fits_path_data_l4, energy_ranges = energy_ranges, time_min = time_min,  plot_obj = plot_obj )
+  ; for the demo we won't generate FITS files 
+  generate_fits = 0
+  
+  light_curve_str = stx_science_data_lightcurve(fits_path_data_spec, energy_ranges = energy_ranges, time_min = time_min, generate_fits=generate_fits,  plot_obj = plot_obj )
 
   help, light_curve_str
 
@@ -319,19 +327,19 @@ pro stx_demo_lightcurve
   print, " "
   pause
 
-  light_curve_str = stx_science_data_lightcurve(fits_path_data_l4, energy_ranges = energy_ranges, time_min = time_min, fits_path_bk =fits_path_bk,  plot_obj = plot_obj  )
+  light_curve_str = stx_science_data_lightcurve(fits_path_data_spec, energy_ranges = energy_ranges, time_min = time_min, fits_path_bk =fits_path_bk, generate_fits=generate_fits, plot_obj = plot_obj  )
 
   print, "Press SPACE to continue"
   print, " "
   pause
 
-  light_curve_str = stx_science_data_lightcurve(fits_path_data_l1, /is_pixel_data, energy_ranges = energy_ranges, time_min = time_min,  plot_obj = plot_obj)
+  light_curve_str = stx_science_data_lightcurve(fits_path_data_cpd, energy_ranges = energy_ranges, time_min = time_min, generate_fits=generate_fits, plot_obj = plot_obj)
 
   print, "Press SPACE to continue"
   print, " "
   pause
 
-  light_curve_str = stx_science_data_lightcurve(fits_path_data_l1, /is_pixel_data, energy_ranges = energy_ranges, time_min = time_min ,  fits_path_bk = fits_path_bk,  plot_obj = plot_obj )
+  light_curve_str = stx_science_data_lightcurve(fits_path_data_cpd, energy_ranges = energy_ranges, time_min = time_min,  fits_path_bk = fits_path_bk,  generate_fits=generate_fits, plot_obj = plot_obj )
 
   print, "Press SPACE to end demo"
   print, " "
