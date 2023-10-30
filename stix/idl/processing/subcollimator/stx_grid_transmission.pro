@@ -53,10 +53,8 @@
 function stx_grid_transmission, x_flare, y_flare, grid_orient, grid_pitch, grid_slit, grid_thick, $
   bridge_width, bridge_pitch, roughness, linear_attenuation, flux = flux
 
-  default, flux, 1
 
   bridge_factor = 1.0 - f_div(bridge_width,bridge_pitch)
-bridge_factor =1.0
 
   ;; Distance of the flare on the axis perpendicular to the grid orientation
   flare_dist   = abs(x_flare * cos(grid_orient * !dtor) + y_flare * sin(grid_orient * !dtor))
