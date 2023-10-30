@@ -79,6 +79,7 @@
 ;    13-Feb-2023 - FSc (AIP), adapted to recent changes in L1 files
 ;    15-Mar-2023 - ECMD (Graz), updated to handle release version of L1 FITS files
 ;    27-Mar-2023 - ECMD (Graz), added check for duration shift already applied in FITS file
+;    13-Sep-2023 - ECMD (Graz), respect shift_duration if file is "possibly summed on board".
 ;
 ;-
 pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
@@ -134,7 +135,7 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   if ~keyword_set(keep_short_bins) and (anytim(hstart_time) lt anytim('2020-11-25T00:00:00') ) then $
     message, 'Automatic short bin removal should not be attempted on observations before 25-Nov-20'
 
-  shift_duration = shift_duration && ~duration_shifted && ~duration_shift_not_possible
+  shift_duration = shift_duration && ~duration_shifted 
 
   if keyword_set(shift_duration) and (anytim(hstart_time) gt anytim('2021-12-09T00:00:00') ) then $
     message, 'Shift of duration with respect to time bins is no longer needed after 09-Dec-21'
