@@ -37,7 +37,7 @@ function stx_check_energy_shift, start_time
   ; If time range of observation is during Nov 2020 RSCW apply average energy shift of -1.6 keV by default
   expected_energy_shift = (anytim(start_time) gt anytim('2020-11-15T00:00:00') $
     and anytim(start_time) lt anytim('2020-12-04T00:00:00')) $
-    ? -1.6 : 0
+    ? -1.6 : 0.
 
   if expected_energy_shift ne 0 then begin
     print, '***********************************************************************'
