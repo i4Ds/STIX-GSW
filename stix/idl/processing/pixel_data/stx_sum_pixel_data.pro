@@ -63,6 +63,7 @@
 ;                     (1 if the corresponding detector has been used, 0 otherwise)
 ;
 ; HISTORY: August 2022, Massa P., created
+;          October 2023, Massa P., fixed bug in the estimation of the total number of bkg counts 
 ;
 ; CONTACT:
 ;   paolo.massa@wku.edu
@@ -134,17 +135,22 @@ live_time          = cmreplicate(pixel_data.LIVE_TIME, 4)
 count_rates        = f_div(count_rates,live_time)
 counts_rates_error = f_div(counts_rates_error,live_time)
 
+;; Compute live time fraction of each detector. It is used for computing the total number of bkg counts 
+time_range = stx_time2any(pixel_data.TIME_RANGE)
+live_time_fraction = pixel_data.LIVE_TIME/(time_range[1]-time_range[0])
+
 live_time_bkg         = pixel_data.LIVE_TIME_BKG
-tot_counts_bkg        = total(f_div(tot_counts_bkg,live_time_bkg[subc_index]))
+;; Estimate of the background counts in the image: only a fraction proportional to the time range
+;; Multiply total number of bkg counts by the live time fraction of the science data. 
+;; In this way, we keep into account that the live time fraction can be different between science and bkg data  
+tot_counts_bkg = total(f_div(tot_counts_bkg*live_time_fraction[subc_index],live_time_bkg[subc_index])) $
+                  * (time_range[1]-time_range[0])
+
 live_time_bkg         = cmreplicate(pixel_data.LIVE_TIME_BKG, 4)
 count_rates_bkg       = f_div(count_rates_bkg,live_time_bkg)
 count_rates_error_bkg = f_div(count_rates_error_bkg,live_time_bkg)
 
 ;;************** Print total number of counts
-
-time_range = stx_time2any(pixel_data.TIME_RANGE)
-;; Estimate of the backgorund counts in the image: only a fraction proportinal to the time range
-tot_counts_bkg = tot_counts_bkg * (time_range[1]-time_range[0])
 
 if ~silent then begin
   
