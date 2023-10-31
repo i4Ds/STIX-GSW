@@ -35,9 +35,10 @@ pro stx_remove_bad_sas_data, data
     one_data = {stx_aspect_dto, $
                 cha_diode0: data[good[i]].cha_diode0, cha_diode1: data[good[i]].cha_diode1, $
                 chb_diode0: data[good[i]].chb_diode0, chb_diode1: data[good[i]].chb_diode1, $
-                time: data[good[i]].time, duration: data[good[i]].duration, $
-                spice_disc_size: data[good[i]].spice_disc_size, $
+                time: data[good[i]].time, $
                 scet_time_c: data[good[i]].scet_time_c, scet_time_f: data[good[i]].scet_time_f, $
+                duration: data[good[i]].duration, $
+                spice_disc_size: data[good[i]].spice_disc_size, $
                 y_srf: data[good[i]].y_srf, z_srf: data[good[i]].z_srf, $
                 calib: data[good[i]].calib, sas_ok : 1, error : "", $
                 control_index: data[good[i]].control_index, parentfits: data[good[i]].parentfits}
