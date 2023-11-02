@@ -24,10 +24,26 @@
 ;
 ;-
 
-pro process_SAS_data, data, calibfile, simu_data_file, aperfile, cal_factor=cal_factor
+pro process_SAS_data, data, calib_file, simu_data_file, aperfile, cal_factor=cal_factor
   default, cal_factor, 1.
 
-  calib_sas_data, data, calibfile, factor=cal_factor
-  auto_scale_sas_data, data, simu_data_file, aperfile
-  derive_aspect_solution, data, simu_data_file, /interpol_r, /interpol_xy
+  ; First, substract dark currents and applies relative gains
+  stx_calib_sas_data, data, calib_file, factor=cal_factor
+  ; copy result in a new object
+  data_calib = data
+  ; remove data points with some error detected during calibration
+  stx_remove_bad_sas_data, data_calib
+
+  ; Now automatically compute global calibration correction factor and applies it
+  stx_auto_scale_sas_data, data_calib, simu_data_file, aperfile
+
+  ; apply same calibration correction factor to all data (including data points that were removed due to errors)
+  cal_corr_factor = data_calib[0].calib
+  data.CHA_DIODE0 *= cal_corr_factor
+  data.CHA_DIODE1 *= cal_corr_factor
+  data.CHB_DIODE0 *= cal_corr_factor
+  data.CHB_DIODE1 *= cal_corr_factor
+
+  ; Compute aspect solution
+  stx_derive_aspect_solution, data, simu_data_file, /interpol_r, /interpol_xy
 end
