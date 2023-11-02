@@ -247,6 +247,7 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
     counts:counts ,$
     counts_err: counts_err ,$
     rcr: rcr,$
+    energy_bin_mask:energy_bin_mask,$
     control_index:control_index,$
     pixel_masks:data.pixel_masks,$
     detector_masks:data.detector_masks,$
