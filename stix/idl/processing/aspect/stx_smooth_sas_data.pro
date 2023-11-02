@@ -50,17 +50,39 @@ pro stx_smooth_sas_data, data
   new_dura = fltarr(new_dim)
   for i=0,new_dim-1 do new_dura[i] = data[2*i].duration + data[2*i+1].duration
 
+  ; also rebin SCET times ...
+  new_scet_c = rebin(data[0:2*new_dim-1].scet_time_c,new_dim)
+  new_scet_f = rebin(data[0:2*new_dim-1].scet_time_f,new_dim)
+  ; ... as well as CONTROL_INDEX and PARENTFITS
+  new_control = rebin(data[0:2*new_dim-1].control_index,new_dim)
+  new_parentfits = rebin(data[0:2*new_dim-1].parentfits,new_dim)
+  
   ; ERROR strings: keep an error message if present for one of the two rebinned values
   new_err = strarr(new_dim)
+  new_sas_ok = intarr(new_dim)
   for i=0,new_dim-1 do if data[2*i].ERROR then new_err[i] = data[2*i].ERROR
   for i=0,new_dim-1 do if data[2*i+1].ERROR then new_err[i] = data[2*i+1].ERROR
-    
+  for i=0,new_dim-1 do if (data[2*i].sas_ok eq 1 AND data[2*i+1].sas_ok eq 1) then new_sas_ok[i] = 1
+
   ; build new array of data structures
   for i=0,new_dim-1 do begin
-    ; FSc, 2022-02-15: use anonymous structure here to be independant of changes made to STX_ASPECT_DTO on STIXcore side
-    a = {cha_diode0: new_sigA[i], cha_diode1: new_sigB[i], chb_diode0: new_sigC[i], chb_diode1: new_sigD[i], $
-         time: new_utc[i], duration: new_dura[i], spice_disc_size: new_rsol[i], y_srf: new_y[i], z_srf: new_z[i], $
-         calib: new_cal[i], error: new_err[i]}
+    a = {stx_aspect_dto, $
+         cha_diode0: new_sigA[i],$
+         cha_diode1: new_sigB[i],$
+         chb_diode0: new_sigC[i],$
+         chb_diode1: new_sigD[i],$
+         time: new_utc[i],$
+         scet_time_c: new_scet_c[i],$
+         scet_time_f: new_scet_f[i],$
+         duration: new_dura[i],$
+         spice_disc_size: new_rsol[i], $
+         y_srf: new_y[i],$
+         z_srf: new_z[i],$
+         calib: new_cal[i],$
+         sas_ok: new_sas_ok[i],$
+         error: new_err[i], $
+         control_index: new_control[i],$
+         parentfits: new_parentfits[i]}
     if i eq 0 then data = [a] else data = [data, a]
   endfor
 
