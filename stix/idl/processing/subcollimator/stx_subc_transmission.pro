@@ -55,8 +55,9 @@ function stx_subc_transmission, flare_loc, ph_in, flux = flux, simple_transm = s
 ; fully opaque grids. 
 
   if ~keyword_set(ph_in) then begin
-    message, 'No photon energies passed, calculating low energy approximation at 1 keV.', /info
     ph_in = 1.
+    if ~keyword_set(simple_transm) then message, 'No photon energies passed, calculating low energy approximation at 1 keV.', /info $
+    else message, 'Simple grid transmission selected, calculating opaque approximation.', /info
   endif
 
   transm = fltarr(n_elements(ph_in), 32) ; the tranmission is calculated 
