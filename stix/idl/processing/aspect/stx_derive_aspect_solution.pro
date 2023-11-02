@@ -28,7 +28,7 @@
 ;   2022-01-18, FSc: added optional arguments 'interpol_r' and 'interpol_xy'; major rewriting
 ;   2022-01-28, FSc (AIP) : adapted to STX_ASPECT_DTO structure
 ;   2022-04-22, FSc (AIP) : changed name from "derive_aspect_solution" to "stx_derive_aspect_solution"
-;   
+;   2023-09-19, FSc (AIP) : implemented more error messages
 ;-
 
 function solve_aspect_one_plane, inputA_B, inputC_D, plane_AB, plane_CD, all_X, all_Y, max_iter=max_iter, delta_conv=delta_conv, interpol_xy=interpol_xy
@@ -37,6 +37,9 @@ function solve_aspect_one_plane, inputA_B, inputC_D, plane_AB, plane_CD, all_X, 
   default, max_iter, 10      ; stop after iterations...
   default, delta_conv, 10.   ; or if successive solutions don't differ by more than 10 mic
 
+  ; Store number of elements along main direction in simulated data
+  nb_X = n_elements(all_X)
+  
   ; Test: if inputA_B or inputC_D is not within the range covered by simulated data,
   ; then we cannot derive any solution: set results to NaN
   if inputA_B lt min(plane_AB) or inputC_D lt min(plane_CD) or $
@@ -82,30 +85,33 @@ function solve_aspect_one_plane, inputA_B, inputC_D, plane_AB, plane_CD, all_X, 
       if n_iter ge max_iter or sol_diff lt delta_conv then do_more = 0
     endwhile
 
-    if keyword_set(interpol_XY) then begin
-      ; refine solution by interpolating between two nearest points on the grid
-      delta_AB = inputA_B - plane_AB[tmpAB,ind_Y_AB]
-      ; by construction, plane_AB[*,ind_Y] is monotonically decreasing, therefore:
-      if delta_AB lt 0 then begin
-        ind_AB_pos = max([0,tmpAB-1])  &  ind_AB_neg = tmpAB
-      endif else begin
-        ind_AB_pos = tmpAB  &  ind_AB_neg = min([tmpAB+1,1000])
-      endelse
-      delta_pos = inputA_B - plane_AB[ind_AB_pos,ind_Y_AB]
-      delta_neg = plane_AB[ind_AB_neg,ind_Y_AB] - inputA_B
-      x_AB = delta_pos / (delta_pos+delta_neg) * all_X[ind_AB_neg] + delta_neg / (delta_pos+delta_neg) * all_X[ind_AB_pos]
+    if keyword_set(interpol_XY) then $
+      ; refine solution by interpolating between two nearest points on the grid,
+      ; but only if not on the edge of the parameter space:
+      if tmpAB gt 0 and tmpAB lt nb_X-1 and tmpCD gt 0 and tmpCD lt nb_X-1 then begin
+        delta_AB = inputA_B - plane_AB[tmpAB,ind_Y_AB]
+        ; At least near Sun centre, plane_AB[*,ind_Y] is monotonically increasing, 
+        ; therefore delta_AB is decreasing. Thus:
+        if delta_AB lt 0 then begin
+          ind_AB_pos = tmpAB-1  &  ind_AB_neg = tmpAB
+        endif else begin
+          ind_AB_pos = tmpAB  &  ind_AB_neg = tmpAB+1
+        endelse
+        delta_pos = inputA_B - plane_AB[ind_AB_pos,ind_Y_AB]
+        delta_neg = plane_AB[ind_AB_neg,ind_Y_AB] - inputA_B
+        x_AB = delta_pos / (delta_pos+delta_neg) * all_X[ind_AB_neg] + delta_neg / (delta_pos+delta_neg) * all_X[ind_AB_pos]
 
-      ; Same game for x_CD
-      delta_CD = inputC_D - plane_CD[tmpCD,ind_Y_CD]
-      if delta_CD lt 0 then begin
-        ind_CD_pos = tmpCD-1  &  ind_CD_neg = tmpCD
-      endif else begin
-        ind_CD_pos = tmpCD  &  ind_CD_neg = tmpCD+1
-      endelse
-      delta_pos = inputC_D - plane_CD[ind_CD_pos,ind_Y_CD]
-      delta_neg = plane_CD[ind_CD_neg,ind_Y_CD] - inputC_D
-      x_CD = delta_pos / (delta_pos+delta_neg) * all_X[ind_CD_neg] + delta_neg / (delta_pos+delta_neg) * all_X[ind_CD_pos]
-    endif
+        ; Same game for x_CD
+        delta_CD = inputC_D - plane_CD[tmpCD,ind_Y_CD]
+        if delta_CD lt 0 then begin
+          ind_CD_pos = tmpCD-1  &  ind_CD_neg = tmpCD
+        endif else begin
+          ind_CD_pos = tmpCD  &  ind_CD_neg = tmpCD+1
+        endelse
+        delta_pos = inputC_D - plane_CD[ind_CD_pos,ind_Y_CD]
+        delta_neg = plane_CD[ind_CD_neg,ind_Y_CD] - inputC_D
+        x_CD = delta_pos / (delta_pos+delta_neg) * all_X[ind_CD_neg] + delta_neg / (delta_pos+delta_neg) * all_X[ind_CD_pos]
+      endif
   endelse
 
   result = {x_AB:x_AB, x_CD:x_CD}
@@ -113,8 +119,8 @@ function solve_aspect_one_plane, inputA_B, inputC_D, plane_AB, plane_CD, all_X, 
 end
 
 pro stx_derive_aspect_solution, data, simu_data_file, interpol_r=interpol_r, interpol_xy=interpol_xy
-  default, interpol_r, 0
-  default, interpol_xy, 0
+  default, interpol_r, 1
+  default, interpol_xy, 1
   
   if n_params() lt 2 then message," SYNTAX: derive_aspect_solution, data, simu_data_file"
 
@@ -126,7 +132,7 @@ pro stx_derive_aspect_solution, data, simu_data_file, interpol_r=interpol_r, int
   result = file_test(simu_data_file)
   if not result then message," ERROR: File "+simu_data_file+" not found."
   restore, simu_data_file
-  y_center = where(abs(all_Y) eq min(abs(all_Y)))  &  y_center = y_center[0]   ; index corresponding to closest to no-offset in orthogonal direction
+  rsol_maxi = all_r[-1]
 
   ; prepare array of results
   foclen = 0.55         ; SAS focal length, in [m]
@@ -137,46 +143,64 @@ pro stx_derive_aspect_solution, data, simu_data_file, interpol_r=interpol_r, int
   nb = n_elements(rsol)
   x_sas = fltarr(nb)  &  y_sas = fltarr(nb)
   
+  rsol_mini = 3.28e-3  ; corresponds to 0.75 AU
   for i=0,nb-1 do begin
-    delta_r = rsol[i] - all_r
-    tmp = where(abs(delta_r) eq min(abs(delta_r)))
-    ind_r = tmp[0]   ; index of the plane where rsol is the closest to the input value
+    ; Test if rsol is less than the mininum value to get usable signals...
+    if rsol[i] lt rsol_mini then data[i].ERROR = 'SUN_TOO_FAR'
+    ; ... or above the max radius covered by the simu. data
+    if rsol[i] gt rsol_maxi then data[i].ERROR = 'SUN_TOO_CLOSE'
+    ; also catch error messages previously set:
+    if data[i].ERROR eq '' then begin
+      delta_r = rsol[i] - all_r
+      tmp = where(abs(delta_r) eq min(abs(delta_r)))
+      ind_r = tmp[0]   ; index of the plane where rsol is the closest to the input value
 
-    inputA_B = (data[i].CHA_DIODE0 - data[i].CHA_DIODE1)*1.e9
-    inputC_D = (data[i].CHB_DIODE0 - data[i].CHB_DIODE1)*1.e9
+      inputA_B = (data[i].CHA_DIODE0 - data[i].CHA_DIODE1)*1.e9
+      inputC_D = (data[i].CHB_DIODE0 - data[i].CHB_DIODE1)*1.e9
 
-    if keyword_set(interpol_r) then begin
-      ; find the 2nd closest r_sol
-      if rsol[i]-all_r[ind_r] lt 0. then begin
-        ind_r1 = ind_r -1  &  ind_r2 = ind_r
+      if keyword_set(interpol_r) then begin
+        ; find the 2nd closest r_sol
+        if rsol[i]-all_r[ind_r] lt 0. then begin
+          ind_r1 = ind_r -1  &  ind_r2 = ind_r
+        endif else begin
+          ind_r1 = ind_r  &  ind_r2 = ind_r +1
+        endelse
+        plane_AB1 = reform(sigA_sigB[*,*,ind_r1])
+        plane_CD1 = reform(sigC_sigD[*,*,ind_r1])
+        res_AB_CD_1 = solve_aspect_one_plane(inputA_B, inputC_D, plane_AB1, plane_CD1, all_X, all_Y, interpol_xy=interpol_xy)
+        x_AB1 = res_AB_CD_1.x_AB  &  x_CD1 = res_AB_CD_1.x_CD
+        plane_AB2 = reform(sigA_sigB[*,*,ind_r2])
+        plane_CD2 = reform(sigC_sigD[*,*,ind_r2])
+        res_AB_CD_2 = solve_aspect_one_plane(inputA_B, inputC_D, plane_AB2, plane_CD2, all_X, all_Y, interpol_xy=interpol_xy)
+        x_AB2 = res_AB_CD_2.x_AB  &  x_CD2 = res_AB_CD_2.x_CD
+        x_AB = ((all_r[ind_r2]-rsol[i]) * x_AB1 + (rsol[i]-all_r[ind_r1]) * x_AB2) / (all_r[ind_r2]-all_r[ind_r1])
+        x_CD = ((all_r[ind_r2]-rsol[i]) * x_CD1 + (rsol[i]-all_r[ind_r1]) * x_CD2) / (all_r[ind_r2]-all_r[ind_r1])
       endif else begin
-        ind_r1 = ind_r  &  ind_r2 = ind_r +1
+        plane_AB = reform(sigA_sigB[*,*,ind_r])
+        plane_CD = reform(sigC_sigD[*,*,ind_r])
+        res_AB_CD = solve_aspect_one_plane(inputA_B, inputC_D, plane_AB, plane_CD, all_X, all_Y, interpol_xy=interpol_xy)
+        x_AB = res_AB_CD.x_AB  &  x_CD = res_AB_CD.x_CD
       endelse
-      plane_AB1 = reform(sigA_sigB[*,*,ind_r1])
-      plane_CD1 = reform(sigC_sigD[*,*,ind_r1])
-      res_AB_CD_1 = solve_aspect_one_plane(inputA_B, inputC_D, plane_AB1, plane_CD1, all_X, all_Y, interpol_xy=interpol_xy)
-      x_AB1 = res_AB_CD_1.x_AB  &  x_CD1 = res_AB_CD_1.x_CD
-      plane_AB2 = reform(sigA_sigB[*,*,ind_r2])
-      plane_CD2 = reform(sigC_sigD[*,*,ind_r2])
-      res_AB_CD_2 = solve_aspect_one_plane(inputA_B, inputC_D, plane_AB2, plane_CD2, all_X, all_Y, interpol_xy=interpol_xy)
-      x_AB2 = res_AB_CD_2.x_AB  &  x_CD2 = res_AB_CD_2.x_CD
-      x_AB = ((all_r[ind_r2]-rsol[i]) * x_AB1 + (rsol[i]-all_r[ind_r1]) * x_AB2) / (all_r[ind_r2]-all_r[ind_r1])
-      x_CD = ((all_r[ind_r2]-rsol[i]) * x_CD1 + (rsol[i]-all_r[ind_r1]) * x_CD2) / (all_r[ind_r2]-all_r[ind_r1])
-    endif else begin
-      plane_AB = reform(sigA_sigB[*,*,ind_r])
-      plane_CD = reform(sigC_sigD[*,*,ind_r])
-      res_AB_CD = solve_aspect_one_plane(inputA_B, inputC_D, plane_AB, plane_CD, all_X, all_Y, interpol_xy=interpol_xy)
-      x_AB = res_AB_CD.x_AB  &  x_CD = res_AB_CD.x_CD
-    endelse
-    
-    ; convert to SAS frame
-    x_sas[i] = -1.*(x_AB - x_CD) / sqrt(2.) * 1.e-6
-    y_sas[i] = -1.*(x_AB + x_CD) / sqrt(2.) * 1.e-6
-    if (~finite(x_AB)  or ~finite(x_CD)) then data[i].ERROR = 'NO_ASPECT_SOL'
+
+      ; convert to SAS frame
+      x_sas[i] = -1.*(x_AB - x_CD) / sqrt(2.) * 1.e-6
+      y_sas[i] = -1.*(x_AB + x_CD) / sqrt(2.) * 1.e-6
+      
+      ; Test whether the solution can be used:
+      if (~finite(x_AB) or ~finite(x_CD)) then data[i].ERROR = 'NO_SOLUTION' $
+        else begin
+          ; also not good if too far off the solar limb:
+          dist_center = norm([x_AB,x_CD]) * 1.e-6
+          if dist_center gt 1.1 * rsol[i] then data[i].ERROR = 'OFFPOINT_TOO_LARGE'
+        endelse
+    endif
+    ; Flag data with sas_ok=0 in case of any error
+    if data[i].ERROR eq '' then data[i].sas_ok = 1 else data[i].sas_ok = 0
   endfor
   
   ; Store results as arcsec in SRF in the data structure
-  data.y_srf = y_sas * 0.375e6
-  data.z_srf = x_sas * 0.375e6
+  linear_to_asec = (1./foclen) * 180./!pi * 3600.  ; conversion factor from m to arcsec
+  data.y_srf = y_sas * linear_to_asec
+  data.z_srf = x_sas * linear_to_asec
   
 end
