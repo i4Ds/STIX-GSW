@@ -1,8 +1,8 @@
 ;+
 ; Description :
-;   Procedure to display basic info about a data structure.
+;   Procedure to display basic info about an SAS data structure.
 ;
-; Syntax      : show_info, data
+; Syntax      : stx_show_sas_info, data
 ;
 ; Inputs      :
 ;     data    = an array of STX_ASPECT_DTO structures
@@ -12,10 +12,11 @@
 ; History   :
 ;   2020 - F. Schuller (AIP), initial version
 ;   2022-01-28 - FSc (AIP): adapted to STX_ASPECT_DTO structure
+;   2023-10-27, FSc (AIP): changed name from show_info to stx_show_sas_info
 ;
 ;-
 
-pro show_info, data
+pro stx_show_sas_info, data
   if not is_struct(data) then begin
     print,"ERROR: input variable is not a structure."
     return
@@ -27,7 +28,7 @@ pro show_info, data
   if count gt 0 then print,count,format='("WARNING - data contains ",I2," jump(s) back in time")'
   gaps = where(dt gt 1.5*resol, count)
   if count gt 0 then begin
-    print,count,format='("WARNING - data contains ",I3," gaps:")'
+    print,count,format='("WARNING - data contains ",I4," gaps:")'
     if count le 10 then for i=0,count-1 do $
       print,data[gaps[i]].time,data[gaps[i]+1].time,format='(" ... between ",A," and ",A)' else begin
       for i=0,9 do print,data[gaps[i]].time,data[gaps[i]+1].time,format='(" ... between ",A," and ",A)'

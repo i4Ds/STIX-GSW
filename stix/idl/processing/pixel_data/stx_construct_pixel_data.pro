@@ -75,6 +75,7 @@
 ; HISTORY: July 2022, Massa P., created
 ;          September 2022, Massa P., added 'shift_duration' keyword
 ;          May 2023, Massa P., do not call 'stx_plot_selected_time_range' if the science fits file contains a single time bin
+;          October 2023, Massa P., fixed bug in the selection of the energy bin indices
 ;
 ; CONTACT:
 ;   paolo.massa@wku.edu
@@ -130,15 +131,19 @@ this_time_range = [t_axis.TIME_START[time_ind_min], t_axis.TIME_END[time_ind_max
 
 ;;************** Select energy indices
 
+;; Select indices of the energy bins (among the 32) that are actually present in the pixel data science file
+energy_bin_mask = data.energy_bin_mask
+energy_bin_idx  = where(energy_bin_mask eq 1)
+
 energy_low  = e_axis.LOW
 energy_high = e_axis.HIGH
 
 if (energy_range[0] lt min(energy_low)) then $
-  message, 'The lower edge of the selected energy interval is outside the science energy interval of this file (' + $
+  message, 'The lower edge of the selected energy interval is outside the science energy interval (' + $
   num2str(fix(min(energy_low))) + ' - ' + num2str(fix(max(energy_high))) + ' keV)'
 
 if (energy_range[1] gt max(energy_high)) then $
-  message, 'The upper edge of the selected energy interval is outside the science energy interval of this file (' + $
+  message, 'The upper edge of the selected energy interval is outside the science energy interval (' + $
   num2str(fix(min(energy_low))) + ' - ' + num2str(fix(max(energy_high))) + ' keV)'
   
 energy_ind_min = where(energy_low le energy_range[0])
@@ -150,6 +155,35 @@ energy_ind        = [energy_ind_min:energy_ind_max]
 if n_elements(energy_ind) eq 1 then energy_ind = energy_ind[0]
 
 this_energy_range = [energy_low[energy_ind_min], energy_high[energy_ind_max]]
+
+if keyword_set(path_bkg_file) then begin
+
+  ;; Select indices of the energy bins (among the 32) that are actually present in the pixel data bkg file
+  energy_bin_mask_bkg = data_bkg.energy_bin_mask
+  energy_bin_idx_bkg = where(energy_bin_mask_bkg eq 1)
+
+  energy_low_bkg  = e_axis_bkg.LOW
+  energy_high_bkg = e_axis_bkg.HIGH
+  
+  if (energy_range[0] lt min(energy_low_bkg)) then $
+    message, 'The lower edge of the selected energy interval is outside the background energy interval (' + $
+    num2str(fix(min(energy_low_bkg))) + ' - ' + num2str(fix(max(energy_high_bkg))) + ' keV)'
+  
+  if (energy_range[1] gt max(energy_high_bkg)) then $
+    message, 'The upper edge of the selected energy interval is outside the background energy interval (' + $
+    num2str(fix(min(energy_low_bkg))) + ' - ' + num2str(fix(max(energy_high_bkg))) + ' keV)'
+    
+  energy_ind_min_bkg = where(energy_low_bkg le energy_range[0])
+  energy_ind_min_bkg = energy_ind_min_bkg[-1]
+  energy_ind_max_bkg = where(energy_high_bkg ge energy_range[1])
+  energy_ind_max_bkg = energy_ind_max_bkg[0]
+  
+  energy_ind_bkg        = [energy_ind_min_bkg:energy_ind_max_bkg]
+  if n_elements(energy_ind_bkg) eq 1 then energy_ind_bkg = energy_ind_bkg[0]
+  
+  this_energy_range_bkg = [energy_low_bkg[energy_ind_min_bkg], energy_high_bkg[energy_ind_max_bkg]]
+
+endif
 
 ;;************** Compute livetime
 
@@ -170,26 +204,45 @@ if keyword_set(path_bkg_file) then begin
   
 endif
 
+;;************** Define count matrix and bkg count matrix
+
+;; WE ASSUME THAT THE SCIENCE DATA FILE AND THE BKG DATA FILE CONTAIN MORE THAN 1 ENERGY BIN 
+;; (I.E., THE NUMBER OF ELEMENTS IN energy_bin_idx AND IN energy_bin_idx_bkg IS ASSUMED TO BE
+;; LARGER THAN 1)
+
+;; Dimensions: [energy,pixel,detector,time]
+counts       = data.COUNTS
+counts_error = data.COUNTS_ERR
+
+;; Consider only selected energy bins
+counts       = counts[energy_bin_idx,*,*,*]
+counts_error = counts_error[energy_bin_idx,*,*,*]
+
+if keyword_set(path_bkg_file) then begin
+
+  counts_bkg       = data_bkg.COUNTS
+  counts_error_bkg = data_bkg.COUNTS_ERR
+  counts_bkg       = counts_bkg[energy_bin_idx_bkg,*,*]
+  counts_error_bkg = counts_error_bkg[energy_bin_idx_bkg,*,*]
+
+endif
+
 ;;************** Plot lightcurve (if ~silent)
 
 if ~silent and (n_elements(size(live_time_bins, /dim)) gt 1) then begin
   
   if keyword_set(path_bkg_file) then begin
-    stx_plot_selected_time_range, stx_time2any(t_axis.MEAN), energy_ind, time_ind, data.COUNTS, live_time_bins, subc_index, $
-                                  sumcase, this_energy_range, this_time_range, counts_bkg=data_bkg.COUNTS, $
-                                  live_time_bkg=live_time_bkg
+    stx_plot_selected_time_range, stx_time2any(t_axis.MEAN), energy_ind, time_ind, counts, live_time_bins, subc_index, $
+                                  sumcase, this_energy_range, this_time_range, counts_bkg=counts_bkg, $
+                                  live_time_bkg=live_time_bkg, energy_ind_bkg=energy_ind_bkg
   endif else begin
-    stx_plot_selected_time_range, stx_time2any(t_axis.MEAN), energy_ind, time_ind, data.COUNTS, live_time_bins, subc_index, $
+    stx_plot_selected_time_range, stx_time2any(t_axis.MEAN), energy_ind, time_ind, counts, live_time_bins, subc_index, $
                                   sumcase, this_energy_range, this_time_range
   endelse
 
 endif
 
 ;;************** Sum counts (and related errors) in time
-
-;; Dimensions: [energy,pixel,detector,time]
-counts       = data.COUNTS
-counts_error = data.COUNTS_ERR
 
 if n_elements(time_ind) eq 1 then begin
 
@@ -205,27 +258,24 @@ endelse
 
 ;;************** Sum counts (and related errors) in energy
 
-;; Exclude first and last energy bins (below 4 keV and over 150 keV)
-counts       = counts[1:30,*,*]
-counts_error = counts_error[1:30,*,*]
-
-if keyword_set(path_bkg_file) then begin
-
-  counts_bkg       = data_bkg.COUNTS
-  counts_error_bkg = data_bkg.COUNTS_ERR
-  counts_bkg       = counts_bkg[1:30,*,*]
-  counts_error_bkg = counts_error_bkg[1:30,*,*]
-
-endif
-
 ;; Compute elut correction (if 'elut_corr' is set) - Correct just the first and the last energy bins (flat spectrum is assumed)
 if elut_corr then begin
   
   elut_filename = stx_date2elut_file(stx_time2any(this_time_range[0]))  
   stx_read_elut, ekev_actual = ekev_actual, elut_filename = elut_filename  
   
-  energy_bin_low  = reform(ekev_actual[0:29,*,*])
-  energy_bin_high = reform(ekev_actual[1:30,*,*])
+  ;; We assume that the first energy bin starts from 0. The right end of the last energy bin is set to NaN
+  ;; We assume that the energy interval is always partitioned into 32 energy bins
+  energy_bin_low           = fltarr(32,12,32)
+  energy_bin_low[1:31,*,*] = ekev_actual
+  
+  energy_bin_high           = fltarr(32,12,32)
+  energy_bin_high[0:30,*,*] = ekev_actual
+  energy_bin_high[31,*,*]   = !VALUES.F_NaN
+  
+  energy_bin_low  = energy_bin_low[energy_bin_idx,*,*]
+  energy_bin_high = energy_bin_high[energy_bin_idx,*,*]
+  
   energy_bin_size = energy_bin_high - energy_bin_low
   
   if keyword_set(path_bkg_file) then begin
@@ -234,8 +284,18 @@ if elut_corr then begin
     elut_filename_bkg = stx_date2elut_file(stx_time2any(t_axis_bkg.TIME_START))
     stx_read_elut, ekev_actual = ekev_actual_bkg, elut_filename = elut_filename_bkg
 
-    energy_bin_low_bkg  = reform(ekev_actual_bkg[0:29,*,*])
-    energy_bin_high_bkg = reform(ekev_actual_bkg[1:30,*,*])
+    ;; We assume that the first energy bin starts from 0. The right end of the last energy bin is set to NaN
+    ;; We assume that the energy interval is always partitioned into 32 energy bins
+    energy_bin_low_bkg           = fltarr(32,12,32)
+    energy_bin_low_bkg[1:31,*,*] = ekev_actual_bkg
+    
+    energy_bin_high_bkg           = fltarr(32,12,32)
+    energy_bin_high_bkg[0:30,*,*] = ekev_actual_bkg
+    energy_bin_high_bkg[31,*,*]   = !VALUES.F_NaN
+    
+    energy_bin_low_bkg  = energy_bin_low_bkg[energy_bin_idx_bkg,*,*]
+    energy_bin_high_bkg = energy_bin_high_bkg[energy_bin_idx_bkg,*,*]
+    
     energy_bin_size_bkg = energy_bin_high_bkg - energy_bin_low_bkg
     
   endif
@@ -250,16 +310,6 @@ if n_elements(energy_ind) eq 1 then begin
   counts       = reform(counts[energy_ind,*,*]) * energy_corr_factor
   counts_error = reform(counts_error[energy_ind,*,*]) * energy_corr_factor
   
-  if keyword_set(path_bkg_file) then begin
-    
-    ;; Background
-    energy_corr_factor_bkg = elut_corr ? (this_energy_range[1] - this_energy_range[0]) / reform(energy_bin_size_bkg[energy_ind,*,*]) : $
-      dblarr(12,32)+1
-
-    counts_bkg       = reform(counts_bkg[energy_ind,*,*]) * energy_corr_factor_bkg
-    counts_error_bkg = reform(counts_error_bkg[energy_ind,*,*]) * energy_corr_factor_bkg
-    
-  endif
   
 endif else begin
   
@@ -277,26 +327,40 @@ endif else begin
   counts       = total(counts[energy_ind,*,*],1)
   counts_error = sqrt(total(counts_error[energy_ind,*,*]^2.,1))
   
-  if keyword_set(path_bkg_file) then begin
-    
-    ;; Background
-    energy_corr_factor_low_bkg = elut_corr ? (reform(energy_bin_high_bkg[energy_ind[0],*,*]) - this_energy_range[0]) / $
-      reform(energy_bin_size_bkg[energy_ind[0],*,*]) : dblarr(12,32)+1
-
-    energy_corr_factor_high_bkg = elut_corr ? (this_energy_range[1] - reform(energy_bin_low_bkg[energy_ind[-1],*,*])) / $
-      reform(energy_bin_size_bkg[energy_ind[-1],*,*]) : dblarr(12,32)+1
-
-    counts_bkg[energy_ind[0],*,*]        *= energy_corr_factor_low_bkg
-    counts_bkg[energy_ind[-1],*,*]       *= energy_corr_factor_high_bkg
-    counts_error_bkg[energy_ind[0],*,*]  *= energy_corr_factor_low_bkg
-    counts_error_bkg[energy_ind[-1],*,*] *= energy_corr_factor_high_bkg
-
-    counts_bkg       = total(counts_bkg[energy_ind,*,*],1)
-    counts_error_bkg = sqrt(total(counts_error_bkg[energy_ind,*,*]^2.,1))
-    
-  endif
-
 endelse
+
+
+if keyword_set(path_bkg_file) then begin
+  
+  if n_elements(energy_ind_bkg) eq 1 then begin
+
+    ;; Background
+    energy_corr_factor_bkg = elut_corr ? (this_energy_range[1] - this_energy_range[0]) / $
+                              reform(energy_bin_size_bkg[energy_ind_bkg,*,*]) : dblarr(12,32)+1
+    
+    counts_bkg       = reform(counts_bkg[energy_ind_bkg,*,*]) * energy_corr_factor_bkg
+    counts_error_bkg = reform(counts_error_bkg[energy_ind_bkg,*,*]) * energy_corr_factor_bkg
+  
+  endif else begin
+  
+    ;; Background
+    energy_corr_factor_low_bkg = elut_corr ? (reform(energy_bin_high_bkg[energy_ind_bkg[0],*,*]) - this_energy_range[0]) / $
+      reform(energy_bin_size_bkg[energy_ind_bkg[0],*,*]) : dblarr(12,32)+1
+  
+    energy_corr_factor_high_bkg = elut_corr ? (this_energy_range[1] - reform(energy_bin_low_bkg[energy_ind_bkg[-1],*,*])) / $
+      reform(energy_bin_size_bkg[energy_ind_bkg[-1],*,*]) : dblarr(12,32)+1
+  
+    counts_bkg[energy_ind_bkg[0],*,*]        *= energy_corr_factor_low_bkg
+    counts_bkg[energy_ind_bkg[-1],*,*]       *= energy_corr_factor_high_bkg
+    counts_error_bkg[energy_ind_bkg[0],*,*]  *= energy_corr_factor_low_bkg
+    counts_error_bkg[energy_ind_bkg[-1],*,*] *= energy_corr_factor_high_bkg
+  
+    counts_bkg       = total(counts_bkg[energy_ind_bkg,*,*],1)
+    counts_error_bkg = sqrt(total(counts_error_bkg[energy_ind_bkg,*,*]^2.,1))
+  
+  endelse
+
+endif
 
 ;;************** Correction for grid internal shadowing
 

@@ -76,7 +76,11 @@ function prepare_aspect_data, infile, quiet=quiet
     a =  {stx_aspect_dto, $
           cha_diode0: tbl[i].hk_asp_photoa0_v, cha_diode1: tbl[i].hk_asp_photoa1_v, $
           chb_diode0: tbl[i].hk_asp_photob0_v, chb_diode1: tbl[i].hk_asp_photob1_v, $
-          time: utc_str[i], duration : duration[i], spice_disc_size : r_sol[i], y_srf : 0.0, z_srf : 0.0, calib : 0.0,  error : ""}
+          time: utc_str[i], $
+           scet_time_c: 0LL, scet_time_f: 0LL, $
+          duration : duration[i], spice_disc_size : r_sol[i], $
+          y_srf : 0.0, z_srf : 0.0, calib : 0.0,  sas_ok : 1, error : "", $
+          control_index: 0LL, parentfits: 0LL}
     if i eq 0 then result = [a] else result = [result, a]
   endfor
 

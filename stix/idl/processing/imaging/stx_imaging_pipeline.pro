@@ -60,6 +60,7 @@
 ;    2022-11-16, FSc: added optional argument subc_labels
 ;    2023-02-24, FSc: added optional keyword no_small
 ;    2023-09-06, FSc: added optional keyword method
+;    2023-10-04, FSc: use highest version number of AUX file if several available
 ;    2023-10-16, FSc: added optional keywords clean_beam_width and set_clean_boxes
 ;
 ;-
@@ -79,9 +80,8 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
   endif
 
   ; Input directories - TO BE ADAPTED depending on local installation - FIX ME!
-  aux_data_folder = '/store/data/STIX/L2_FITS_AUX/'
-;   l1a_data_folder = '/store/data/STIX/L1A_FITS/L1/'
-  l1a_data_folder = '/store/data/STIX/L1_FITS_SCI/'
+  aux_data_folder = '/net/galilei/store/data/STIX/L2_FITS_AUX/'
+  l1a_data_folder = '/net/galilei/store/data/STIX/L1_FITS_SCI/'
 
   
   ; sub-collimator labels
@@ -105,13 +105,32 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
   ;;;;
 
   ; Extract pointing and other ancillary data from auxiliary file covering the input time_range.
-  ; First, extract date from time_range[0]
+  ; First, find out the starting date from time_range[0]:
   time_0 = anytim2utc(anytim(time_range[0], /tai), /ccsds)
   day_0 = strmid(str_replace(time_0,'-'),0,8)
-  aux_fits_file = aux_data_folder + 'solo_L2_stix-aux-ephemeris_'+day_0+'_V01.fits'
-  ; Extract data at requested time
-  if ~file_test(aux_fits_file) then message,"Cannot find auxiliary data file "+aux_fits_file
+  
+  aux_fits_file = aux_data_folder + 'solo_L2_stix-aux-ephemeris_'+day_0+'*.fits'
+  aux_file_list = file_search(aux_fits_file, count=nb_aux)
+  if nb_aux gt 0 then begin
+    aux_fits_file = aux_file_list[-1]  ; this should be the highest version, since FILE_SEARCH sorts the list of files returned
+    print, " STX_IMAGING_PIPELINE - INFO: Found AUX file " + aux_fits_file
+  endif else message,"Cannot find auxiliary data file " + aux_fits_file
+  
+  ; Check if the time range runs over two consecutive days (fixes issue #162)
+  time_end = anytim2utc(anytim(time_range[1], /tai), /ccsds)
+  day_end = strmid(str_replace(time_end,'-'),0,8)
+  if day_end ne day_0 then begin
+    aux_fits_file_1 = aux_fits_file
+    aux_fits_file_2 = aux_data_folder + 'solo_L2_stix-aux-ephemeris_'+day_end+'*.fits'
+    aux_file_list_2 = file_search(aux_fits_file_2, count=nb_aux)
+    if nb_aux gt 0 then begin
+      aux_fits_file_2 = aux_file_list_2[-1]
+      print, " STX_IMAGING_PIPELINE - INFO: Found AUX file " + aux_fits_file_2
+    endif else message,"Cannot find auxiliary data file " + aux_fits_file_2
+    aux_fits_file = [aux_fits_file_1, aux_fits_file_2]
+  endif
 
+  ; Extract data at requested time
   ; If an aspect solution is given as input, then use that one:
   if keyword_set(x_ptg) and keyword_set(y_ptg) then begin
     ; we still need to call stx_create_auxiliary_data to get RSUN, L0 and B0 ...
@@ -120,14 +139,13 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
     aux_data.stx_pointing[0] = x_ptg
     aux_data.stx_pointing[1] = y_ptg
   endif else aux_data = stx_create_auxiliary_data(aux_fits_file, time_range, force_sas=force_sas, no_sas=no_sas)
-  
-  
+
   ;;;;
   ; Read and process STIX L1A data
   l1a_file_list = file_search(l1a_data_folder + '*' + stix_uid + '*.fits')
   if l1a_file_list[0] eq '' then message,"Could not find any data for UID "+stix_uid $
      else path_sci_file = l1a_file_list[0]
-  print, " INFO: Found L1(A) file "+path_sci_file
+  print, " STX_IMAGING_PIPELINE - INFO: Found L1(A) file "+path_sci_file
 
   if keyword_set(bkg_uid) then begin
     l1a_file_list = file_search(l1a_data_folder + '*' + bkg_uid + '*.fits')
