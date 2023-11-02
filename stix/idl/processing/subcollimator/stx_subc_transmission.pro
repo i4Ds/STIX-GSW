@@ -19,6 +19,10 @@
 ;
 ;   ph_in: an array of photon energies [keV] (restricted to range 1-1000)
 ;
+; KEYWORDS:
+; 
+;   simple_transm: if set a simplified version of the grid transmission is computed
+;
 ; OUTPUTS:
 ;
 ;   A float number that represent the subcollimator transmission value
@@ -28,13 +32,15 @@
 ;                                    to include transparency and corner cutting for pure Tungsten grids
 ;          17-Jul-2023, ECMD (Graz), including roughness parameter
 ;          24-Oct-2023, ECMD (Graz), added default to calculate low energy approximation if no input photon energies are passed
-;
+;          31-Oct-2023, Massa P., added 'simple_transm' keyword to compute a simple version of the grid transmission
+;                                 (temporary solution used for imaging)
+;          
 ; CONTACT:
 ;   paolo.massa@wku.edu
 ;-
 
 
-function stx_subc_transmission, flare_loc, ph_in, flux = flux
+function stx_subc_transmission, flare_loc, ph_in, flux = flux, simple_transm = simple_transm
 
   restore,loc_file( 'grid_temp2.sav', path = getenv('STX_GRID') )
   fff=read_ascii(loc_file( 'grid_param_front.txt', path = getenv('STX_GRID') ),temp=grid_temp)
@@ -88,11 +94,11 @@ function stx_subc_transmission, flare_loc, ph_in, flux = flux
 
       transm_front = stx_grid_transmission(flare_loc[0], flare_loc[1], grid_orient_front[i], $
         grid_pitch_front[i], grid_slit_front[i], grid_thick_front[i], bridge_width_front[i], bridge_pitch_front[i], $
-        roughness_param_front[i], linear_attenuation, flux = flux)
+       roughness_param_front[i], linear_attenuation, flux = flux, simple_transm = simple_transm)
 
       transm_rear  = stx_grid_transmission(flare_loc[0], flare_loc[1], grid_orient_rear[i], $
         grid_pitch_rear[i], grid_slit_rear[i], grid_thick_rear[i], bridge_width_rear[i], bridge_pitch_rear[i], $
-        roughness_param_rear[i], linear_attenuation, flux = flux)
+       roughness_param_rear[i], linear_attenuation, flux = flux, simple_transm = simple_transm)
 
       transm[*,sc[i]-1] = transm_front * transm_rear
 
@@ -100,7 +106,7 @@ function stx_subc_transmission, flare_loc, ph_in, flux = flux
 
   endfor
 
-  transm[where(transm eq 0.)] = 1
+  transm[where(transm eq 0.)] = 0.25
 
   return, transm
 
