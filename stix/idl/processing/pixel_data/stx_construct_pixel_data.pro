@@ -76,6 +76,7 @@
 ;          September 2022, Massa P., added 'shift_duration' keyword
 ;          May 2023, Massa P., do not call 'stx_plot_selected_time_range' if the science fits file contains a single time bin
 ;          October 2023, Massa P., fixed bug in the selection of the energy bin indices
+;          November 2023, Massa P., use simplified version of the subcollimator transmission (temporary solution)
 ;
 ; CONTACT:
 ;   paolo.massa@wku.edu
@@ -366,8 +367,9 @@ endif
 
 if keyword_set(xy_flare) then begin
 
-  subc_transmission     = stx_subc_transmission(xy_flare)
-  subc_transmission_bkg = stx_subc_transmission([0.,0.])
+  ;; Use simplified version of the grid transmission (temporary solution)
+  subc_transmission     = stx_subc_transmission(xy_flare, /simple_transm)
+  subc_transmission_bkg = stx_subc_transmission([0.,0.], /simple_transm)
   for i=0,31 do begin
     
     counts[*,i]       = counts[*,i]/subc_transmission[i]*0.25
