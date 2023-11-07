@@ -24,7 +24,9 @@
 ;-
 function stx_get_mrd_version 
 
-mversion_full = mrd_version()
+resolve_routine, 'mrdfits', /qu, /either, /compile_full_file
 
-return,mversion_full
+ mversion_full = mrd_version()
+
+return, mversion_full
 end
