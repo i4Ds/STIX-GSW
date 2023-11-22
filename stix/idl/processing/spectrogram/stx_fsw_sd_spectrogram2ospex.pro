@@ -63,7 +63,8 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
   maxct = max( ct_edges )
 
   default, ph_edges,  [ ct_edges, maxct + maxct*(findgen(10)+1)/10. ]
-
+  edge_products,ph_edges, mean=ph_in
+  
   ;as the drm expects an array [32, 12] pixel mask replicate the passed pixel mask for each detector
   pixel_mask =(spectrogram.detector_mask)##(spectrogram.pixel_mask)
 
@@ -73,25 +74,32 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
   grid_transmission_file =  concat_dir(getenv('STX_GRID'), 'nom_grid_transmission.txt')
   readcol, grid_transmission_file, grid_factors_file, format = 'f', skip = 2
   
-  
-  if (keyword_set(gtrans32) and n_elements(flare_location_stx) ne 0) then begin
-    grid_factors_proc = stx_subc_transmission(flare_location_stx)
+    if (keyword_set(gtrans32) and n_elements(flare_location_stx) ne 0) then begin
+    grid_factors_proc = stx_subc_transmission(flare_location_stx, ph_in, /flux)
+
+    nph = n_elements(ph_in)
+    ngrids = n_elements(grids_used)
+    
+
     ;05-Oct-2022 - ECMD until fine grid tranmission is ready replace the 
     ;grids not in TOP24 with the on-axis tabulated values
     idx_nontop24 = stx_label2det_ind('bkg+cfl+fine')
-    grid_factors_proc[idx_nontop24] = grid_factors_file[idx_nontop24]
-    grid_factor  = average(grid_factors_proc[grids_used])
+  
+    grid_factors_proc[*,idx_nontop24] = transpose(rebin(grid_factors_file[idx_nontop24],n_elements(idx_nontop24),nph))
+    grid_factor = average(reform(rebin(grid_factors_proc[*,grids_used], nph, ngrids), nph, ngrids),2)
+        
   endif else begin
     print, 'Using nominal (on axis) grid transmission'
     grid_factor = average(grid_factors_file[grids_used])
     specpar.flare_xyoffset = [0.,0.]
   endelse
 
-  if grid_factor eq 0 then begin
+  if max(grid_factor) eq 0 then begin
     if n_elements(grids_used) eq 1 then if grids_used eq 9 then begin
       print, 'Using nominal (on axis) grid transmission for background detector'
       grid_transmission_file =  concat_dir(getenv('STX_GRID'), 'nom_bkg_grid_transmission.txt')
       readcol, grid_transmission_file, bk_grid_factors, format = 'f', skip = 2
+      
       grid_factor = average(bk_grid_factors[pixels_used])
 
     endif else begin
@@ -142,7 +150,7 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
     specfilename = fits_info_params.specfile
     srmfilename =  fits_info_params.srmfile
 
-    fits_info_params.grid_factor = grid_factor
+    fits_info_params.grid_factor.add, grid_factor
     fits_info_params.detused = detector_label + ', Pixels: ' + pixel_label
 
     if keyword_set(xspec) then begin
