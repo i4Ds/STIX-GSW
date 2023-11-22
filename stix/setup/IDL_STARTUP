@@ -1,0 +1,4 @@
+; STIX idl startup
+;----------------------------------------------
+
+stx_check_config_files
