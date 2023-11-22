@@ -79,13 +79,13 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
   grid_transmission_file =  concat_dir(getenv('STX_GRID'), 'nom_grid_transmission.txt')
   readcol, grid_transmission_file, grid_factors_file, format = 'f', skip = 2
   
-  
-  if (keyword_set(gtrans32) and n_elements(flare_location_stx) ne 0) then begin
-    grid_factors_proc = stx_subc_transmission(flare_location_stx, ph_in, /flux )
+    if (keyword_set(gtrans32) and n_elements(flare_location_stx) ne 0) then begin
+    grid_factors_proc = stx_subc_transmission(flare_location_stx, ph_in, /flux)
 
     nph = n_elements(ph_in)
     ngrids = n_elements(grids_used)
     
+
     ;05-Oct-2022 - ECMD until fine grid tranmission is ready replace the 
     ;grids not in TOP24 with the on-axis tabulated values
     idx_nontop24 = stx_label2det_ind('bkg+cfl+fine')

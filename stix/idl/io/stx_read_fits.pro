@@ -48,7 +48,7 @@ function stx_read_fits, fits_path, extension, header, silent = silent, mversion_
   default, silent, 1
 
   if  ~keyword_set(mversion_full) then begin
-    ver = mrdfits(/version, /silent)  ; commented out (FSc, 2023-09-26) since not used anywhere
+    ver = mrdfits(/version, /silent)  ; uncommented to prevent mrdfits compilation issue (ECMD, 2023-11-07)     
     mversion_full = stx_get_mrd_version()
     mversion = mversion_full.split('\.')
     if ~(fix(mversion[0]) ge 2 and fix(mversion[1]) ge 27) and ~silent then begin
