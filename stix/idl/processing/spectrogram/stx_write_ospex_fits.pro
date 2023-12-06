@@ -57,11 +57,12 @@ pro stx_write_ospex_fits, $
   time_shift = time_shift, $
   xspec = xspec, $
   fits_info_params = fits_info_params, $
+  silent = silent, $
   _extra = extra_keys
 
   default, any_specfile, 0
   default, xspec, 0
-  if ~keyword_set(any_specfile) then begin
+  if ~keyword_set(any_specfile) and ~keyword_set(silent) then begin
     print,  'To use SPEX_ANY_SPECFILE strategy '
     print,  'change self->setstrategy, '+string(39B)+'SPEX_HESSI_SPECFILE' +string(39B)+ ' to self->setstrategy, '+string(39B)+'SPEX_ANY_SPECFILE'+string(39B)
     print,  'in STIX rate block of spex_data__define.pro'
