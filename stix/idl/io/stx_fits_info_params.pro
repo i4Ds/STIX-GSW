@@ -66,7 +66,7 @@
 ;-
 function stx_fits_info_params, fits_path_data = fits_path_data, data_level = data_level, $
   distance = distance,  time_shift = time_shift, fits_path_bk = fits_path_bk, uid = uid, $
-  generate_fits = generate_fits, specfile = specfile, srmfile = srmfile, elut_file = elut_file
+  generate_fits = generate_fits, specfile = specfile, srmfile = srmfile, elut_file = elut_file, silent = silent
 
   if n_elements(generate_fits) ne 0 then begin
     if generate_fits eq 0 and keyword_set(specfile) || keyword_set(srmfile) then begin
@@ -86,7 +86,7 @@ function stx_fits_info_params, fits_path_data = fits_path_data, data_level = dat
   ;if distance is not set use the average value from the fits header
   stx_get_header_corrections, fits_path_data, distance = header_distance
   default, distance, header_distance
-  print, 'Using Solar Orbiter distance of : ' + strtrim(distance,2) +  ' AU'
+  if ~keyword_set(silent) then print, 'Using Solar Orbiter distance of : ' + strtrim(distance,2) +  ' AU'
   
   break_file, fits_path_data, disk, dir, data_file_name, ext
   fits_data_file = data_file_name + '.fits'

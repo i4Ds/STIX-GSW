@@ -63,7 +63,10 @@
 ;
 ;    srmfile : in, type="string", default="'stx_srm_'+ UID + '.fits'"
 ;                    File name to use when saving the srm FITS file for OSPEX input.
-;
+;                    
+;    silent : in, type="int", default="0"
+;             If set prevents informational messages being displayed.
+;             
 ;    background_data : out, type="stx_background_data structure"
 ;                     Structure containing the subtracted background for external plotting.
 ;
@@ -91,6 +94,7 @@
 ;    16-Aug-2022 - ECMD (Graz), information about subtracted background can now be passed out
 ;    15-Mar-2023 - ECMD (Graz), updated to handle release version of L1 FITS files
 ;    16-Jun-2023 - ECMD (Graz), for a source location dependent response estimate, the location in HPC and the auxiliary ephemeris file must be provided.
+;    06-Dec-2023 - ECMD (Graz), added silent keyword, more information is now printed if not set
 ;
 ;-
 pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, $
@@ -98,20 +102,22 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
   det_ind = det_ind, pix_ind = pix_ind, $
   shift_duration = shift_duration, no_attenuation = no_attenuation, sys_uncert = sys_uncert, $
-  generate_fits = generate_fits, specfile = specfile, srmfile = srmfile,$
+  generate_fits = generate_fits, specfile = specfile, srmfile = srmfile, silent = silent, $
   background_data = background_data, plot = plot, ospex_obj = ospex_obj
-
-
-  if n_elements(time_shift) eq 0 then begin
-    message, 'Time shift value not set, using default value of 0 [s].', /info
-    print, 'File averaged values can be obtained from the FITS file header'
-    print, 'using stx_get_header_corrections.pro.'
-    time_shift = 0.
-  endif
 
   default, shift_duration, 0
   default, plot, 1
   default, det_ind, 'top24'
+  default, silent, 0
+
+  if n_elements(time_shift) eq 0 then begin
+  if ~keyword_set(silent) then begin
+    message, 'Time shift value not set, using default value of 0 [s].', /info
+    print, 'File averaged values can be obtained from the FITS file header'
+    print, 'using stx_get_header_corrections.pro.'
+  endif
+    time_shift = 0.
+  endif
 
   if data_type(det_ind) eq 7 then det_ind = stx_label2det_ind(det_ind)
   if data_type(pix_ind) eq 7 then pix_ind = stx_label2pix_ind(pix_ind)
@@ -130,20 +136,25 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
 
   stx_read_pixel_data_fits_file, fits_path_data, time_shift, primary_header = primary_header, data_str = data_str, data_header = data_header, control_str = control_str, $
     control_header= control_header, energy_str = energy_str, energy_header = energy_header, t_axis = t_axis, energy_shift = energy_shift,  e_axis = e_axis , use_discriminators = 0, $
-    shift_duration = shift_duration
+    shift_duration = shift_duration, silent=silent
 
   data_level = 1
 
   start_time = atime(stx_time2any((t_axis.time_start)[0]))
 
   elut_filename = stx_date2elut_file(start_time)
+ 
+  if ~keyword_set(silent) then begin
+        print, 'Using ELUT file ' + elut_filename
+  endif
+  
   uid = control_str.request_id
 
   if n_elements(distance) ne 0 then fits_distance = distance
 
   fits_info_params = stx_fits_info_params( fits_path_data = fits_path_data, data_level = data_level, $
     distance = fits_distance, time_shift = time_shift, fits_path_bk = fits_path_bk, uid = uid, $
-    generate_fits = generate_fits, specfile = specfile, srmfile = srmfile, elut_file = elut_filename)
+    generate_fits = generate_fits, specfile = specfile, srmfile = srmfile, elut_file = elut_filename, silent = silent)
 
   counts_in = data_str.counts
 
@@ -176,6 +187,7 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   detector_mask_used[detectors_used]  = 1
   n_detectors = total(detector_mask_used)
 
+  if ~keyword_set(silent) then begin
   if total(pixel_mask_used[0:3]) eq total(pixel_mask_used[4:7]) then begin
     count_ratio_threshold = 1.05
     counts_top = total(counts_in[1:25,0:3,detectors_used,*])
@@ -186,6 +198,7 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
       else:
     endcase
   endif
+  endif 
 
 
   stx_read_elut, ekev_actual = ekev_actual, elut_filename = elut_filename
@@ -293,9 +306,9 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   specpar = { sp_atten_state :  {time:ut_rcr[index], state:state}, flare_xyoffset : fltarr(2), use_flare_xyoffset:0 }
 
   stx_convert_science_data2ospex, spectrogram = spectrogram, specpar=specpar, time_shift = time_shift, $
-    data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, distance = distance, fits_path_data = fits_path_data,$
+    data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, fits_path_data = fits_path_data,$
     aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
-    eff_ewidth = eff_ewidth, sys_uncert = sys_uncert, plot = plot, background_data = background_data, $
+    eff_ewidth = eff_ewidth, sys_uncert = sys_uncert, plot = plot, background_data = background_data, silent = silent, $
     fits_info_params = fits_info_params, ospex_obj = ospex_obj
 
 end
