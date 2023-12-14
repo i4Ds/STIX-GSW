@@ -38,6 +38,7 @@
 ; :Author: richard.schwartz@nasa.gov, 29-jun-2015
 ; :History: richard.schwartz@nasa.gov,20-jun-2019, changed default to ScienceEnergyChannels_1000.csv
 ;   change non-integer values in normal integer fields to '-999'. I.e change n/a and "max adc" to -999
+;   ECMD (Graz), 13-july-2023, Specification of QL channels to be fully handled by information in Science Energy Channel csv file.
 ;-
 function stx_science_energy_channels, $
   basefile = basefile, reset=reset, structure = structure, ql = ql, _extra = _extra
@@ -80,8 +81,6 @@ function stx_science_energy_channels, $
   ;For the quicklook energy bins
   if keyword_set( ql ) then $
     str = str[ [ 0, where( str[1:*].ql_channel - str.ql_channel ) + 1 ]  ]
-  str[0].ql_channel = -1 ;not a member of the QL, really the LLD
-  str[31].ql_channel =  -1 ;not a member of the QL, really a ULD
   str[31].eupper = 500.0
   str[31].binwidth = 350.0
   str[31].de_e = 0.7
@@ -92,7 +91,7 @@ function stx_science_energy_channels, $
 
   result = keyword_set( structure ) ? str : get_edges( str[science_channel].energy_edge, _extra = _extra )
   ;19-jun-2019, RAS, patch in the changes associated with using the first and last channels as descriminators
-  ;andnot as science channels
+  ;and not as science channels
   return, result
 end
 

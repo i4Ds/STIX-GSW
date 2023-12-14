@@ -78,6 +78,7 @@
 ;    21-Feb-2023 - FSc (AIP), fix for more changes in L1 files (energy_bin_edge_mask vs. energy_bin_mask)
 ;    15-Mar-2023 - ECMD (Graz), updated to handle release version of L1 FITS files
 ;    27-Mar-2023 - ECMD (Graz), added check for duration shift already applied in FITS file
+;    11-Oct-2023 - Paolo (WKU), 'energy_bin_mask' is returned in the data structure
 ;
 ;-
 pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
@@ -250,6 +251,7 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
     control_index:control_index,$
     pixel_masks:data.pixel_masks,$
     detector_masks:data.detector_masks,$
+    energy_bin_mask: energy_bin_mask,$
     num_pixel_sets:data.num_pixel_sets,$
     num_energy_groups:data.num_energy_groups }
 

@@ -130,6 +130,7 @@
 ;   03-dec-2018,   ECMD (Graz), change of calculation including eta and tau
 ;   03-mar-2022,   ECMD (Graz), update of eta and tau values and definition tau is now only readout time
 ;   21-apr-2022,   ECMD (Graz), added pileup correction parameter 
+;   17-oct-2023,   ECMD (Graz), update of default eta value using empirical high trigger rate data 
 ;
 ;-
 function stx_livetime_fraction, triggergram,  det_select, tau_array = tau_array,  eta_array=eta_array, error=error
@@ -140,7 +141,7 @@ function stx_livetime_fraction, triggergram,  det_select, tau_array = tau_array,
 
   ntrig  = (size(/dimension, triggergram.triggerdata ))[0]
   default, tau_array, 10.1e-6 + fltarr(ntrig) ;10.1 microseconds readout time per event
-  default, eta_array, 2.63e-6 + fltarr(ntrig) ;2.63 microseconds latency time per event
+  default, eta_array, 1.10e-6 + fltarr(ntrig) ;1.1 microseconds latency time per event (best fit May 2023)
 
   beta = stx_pileup_corr_parameter() ; get estimate of pileup correction parameter 
 
