@@ -252,7 +252,6 @@ pro stx_read_pixel_data_fits_file, fits_path, time_shift, alpha = alpha, primary
     pixel_masks:data.pixel_masks,$
     detector_masks:data.detector_masks,$
     energy_bin_mask: energy_bin_mask,$
-    num_pixel_sets:data.num_pixel_sets,$
-    num_energy_groups:data.num_energy_groups }
+    num_pixel_sets:data.num_pixel_sets}
 
 end
