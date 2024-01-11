@@ -101,7 +101,7 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   time_shift = time_shift, energy_shift = energy_shift, distance = distance, $
   aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
   det_ind = det_ind, pix_ind = pix_ind, $
-  shift_duration = shift_duration, no_attenuation = no_attenuation, sys_uncert = sys_uncert, $
+  elut_correction = elut_correction, shift_duration = shift_duration, no_attenuation = no_attenuation, sys_uncert = sys_uncert, $
   generate_fits = generate_fits, specfile = specfile, srmfile = srmfile, silent = silent, $
   background_data = background_data, plot = plot, ospex_obj = ospex_obj
 
@@ -119,6 +119,11 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
     time_shift = 0.
   endif
 
+  default, shift_duration, 0
+  default, plot, 1
+  default, det_ind, 'top24'
+  default, elut_correction, 1
+  
   if data_type(det_ind) eq 7 then det_ind = stx_label2det_ind(det_ind)
   if data_type(pix_ind) eq 7 then pix_ind = stx_label2pix_ind(pix_ind)
 
@@ -201,27 +206,15 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   endif 
 
 
-  stx_read_elut, ekev_actual = ekev_actual, elut_filename = elut_filename
-
-  ave_edge  = mean(reform(ekev_actual[energy_edges_used-1, pixels_used, detectors_used, 0 ],n_energy_edges, n_pixels, n_detectors), dim= 2)
-  ave_edge  = mean(reform(ave_edge,n_energy_edges, n_detectors), dim= 2)
-
-
-  edge_products, ave_edge, width = ewidth
-
-  eff_ewidth =  (e_axis.width)/ewidth
-
-
   counts_in = reform(counts_in,[dim_counts[0:2], n_times])
 
   spec_in = total(reform(counts_in[*,pixels_used,detectors_used,*],[32,n_pixels,n_detectors,n_times]),2)
 
   spec_in = reform(spec_in,[dim_counts[0],n_detectors, n_times])
 
-  counts_spec =  spec_in[energy_bins,*, *] * reform(reproduce(eff_ewidth, n_detectors*n_times),n_energies, n_detectors, n_times)
+  counts_spec =  spec_in[energy_bins,*, *]
 
   counts_spec =  reform(counts_spec,[n_energies, n_detectors, n_times])
-
 
   counts_err = reform(data_str.counts_err,[dim_counts[0:2], n_times])
 
@@ -229,16 +222,39 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
 
   counts_err = reform(counts_err,[dim_counts[0],n_detectors, n_times])
 
-  counts_err =  counts_err[energy_bins,*, *] * reform(reproduce(eff_ewidth, n_detectors*n_times),n_energies, n_detectors, n_times)
-
+  counts_err =  counts_err[energy_bins,*, *]
+  
   counts_err =  reform(counts_err,[n_energies, n_detectors, n_times])
 
   triggers =  transpose(reform(data_str.triggers,[16, n_times]))
 
   triggers_err =  transpose(reform(data_str.triggers_err,[16, n_times]))
 
-
   rcr = data_str.rcr
+  
+ if keyword_set(elut_correction) then begin
+
+
+  stx_read_elut, ekev_actual = ekev_actual, elut_filename = elut_filename
+
+  ave_edge  = mean(reform(ekev_actual[energy_edges_used-1, pixels_used, detectors_used, 0 ],n_energy_edges, n_pixels, n_detectors), dim= 2)
+  ave_edge  = mean(reform(ave_edge,n_energy_edges, n_detectors), dim= 2)
+
+  edge_products, ave_edge, width = ewidth
+
+  eff_ewidth =  (e_axis.width)/ewidth
+
+
+  counts_spec =  counts_spec * reform(reproduce(eff_ewidth, n_detectors*n_times),n_energies, n_detectors, n_times)
+
+  counts_spec =  reform(counts_spec,[n_energies, n_detectors, n_times])
+
+
+  counts_err =  counts_err * reform(reproduce(eff_ewidth, n_detectors*n_times),n_energies, n_detectors, n_times)
+
+  counts_err =  reform(counts_err,[n_energies, n_detectors, n_times])
+  
+  endif
 
   ;insert the information from the telemetry file into the expected stx_fsw_sd_spectrogram structure
   spectrogram = { $
@@ -308,7 +324,7 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   stx_convert_science_data2ospex, spectrogram = spectrogram, specpar=specpar, time_shift = time_shift, $
     data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, fits_path_data = fits_path_data,$
     aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
-    eff_ewidth = eff_ewidth, sys_uncert = sys_uncert, plot = plot, background_data = background_data, silent = silent, $
+    eff_ewidth = eff_ewidth, sys_uncert = sys_uncert, plot = plot, background_data = background_data, elut_correction = elut_correction, silent = silent, $
     fits_info_params = fits_info_params, ospex_obj = ospex_obj
 
 end

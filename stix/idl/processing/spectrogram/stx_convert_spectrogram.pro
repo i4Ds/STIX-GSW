@@ -91,7 +91,7 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
   aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
   time_shift = time_shift, energy_shift = energy_shift, distance = distance,  $
   replace_doubles = replace_doubles, keep_short_bins = keep_short_bins, apply_time_shift = apply_time_shift,$
-  shift_duration = shift_duration, no_attenuation = no_attenuation, sys_uncert = sys_uncert, $
+  elut_correction = elut_correction, shift_duration = shift_duration, no_attenuation = no_attenuation, sys_uncert = sys_uncert, $
   generate_fits = generate_fits, specfile = specfile, srmfile = srmfile, silent = silent, $
   background_data = background_data, plot = plot, ospex_obj = ospex_obj
 
@@ -107,8 +107,9 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
     time_shift = 0.
   endif
 
-
-
+  default, plot, 1
+  default, elut_correction, 1 
+  
   stx_read_spectrogram_fits_file, fits_path_data, time_shift, primary_header = primary_header, data_str = data_str, data_header = data_header, control_str = control_str, $
     control_header= control_header, energy_str = energy_str, energy_header = energy_header, t_axis = t_axis, energy_shift = energy_shift,  e_axis = e_axis , use_discriminators = 0,$
     replace_doubles = replace_doubles, keep_short_bins = keep_short_bins, shift_duration = shift_duration
@@ -150,25 +151,16 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
   detector_mask_used[detectors_used] = 1
   n_detectors = total(detector_mask_used)
 
-  stx_read_elut, ekev_actual = ekev_actual, elut_filename = elut_filename
-
-  ave_edge  = mean(reform(ekev_actual[energy_edges_used-1, pixels_used, detectors_used, 0 ], n_energy_edges, n_pixels, n_detectors), dim = 2)
-  ave_edge  = mean(reform(ave_edge,n_energy_edges, n_detectors), dim = 2)
-
-
-  edge_products, ave_edge, width = ewidth
-
-  eff_ewidth =  (e_axis.width)/ewidth
 
   counts_in = reform(counts_in,[dim_counts[0], n_times])
 
   spec_in = counts_in
 
-  counts_spec =  spec_in[energy_bins, *] * reproduce(eff_ewidth, n_times)
+  counts_spec =  spec_in[energy_bins, *]
 
   counts_spec =  reform(counts_spec,[n_energies, n_times])
 
-  counts_err = data_str.counts_err[energy_bins,*] * reproduce(eff_ewidth, n_times)
+  counts_err = data_str.counts_err[energy_bins,*]
 
   counts_err =  reform(counts_err,[n_energies, n_times])
 
@@ -177,6 +169,29 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
   triggers_err =  reform(data_str.triggers_err,[1, n_times])
 
   rcr = data_str.rcr
+
+
+if keyword_set(elut_correction) then begin
+  stx_read_elut, ekev_actual = ekev_actual, elut_filename = elut_filename
+
+  ave_edge  = mean(reform(ekev_actual[energy_edges_used-1, pixels_used, detectors_used, 0 ], n_energy_edges, n_pixels, n_detectors), dim = 2)
+  ave_edge  = mean(reform(ave_edge,n_energy_edges, n_detectors), dim = 2)
+
+  edge_products, ave_edge, width = ewidth
+
+  eff_ewidth =  (e_axis.width)/ewidth
+  
+  counts_spec =  counts_spec * reproduce(eff_ewidth, n_times)
+
+  counts_spec =  reform(counts_spec,[n_energies, n_times])
+
+  counts_err = counts_err * reproduce(eff_ewidth, n_times)
+
+  counts_err =  reform(counts_err,[n_energies, n_times])
+endif
+
+
+
 
   ;insert the information from the telemetry file into the expected stx_fsw_sd_spectrogram structure
   spectrogram = { $
@@ -242,8 +257,8 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
   specpar = { sp_atten_state :  {time:ut_rcr[index], state:state}, flare_xyoffset : fltarr(2), use_flare_xyoffset:0 }
 
   stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, $
-    fits_path_data = fits_path_data,  eff_ewidth = eff_ewidth, fits_info_params = fits_info_params, sys_uncert = sys_uncert, $
-    aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, silent = silent, $
+    distance = distance, fits_path_data = fits_path_data, elut_correction = elut_correction, eff_ewidth = eff_ewidth, fits_info_params = fits_info_params, sys_uncert = sys_uncert, $
+    aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, silent = silent,$
     background_data = background_data, plot = plot, generate_fits = generate_fits, ospex_obj = ospex_obj
 
 end

@@ -84,8 +84,8 @@
 ;
 ;-
 pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims,  fits_path_bk = fits_path_bk,$
-   fits_path_data = fits_path_data, fits_info_params = fits_info_params, aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
-   eff_ewidth = eff_ewidth, sys_uncert = sys_uncert, xspec = xspec, silent = silent, background_data = background_data, plot = plot, generate_fits = generate_fits, pickfile = pickfile, ospex_obj = ospex_obj
+  distance = distance, fits_path_data = fits_path_data, fits_info_params = fits_info_params, aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
+   eff_ewidth = eff_ewidth, sys_uncert = sys_uncert, xspec = xspec, silent = silent, elut_correction = elut_correction, background_data = background_data, plot = plot, generate_fits = generate_fits, pickfile = pickfile, ospex_obj = ospex_obj
 
   default, plot, 0
 
@@ -159,10 +159,13 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
 
     energy_bins = spectrogram.energy_axis.low_fsw_idx
 
-    corrected_counts_bk =  corrected_counts_bk[energy_bins,*] * reproduce(eff_ewidth, n_times)
+    corrected_counts_bk =  corrected_counts_bk[energy_bins,*] 
 
+    if keyword_set(elut_correction) then begin
+      corrected_counts_bk =  corrected_counts_bk * reproduce(eff_ewidth, n_times)
+    endif
+    
     corrected_counts_bk =  reform(corrected_counts_bk,[n_elements(energy_bins), n_times])
-
 
     spec_in_bk = total(reform(spec_in_bk,[dim_counts_bk[0], n_detectors_bk, ntimes_bk ]),2)
 
@@ -170,7 +173,11 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
 
     spec_in_bk  = reform(spec_in_bk,dim_counts_bk[0], n_times)
 
-    spec_in_bk =  spec_in_bk[energy_bins,*] * reproduce(eff_ewidth, n_times)
+    spec_in_bk =  spec_in_bk[energy_bins,*] 
+
+    if keyword_set(elut_correction) then begin
+    spec_in_bk =  spec_in_bk * reproduce(eff_ewidth, n_times)
+    endif
 
     spec_in_bk =  reform(spec_in_bk,[n_elements(energy_bins), n_times])
 
@@ -181,10 +188,13 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
 
     error_bk  = reform(error_bk, dim_counts_bk[0], n_times)
 
-    error_bk =  error_bk[energy_bins,*] * reproduce(eff_ewidth, n_times)
+    error_bk =  error_bk[energy_bins,*] 
+
+    if keyword_set(elut_correction) then begin
+       error_bk =  error_bk * reproduce(eff_ewidth, n_times)
+    endif
 
     error_bk =  reform(error_bk,[n_elements(energy_bins), n_times])
-
 
     spec_in_corr = corrected_counts - corrected_counts_bk
 
