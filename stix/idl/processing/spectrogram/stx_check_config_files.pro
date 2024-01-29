@@ -137,6 +137,7 @@ end
 ;
 ; :history:
 ;    31-Aug-2023 - ECMD (Graz), initial release
+;    22-Jan-2024 - Use Dominic Zarro's <idlneturl2> __define in place of out of box IDL idlneturl
 ;
 ;-
 pro stx_check_config_files, directory, verbose = verbose
@@ -151,7 +152,7 @@ pro stx_check_config_files, directory, verbose = verbose
     version_file = concat_dir(directory, 'stix_conf_version.txt')
     find_version_file = loc_file(version_file)
 
-      ourl = obj_new('IDLnetURL')
+      ourl = obj_new('IDLnetURL2')     ; S.L.Freeland - use Dominic's IDLnetURL2[__define].pro in place of IDL intrinsic
       callback_data = ptr_new({loc:''})
       ourl->setproperty, url_scheme='http'
       ourl->setproperty, url_host='dataarchive.stix.i4ds.net'
