@@ -100,14 +100,14 @@
 pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, $
   time_shift = time_shift, energy_shift = energy_shift, distance = distance, $
   aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
-  det_ind = det_ind, pix_ind = pix_ind, $
-  elut_correction = elut_correction, shift_duration = shift_duration, no_attenuation = no_attenuation, sys_uncert = sys_uncert, $
-  generate_fits = generate_fits, specfile = specfile, srmfile = srmfile, silent = silent, $
-  background_data = background_data, plot = plot, ospex_obj = ospex_obj
+  det_ind = det_ind, pix_ind = pix_ind, elut_correction = elut_correction, shift_duration = shift_duration, $
+  no_attenuation = no_attenuation, sys_uncert = sys_uncert, generate_fits = generate_fits, specfile = specfile, $
+  srmfile = srmfile, silent = silent, background_data = background_data, plot = plot, ospex_obj = ospex_obj
 
   default, shift_duration, 0
   default, plot, 1
   default, det_ind, 'top24'
+  default, elut_correction, 1 
   default, silent, 0
 
   if n_elements(time_shift) eq 0 then begin
@@ -119,11 +119,6 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
     time_shift = 0.
   endif
 
-  default, shift_duration, 0
-  default, plot, 1
-  default, det_ind, 'top24'
-  default, elut_correction, 1
-  
   if data_type(det_ind) eq 7 then det_ind = stx_label2det_ind(det_ind)
   if data_type(pix_ind) eq 7 then pix_ind = stx_label2pix_ind(pix_ind)
 
@@ -324,8 +319,8 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   stx_convert_science_data2ospex, spectrogram = spectrogram, specpar=specpar, time_shift = time_shift, $
     data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, fits_path_data = fits_path_data,$
     aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
-    eff_ewidth = eff_ewidth, sys_uncert = sys_uncert, plot = plot, background_data = background_data, elut_correction = elut_correction, silent = silent, $
-    fits_info_params = fits_info_params, ospex_obj = ospex_obj
+    eff_ewidth = eff_ewidth, sys_uncert = sys_uncert, plot = plot, background_data = background_data, silent = silent, $
+    elut_correction = elut_correction, fits_info_params = fits_info_params, ospex_obj = ospex_obj
 
 end
 

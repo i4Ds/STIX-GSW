@@ -83,9 +83,18 @@
 ;    16-Jun-2023 - ECMD (Graz), for a source location dependent response estimate, the location in HPC and the auxiliary ephemeris file must be provided.
 ;
 ;-
+<<<<<<< HEAD
 pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims,  fits_path_bk = fits_path_bk,$
   distance = distance, fits_path_data = fits_path_data, fits_info_params = fits_info_params, aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
    eff_ewidth = eff_ewidth, sys_uncert = sys_uncert, xspec = xspec, silent = silent, elut_correction = elut_correction, background_data = background_data, plot = plot, generate_fits = generate_fits, pickfile = pickfile, ospex_obj = ospex_obj
+=======
+pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, $
+  data_dims = data_dims, fits_path_bk = fits_path_bk, fits_path_data = fits_path_data, fits_info_params = fits_info_params, $
+  aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
+  eff_ewidth = eff_ewidth, sys_uncert = sys_uncert, xspec = xspec, elut_correction = elut_correction, silent = silent, $
+  background_data = background_data, plot = plot, generate_fits = generate_fits, pickfile = pickfile, ospex_obj = ospex_obj
+
+>>>>>>> 2f68a04a320709525d80256e6f0a739aa28b6f07
 
   default, plot, 0
 

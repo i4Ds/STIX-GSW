@@ -89,9 +89,9 @@
 ;-
 pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk,$
   aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
-  time_shift = time_shift, energy_shift = energy_shift, distance = distance,  $
-  replace_doubles = replace_doubles, keep_short_bins = keep_short_bins, apply_time_shift = apply_time_shift,$
-  elut_correction = elut_correction, shift_duration = shift_duration, no_attenuation = no_attenuation, sys_uncert = sys_uncert, $
+  time_shift = time_shift, energy_shift = energy_shift, distance = distance, replace_doubles = replace_doubles, $
+  keep_short_bins = keep_short_bins, apply_time_shift = apply_time_shift, elut_correction = elut_correction, $
+  shift_duration = shift_duration, no_attenuation = no_attenuation, sys_uncert = sys_uncert, $
   generate_fits = generate_fits, specfile = specfile, srmfile = srmfile, silent = silent, $
   background_data = background_data, plot = plot, ospex_obj = ospex_obj
 
@@ -256,10 +256,11 @@ endif
   ;add the rcr information to a specpar structure so it can be included in the spectrum FITS file
   specpar = { sp_atten_state :  {time:ut_rcr[index], state:state}, flare_xyoffset : fltarr(2), use_flare_xyoffset:0 }
 
-  stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, $
-    distance = distance, fits_path_data = fits_path_data, elut_correction = elut_correction, eff_ewidth = eff_ewidth, fits_info_params = fits_info_params, sys_uncert = sys_uncert, $
-    aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, silent = silent,$
-    background_data = background_data, plot = plot, generate_fits = generate_fits, ospex_obj = ospex_obj
+  stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, $
+    data_dims = data_dims, fits_path_bk = fits_path_bk, distance = distance, fits_path_data = fits_path_data, $
+    elut_correction = elut_correction, eff_ewidth = eff_ewidth, fits_info_params = fits_info_params, sys_uncert = sys_uncert, $
+    aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
+    silent = silent, background_data = background_data, plot = plot, generate_fits = generate_fits, ospex_obj = ospex_obj
 
 end
 
