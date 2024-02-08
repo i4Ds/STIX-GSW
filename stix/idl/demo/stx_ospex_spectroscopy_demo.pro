@@ -28,6 +28,7 @@
 ;   16-Mar-2023 - ECMD (Graz), updated to use release version L1 files
 ;   11-Sep-2023 - ECMD (Graz), allow user to specify output directory
 ;   23-Oct-2023 - ECMD (Graz), include specification of flare location
+;   05-Feb-2024 - ECMD (Graz), files now downloaded using UID and stx_get_science_fits_file.pro
 ;
 ;-
 pro stx_ospex_spectroscopy_demo, out_dir = out_dir
@@ -47,23 +48,18 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   endif
 
   ;As an example a spectrogram file for a flare on 8th February 2022 is used
-  spec_filename = 'solo_L1_stix-sci-xray-spec_20220208T212353-20220208T223255_V01_2202080003-58150.fits'
+  uid_spec_file = '2202080003'
 
   ;Download the spectrogram fits file to the stix/dbase/demo/ospex/ directory
-  sock_copy, site + '08/SCI/' + spec_filename, status = status, out_dir = out_dir
+  fits_path_data_spec = stx_get_science_fits_file(uid_spec_file, out_dir=out_dir)
 
   ;An observation of a non-flaring quiet time close to the flare observation can be used as a background estimate
-  bk_filename  = 'solo_L1_stix-sci-xray-cpd_20220209T002721-20220209T021401_V01_2202090020-58535.fits'
-  sock_copy, site + '09/SCI/'+ bk_filename, status = status, out_dir = out_dir
+  uid_bkg_file  = '2202090020'
+  fits_path_bk = stx_get_science_fits_file(uid_bkg_file, out_dir=out_dir)
 
   ;As well as the summed spectrogram a compressed pixel data (cpd) observation of the same event is also available
-  cpd_filename = 'solo_L1_stix-sci-xray-cpd_20220208T212833-20220208T222055_V01_2202080013-58504.fits'
-  sock_copy, site + '08/SCI/' + cpd_filename, status = status, out_dir = out_dir
-
-  ;Now they have been dowloaded set the paths of the science data files
-  fits_path_data_spec = loc_file(spec_filename, path = out_dir)
-  fits_path_bk        = loc_file(bk_filename, path = out_dir)
-  fits_path_data_cpd  = loc_file(cpd_filename, path = out_dir)
+  uid_cpd_file = '2202080013'
+  fits_path_data_cpd = stx_get_science_fits_file(uid_cpd_file, out_dir=out_dir)
 
   ;read the of the primary HDU of the spectrogram file to obtain the header which contains key information
   !null = mrdfits(fits_path_data_spec, 0, primary_header)
@@ -204,10 +200,11 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   spex_autoplot_enable = 1
   spex_fitcomp_plot_err = 1
 
-  ;*********************************************** 3 -First fit - Spectrogram with pre-flare background selected  ******************************************************
+  ;*********************************************** 3 - First fit - Spectrogram with pre-flare background selected  ******************************************************
 
   ;The main routine to convert the spectrogram (L4) data to an OSPEX compatible format is stx_convert_spectrogram
   ;Several necessary corrections are also applied to the data here
+  ;This fit uses the option of directly passing in the location in the STIX coordinate frame.
   ;After this is called the spectrum and srm FITS files will be generated.
   ;The routine will load these files into an OSPEX object which is it will also pass out so that further parameters
   ;can be applied and the fitting performed.
@@ -268,11 +265,13 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   ;For the second method the routine stx_convert_spectrogram.pro is again called with the filename, distance and time_shift keywords
   ;Additionally the file name of a L1 pixel data background observation is supplied. In this case the background is subtracted from the flare
   ;data before the spectrum file is generated.
+  ;This fit uses the option of passing in the location in the Helioprojective Cartesian Cartesian frame along with the auxiliary ephemeris file
+  ;to perform the coordinate transform to the STIX frame.
   ;Note that currently the type of background accepted is currently limited to compaction Level 1 (Compressed Pixel Data)
   stx_convert_spectrogram, $
     fits_path_data = fits_path_data_spec, $
     fits_path_bk = fits_path_bk, $
-    flare_location_hpc = flare_loc, aux_fits_file  = aux_fits_file, $
+    flare_location_hpc = flare_loc, aux_fits_file = aux_fits_file, $
     distance = distance, $
     time_shift = time_shift, $
     ospex_obj = ospex_obj_spec_bksub
@@ -306,12 +305,16 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   ;For the third method a different routine is called stx_convert_pixel_data.pro this converts a L1 pixel data background observation to an OSPEX compatible spectrum file in
   ;a very similar manner to stx_convert_spectrogram.pro it takes many of the same keywords. Again the filename, distance and time_shift keywords should be supplied
   ;L1 data is usually downloaded for every individual pixel meaning that more accurate calibration can be applied
+  ;
+  ;This fit uses the option of passing in the location in the Helioprojective Cartesian Cartesian frame stx_get_ephemeris_file.pro will be used to attempt to retrieve
+  ;the auxiliary ephemeris file needed to perform the coordinate transform to the STIX frame.
+  ;
   ;The effect of onboard data compression is also reduced. However as this format requires a much higher volume of telemetry often the temporal resolution will
   ;be reduced.
   stx_convert_pixel_data, $
     fits_path_data = fits_path_data_cpd,$
     fits_path_bk = fits_path_bk, $
-    flare_location_hpc = flare_loc, $ 
+    flare_location_hpc = flare_loc, $
     distance = distance, $
     time_shift = time_shift, $
     ospex_obj = ospex_obj_cpd
@@ -406,5 +409,10 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
 
 
   stop
+
+  ;clean up by destroying active OSPEX objects
+  obj_destroy, ospex_obj_spec
+  obj_destroy, ospex_obj_spec_bksub
+  obj_destroy, ospex_obj_cpd
 
 end
