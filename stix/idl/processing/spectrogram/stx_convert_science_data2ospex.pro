@@ -96,7 +96,8 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
     
     if n_elements(flare_location_hpc) eq 2 and n_elements(aux_fits_file) eq 0 then aux_fits_file =  stx_get_ephemeris_file( time_range[0], time_range[1])
 
-    if n_elements(flare_location_stx) eq 0 then flare_location_stx = stx_location4spectroscopy( flare_location_hpc = flare_location_hpc, aux_fits_file = aux_fits_file, time_range = time_range)
+    if n_elements(flare_location_stx) eq 0 then flare_location_stx = stx_location4spectroscopy( flare_location_hpc = flare_location_hpc, aux_fits_file = aux_fits_file, $
+      time_range = time_range, silent = silent)
     specpar.flare_xyoffset = flare_location_stx
 
   distance = fits_info_params.distance
