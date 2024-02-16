@@ -293,26 +293,19 @@ pro stx_demo_lightcurve
   endif
 
 
-  ;As an example a spectrogram (Level 4) file for a flare on 8th February 2022 is used
-  spec_filename = 'solo_L1_stix-sci-xray-spec_20220208T212353-20220208T223255_V01_2202080003-58150.fits'
+  ;As an example a spectrogram file for a flare on 8th February 2022 is used
+  uid_spec_file = '2202080003'
 
   ;Download the spectrogram fits file to the stix/dbase/demo/ospex/ directory
-  sock_copy, site + '08/SCI/' + spec_filename, status = status, out_dir = out_dir
+  fits_path_data_spec = stx_get_science_fits_file(uid_spec_file, out_dir=out_dir)
 
   ;An observation of a non-flaring quiet time close to the flare observation can be used as a background estimate
-  bk_filename  = 'solo_L1_stix-sci-xray-cpd_20220209T002721-20220209T021401_V01_2202090020-58535.fits'
-  sock_copy, site + '09/SCI/'+ bk_filename, status = status, out_dir = out_dir
+  uid_bkg_file  = '2202090020'
+  fits_path_bk = stx_get_science_fits_file(uid_bkg_file, out_dir=out_dir)
 
-  ;As well as the summed spectrogram a pixel data observation of the same event is also available
-  cpd_filename = 'solo_L1_stix-sci-xray-cpd_20220208T212833-20220208T222055_V01_2202080013-58504.fits'
-  sock_copy, site + '08/SCI/' + cpd_filename, status = status, out_dir = out_dir
-
-
-  ;Now they have been dowloaded set the paths of the science data files
-  fits_path_data_spec = loc_file(spec_filename, path = out_dir )
-  fits_path_bk   = loc_file(bk_filename, path = out_dir )
-  fits_path_data_cpd   = loc_file(cpd_filename, path = out_dir)
-
+  ;As well as the summed spectrogram a compressed pixel data (cpd) observation of the same event is also available
+  uid_cpd_file = '2202080013'
+  fits_path_data_cpd = stx_get_science_fits_file(uid_cpd_file, out_dir=out_dir) 
   ; set the example time and energy binning
   time_min = 4
   energy_ranges = [4,6,10,28]
