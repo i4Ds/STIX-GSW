@@ -85,8 +85,9 @@ pro stx_estimate_flare_location, path_sci_file, time_range, aux_data, flare_loc=
   xx = reform(xy[0, *, *] * bp_nat_map.dx + bp_nat_map.xc)
   yy = reform(xy[1, *, *] * bp_nat_map.dy + bp_nat_map.yc)
   
-  mask_around_peak = sqrt( (xx - max_bp_coord[0])^2. + (yy - max_bp_coord[1])^2.)
-  idx = where(mask_around_peak le 200.)
+  disance_wrt_peak = sqrt( (xx - max_bp_coord[0])^2. + (yy - max_bp_coord[1])^2.)
+  idx = where(disance_wrt_peak le 200.) ;; 200 arcsec: arbitrary choice to be conservative and exclude the entire area 
+                                        ;; around the main peak of the BP map
   
   bp_image        = bp_nat_map.data
   bp_image_masked = bp_image
@@ -131,7 +132,7 @@ pro stx_estimate_flare_location, path_sci_file, time_range, aux_data, flare_loc=
 
     xyouts,0.5,0.9,bp_nat_map.TIME,/normal,chars=2.5,ali=0.5
   
-    if sidelobes_ratio ge 0.9 then begin
+    if sidelobes_ratio ge 0.9 then begin ;; Threshold equal to 0.9: arbitrary choice based on some examples
     
     xyouts,0.5,0.96,'WARNING: flare loction could be unreliable!',/normal,chars=2.5,ali=0.5, color=2
     print
