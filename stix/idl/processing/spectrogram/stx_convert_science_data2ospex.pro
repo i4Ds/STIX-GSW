@@ -83,9 +83,12 @@
 ;    16-Jun-2023 - ECMD (Graz), for a source location dependent response estimate, the location in HPC and the auxiliary ephemeris file must be provided.
 ;
 ;-
-pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims,  fits_path_bk = fits_path_bk,$
-  distance = distance, fits_path_data = fits_path_data, fits_info_params = fits_info_params, aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
-   eff_ewidth = eff_ewidth, sys_uncert = sys_uncert, xspec = xspec, elut_correction = elut_correction, background_data = background_data, plot = plot, generate_fits = generate_fits, pickfile = pickfile, ospex_obj = ospex_obj
+pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, $
+  data_dims = data_dims, fits_path_bk = fits_path_bk, fits_path_data = fits_path_data, fits_info_params = fits_info_params, $
+  aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
+  eff_ewidth = eff_ewidth, sys_uncert = sys_uncert, xspec = xspec, elut_correction = elut_correction, silent = silent, $
+  background_data = background_data, plot = plot, generate_fits = generate_fits, pickfile = pickfile, ospex_obj = ospex_obj
+
 
   default, plot, 0
 
@@ -93,14 +96,11 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
     
     if n_elements(flare_location_hpc) eq 2 and n_elements(aux_fits_file) eq 0 then aux_fits_file =  stx_get_ephemeris_file( time_range[0], time_range[1])
 
-    
-    if n_elements(flare_location_stx) eq 0 then flare_location_stx = stx_location4spectroscopy( flare_location_hpc = flare_location_hpc, aux_fits_file = aux_fits_file, time_range = time_range)
+    if n_elements(flare_location_stx) eq 0 then flare_location_stx = stx_location4spectroscopy( flare_location_hpc = flare_location_hpc, aux_fits_file = aux_fits_file, $
+      time_range = time_range, silent = silent)
     specpar.flare_xyoffset = flare_location_stx
 
-  ;if distance is not set use the average value from the fits header
-  stx_get_header_corrections, fits_path_data, distance = header_distance
-  default, distance, header_distance
-  print, 'Using Solar Orbiter distance of : ' + strtrim(distance,2) +  ' AU'
+  distance = fits_info_params.distance
 
   dist_factor = 1./(distance^2.)
 
@@ -290,7 +290,7 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
 
   ospex_obj = stx_fsw_sd_spectrogram2ospex( spectrogram, specpar = specpar, time_shift= time_shift, ph_energy_edges = ph_in, $
     /include_damage, generate_fits = generate_fits, xspec = xspec, /tail, livetime_fraction = eff_livetime_fraction, $
-    dist_factor = dist_factor, flare_location_stx = flare_location_stx, sys_uncert = sys_uncert, fits_info_params = fits_info_params, background_data = background_data)
+    dist_factor = dist_factor, flare_location_stx = flare_location_stx, sys_uncert = sys_uncert, fits_info_params = fits_info_params, background_data = background_data, silent = silent)
 
   if keyword_set(plot) then begin
     ospex_obj ->gui

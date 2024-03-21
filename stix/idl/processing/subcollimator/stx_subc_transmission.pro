@@ -39,7 +39,7 @@
 ;-
 
 
-function stx_subc_transmission, flare_loc, ph_in, flux = flux, simple_transm = simple_transm
+function stx_subc_transmission, flare_loc, ph_in, flux = flux, simple_transm = simple_transm, silent = silent
 
   restore,loc_file( 'grid_temp.sav', path = getenv('STX_GRID') )
   fff=read_ascii(loc_file( 'grid_param_front.txt', path = getenv('STX_GRID') ),temp=grid_temp)
@@ -56,9 +56,12 @@ function stx_subc_transmission, flare_loc, ph_in, flux = flux, simple_transm = s
 
   if ~keyword_set(ph_in) then begin
     ph_in = 1.
+    if ~keyword_set(silent) then begin 
     if ~keyword_set(simple_transm) then message, 'No photon energies passed, calculating low energy approximation at 1 keV.', /info $
     else message, 'Simple grid transmission selected, calculating opaque approximation.', /info
+    endif
   endif
+
 
   transm = fltarr(n_elements(ph_in), 32) ; the tranmission is calculated 
 
