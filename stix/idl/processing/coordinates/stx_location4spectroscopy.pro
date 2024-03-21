@@ -40,7 +40,7 @@
 ;    15-Jun-2023 - ECMD (Graz), initial release
 ;
 ;-
-function stx_location4spectroscopy, flare_location_hpc = flare_location_hpc, aux_fits_file = aux_fits_file, time_range = time_range
+function stx_location4spectroscopy, flare_location_hpc = flare_location_hpc, aux_fits_file = aux_fits_file, time_range = time_range, silent = silent
 
   if n_elements(flare_location_hpc) ne 0 then begin
     
@@ -51,7 +51,7 @@ function stx_location4spectroscopy, flare_location_hpc = flare_location_hpc, aux
     flare_location_stx = stx_hpc2stx_coord(flare_location_hpc, aux_data)
   endif else begin
 
-    print,'Flare location data not provided, using on-axis approximation.'
+    if ~keyword_set(silent) then print,'Flare location data not provided, using on-axis approximation.'
     flare_location_stx = [0.,0.]
     flare_location_hpc = [!values.f_nan,!values.f_nan]
   endelse

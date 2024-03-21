@@ -84,23 +84,28 @@
 ;    16-Aug-2022 - ECMD (Graz), information about subtracted background can now be passed out
 ;    15-Mar-2023 - ECMD (Graz), updated to handle release version of L1 FITS files
 ;    16-Jun-2023 - ECMD (Graz), for a source location dependent response estimate, the location in HPC and the auxiliary ephemeris file must be provided.
+;    06-Dec-2023 - ECMD (Graz), added silent keyword, more information is now printed if not set
 ;
 ;-
 pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk,$
   aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
-  time_shift = time_shift, energy_shift = energy_shift, distance = distance,  $
-  replace_doubles = replace_doubles, keep_short_bins = keep_short_bins, apply_time_shift = apply_time_shift,$
-  elut_correction = elut_correction, shift_duration = shift_duration, no_attenuation = no_attenuation, sys_uncert = sys_uncert, $
-  generate_fits = generate_fits, specfile = specfile, srmfile = srmfile,$
+  time_shift = time_shift, energy_shift = energy_shift, distance = distance, replace_doubles = replace_doubles, $
+  keep_short_bins = keep_short_bins, apply_time_shift = apply_time_shift, elut_correction = elut_correction, $
+  shift_duration = shift_duration, no_attenuation = no_attenuation, sys_uncert = sys_uncert, $
+  generate_fits = generate_fits, specfile = specfile, srmfile = srmfile, silent = silent, $
   background_data = background_data, plot = plot, ospex_obj = ospex_obj
 
+  default, plot, 1
+  default, silent, 0
+
   if n_elements(time_shift) eq 0 then begin
+    if ~keyword_set(silent) then begin
     message, 'Time shift value is not set. Using default value of 0 [s].', /info
     print, 'File averaged values can be obtained from the FITS file header'
     print, 'using stx_get_header_corrections.pro.'
+    endif
     time_shift = 0.
   endif
-
 
   default, plot, 1
   default, elut_correction, 1 
@@ -114,12 +119,16 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
   start_time = atime(stx_time2any((t_axis.time_start)[0]))
 
   elut_filename = stx_date2elut_file(start_time)
-
+  
+  if ~keyword_set(silent) then begin
+    print, 'Using ELUT file ' + elut_filename
+  endif
+  
   uid = control_str.request_id
 
   fits_info_params = stx_fits_info_params( fits_path_data = fits_path_data, data_level = data_level, $
     distance = distance, time_shift = time_shift, fits_path_bk = fits_path_bk, uid = uid, $
-    generate_fits = generate_fits, specfile = specfile, srmfile = srmfile, elut_file = elut_filename)
+    generate_fits = generate_fits, specfile = specfile, srmfile = srmfile, elut_file = elut_filename, silent = silent)
 
   counts_in = data_str.counts
 
@@ -247,10 +256,11 @@ endif
   ;add the rcr information to a specpar structure so it can be included in the spectrum FITS file
   specpar = { sp_atten_state :  {time:ut_rcr[index], state:state}, flare_xyoffset : fltarr(2), use_flare_xyoffset:0 }
 
-  stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, $
-    distance = distance, fits_path_data = fits_path_data, elut_correction = elut_correction, eff_ewidth = eff_ewidth, fits_info_params = fits_info_params, sys_uncert = sys_uncert, $
+  stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, $
+    data_dims = data_dims, fits_path_bk = fits_path_bk, fits_path_data = fits_path_data, $
+    elut_correction = elut_correction, eff_ewidth = eff_ewidth, fits_info_params = fits_info_params, sys_uncert = sys_uncert, $
     aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
-    background_data = background_data, plot = plot, generate_fits = generate_fits, ospex_obj = ospex_obj
+    silent = silent, background_data = background_data, plot = plot, generate_fits = generate_fits, ospex_obj = ospex_obj
 
 end
 
