@@ -1,4 +1,9 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6815762.svg)](https://doi.org/10.5281/zenodo.6815762)
+
+
 # STIX-GSW (STIX Ground Software)
+
+
 
 Welcome to the GitHub repository of the IDL-based [STIX](https://stix.i4ds.net) ground analysis software. Please visit [stixpy](https://github.com/samaloney/stixpy) for the Python version.
 
