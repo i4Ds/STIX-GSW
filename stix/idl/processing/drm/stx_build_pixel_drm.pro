@@ -55,7 +55,8 @@
 ;
 ;
 ;-
-function stx_build_pixel_drm, ct_energy_edges, pixel_mask, ph_energy_edges = ph_energy_edges,rcr = rcr, grid_factor= grid_factor,dist_factor= dist_factor, _extra = _extra
+function stx_build_pixel_drm, ct_energy_edges, pixel_mask, ph_energy_edges = ph_energy_edges, rcr = rcr, $
+  grid_factor = grid_factor, grid_transparency_correction = grid_transparency_correction, dist_factor = dist_factor, _extra = _extra
 
   default, pixel_mask , intarr(12,32) + 1  ; default pixel mask is all pixels from all detectors
   default, grid_factor, 1./4.
@@ -93,16 +94,16 @@ function stx_build_pixel_drm, ct_energy_edges, pixel_mask, ph_energy_edges = ph_
   scale_factor  = total_area/drm.area
 
   ;scale the relevant parameters
-  drm.area *= scale_factor*rcr_factor*dist_factor
+  drm.area *= scale_factor*rcr_factor*dist_factor*grid_factor
 
   det_mask = total(pixel_mask,1) <1
   smatrix = drm.smatrix
   transmission = stx_transmission(drm.emean, det_mask, attenuator = attenuator)
   dim_drm = size(/dim, smatrix) > 1
 
-if n_elements(grid_factor) eq  n_elements(ph_in) then grid_factor=10^(interpol(alog10(grid_factor),alog10(ph_in),alog10(drm.emean)))
+  if n_elements(grid_transparency_correction) eq  n_elements(ph_in) then grid_transparency_correction=10^(interpol(alog10(grid_transparency_correction),alog10(ph_in),alog10(drm.emean)))
 
-  transmission  = transmission*grid_factor
+  transmission  = transmission*grid_transparency_correction
 
   smatrix = smatrix * rebin( transpose(transmission), dim_drm)
 

@@ -56,15 +56,15 @@ function stx_grid_transmission, x_flare, y_flare, grid_orient, grid_pitch, grid_
 
   default, flux, 1
 
+  ;; Distance of the flare on the axis perpendicular to the grid orientation
+  flare_dist   = abs(x_flare * cos(grid_orient * !dtor) + y_flare * sin(grid_orient * !dtor))
+
+  ;; Internal shadowing
+  shadow_width = grid_thick  * tan(flare_dist / 3600. * !dtor)
+
   if ~keyword_set(simple_transm) then begin
   
     bridge_factor = 1.0 - f_div(bridge_width,bridge_pitch)
-  
-    ;; Distance of the flare on the axis perpendicular to the grid orientation
-    flare_dist   = abs(x_flare * cos(grid_orient * !dtor) + y_flare * sin(grid_orient * !dtor))
-  
-    ;; Internal shadowing
-    shadow_width = grid_thick  * tan(flare_dist / 3600. * !dtor)
   
     nenergies = n_elements(linear_attenuation)
   
@@ -91,12 +91,6 @@ function stx_grid_transmission, x_flare, y_flare, grid_orient, grid_pitch, grid_
     return, transmission/2.
 
   endif else begin
-    
-    ;; Distance of the flare on the axis perpendicular to the grid orientation
-    flare_dist   = abs(x_flare * cos(grid_orient * !dtor) + y_flare * sin(grid_orient * !dtor))
-
-    ;; Internal shadowing
-    shadow_width = grid_thick  * tan(flare_dist / 3600. * !dtor)
 
     return, (grid_slit - shadow_width) / grid_pitch
     

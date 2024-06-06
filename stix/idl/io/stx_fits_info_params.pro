@@ -82,6 +82,7 @@ function stx_fits_info_params, fits_path_data = fits_path_data, data_level = dat
   default, elut_file, ''
   default, fits_background_file, ''
   default, detused, ''
+  default, grid_factor, ''
   
   ;if distance is not set use the average value from the fits header
   stx_get_header_corrections, fits_path_data, distance = header_distance
@@ -107,7 +108,7 @@ function stx_fits_info_params, fits_path_data = fits_path_data, data_level = dat
 
 
   stx_fits_info = {uid:uid, fits_data_file:fits_data_file, data_level:data_level, $
-    distance:distance, time_shift:time_shift, grid_factor:list(), $
+    distance:distance, time_shift:time_shift, grid_factor:grid_factor, $
     background_subtracted:background_subtracted, fits_background_file:fits_background_file, $
     generate_fits:generate_fits, specfile:specfile, srmfile:srmfile, elut_file:elut_file, detused:detused}
 
