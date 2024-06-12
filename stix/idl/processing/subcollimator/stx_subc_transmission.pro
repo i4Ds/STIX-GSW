@@ -33,6 +33,8 @@
 ;          24-Oct-2023, ECMD (Graz), added default to calculate low energy approximation if no input photon energies are passed
 ;          31-Oct-2023, Massa P., added 'simple_transm' keyword to compute a simple version of the grid transmission
 ;                                 (temporary solution used for imaging)
+;          12-Jun-2024, Massa P., corrected bug in the definition of grid orientation to be used for computing 
+;                                 the offset angle of the flare location relative to the slats.
 ;          
 ; CONTACT:
 ;   paolo.massa@wku.edu
