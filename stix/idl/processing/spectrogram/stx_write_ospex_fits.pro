@@ -76,11 +76,10 @@ pro stx_write_ospex_fits, $
   edge_products, ct_edges, edges_2 = ct_edges_2 ;if the energy edges are changed this won't be needed
   livetime =  spec.ltime
   nchan = n_elements( ct_edges ) - 1
-
-
   duration=spec.t_axis.duration
-  duration_array=rebin(duration,n_elements(duration),n_elements(ct_edges)-1)
-  livetime_array = rebin([livetime],n_elements(livetime),n_elements(ct_edges)-1)
+  nrows = n_elements(duration)
+  duration_array=rebin(duration, nrows, nchan)
+  livetime_array = rebin([livetime], nrows, nchan)
   data=f_div(data,transpose(duration_array*livetime_array))
   data_error = f_div(data_error,transpose(duration_array*livetime_array))
 
@@ -170,27 +169,35 @@ pro stx_write_ospex_fits, $
   fxaddpar, specheader, 'DETUSED', fits_info_params.detused, "Label for detectors used", before='AUTHOR'
   fxaddpar, specheader, 'DETNAM', fits_info_params.detused, "Label for detectors used", before='AUTHOR'
   fxaddpar, specheader, 'SUMFLAG', 1, "Detectors are summed", before='AUTHOR'
-
+  
   fxaddpar, srmheader, 'SUN_DISTANCE', fits_info_params.distance, "Distance in AU to Sun", before='AUTHOR'
   fxaddpar, srmheader, 'GRID_FACTOR', ((fits_info_params.grid_factor.toarray())[0]), "Total Grid Transmission Factor used", before='AUTHOR'
   fxaddpar, srmheader, 'DETUSED', fits_info_params.detused, "Label for detectors used", before='AUTHOR'
   fxaddpar, srmheader, 'DETNAM', fits_info_params.detused, "Label for detectors used", before='AUTHOR'
   fxaddpar, srmheader, 'SUMFLAG', 1, "Detectors are summed", before='AUTHOR'
 
-
   ;make the spectrum file
-  spectrum2fits, specfilename, rate_struct = rate_struct, write_primary_header = 1, $
+  ; add columns EXPOSURE and SYS_ERR
+  e_min = reform( ct_edges_2[0,*] )  &  e_max = reform( ct_edges_2[1,*] )
+  e_mean = (e_min + e_max) / 2.
+  sys_err = 0.*e_mean
+  tmp_e = where(e_mean lt 7.0, n_tmp)  &  if n_tmp gt 0 then sys_err[tmp_e] = 0.07
+  tmp_e = where(e_mean ge 7.0 and e_mean lt 10.0, n_tmp)  &  if n_tmp gt 0 then sys_err[tmp_e] = 0.05
+  tmp_e = where(e_mean ge 10.0, n_tmp)  &  if n_tmp gt 0 then sys_err[tmp_e] = 0.03
+  sys_err_array = rebin(sys_err, nchan, nrows)
+  extra_col = {exposure: timedel*livetime, sys_err: sys_err_array}
+
+  ; Everything prepared, now generate the FITS file with spectrum data
+  stx_spectrum2fits, specfilename, rate_struct = rate_struct, write_primary_header = 1, $
     primary_header = primary_header, extension_header = specheader, $
     data = data, error = data_error, $
     units = units_arr, spec_num = specnum, channel = channel, $
-    timedel = timedel, $
-    timecen = timecen, $
+    timedel = timedel, timecen = timecen, $
     nrows = n_elements( timecen ),$
-    livetime = livetime, numband = nchan, minchan = lindgen(nchan), $
-    maxchan = lindgen(nchan) + 1, $
-    e_min = reform( ct_edges_2[0,*] ), $
-    e_max = reform( ct_edges_2[1,*] ), e_unit = 'kev', $
-    err_code = err_code, _extra = extra_keys, err_msg = err_msg
+    livetime = livetime, numband = nchan, $
+    minchan = lindgen(nchan), maxchan = lindgen(nchan) + 1, $
+    e_min = e_min, e_max = e_max, e_unit = 'kev', $
+    err_code = err_code, _extra = extra_col, err_msg = err_msg
 
   if  is_struct( specpar ) then begin
     specpar = str_sub2top(specpar)
