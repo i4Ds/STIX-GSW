@@ -87,7 +87,7 @@
 ;    - copy from ssw/gen/idl/fits/spectrum2fits.pro 
 ;    - adapted to STIX data and compatibility with XSPEC:
 ;      * added columns EXPOSURE and SYS_ERR
-;      * 
+;      * correct header keywords HDUCLAS3 and HDUCLAS4 in extension RATE
 ;   
 ;-
 ;------------------------------------------------------------------------------
@@ -152,6 +152,16 @@ IF err_code THEN BEGIN
     RETURN
 ENDIF
 
+; Correct header keywords HDUCLAS3 and HDUCLAS4 (deeply hardcoded in mk_rate_hdr.pro)
+; FSchuller, 2024-07-17
+data_rate = mrdfits(filename, 1, head_rate)
+sxaddpar, head_rate, 'HDUCLAS3', 'RATE', '  Extension contains rates', after='HDUCLAS2'
+sxaddpar, head_rate, 'HDUCLAS4', 'TYPE:II', '  Multiple PHA files contained', after='HDUCLAS3'
+sxdelpar, head_rate, 'HDUCALS3'
+fxwrite, filename, prim_header, ERRMSG=err_msg
+mwrfits, data_rate, filename, head_rate
+
+; 2nd extension: ENEBAND
 wrt_eneband_ext, filename, HEADER=ext_header, NUMBAND=numband, $
                  MINCHAN=minchan, MAXCHAN=maxchan, E_MIN=e_min, E_MAX=e_max, $
                  E_UNIT=e_unit, ERR_MSG=err_msg, ERR_CODE=err_code
