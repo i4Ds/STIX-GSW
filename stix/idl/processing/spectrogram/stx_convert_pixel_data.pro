@@ -8,9 +8,9 @@
 ;
 ; :description:
 ;    This procedure reads a STIX science data x-ray compaction level 1 (compressed pixel data file) and converts it to a spectrogram
-;    file which can be read in by OSPEX. This spectrogram is in the from of an array in energy and time so individual pixel and detector counts
+;    file which can be read in by OSPEX. This spectrogram is in the form of an array in energy and time so individual pixel and detector counts
 ;    are summed. A corresponding detector response matrix file is also produced. If a background file is supplied this will be subtracted
-;    A number of corrections for light travel time,
+;    A number of corrections for light travel time, (...) are applied.
 ;
 ; :categories:
 ;    spectroscopy

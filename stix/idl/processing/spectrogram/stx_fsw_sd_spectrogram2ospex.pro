@@ -166,6 +166,10 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
       if cb7 gt 0 then sys_err[idx_below7kev] = 0.07
 
       sys_err = rebin(sys_err, n_energies,ntimes)
+      ; FSc, 2024-07-18: see below:
+      ; ospex_obj->set, spex_uncert = sys_uncert
+      ; therefore:
+      sys_uncert = sys_err
     endif
 
 

@@ -147,7 +147,7 @@ pro stx_write_ospex_fits, $
     compatibility = compatibility,$
     any_specfile = any_specfile
 
-  units_arr = [ 'counts/s', 'counts/s', ' ', ' ', ' ', 's', 's' ]
+  units_arr = [ 'counts/s', 'counts/s', ' ', ' ', ' ', 's', 's', 's', ' ']
 
   backapp = fits_info_params.background_subtracted ? 'T' : 'F'
   backfile = fits_info_params.fits_background_file

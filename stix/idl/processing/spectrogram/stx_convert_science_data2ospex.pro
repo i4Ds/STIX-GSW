@@ -264,7 +264,9 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
   fstart_time = time2fid(atime(stx_time2any((spectrogram.time_axis.time_start)[0])),/full,/time)
 
   default, specfilename, 'stx_spectrum_' + strtrim(uid,2) + '.fits'
-  default, srmfilename,  'stx_srm_'      + strtrim(uid,2) + '.fits'
+;  default, srmfilename,  'stx_srm_'      + strtrim(uid,2) + '.fits'
+  if ~keyword_set(srmfilename) then $
+    srmfilename = xspec ? 'stx_srm_' + strtrim(uid,2) + '_XSPEC.fits' : 'stx_srm_' + strtrim(uid,2) + '.fits'
 
 
   if keyword_set(pickfile) then begin

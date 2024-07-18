@@ -158,6 +158,8 @@ data_rate = mrdfits(filename, 1, head_rate)
 sxaddpar, head_rate, 'HDUCLAS3', 'RATE', '  Extension contains rates', after='HDUCLAS2'
 sxaddpar, head_rate, 'HDUCLAS4', 'TYPE:II', '  Multiple PHA files contained', after='HDUCLAS3'
 sxdelpar, head_rate, 'HDUCALS3'
+; POISSERR should be a boolean (not an integer)
+sxaddpar, head_rate, 'POISSERR', boolean(0), '  Poisson Error'
 fxwrite, filename, prim_header, ERRMSG=err_msg
 mwrfits, data_rate, filename, head_rate
 
