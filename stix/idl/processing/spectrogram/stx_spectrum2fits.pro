@@ -88,6 +88,7 @@
 ;    - adapted to STIX data and compatibility with XSPEC:
 ;      * added columns EXPOSURE and SYS_ERR
 ;      * correct header keywords HDUCLAS3 and HDUCLAS4 in extension RATE
+;      * update HDUCLAS2 keyword depending whether background was subtracted or not
 ;   
 ;-
 ;------------------------------------------------------------------------------
@@ -160,6 +161,13 @@ sxaddpar, head_rate, 'HDUCLAS4', 'TYPE:II', '  Multiple PHA files contained', af
 sxdelpar, head_rate, 'HDUCALS3'
 ; POISSERR should be a boolean (not an integer)
 sxaddpar, head_rate, 'POISSERR', boolean(0), '  Poisson Error'
+; if background subtracted, update keyword
+bg_sub = sxpar(head_rate, 'BACKAPP')
+if bg_sub eq 1 then begin
+  sxaddpar, head_rate, 'HDUCLAS2', 'NET', '  Extension contains a spectrum'
+  sxaddpar, head_rate, 'BACKFILE', 'none'
+endif else sxaddpar, head_rate, 'HDUCLAS2', 'TOTAL', '  Extension contains a spectrum'
+
 fxwrite, filename, prim_header, ERRMSG=err_msg
 mwrfits, data_rate, filename, head_rate
 
