@@ -53,6 +53,7 @@
 pro stx_plot_selected_time_range, tim_axis, energy_ind, time_ind, counts, live_time_bins, subc_index, sumcase, energy_range, $
                                   time_range, counts_bkg=counts_bkg, live_time_bkg=live_time_bkg, energy_ind_bkg=energy_ind_bkg
 
+
 ; re-initialise UTBASE to handle UTC times properly when calling utplot
 common utcommon
 utbase = 0

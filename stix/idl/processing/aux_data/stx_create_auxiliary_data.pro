@@ -179,11 +179,6 @@ ROT_PITCH = -YAW * sin(ROLL_ANGLE * !dtor) + PITCH * cos(ROLL_ANGLE * !dtor)
 readcol, loc_file( 'Mapcenter_correction_factors.csv', path = getenv('STX_SAS') ), $
   avg_shift_x, avg_shift_y, offset_x, offset_y, /silent
 
- ;;;;;;;
- ; 2023-07-27: reset (avg_shift_x, avg_shift_y) to (0,0) in order to measure it again
- ; with a larger sample of events
-;;   avg_shift_x = 0.  &  avg_shift_y = 0.   ; commented out 2023-08-31
-
 spacecraft_pointing = [avg_shift_x,avg_shift_y] + [ROT_YAW, ROT_PITCH]
 STX_POINTING = spacecraft_pointing
 
