@@ -47,7 +47,7 @@ function stx_get_ephemeris_file, start_time, end_time, out_dir=out_dir, clobber=
   date_path = get_fid(start_time,end_time,/full,delim='/')
 
   path  = type_path + date_path[0] +'/AUX'
-  filter = '*stix-aux-ephemeris*.fits'
+  filter = '*stix-asp-ephemeris*.fits'
 
   found_files=sock_find(site,filter,path=path,count=count)
 
