@@ -70,7 +70,7 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   print, 'Event start time :  ',  header_start_time
   print, " "
 
-  ;For correct energy calibration in is necessary to determine the Energy Lookup Table (ELUT)
+  ; For correct energy calibration it is necessary to determine the Energy Lookup Table (ELUT)
   ; applied in flight when the observation was taken
   elut_filename = stx_date2elut_file(header_start_time)
   print, 'The ELUT applied at this time was : ', elut_filename
@@ -150,10 +150,10 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   spex_drmfile_cpd  = 'stx_srm_2202080013.fits'
 
 
-  ;At the low end we fit to the lowest science energy STIX observes of 4 keV
+  ;At the low end we fit to the lowest science energy STIX observed of 4 keV.
   ;For up to moderate events the science energy channels 28 - 32 keV and 32 - 36 keV are dominated by lines in the
-  ;calibration source are 31 and 35 keV. For this events it is reasonable to fit up to 28 keV
-  spex_erange= [4.0000000D, 28.000000D]
+  ;calibration source at 31 and 35 keV. For these events it is reasonable to fit up to 28 keV
+  spex_erange= [4.0D, 28.0D]
 
 
   ;The pre-flare background is taken as a five minute interval before the start of the flare
@@ -206,7 +206,7 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   ;Several necessary corrections are also applied to the data here
   ;This fit uses the option of directly passing in the location in the STIX coordinate frame.
   ;After this is called the spectrum and srm FITS files will be generated.
-  ;The routine will load these files into an OSPEX object which is it will also pass out so that further parameters
+  ;The routine will load these files into an OSPEX object, which it will also pass out so that further parameters
   ;can be applied and the fitting performed.
   stx_convert_spectrogram, $
     fits_path_data = fits_path_data_spec, $
