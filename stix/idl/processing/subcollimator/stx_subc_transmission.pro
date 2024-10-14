@@ -33,6 +33,8 @@
 ;          24-Oct-2023, ECMD (Graz), added default to calculate low energy approximation if no input photon energies are passed
 ;          31-Oct-2023, Massa P., added 'simple_transm' keyword to compute a simple version of the grid transmission
 ;                                 (temporary solution used for imaging)
+;          12-Jun-2024, Massa P., corrected bug in the definition of grid orientation to be used for computing 
+;                                 the offset angle of the flare location relative to the slats.
 ;          
 ; CONTACT:
 ;   paolo.massa@wku.edu
@@ -71,14 +73,14 @@ function stx_subc_transmission, flare_loc, ph_in, flux = flux, simple_transm = s
   linear_attenuation = mass_attenuation*gmcm/10.
 
 
-  grid_orient_front = 180.-fff.o ;; Orientation of the slits of the grid as seen from the detector side
+  grid_orient_front = fff.o ;; Orientation of the slits of the grid as seen from the detector side
   grid_pitch_front  = fff.p
   grid_slit_front   = fff.slit
   grid_thick_front  = fff.thick
   bridge_width_front = fff.bwidth
   bridge_pitch_front = fff.bpitch
 
-  grid_orient_rear = 180.-rrr.o ;; Orientation of the slits of the grid as seen from the detector side
+  grid_orient_rear = rrr.o ;; Orientation of the slits of the grid as seen from the detector side
   grid_pitch_rear  = rrr.p
   grid_slit_rear   = rrr.slit
   grid_thick_rear  = rrr.thick
