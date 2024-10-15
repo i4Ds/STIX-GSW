@@ -76,22 +76,29 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
   
     if (keyword_set(gtrans32) and n_elements(flare_location_stx) ne 0) then begin
     grid_factors_proc = stx_subc_transmission(flare_location_stx, ph_in, /flux, silent = silent)
+    grid_factors_opaque = stx_subc_transmission(flare_location_stx, ph_in, /flux, silent = silent, /simple_transm)
 
     nph = n_elements(ph_in)
     ngrids = n_elements(grids_used)
     
-
     ;05-Oct-2022 - ECMD until fine grid tranmission is ready replace the 
     ;grids not in TOP24 with the on-axis tabulated values
     idx_nontop24 = stx_label2det_ind('bkg+cfl+fine')
   
     grid_factors_proc[*,idx_nontop24] = transpose(rebin(grid_factors_file[idx_nontop24],n_elements(idx_nontop24),nph))
-    grid_factor = average(reform(rebin(grid_factors_proc[*,grids_used], nph, ngrids), nph, ngrids),2)
+    grid_factor_transparent = average(reform(rebin(grid_factors_proc[*,grids_used], nph, ngrids), nph, ngrids),2)
+    
+    grid_factors_opaque[*,idx_nontop24] = transpose(rebin(grid_factors_file[idx_nontop24],n_elements(idx_nontop24),nph))
+    grid_factor_opaque = average(reform(rebin(grid_factors_opaque[*,grids_used], nph, ngrids), nph, ngrids),2)
+
+    grid_transparency_correction = f_div(grid_factor_transparent,grid_factor_opaque)
+    grid_factor = (grid_factor_opaque)[0]
         
   endif else begin
     print, 'Using nominal (on axis) grid transmission'
     grid_factor = average(grid_factors_file[grids_used])
     specpar.flare_xyoffset = [0.,0.]
+    grid_transparency_correction = 1.
   endelse
 
   if max(grid_factor) eq 0 then begin
@@ -101,6 +108,7 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
       readcol, grid_transmission_file, bk_grid_factors, format = 'f', skip = 2, silent = silent
       
       grid_factor = average(bk_grid_factors[pixels_used])
+      grid_transparency_correction = 1.
 
     endif else begin
       message, 'Warning: Grid Factor is 0 - transmission for CFL and BKG detectors is not implemented',/info
@@ -109,7 +117,7 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
   endif
 
   ;make the srm for the appropriate pixel mask and energy edges
-  srm = stx_build_pixel_drm(ct_edges, pixel_mask,  ph_energy_edges = ph_edges, grid_factor = grid_factor, dist_factor = dist_factor,$
+  srm = stx_build_pixel_drm(ct_edges, pixel_mask,  ph_energy_edges = ph_edges, grid_factor = grid_factor, grid_transparency_correction = grid_transparency_correction, dist_factor = dist_factor,$
     xspec = xspec, _extra = _extra)
 
   rcr_states = specpar.sp_atten_state.state
@@ -122,7 +130,7 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
     ;make the srm for the appropriate pixel mask and energy edges
     rcr = rcr_states[i]
 
-    srm = stx_build_pixel_drm(ct_edges, pixel_mask, rcr = rcr, ph_energy_edges = ph_edges,  grid_factor = grid_factor,$
+    srm = stx_build_pixel_drm(ct_edges, pixel_mask, rcr = rcr, ph_energy_edges = ph_edges, grid_factor = grid_factor, grid_transparency_correction = grid_transparency_correction, $
       dist_factor = dist_factor, xspec = xspec, _extra = _extra)
     srm_atten[i].srm = srm.smatrix
     srm_atten[i].rcr = rcr
@@ -150,7 +158,7 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
     specfilename = fits_info_params.specfile
     srmfilename =  fits_info_params.srmfile
 
-    fits_info_params.grid_factor.add, grid_factor
+    fits_info_params.grid_factor = grid_factor
     fits_info_params.detused = detector_label + ', Pixels: ' + pixel_label
 
     if keyword_set(xspec) then begin

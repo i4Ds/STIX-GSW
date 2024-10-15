@@ -22,7 +22,7 @@
 ;    specpar : in, type="float",
 ;               spectrum control and information parameters for OSPEX
 ;
-;    time_shift : in, type="float", 
+;    time_shift : in, type="float",
 ;               Applied light travel time correction
 ;
 ;    data_level : in, type="int", default="1.0"
@@ -37,14 +37,14 @@
 ;    distance : in, optional, type="float", default taken from FITS header
 ;               The distance between Solar Orbiter and the Sun centre in Astronomical Units needed to correct flux.
 ;
-;    flare_location_hpc : in, type=" 2 element float array", 
+;    flare_location_hpc : in, type=" 2 element float array",
 ;               the location of the flare (X,Y) in Helioprojective Cartesian coordinates as seen from Solar Orbiter [arcsec]
-;               If no location is passed in the on-axis approximation is used to calculate the grid response. In this case 
+;               If no location is passed in the on-axis approximation is used to calculate the grid response. In this case
 ;               a value [Nan, Nan] is passed to the output files.
 ;
 ;    aux_fits_file : in, required if flare_location_hpc is passed in, type="string"
 ;                the path of the auxiliary ephemeris FITS file to be read."
-;                
+;
 ;    eff_ewidth : in, type="float arr"
 ;               an output float value
 ;
@@ -163,12 +163,12 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
 
     energy_bins = spectrogram.energy_axis.low_fsw_idx
 
-    corrected_counts_bk =  corrected_counts_bk[energy_bins,*] 
+    corrected_counts_bk =  corrected_counts_bk[energy_bins,*]
 
     if keyword_set(elut_correction) then begin
       corrected_counts_bk =  corrected_counts_bk * reproduce(eff_ewidth, n_times)
     endif
-    
+
     corrected_counts_bk =  reform(corrected_counts_bk,[n_elements(energy_bins), n_times])
 
     spec_in_bk = total(reform(spec_in_bk,[dim_counts_bk[0], n_detectors_bk, ntimes_bk ]),2)
@@ -177,10 +177,10 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
 
     spec_in_bk  = reform(spec_in_bk,dim_counts_bk[0], n_times)
 
-    spec_in_bk =  spec_in_bk[energy_bins,*] 
+    spec_in_bk =  spec_in_bk[energy_bins,*]
 
     if keyword_set(elut_correction) then begin
-    spec_in_bk =  spec_in_bk * reproduce(eff_ewidth, n_times)
+      spec_in_bk =  spec_in_bk * reproduce(eff_ewidth, n_times)
     endif
 
     spec_in_bk =  reform(spec_in_bk,[n_elements(energy_bins), n_times])
@@ -192,10 +192,10 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
 
     error_bk  = reform(error_bk, dim_counts_bk[0], n_times)
 
-    error_bk =  error_bk[energy_bins,*] 
+    error_bk =  error_bk[energy_bins,*]
 
     if keyword_set(elut_correction) then begin
-       error_bk =  error_bk * reproduce(eff_ewidth, n_times)
+      error_bk =  error_bk * reproduce(eff_ewidth, n_times)
     endif
 
     error_bk =  reform(error_bk,[n_elements(energy_bins), n_times])
