@@ -202,11 +202,14 @@ if ~X_SAS.isnan() and ~Y_SAS.isnan() and nb_sas_ok gt 0 then begin
 
   diff_ptg = norm(sas_pointing - spacecraft_pointing)
 
-  if diff_ptg lt 200. or force_sas then begin
+  ; use SAS solution only if "reasonably close" to spacecraft pointing
+  solo_uncert = 120.  ; nominal pointing uncertainty of s/c = 2 arcmin
+  limit_ptg_diff = 2.*solo_uncert  ; x2 to be on the safe side
+  if diff_ptg lt limit_ptg_diff or force_sas then begin
     if not keyword_set(no_sas) then $
       STX_POINTING = sas_pointing $
     else if ~silent then print, " --- Using spacecraft pointing (and NOT SAS solution)."
-  endif else if ~silent then print," --- difference greater than 200 arcsec, using spacecraft pointing."
+  endif else if ~silent then print,limit_ptg_diff,format='(%" --- difference greater than %5.1f arcsec, using spacecraft pointing.")'
 endif else if ~silent then print," SAS solution not available, using spacecraft pointing."
 
 if ~silent then begin
