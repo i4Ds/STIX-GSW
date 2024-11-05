@@ -41,7 +41,7 @@
 ;             'stx_plot_selected_time_range' and for computing the total number of counts in the image. Default, indices of
 ;             the detectors from 10 to 3
 ;   
-;   sumcase: string indicating which pixels are summed. See the header of 'stx_calibrate_pixel_data' for 
+;   sumcase: string indicating which pixels are summed. See the header of 'stx_sum_pixel_data' for 
 ;            more information
 ;   
 ;   silent: if set, no message is printed and no plot is displayed
