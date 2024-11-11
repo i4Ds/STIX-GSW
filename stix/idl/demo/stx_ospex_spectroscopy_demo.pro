@@ -20,7 +20,7 @@
 ;    demo, spectroscopy
 ;
 ; :keywords:
-;    out_dir : in, type="string", default="concat_dir( getenv('STX_DEMO_DATA'),'ospex', /d)"
+;    out_dir : in, type='string', default='concat_dir( getenv('STX_DEMO_DATA'),'ospex', /d)'
 ;              a path to an output directory where downloaded data can be saved
 ;
 ; :history:
@@ -29,6 +29,7 @@
 ;   11-Sep-2023 - ECMD (Graz), allow user to specify output directory
 ;   23-Oct-2023 - ECMD (Graz), include specification of flare location
 ;   05-Feb-2024 - ECMD (Graz), files now downloaded using UID and stx_get_science_fits_file.pro
+;   11-Nov-2024 - Massa P. (FHNW), changed "" with '' for string definition
 ;
 ;-
 pro stx_ospex_spectroscopy_demo, out_dir = out_dir
@@ -68,13 +69,13 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   ; most times contained in the file are relative to this
   header_start_time = (sxpar(primary_header, 'DATE-BEG'))
   print, 'Event start time :  ',  header_start_time
-  print, " "
+  print, ' '
 
   ;For correct energy calibration in is necessary to determine the Energy Lookup Table (ELUT)
   ; applied in flight when the observation was taken
   elut_filename = stx_date2elut_file(header_start_time)
   print, 'The ELUT applied at this time was : ', elut_filename
-  print, " "
+  print, ' '
 
   ;The procedure can be used to provide the ELUT given the date in any anytim compatible format
   print, stx_date2elut_file('2022-02-08')
@@ -91,9 +92,9 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   print, distance, ' AU'
   print, 'The light travel time correction was :'
   print, time_shift,' s'
-  print, " "
-  print, "Press SPACE to continue"
-  print, " "
+  print, ' '
+  print, 'Press SPACE to continue'
+  print, ' '
 
   ;The fit interval selected for this demonstration covers one minute over the first non-thermal peak
   spex_fit_time_interval = ['8-Feb-2022 21:38:59.937', '8-Feb-2022 21:40:00.437']
@@ -237,9 +238,9 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   ospex_obj_spec-> set, mcurvefit_itmax = mcurvefit_itmax
 
 
-  print, " "
+  print, ' '
   print, 'Please fit the spectrum - When you are satisfied select "Accept -> and continue looping" '
-  print, " "
+  print, ' '
 
   ospex_obj_spec-> dofit
 
@@ -254,9 +255,9 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   ;the information about the response matrix file can similarly be displayed
   fits_info, spex_drmfile_spec
 
-  print, " "
-  print, "Press SPACE to continue"
-  print, " "
+  print, ' '
+  print, 'Press SPACE to continue'
+  print, ' '
   pause
 
 
@@ -296,9 +297,9 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   ospex_obj_spec_bksub-> set, spex_fitcomp_plot_err = spex_fitcomp_plot_err
   ospex_obj_spec_bksub-> set, mcurvefit_itmax = mcurvefit_itmax
 
-  print, " "
+  print, ' '
   print, 'Please fit the spectrum - When you are satisfied select "Accept -> and continue looping" '
-  print, " "
+  print, ' '
   ospex_obj_spec_bksub-> dofit
 
   ;*********************************************** 5 - Third fit - Pixel data with externally supplied background observation  ******************************************************
@@ -340,9 +341,9 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   ospex_obj_cpd-> set, spex_fitcomp_plot_err = spex_fitcomp_plot_err
   ospex_obj_cpd-> set, mcurvefit_itmax = mcurvefit_itmax
 
-  print, " "
+  print, ' '
   print, 'Please fit the spectrum - When you are satisfied select "Accept -> and continue looping" '
-  print, " "
+  print, ' '
 
   ospex_obj_cpd-> dofit
 
