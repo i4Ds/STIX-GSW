@@ -211,6 +211,11 @@ endif
 ;; (I.E., THE NUMBER OF ELEMENTS IN energy_bin_idx AND IN energy_bin_idx_bkg IS ASSUMED TO BE
 ;; LARGER THAN 1)
 
+if (n_elements(energy_bin_idx) eq 1) then $
+  message, 'It is not possible to analyze this science file as it contains a single energy bin. Please, contact the STIX team for further details.'
+if keyword_set(path_bkg_file) and (n_elements(energy_bin_idx_bkg) eq 1) then $
+  message, 'It is not possible to utilize this bkg file since it contains a single energy bin. Please, either utilize a different bkg file or contact the STIX team.'
+
 ;; Dimensions: [energy,pixel,detector,time]
 counts       = data.COUNTS
 counts_error = data.COUNTS_ERR
