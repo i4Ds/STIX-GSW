@@ -8,9 +8,9 @@
 ;
 ; :description:
 ;    This procedure reads a STIX science data x-ray compaction level 1 (compressed pixel data file) and converts it to a spectrogram
-;    file which can be read in by OSPEX. This spectrogram is in the from of an array in energy and time so individual pixel and detector counts
+;    file which can be read in by OSPEX. This spectrogram is in the form of an array in energy and time so individual pixel and detector counts
 ;    are summed. A corresponding detector response matrix file is also produced. If a background file is supplied this will be subtracted
-;    A number of corrections for light travel time,
+;    A number of corrections for light travel time, (...) are applied.
 ;
 ; :categories:
 ;    spectroscopy
@@ -74,6 +74,9 @@
 ;                     If set open OSPEX GUI and plot lightcurve in standard quicklook energy bands
 ;                     where there is data present
 ;
+;    xspec : in, type="boolean", default="0"
+;                     If set, generate SRM file compatible with XSPEC rather than OSPEX.
+;
 ;    ospex_obj : out, type="OSPEX object"
 ;
 ;
@@ -95,6 +98,7 @@
 ;    15-Mar-2023 - ECMD (Graz), updated to handle release version of L1 FITS files
 ;    16-Jun-2023 - ECMD (Graz), for a source location dependent response estimate, the location in HPC and the auxiliary ephemeris file must be provided.
 ;    06-Dec-2023 - ECMD (Graz), added silent keyword, more information is now printed if not set
+;    2024-07-12, F. Schuller (AIP): added optional keyword xspec
 ;
 ;-
 pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, $
@@ -102,13 +106,14 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
   det_ind = det_ind, pix_ind = pix_ind, elut_correction = elut_correction, shift_duration = shift_duration, $
   no_attenuation = no_attenuation, sys_uncert = sys_uncert, generate_fits = generate_fits, specfile = specfile, $
-  srmfile = srmfile, silent = silent, background_data = background_data, plot = plot, ospex_obj = ospex_obj
+  srmfile = srmfile, silent = silent, background_data = background_data, plot = plot, xspec=xspec, ospex_obj = ospex_obj
 
   default, shift_duration, 0
   default, plot, 1
   default, det_ind, 'top24'
   default, elut_correction, 1 
   default, silent, 0
+  default, xspec, 0
 
   if n_elements(time_shift) eq 0 then begin
   if ~keyword_set(silent) then begin
@@ -320,7 +325,7 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
     data_level = data_level, data_dims = data_dims, fits_path_bk = fits_path_bk, fits_path_data = fits_path_data,$
     aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
     eff_ewidth = eff_ewidth, sys_uncert = sys_uncert, plot = plot, background_data = background_data, silent = silent, $
-    elut_correction = elut_correction, fits_info_params = fits_info_params, ospex_obj = ospex_obj
+    elut_correction = elut_correction, fits_info_params = fits_info_params, xspec=xspec, ospex_obj = ospex_obj
 
 end
 

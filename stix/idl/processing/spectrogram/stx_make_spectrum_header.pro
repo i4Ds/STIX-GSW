@@ -96,16 +96,13 @@ pro stx_make_spectrum_header,specfile = specfile, $
 
   currtime = strmid(anytim(!stime, /ccsds), 0, 19)
   fxaddpar, header, 'DATE', currtime, 'File creation date (YYYY-MM-DDThh:mm:ss UTC)'
-  fxaddpar, header, 'ORIGIN', 'STIX', $
-    'Spectrometer Telescope for Imaging X-rays'
+  fxaddpar, header, 'ORIGIN', 'STIX', 'Spectrometer Telescope for Imaging X-rays'
   observer = getenv( 'USER' )
   if observer eq '' then observer = 'Unknown'
-  fxaddpar, header, 'OBSERVER', observer, $
-    'Usually the name of the user who generated file'
+  fxaddpar, header, 'OBSERVER', observer, 'Usually the name of the user who generated file'
   fxaddpar, header, 'TELESCOP', 'Solar Orbiter', 'Name of the Telescope or Mission'
   fxaddpar, header, 'INSTRUME', 'STIX', 'Name of the instrument'
   fxaddpar, header, 'OBJECT', 'Sun', 'Object being observed'
-
 
   fxaddpar, header, 'TIME_UNIT', 1
   fxaddpar, header, 'ENERGY_L', min( energy_band )
