@@ -22,6 +22,7 @@ function vis_fwdfit_func_pso, xx, extra = extra
   configuration = extra.configuration
   param_opt = extra.param_opt
   mapcenter = extra.mapcenter
+  roll_angle = extra.roll_angle
   
   loc_circle  = where(configuration eq 'circle', n_circle)>0
   loc_ellipse = where(configuration eq 'ellipse', n_ellipse)>0
@@ -68,7 +69,10 @@ function vis_fwdfit_func_pso, xx, extra = extra
       ; Set up file I/O error handling.
       ON_IOError, bad_x_circle
       ; Cause type conversion error.
-      if flag then xx[*, 4*i+1] = xx[*, 4*i+1] * 0. + double(param_opt[4*i+1]) - mapcenter[0]
+      ; If the x and y coordinate are fixed, take into account the telescope rotation and transform the coordinates into the telescope coordinate frame.
+      ; The co-ordinates must be in a rectangle centered in [0.,0.], so the mapcenter must be subtracted
+      if flag then xx[*, 4*i+1] = xx[*, 4*i+1] * 0. + cos(roll_angle)*(double(param_opt[4*i+1])-mapcenter[0]) - sin(roll_angle)*(double(param_opt[4*i+2])-mapcenter[1])
+      ; double(param_opt[4*i+1]) - mapcenter[0]
       x_loc = reform(xx[*, 4*i+1], [n_particles,1])
 
       flag=1
@@ -81,7 +85,10 @@ function vis_fwdfit_func_pso, xx, extra = extra
       ; Set up file I/O error handling.
       ON_IOError, bad_y_circle
       ; Cause type conversion error.
-      if flag then xx[*, 4*i+2] = xx[*, 4*i+2] * 0. + double(param_opt[4*i+2]) - mapcenter[1]
+      ; If the x and y coordinate are fixed, take into account the telescope rotation and transform the coordinates into the telescope coordinate frame.
+      ; The co-ordinates must be in a rectangle centered in [0.,0.], so the mapcenter must be subtracted
+      if flag then xx[*, 4*i+2] = xx[*, 4*i+2] * 0. + sin(roll_angle)*(double(param_opt[4*i+1])-mapcenter[0]) + cos(roll_angle)*(double(param_opt[4*i+2])-mapcenter[1])
+      ; double(param_opt[4*i+2]) - mapcenter[1]
       y_loc = reform(xx[*,4*i+2], [n_particles,1])
 
       flag=1
@@ -97,9 +104,10 @@ function vis_fwdfit_func_pso, xx, extra = extra
       if flag then xx[*, 4*i+3] = xx[*, 4*i+3] * 0. + double(param_opt[4*i+3])
       fwhm = reform(xx[*,4*i+3], [n_particles,1])
       
-      vispred_re += flux * exp(-(!pi^2. * fwhm^2. / (4.*alog(2.)))#(u^2. + v^2.))*cos(2*!pi*((x_loc#u)+(y_loc#v)))
-      vispred_im += flux * exp(-(!pi^2. * fwhm^2. / (4.*alog(2.)))#(u^2. + v^2.))*sin(2*!pi*((x_loc#u)+(y_loc#v)))
-      
+      ; Take into account the telescope rotation and transform the coordinates into the telescope coordinate frame.      
+      vispred_re += flux * exp(-(!pi^2. * fwhm^2. / (4.*alog(2.)))#(u^2. + v^2.))*cos(2*!pi*(((cos(roll_angle)  * x_loc + sin(roll_angle) * y_loc)#u)+((-sin(roll_angle) * x_loc + cos(roll_angle) * y_loc))#v))
+      vispred_im += flux * exp(-(!pi^2. * fwhm^2. / (4.*alog(2.)))#(u^2. + v^2.))*sin(2*!pi*(((cos(roll_angle)  * x_loc + sin(roll_angle) * y_loc)#u)+((-sin(roll_angle) * x_loc + cos(roll_angle) * y_loc))#v))
+       
     endfor
     
   endif   
@@ -202,7 +210,10 @@ function vis_fwdfit_func_pso, xx, extra = extra
       ; Set up file I/O error handling.
       ON_IOError, bad_x_ellipse
       ; Cause type conversion error.
-      if flag then xx[*, n_circle*4+6*i+1] = xx[*, n_circle*4+6*i+1] * 0. + double(param_opt[n_circle*4+6*i+1]) - mapcenter[0]
+      ; If the x and y coordinate are fixed, take into account the telescope rotation and transform the coordinates into the telescope coordinate frame.
+      ; The co-ordinates must be in a rectangle centered in [0.,0.], so the mapcenter must be subtracted
+      if flag then xx[*, n_circle*4+6*i+1] = xx[*, n_circle*4+6*i+1] * 0. + cos(roll_angle)*(double(param_opt[n_circle*4+6*i+1])-mapcenter[0]) - sin(roll_angle)*(double(param_opt[n_circle*4+6*i+2])-mapcenter[1])
+      ;double(param_opt[n_circle*4+6*i+1]) - mapcenter[0]
       x_loc = reform(xx[*,n_circle*4+6*i+1], [n_particles,1])
 
       flag=1
@@ -215,12 +226,16 @@ function vis_fwdfit_func_pso, xx, extra = extra
       ; Set up file I/O error handling.
       ON_IOError, bad_y_ellipse
       ; Cause type conversion error.
-      if flag then xx[*, n_circle*4+6*i+2] = xx[*, n_circle*4+6*i+2] * 0. + double(param_opt[n_circle*4+6*i+2]) - mapcenter[1]
+      ; If the x and y coordinate are fixed, take into account the telescope rotation and transform the coordinates into the telescope coordinate frame.
+      ; The co-ordinates must be in a rectangle centered in [0.,0.], so the mapcenter must be subtracted
+      if flag then xx[*, n_circle*4+6*i+2] = xx[*, n_circle*4+6*i+2] * 0. + sin(roll_angle)*(double(param_opt[n_circle*4+6*i+1])-mapcenter[0]) + cos(roll_angle)*(double(param_opt[n_circle*4+6*i+2])-mapcenter[1])
+      ;double(param_opt[n_circle*4+6*i+2]) - mapcenter[1]
       y_loc = reform(xx[*,n_circle*4+6*i+2], [n_particles,1])
 
-      vispred_re += flux * exp(-(!pi^2. / (4.*alog(2.)))*((u1 * fwhmmajor)^2. + (v1 * fwhmminor)^2.))*cos(2*!pi*((x_loc#u)+(y_loc#v)))
-      vispred_im += flux * exp(-(!pi^2. / (4.*alog(2.)))*((u1 * fwhmmajor)^2. + (v1 * fwhmminor)^2.))*sin(2*!pi*((x_loc#u)+(y_loc#v)))
-           
+      ; Take into account the telescope rotation and transform the coordinates into the telescope coordinate frame.     
+      vispred_re += flux * exp(-(!pi^2. / (4.*alog(2.)))*((u1 * fwhmmajor)^2. + (v1 * fwhmminor)^2.))*cos(2*!pi*((( cos(roll_angle)  * x_loc + sin(roll_angle) * y_loc)#u)+( (-sin(roll_angle) * x_loc + cos(roll_angle) * y_loc)#v)))
+      vispred_im += flux * exp(-(!pi^2. / (4.*alog(2.)))*((u1 * fwhmmajor)^2. + (v1 * fwhmminor)^2.))*sin(2*!pi*(( (cos(roll_angle)  * x_loc + sin(roll_angle) * y_loc)#u)+( (-sin(roll_angle) * x_loc + cos(roll_angle) * y_loc)#v)))
+             
     endfor
     
   endif  
@@ -295,9 +310,6 @@ function vis_fwdfit_func_pso, xx, extra = extra
         Catch, /Cancel
         bad_alpha_loop:
         pa = atan(ecsin, eccos) * !radeg
-        ;      pa      = eccen * 0.
-        ;      ind     = where(eccen GT 0.001)
-        ;      pa[ind] = ATAN(ecsin[ind], eccos[ind]) * !RADEG
         flag=0
       ENDIF
       ; Set up file I/O error handling.
@@ -322,7 +334,10 @@ function vis_fwdfit_func_pso, xx, extra = extra
       ; Set up file I/O error handling.
       ON_IOError, bad_x_loop
       ; Cause type conversion error.
-      if flag then xx[*, n_circle*4+n_ellipse*6+7*i+1] = xx[*, n_circle*4+n_ellipse*6+7*i+1] * 0. + double(param_opt[n_circle*4+n_ellipse*6+7*i+1]) - mapcenter[0]
+      ; If the x and y coordinate are fixed, take into account the telescope rotation and transform the coordinates into the telescope coordinate frame.
+      ; The co-ordinates must be in a rectangle centered in [0.,0.], so the mapcenter must be subtracted
+      if flag then xx[*, n_circle*4+n_ellipse*6+7*i+1] = xx[*, n_circle*4+n_ellipse*6+7*i+1] * 0. + cos(roll_angle)*(double(param_opt[n_circle*4+n_ellipse*6+7*i+1])-mapcenter[0]) - sin(roll_angle)*(double(param_opt[n_circle*4+n_ellipse*6+7*i+2])-mapcenter[1])
+      ;double(param_opt[n_circle*4+n_ellipse*6+7*i+1]) - mapcenter[0]
       x_loc = reform(xx[*,n_circle*4+n_ellipse*6+7*i+1], [n_particles,1])
     
       flag=1
@@ -335,7 +350,10 @@ function vis_fwdfit_func_pso, xx, extra = extra
       ; Set up file I/O error handling.
       ON_IOError, bad_y_loop
       ; Cause type conversion error.
-      if flag then xx[*, n_circle*4+n_ellipse*6+7*i+2] = xx[*, n_circle*4+n_ellipse*6+7*i+2] * 0. + double(param_opt[n_circle*4+n_ellipse*6+7*i+2]) - mapcenter[1]
+      ; If the x and y coordinate are fixed, take into account the telescope rotation and transform the coordinates into the telescope coordinate frame.
+      ; The co-ordinates must be in a rectangle centered in [0.,0.], so the mapcenter must be subtracted
+      if flag then xx[*, n_circle*4+n_ellipse*6+7*i+2] = xx[*, n_circle*4+n_ellipse*6+7*i+2] * 0. + sin(roll_angle)*(double(param_opt[n_circle*4+n_ellipse*6+7*i+1])-mapcenter[0]) + cos(roll_angle)* (double(param_opt[n_circle*4+n_ellipse*6+7*i+2])-mapcenter[1])
+      ;+ double(param_opt[n_circle*4+n_ellipse*6+7*i+2]) - mapcenter[1]
       y_loc = reform(xx[*,n_circle*4+n_ellipse*6+7*i+2], [n_particles,1])
     
       flag=1
@@ -350,7 +368,8 @@ function vis_fwdfit_func_pso, xx, extra = extra
       ; Cause type conversion error.
       if flag then xx[*, n_circle*4+n_ellipse*6+7*i+6] = xx[*, n_circle*4+n_ellipse*6+7*i+6] * 0. + double(param_opt[n_circle*4+n_ellipse*6+7*i+6])
       loop_angle = reform(xx[*,n_circle*4+n_ellipse*6+7*i+6], [n_particles,1])
-    
+
+      ; Take into account the telescope rotation and transform the coordinates into the telescope coordinate frame.         
       vis_pred = vis_fwdfit_pso_func_makealoop( flux, xx[*,n_circle*4+n_ellipse*6+7*i+3], eccen, x_loc, y_loc, pa, loop_angle, u, v)
     
       vispred_re += vis_pred[*,0:n_elements(u)-1]

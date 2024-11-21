@@ -78,6 +78,8 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
 
   n_sources = n_elements(configuration)
 
+  dummy0 = stx_hpc2stx_coord(vis[0].xyoffset, aux_data, /inverse)  ;Helioprojective Cartesian coordinate
+
   if keyword_set(SRCIN) then begin
 
     if n_circle gt 0 then begin
@@ -108,23 +110,21 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
         ; Set up file I/O error handling.
         ON_IOError, y_stix_c
         ; Cause type conversion error.
-        if flag2 then this_y_c = double(srcin.circle[j].param_opt.param_y)
-       
+        if flag2 then this_y_c = double(srcin.circle[j].param_opt.param_y)       
 
         if (((flag1 eq 0) and (flag2 eq 1)) or ((flag1 eq 1 ) and (flag2 eq 0))) then begin
           Catch, /Cancel
           message, "Fix both x and y positions or none of them."
         endif
         if ((flag1 eq 1) and (flag2 eq 1)) then begin
-
+          ;From HPC to STIX coordinate frame
           this_xy_c = stx_hpc2stx_coord([double(srcin.circle[j].param_opt.param_x),double(srcin.circle[j].param_opt.param_y)], aux_data)
-          
+ 
           srcin.circle[j].param_opt.param_x = string(this_xy_c[0])
           srcin.circle[j].param_opt.param_y = string(this_xy_c[1])
           
-        endif
-
-        
+        endif  
+              
       endfor
     endif
 
@@ -162,14 +162,13 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
           message, "Fix both x and y positions or none of them."
         endif
         if ((flag3 eq 1) and (flag4 eq 1)) then begin
-        
+          ;From HPC to STIX coordinate frame   
           this_xy_e = stx_hpc2stx_coord([double(srcin.ellipse[j].param_opt.param_x),double(srcin.ellipse[j].param_opt.param_y)], aux_data)
 
           srcin.ellipse[j].param_opt.param_x = string(this_xy_e[0])
           srcin.ellipse[j].param_opt.param_y = string(this_xy_e[1])
         
         endif
-
         
         flag=1
         Catch, theError
@@ -221,15 +220,13 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
           message, "Fix both x and y positions or none of them."
         endif
         if ((flag5 eq 1) and (flag6 eq 1)) then begin
-          
+          ;From HPC to STIX coordinate frame      
           this_xy_l = stx_hpc2stx_coord([double(srcin.loop[j].param_opt.param_x),double(srcin.loop[j].param_opt.param_y)], aux_data)
 
           srcin.loop[j].param_opt.param_x = string(this_xy_l[0])
           srcin.loop[j].param_opt.param_y = string(this_xy_l[1])
           
-        endif
-        
-        
+        endif       
         
         flag=1
         Catch, theError
@@ -249,12 +246,76 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
 
   endif else begin
 
-    srcin = vis_fwdfit_pso_multiple_src_create(vis, configuration)
+    srcin = vis_fwdfit_pso_multiple_src_create(vis, configuration, aux_data = aux_data)
 
   endelse
 
+  if n_circle gt 0 then begin
 
-  param_out = vis_fwdfit_pso(configuration, this_vis, srcin, $
+    for j=0, n_circle-1 do begin
+      ;the solution for the position is sought in a rectangle centered in [0.,0.]
+      srcin.circle[j].lower_bound.l_b_x = srcin.circle[j].lower_bound.l_b_x - dummy0[0]
+      srcin.circle[j].upper_bound.u_b_x = srcin.circle[j].upper_bound.u_b_x - dummy0[0]
+      srcin.circle[j].lower_bound.l_b_y = srcin.circle[j].lower_bound.l_b_y - dummy0[1]
+      srcin.circle[j].upper_bound.u_b_y = srcin.circle[j].upper_bound.u_b_y - dummy0[1]
+
+      ; upper and lower bound transformation: from the Solar Orbiter coordinate frame to the STIX coordinate frame
+      this_l_b_x = srcin.circle[j].lower_bound.l_b_y
+      this_u_b_x = srcin.circle[j].upper_bound.u_b_y
+      this_l_b_y = - srcin.circle[j].upper_bound.u_b_x
+      this_u_b_y = - srcin.circle[j].lower_bound.l_b_x
+
+      srcin.circle[j].lower_bound.l_b_x = this_l_b_x
+      srcin.circle[j].upper_bound.u_b_x = this_u_b_x
+      srcin.circle[j].lower_bound.l_b_y = this_l_b_y
+      srcin.circle[j].upper_bound.u_b_y = this_u_b_y
+    endfor
+  endif
+
+  if n_ellipse gt 0 then begin
+    for j=0, n_ellipse-1 do begin
+      ;the solution for the position is sought in a rectangle centered in [0.,0.]
+      srcin.ellipse[j].lower_bound.l_b_x = srcin.ellipse[j].lower_bound.l_b_x - dummy0[0]
+      srcin.ellipse[j].upper_bound.u_b_x = srcin.ellipse[j].upper_bound.u_b_x - dummy0[0]
+      srcin.ellipse[j].lower_bound.l_b_y = srcin.ellipse[j].lower_bound.l_b_y - dummy0[1]
+      srcin.ellipse[j].upper_bound.u_b_y = srcin.ellipse[j].upper_bound.u_b_y - dummy0[1]
+
+      ; upper and lower bound transformation: from the Solar Orbiter coordinate frame to the STIX coordinate frame
+      this_l_b_x = srcin.ellipse[j].lower_bound.l_b_y
+      this_u_b_x = srcin.ellipse[j].upper_bound.u_b_y
+      this_l_b_y = - srcin.ellipse[j].upper_bound.u_b_x
+      this_u_b_y = - srcin.ellipse[j].lower_bound.l_b_x
+
+      srcin.ellipse[j].lower_bound.l_b_x = this_l_b_x
+      srcin.ellipse[j].upper_bound.u_b_x = this_u_b_x
+      srcin.ellipse[j].lower_bound.l_b_y = this_l_b_y
+      srcin.ellipse[j].upper_bound.u_b_y = this_u_b_y
+    endfor
+  endif
+
+
+  if n_loop gt 0 then begin
+    for j=0, n_loop-1 do begin
+      ;the solution for the position is sought in a rectangle centered in [0.,0.]
+      srcin.loop[j].lower_bound.l_b_x = srcin.loop[j].lower_bound.l_b_x - dummy0[0]
+      srcin.loop[j].upper_bound.u_b_x = srcin.loop[j].upper_bound.u_b_x - dummy0[0]
+      srcin.loop[j].lower_bound.l_b_y = srcin.loop[j].lower_bound.l_b_y - dummy0[1]
+      srcin.loop[j].upper_bound.u_b_y = srcin.loop[j].upper_bound.u_b_y - dummy0[1]
+
+      ; upper and lower bound transformation: from the Solar Orbiter coordinate frame to the STIX coordinate frame
+      this_l_b_x = srcin.loop[j].lower_bound.l_b_y
+      this_u_b_x = srcin.loop[j].upper_bound.u_b_y
+      this_l_b_y = - srcin.loop[j].upper_bound.u_b_x
+      this_u_b_y = - srcin.loop[j].lower_bound.l_b_x
+
+      srcin.loop[j].lower_bound.l_b_x = this_l_b_x
+      srcin.loop[j].upper_bound.u_b_x = this_u_b_x
+      srcin.loop[j].lower_bound.l_b_y = this_l_b_y
+      srcin.loop[j].upper_bound.u_b_y = this_u_b_y
+    endfor
+  endif
+
+  param_out = vis_fwdfit_pso(configuration, this_vis, srcin, aux_data.ROLL_ANGLE * !dtor, $
                               n_birds = n_birds, tolerance = tolerance, maxiter = maxiter, $
                               uncertainty = uncertainty, $
                               imsize=imsize, pixel=pixel, $
@@ -278,7 +339,7 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
 
   nsrc = N_ELEMENTS(srcstr)
   FOR n = 0, nsrc-1 DO BEGIN
-      
+      ; From STIX coordinate frame to HPC one
       xy_hpc = stx_hpc2stx_coord([srcstr[n].srcx,srcstr[n].srcy], aux_data, /inverse)
       
       srcstr[n].srcx = xy_hpc[0]
@@ -298,7 +359,7 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
         srcstr[n].srcpa, $
         srcstr[n].srcx, srcstr[n].srcy, srcstr[n].loop_angle]
       PRINT, n+1, srcstr[n].srctype, temp, FORMAT="(I5, A13, F13.2, 1F13.1, F12.1, 2F11.1, F11.1, 2F12.1)"
-
+      ;; Note that the position uncertainty is exchanged due to the 90 degree rotation. (see stx_solo2stx_coord.pro for more details)
       temp        = [ fitsigmas[n].srcflux,fitsigmas[n].srcfwhm_max, fitsigmas[n].srcfwhm_min, $
         fitsigmas[n].srcpa, fitsigmas[n].srcy, fitsigmas[n].srcx, fitsigmas[n].loop_angle]
       PRINT, ' ', '(std)', temp, FORMAT="(A7, A11, F13.2, 1F13.1, F12.1, 2F11.1, F11.1, 2F12.1)"
