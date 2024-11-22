@@ -44,8 +44,13 @@
 ;               PARAM_OPT  : struct containing the values of the parameters to keep fixed during the optimization.
 ;                           If an entry of 'param_opt' is set equal to 'fit', then the corresponding variable is optimized.
 ;                           Otherwise, its value is kept fixed equal to the entry of 'param_opt'
+;           
+;           IF THE X AND Y COORDINATE ARE FIXED, THEY MUST BE IN THE HELIOPROJECTIVE CARTESIAN COORDINATE.
+;           
 ;               LOWER_BOUND: struct containing the lower bound values of the variables to optimize.
 ;               UPPER_BOUND: struct containing the upper bound values of the variables to optimize.
+;               .
+;           THE UPPER AND LOWER BOUND FOR THE X AND Y COORDINATES MUST BE A RECTANGLE CENTRED AROUND ZERO.
 ;
 ;               For different shapes we have:
 ;                 - 'circle'  : param_opt, lower_bound, upper_bound = [flux, x location, y location, FWHM]
@@ -55,7 +60,9 @@
 ;                 - 'loop'    : param_opt = [flux, x location, y location, FWHM max, FWHM min, alpha, loop_angle]
 ;                               lower_bound, upper_bound = [flux, x location, y location, FWHM, ecc * cos(alpha), ecc * sin(alpha), loop_angle]
 ; 
-; roll_angle: Roll angle (radiant)
+;   roll_angle: Roll angle (radiant)
+;   flare_loc_HPC: flare position in Helioprojective Cartesian coordinate
+;
 ;
 ; KEYWORDS:
 ;   N_BIRDS     : number of particles used in PSO
@@ -92,7 +99,7 @@
 ;   volpara [at] dima.unige.it
 
 
-function vis_fwdfit_pso, configuration, vis, srcin, roll_angle, $
+function vis_fwdfit_pso, configuration, vis, srcin, roll_angle, flare_loc_HPC, $
                           n_birds = n_birds, tolerance = tolerance, maxiter = maxiter, $
                           uncertainty = uncertainty, $
                           imsize=imsize, pixel=pixel, $

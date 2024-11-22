@@ -72,7 +72,6 @@ function vis_fwdfit_func_pso, xx, extra = extra
       ; If the x and y coordinate are fixed, take into account the telescope rotation and transform the coordinates into the telescope coordinate frame.
       ; The co-ordinates must be in a rectangle centered in [0.,0.], so the mapcenter must be subtracted
       if flag then xx[*, 4*i+1] = xx[*, 4*i+1] * 0. + cos(roll_angle)*(double(param_opt[4*i+1])-mapcenter[0]) - sin(roll_angle)*(double(param_opt[4*i+2])-mapcenter[1])
-      ; double(param_opt[4*i+1]) - mapcenter[0]
       x_loc = reform(xx[*, 4*i+1], [n_particles,1])
 
       flag=1
@@ -88,7 +87,6 @@ function vis_fwdfit_func_pso, xx, extra = extra
       ; If the x and y coordinate are fixed, take into account the telescope rotation and transform the coordinates into the telescope coordinate frame.
       ; The co-ordinates must be in a rectangle centered in [0.,0.], so the mapcenter must be subtracted
       if flag then xx[*, 4*i+2] = xx[*, 4*i+2] * 0. + sin(roll_angle)*(double(param_opt[4*i+1])-mapcenter[0]) + cos(roll_angle)*(double(param_opt[4*i+2])-mapcenter[1])
-      ; double(param_opt[4*i+2]) - mapcenter[1]
       y_loc = reform(xx[*,4*i+2], [n_particles,1])
 
       flag=1
@@ -213,7 +211,6 @@ function vis_fwdfit_func_pso, xx, extra = extra
       ; If the x and y coordinate are fixed, take into account the telescope rotation and transform the coordinates into the telescope coordinate frame.
       ; The co-ordinates must be in a rectangle centered in [0.,0.], so the mapcenter must be subtracted
       if flag then xx[*, n_circle*4+6*i+1] = xx[*, n_circle*4+6*i+1] * 0. + cos(roll_angle)*(double(param_opt[n_circle*4+6*i+1])-mapcenter[0]) - sin(roll_angle)*(double(param_opt[n_circle*4+6*i+2])-mapcenter[1])
-      ;double(param_opt[n_circle*4+6*i+1]) - mapcenter[0]
       x_loc = reform(xx[*,n_circle*4+6*i+1], [n_particles,1])
 
       flag=1
@@ -229,7 +226,6 @@ function vis_fwdfit_func_pso, xx, extra = extra
       ; If the x and y coordinate are fixed, take into account the telescope rotation and transform the coordinates into the telescope coordinate frame.
       ; The co-ordinates must be in a rectangle centered in [0.,0.], so the mapcenter must be subtracted
       if flag then xx[*, n_circle*4+6*i+2] = xx[*, n_circle*4+6*i+2] * 0. + sin(roll_angle)*(double(param_opt[n_circle*4+6*i+1])-mapcenter[0]) + cos(roll_angle)*(double(param_opt[n_circle*4+6*i+2])-mapcenter[1])
-      ;double(param_opt[n_circle*4+6*i+2]) - mapcenter[1]
       y_loc = reform(xx[*,n_circle*4+6*i+2], [n_particles,1])
 
       ; Take into account the telescope rotation and transform the coordinates into the telescope coordinate frame.     
@@ -257,9 +253,7 @@ function vis_fwdfit_func_pso, xx, extra = extra
       ; Cause type conversion error.
       if flag then xx[*, n_circle*4+n_ellipse*6+7*i] = xx[*, n_circle*4+n_ellipse*6+7*i] * 0. + double(param_opt[n_circle*4+n_ellipse*6+7*i])
       flux = xx[*, n_circle*4+n_ellipse*6+7*i]
-      ;flux = reform(flux, [n_particles,1])
-      ;flux = flux # ones
-    
+
       eccos = reform(xx[*,n_circle*4+n_ellipse*6+7*i+4], [n_particles,1])
       ecsin = reform(xx[*,n_circle*4+n_ellipse*6+7*i+5], [n_particles,1])
     
@@ -337,7 +331,6 @@ function vis_fwdfit_func_pso, xx, extra = extra
       ; If the x and y coordinate are fixed, take into account the telescope rotation and transform the coordinates into the telescope coordinate frame.
       ; The co-ordinates must be in a rectangle centered in [0.,0.], so the mapcenter must be subtracted
       if flag then xx[*, n_circle*4+n_ellipse*6+7*i+1] = xx[*, n_circle*4+n_ellipse*6+7*i+1] * 0. + cos(roll_angle)*(double(param_opt[n_circle*4+n_ellipse*6+7*i+1])-mapcenter[0]) - sin(roll_angle)*(double(param_opt[n_circle*4+n_ellipse*6+7*i+2])-mapcenter[1])
-      ;double(param_opt[n_circle*4+n_ellipse*6+7*i+1]) - mapcenter[0]
       x_loc = reform(xx[*,n_circle*4+n_ellipse*6+7*i+1], [n_particles,1])
     
       flag=1
@@ -353,7 +346,6 @@ function vis_fwdfit_func_pso, xx, extra = extra
       ; If the x and y coordinate are fixed, take into account the telescope rotation and transform the coordinates into the telescope coordinate frame.
       ; The co-ordinates must be in a rectangle centered in [0.,0.], so the mapcenter must be subtracted
       if flag then xx[*, n_circle*4+n_ellipse*6+7*i+2] = xx[*, n_circle*4+n_ellipse*6+7*i+2] * 0. + sin(roll_angle)*(double(param_opt[n_circle*4+n_ellipse*6+7*i+1])-mapcenter[0]) + cos(roll_angle)* (double(param_opt[n_circle*4+n_ellipse*6+7*i+2])-mapcenter[1])
-      ;+ double(param_opt[n_circle*4+n_ellipse*6+7*i+2]) - mapcenter[1]
       y_loc = reform(xx[*,n_circle*4+n_ellipse*6+7*i+2], [n_particles,1])
     
       flag=1

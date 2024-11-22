@@ -78,7 +78,7 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
 
   n_sources = n_elements(configuration)
 
-  dummy0 = stx_hpc2stx_coord(vis[0].xyoffset, aux_data, /inverse)  ;Helioprojective Cartesian coordinate
+  flare_loc_HPC = stx_hpc2stx_coord(vis[0].xyoffset, aux_data, /inverse)  ;Helioprojective Cartesian coordinate
 
   if keyword_set(SRCIN) then begin
 
@@ -246,7 +246,7 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
 
   endif else begin
 
-    srcin = vis_fwdfit_pso_multiple_src_create(vis, configuration, aux_data = aux_data)
+    srcin = vis_fwdfit_pso_multiple_src_create(vis, configuration, flare_loc_HPC)
 
   endelse
 
@@ -254,10 +254,10 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
 
     for j=0, n_circle-1 do begin
       ;the solution for the position is sought in a rectangle centered in [0.,0.]
-      srcin.circle[j].lower_bound.l_b_x = srcin.circle[j].lower_bound.l_b_x - dummy0[0]
-      srcin.circle[j].upper_bound.u_b_x = srcin.circle[j].upper_bound.u_b_x - dummy0[0]
-      srcin.circle[j].lower_bound.l_b_y = srcin.circle[j].lower_bound.l_b_y - dummy0[1]
-      srcin.circle[j].upper_bound.u_b_y = srcin.circle[j].upper_bound.u_b_y - dummy0[1]
+      srcin.circle[j].lower_bound.l_b_x = srcin.circle[j].lower_bound.l_b_x - flare_loc_HPC[0]
+      srcin.circle[j].upper_bound.u_b_x = srcin.circle[j].upper_bound.u_b_x - flare_loc_HPC[0]
+      srcin.circle[j].lower_bound.l_b_y = srcin.circle[j].lower_bound.l_b_y - flare_loc_HPC[1]
+      srcin.circle[j].upper_bound.u_b_y = srcin.circle[j].upper_bound.u_b_y - flare_loc_HPC[1]
 
       ; upper and lower bound transformation: from the Solar Orbiter coordinate frame to the STIX coordinate frame
       this_l_b_x = srcin.circle[j].lower_bound.l_b_y
@@ -275,10 +275,10 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
   if n_ellipse gt 0 then begin
     for j=0, n_ellipse-1 do begin
       ;the solution for the position is sought in a rectangle centered in [0.,0.]
-      srcin.ellipse[j].lower_bound.l_b_x = srcin.ellipse[j].lower_bound.l_b_x - dummy0[0]
-      srcin.ellipse[j].upper_bound.u_b_x = srcin.ellipse[j].upper_bound.u_b_x - dummy0[0]
-      srcin.ellipse[j].lower_bound.l_b_y = srcin.ellipse[j].lower_bound.l_b_y - dummy0[1]
-      srcin.ellipse[j].upper_bound.u_b_y = srcin.ellipse[j].upper_bound.u_b_y - dummy0[1]
+      srcin.ellipse[j].lower_bound.l_b_x = srcin.ellipse[j].lower_bound.l_b_x - flare_loc_HPC[0]
+      srcin.ellipse[j].upper_bound.u_b_x = srcin.ellipse[j].upper_bound.u_b_x - flare_loc_HPC[0]
+      srcin.ellipse[j].lower_bound.l_b_y = srcin.ellipse[j].lower_bound.l_b_y - flare_loc_HPC[1]
+      srcin.ellipse[j].upper_bound.u_b_y = srcin.ellipse[j].upper_bound.u_b_y - flare_loc_HPC[1]
 
       ; upper and lower bound transformation: from the Solar Orbiter coordinate frame to the STIX coordinate frame
       this_l_b_x = srcin.ellipse[j].lower_bound.l_b_y
@@ -297,10 +297,10 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
   if n_loop gt 0 then begin
     for j=0, n_loop-1 do begin
       ;the solution for the position is sought in a rectangle centered in [0.,0.]
-      srcin.loop[j].lower_bound.l_b_x = srcin.loop[j].lower_bound.l_b_x - dummy0[0]
-      srcin.loop[j].upper_bound.u_b_x = srcin.loop[j].upper_bound.u_b_x - dummy0[0]
-      srcin.loop[j].lower_bound.l_b_y = srcin.loop[j].lower_bound.l_b_y - dummy0[1]
-      srcin.loop[j].upper_bound.u_b_y = srcin.loop[j].upper_bound.u_b_y - dummy0[1]
+      srcin.loop[j].lower_bound.l_b_x = srcin.loop[j].lower_bound.l_b_x - flare_loc_HPC[0]
+      srcin.loop[j].upper_bound.u_b_x = srcin.loop[j].upper_bound.u_b_x - flare_loc_HPC[0]
+      srcin.loop[j].lower_bound.l_b_y = srcin.loop[j].lower_bound.l_b_y - flare_loc_HPC[1]
+      srcin.loop[j].upper_bound.u_b_y = srcin.loop[j].upper_bound.u_b_y - flare_loc_HPC[1]
 
       ; upper and lower bound transformation: from the Solar Orbiter coordinate frame to the STIX coordinate frame
       this_l_b_x = srcin.loop[j].lower_bound.l_b_y
@@ -315,7 +315,7 @@ function stx_vis_fwdfit_pso, configuration, vis, aux_data, $
     endfor
   endif
 
-  param_out = vis_fwdfit_pso(configuration, this_vis, srcin, aux_data.ROLL_ANGLE * !dtor, $
+  param_out = vis_fwdfit_pso(configuration, this_vis, srcin, aux_data.ROLL_ANGLE * !dtor, flare_loc_HPC, $
                               n_birds = n_birds, tolerance = tolerance, maxiter = maxiter, $
                               uncertainty = uncertainty, $
                               imsize=imsize, pixel=pixel, $
