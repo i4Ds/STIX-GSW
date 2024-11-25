@@ -109,8 +109,13 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
   time_0 = anytim2utc(anytim(time_range[0], /tai), /ccsds)
   day_0 = strmid(str_replace(time_0,'-'),0,8)
   
-  aux_fits_file = aux_data_folder + 'solo_L2_stix-aux-ephemeris_'+day_0+'*.fits'
+  aux_fits_file = aux_data_folder + 'solo_ANC_stix-asp-ephemeris_'+day_0+'*.fits'
   aux_file_list = file_search(aux_fits_file, count=nb_aux)
+  if nb_aux eq 0 then begin
+    ; try the previous naming convention - TEMPORARY FIX, should be removed at some point
+    aux_fits_file = aux_data_folder + 'solo_L2_stix-aux-ephemeris_'+day_0+'*.fits'
+    aux_file_list = file_search(aux_fits_file, count=nb_aux)
+  endif
   if nb_aux gt 0 then begin
     aux_fits_file = aux_file_list[-1]  ; this should be the highest version, since FILE_SEARCH sorts the list of files returned
     print, " STX_IMAGING_PIPELINE - INFO: Found AUX file " + aux_fits_file
@@ -121,8 +126,12 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
   day_end = strmid(str_replace(time_end,'-'),0,8)
   if day_end ne day_0 then begin
     aux_fits_file_1 = aux_fits_file
-    aux_fits_file_2 = aux_data_folder + 'solo_L2_stix-aux-ephemeris_'+day_end+'*.fits'
+    aux_fits_file_2 = aux_data_folder + 'solo_ANC_stix-asp-ephemeris_'+day_end+'*.fits'
     aux_file_list_2 = file_search(aux_fits_file_2, count=nb_aux)
+    if nb_aux eq 0 then begin
+      aux_fits_file_2 = aux_data_folder + 'solo_L2_stix-aux-ephemeris_'+day_end+'*.fits'
+      aux_file_list_2 = file_search(aux_fits_file_2, count=nb_aux)
+    endif
     if nb_aux gt 0 then begin
       aux_fits_file_2 = aux_file_list_2[-1]
       print, " STX_IMAGING_PIPELINE - INFO: Found AUX file " + aux_fits_file_2
