@@ -15,31 +15,40 @@
 ;                    - 'circle' : Gaussian circular source
 ;                    - 'ellipse': Gaussian elliptical source
 ;                    - 'loop'   : single curved elliptical gaussian
-;
+;   aux_data: structure containing the average values of SAS solution, apparent radius of the Sun, roll angle, pitch, yaw, L0 and B0
+;             computed over a considered time range
+;             
 ; Example: if configuration=['circle', 'ellipse', 'circle'], srcin has two main fields: srcin.circle and srcin.ellipse
 ;                                                                srcin.circle has two main fields srcin.circle[0] and srcin.circle[1]
 ;                                                                both srcin.circle[0], srcin.circle[1] and srcin.ellipse have 3 fields:
 ;                                                                param_opt, lower_bound and upper_bound
 
 
-FUNCTION VIS_FWDFIT_PSO_MULTIPLE_SRC_CREATE, vis, configuration
+FUNCTION VIS_FWDFIT_PSO_MULTIPLE_SRC_CREATE, vis, configuration, flare_loc_HPC
+
+;if vis[0].type eq 'stx_visibility' then begin
+;  dummy0 = stx_hpc2stx_coord(vis[0].xyoffset, aux_data, /inverse)
+;endif else begin
+;  dummy0 = [0.,0.];vis[0].xyoffset
+;endelse
+
 
   loc_circle  = where(configuration eq 'circle', n_circle)>0 
   loc_ellipse = where(configuration eq 'ellipse', n_ellipse)>0
   loc_loop    = where(configuration eq 'loop', n_loop)>0
   
   if n_circle gt 0 then begin
-    src_circle = vis_fwdfit_pso_circle_struct_define(vis)
+    src_circle = vis_fwdfit_pso_circle_struct_define(vis, flare_loc_HPC)
     src_circle = cmreplicate(src_circle, n_circle)
   endif
   
   if n_ellipse gt 0 then begin
-    src_ellipse = vis_fwdfit_pso_ellipse_struct_define(vis)
+    src_ellipse = vis_fwdfit_pso_ellipse_struct_define(vis, flare_loc_HPC)
     src_ellipse = cmreplicate(src_ellipse, n_ellipse)
   endif
   
   if n_loop gt 0 then begin
-    src_loop = vis_fwdfit_pso_loop_struct_define(vis)
+    src_loop = vis_fwdfit_pso_loop_struct_define(vis, flare_loc_HPC)
     src_loop = cmreplicate(src_loop, n_loop)
   endif
   
