@@ -202,7 +202,7 @@ function stx_transmission, ein, det_mask, attenuator = attenuator, xcom = xcom, 
       transmission_table = transmission_table
     endif else begin
 
-      transmission_table_sbc =  loc_file( 'stix_transmission_highres_20220621.csv', path = getenv('STX_GRID'))
+      transmission_table_sbc =  loc_file( 'stix_transmission_highres_20240711_010-100eVBin.csv', path = getenv('STX_GRID'))
       transmission_table_sbo =  loc_file( 'stix_transmission_highres_alt_20210826.csv', path = getenv('STX_GRID'))
 
       transmission_table = keyword_set(sbo) ? transmission_table_sbo : transmission_table_sbc
