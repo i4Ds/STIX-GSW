@@ -33,6 +33,7 @@
 ; :history:
 ;    11-Sep-2023 - ECMD (Graz), initial release
 ;    18-Sep-2023 - Massa P. (WKU), added 'out_folder' and 'clobber' keywords
+;    25-Nov-2024 - F. Schuller (AIP): update to search for new ANC file names
 ;
 ;-
 function stx_get_ephemeris_file, start_time, end_time, out_dir=out_dir, clobber=clobber
@@ -43,15 +44,17 @@ function stx_get_ephemeris_file, start_time, end_time, out_dir=out_dir, clobber=
   default, clobber, 0
 
   site = 'http://dataarchive.stix.i4ds.net'
-  type_path = '/fits/L2/'
   date_path = get_fid(start_time,end_time,/full,delim='/')
 
-  path  = type_path + date_path[0] +'/AUX'
+  type_path = '/fits/ANC/'
+  path  = type_path + date_path[0] +'/ASP'
   filter = '*stix-asp-ephemeris*.fits'
-
   found_files=sock_find(site,filter,path=path,count=count)
+
   if count eq 0 then begin
     ; try the previous naming convention - TEMPORARY FIX, should be removed at some point
+    type_path = '/fits/L2/'
+    path  = type_path + date_path[0] +'/AUX'
     filter = '*stix-aux-ephemeris*.fits'
     found_files=sock_find(site,filter,path=path,count=count)
   endif
