@@ -88,6 +88,7 @@ end
 ;
 ; :history:
 ;    31-Aug-2023 - ECMD (Graz), initial release
+:    19-Dec-2024 - SAM (DIAS), fail gracefully if localfile doesn't exist
 ;
 ;-
 pro stx_update_det_config_files,  url_root = url_root, name_idx = name_idx, filter = filter, directory = directory, verbose = verbose
@@ -96,23 +97,24 @@ pro stx_update_det_config_files,  url_root = url_root, name_idx = name_idx, filt
 
   sock_copy, url_idx, out_dir = directory, local_file = local_file, /clobber, verbose = verbose
 
-  str_index = read_csv(local_file, n_table_header = 1)
-  elut_filenames = (str_index.field4)
+  if local_file ne '' then begin;
 
-  files_present = find_file(concat_dir(directory, filter), count = count)
-  filenames_present = file_break(files_present, /name)
+    str_index = read_csv(local_file, n_table_header = 1)
+    elut_filenames = (str_index.field4)
 
-  for i = 0, n_elements(elut_filenames)-1 do begin
-    check =  where(elut_filenames[i] eq filenames_present, count_found)
-    if count_found eq 0 then begin
-      url = url_root + elut_filenames[i]
-      sock_copy, url, out_dir = directory, verbose = verbose
-    endif
+    files_present = find_file(concat_dir(directory, filter), count = count)
+    filenames_present = file_break(files_present, /name)
 
-  endfor
-
-
-
+    for i = 0, n_elements(elut_filenames)-1 do begin
+      check =  where(elut_filenames[i] eq filenames_present, count_found)
+      if count_found eq 0 then begin
+        url = url_root + elut_filenames[i]
+        sock_copy, url, out_dir = directory, verbose = verbose
+      endif
+    endfor
+  endif else begin
+    message, 'Warning congiguration file '+name_idx +' not found.', /continue
+  endelse
 end
 
 
