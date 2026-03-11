@@ -1,4 +1,21 @@
-; DEMO spectral component imaging on the example 16 Mai 2023 flare
+;---------------------------------------------------------------------------
+;+
+; :project:
+;       STIX
+;
+; :name:
+;       stx_spectral_component_imaging_demo
+;
+; :description:
+;    This demonstration script shows how to use the routine stx_spectral_component_imaging. Spectral component imaging is a method of imaging individual 
+;    spectral components rather than imaging in energy ranges. The routine is based on the paper: "Spectral component imaging of solar X-ray flares", Stiefel et al. (2025)
+;
+; :categories:
+;    demo, imaging
+;
+; :history:
+;   March-2026, Stiefel, M; first release
+;-
 
 ; *******************************************
 ; ************ PREPARE THE DATA *************
