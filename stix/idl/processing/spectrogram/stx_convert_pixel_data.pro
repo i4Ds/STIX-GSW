@@ -197,6 +197,10 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
 
   if n_elements(distance) ne 0 then fits_distance = distance
 
+  ;; Check if science and background files are reconrded with the same ELUT
+  elut_filename = stx_date2elut_file(stx_time2any(t_axis.TIME_START[0]))
+  stx_read_elut, elut_gain, elut_offset, adc4096_str, elut_filename = elut_filename
+
   fits_info_params = stx_fits_info_params( fits_path_data = fits_path_data, data_level = data_level, $
     distance = fits_distance, time_shift = time_shift, fits_path_bk = fits_path_bk, uid = uid, $
     generate_fits = generate_fits, specfile = specfile, srmfile = srmfile, elut_file = elut_filename, silent = silent)
@@ -254,10 +258,6 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   counts_error = counts_error[energy_bin_idx,*,*,*]
 
   if keyword_set(fits_path_bk) then begin
-
-    ;; Check if science and background files are reconrded with the same ELUT
-    elut_filename = stx_date2elut_file(stx_time2any(t_axis.TIME_START[0]))
-    stx_read_elut, elut_gain, elut_offset, adc4096_str, elut_filename = elut_filename
 
     elut_filename_bkg = stx_date2elut_file(stx_time2any(t_axis_bkg.TIME_START))
     stx_read_elut, ekev_actual = ekev_actual_bkg, elut_filename = elut_filename_bkg
