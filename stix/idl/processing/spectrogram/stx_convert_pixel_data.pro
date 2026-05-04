@@ -108,7 +108,6 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
   default, shift_duration, 0
   default, plot, 1
   default, det_ind, 'top24'
-  default, elut_correction, 1
   default, silent, 0
   default, xspec, 0
   default, sys_uncert, 0.05
