@@ -285,16 +285,19 @@ pro stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar
   fits_info_params.srmfile = (cur_srm_fn eq '') ? srmfilename : cur_srm_fn
 
   ; Check if output files already exist and generate unique filenames to avoid overwriting
-  new_specfile = stx_unique_filename(fits_info_params.specfile)
-  if new_specfile ne fits_info_params.specfile then begin
-    if ~keyword_set(silent) then print, 'Spectrum file ' + fits_info_params.specfile + ' already exists. Saving as: ' + new_specfile
-    fits_info_params.specfile = new_specfile
-  endif
+  ; only when FITS generation is enabled.
+  if keyword_set(generate_fits) or keyword_set(fits_info_params.generate_fits) then begin
+    new_specfile = stx_unique_filename(fits_info_params.specfile)
+    if new_specfile ne fits_info_params.specfile then begin
+      if ~keyword_set(silent) then print, 'Spectrum file ' + fits_info_params.specfile + ' already exists. Saving as: ' + new_specfile
+      fits_info_params.specfile = new_specfile
+    endif
 
-  new_srmfile = stx_unique_filename(fits_info_params.srmfile)
-  if new_srmfile ne fits_info_params.srmfile then begin
-    if ~keyword_set(silent) then print, 'SRM file ' + fits_info_params.srmfile + ' already exists. Saving as: ' + new_srmfile
-    fits_info_params.srmfile = new_srmfile
+    new_srmfile = stx_unique_filename(fits_info_params.srmfile)
+    if new_srmfile ne fits_info_params.srmfile then begin
+      if ~keyword_set(silent) then print, 'SRM file ' + fits_info_params.srmfile + ' already exists. Saving as: ' + new_srmfile
+      fits_info_params.srmfile = new_srmfile
+    endif
   endif
 
   transmission = read_csv(loc_file( 'stix_transmission_highres_20251110.csv', path = getenv('STX_GRID')))
