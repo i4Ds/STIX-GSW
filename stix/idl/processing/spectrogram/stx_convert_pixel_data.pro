@@ -451,7 +451,7 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
 
         elut_data = stx_elut_correction(this_count_rates, this_count_rates_error, $
           energy_bin_idx, energy_bin_low, energy_bin_high, energy_high, energy_low, e_bin, this_energy_range, $
-          spectrum, pixel_ind, det_ind, /silent)
+          spectrum, pixels_used, detectors_used, /silent)
 
         count_rates_elut[e_bin,*,*,idx_time_min[t_bin]:idx_time_max[t_bin]] = elut_data.COUNTS
         count_rates_error_elut[e_bin,*,*,idx_time_min[t_bin]:idx_time_max[t_bin]] = elut_data.COUNTS_ERROR
