@@ -145,6 +145,12 @@ pro  stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fit
     control_header= control_header, energy_str = energy_str, energy_header = energy_header, t_axis = t_axis, energy_shift = energy_shift,  e_axis = e_axis , use_discriminators = 0, $
     shift_duration = shift_duration, silent=silent
 
+  ;; Define default file name for spectrum and srm
+  uid = control_str.request_id
+  default, specfile, 'stx_spectrum_' + strtrim(uid,2) + '.fits'
+  if ~keyword_set(srmfile) then $
+    srmfile = xspec ? 'stx_srm_' + strtrim(uid,2) + '_XSPEC.fits' : 'stx_srm_' + strtrim(uid,2) + '.fits'
+
   ;; Select indices of the energy bins (among the 32) that are actually present in the pixel data science file
   energy_bin_mask = data_str.energy_bin_mask
   energy_bin_idx  = where(energy_bin_mask eq 1)
