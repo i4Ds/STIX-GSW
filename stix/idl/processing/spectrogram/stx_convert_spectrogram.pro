@@ -25,6 +25,9 @@
 ;
 ;    distance : in, optional, type="float", default= "1."
 ;               The distance between Solar Orbiter and the Sun centre in Astronomical Units needed to correct flux.
+;               
+;    flare_location_stx : in, type="2 element float array"
+;               the location of the flare (X,Y) in the STIX imaging frame [arcsec] 
 ;
 ;    time_shift : in, optional, type="float", default="0."
 ;               The difference in seconds in light travel time between the Sun and Earth and the Sun and Solar Orbiter
@@ -34,12 +37,6 @@
 ;               Shift all energies by this value in keV. Rarely needed only for cases where there is a significant shift
 ;               in calibration before a new ELUT can be uploaded.
 ;
-;    flare_location_hpc : in, type="2 element float array"
-;               the location of the flare (X,Y) in Helioprojective Cartesian coordinates as seen from Solar Orbiter [arcsec]
-;              
-;    aux_fits_file : in, required if flare_location_hpc is passed in, type="string"
-;                the path of the auxiliary ephemeris FITS file to be read."
-;                
 ;    shift_duration : in, type="boolean", default="0"
 ;                     Shift all time bins by 1 to account for FSW time input discrepancy prior to 09-Dec-2021.
 ;                     N.B. WILL ONLY WORK WITH FULL TIME RESOLUTION DATA WHICH IS OFTEN NOT THE CASE FOR PIXEL DATA.
@@ -58,16 +55,13 @@
 ;    srmfile : in, type="string", default="'stx_srm_'+ UID + '.fits'"
 ;                    File name to use when saving the srm FITS file for OSPEX input.
 ;
-;    background_data : out, type="stx_background_data structure"
-;                     Structure containing the subtracted background for external plotting.
-;
 ;    plot : in, type="boolean", default="1"
 ;                     If set open OSPEX GUI and plot lightcurve in standard quicklook energy bands
 ;                     where there is data present
 ;
 ;    xspec : in, type="boolean", default="0"
 ;                     If set, generate SRM file compatible with XSPEC rather than OSPEX.
-;    
+;
 ;    ospex_obj : out, type="OSPEX object"
 ;
 ;
@@ -89,50 +83,108 @@
 ;    16-Jun-2023 - ECMD (Graz), for a source location dependent response estimate, the location in HPC and the auxiliary ephemeris file must be provided.
 ;    06-Dec-2023 - ECMD (Graz), added silent keyword, more information is now printed if not set
 ;    2024-07-12, F. Schuller (AIP): added optional keyword xspec
-;
+;    07-May-2026 - Massa P., removed ELUT correction as it is not possible to apply it to spectrogram data. Furter, this routine now calls 'stx_convert_spectrogram2ospex'
+;                            which is called also by 'stx_convert_pixel_data'
 ;-
-pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk,$
-  aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
-  time_shift = time_shift, energy_shift = energy_shift, distance = distance, replace_doubles = replace_doubles, $
-  keep_short_bins = keep_short_bins, apply_time_shift = apply_time_shift, elut_correction = elut_correction, $
+pro stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk,$
+  flare_location_stx = flare_location_stx, time_shift = time_shift, energy_shift = energy_shift, $
+  distance = distance, replace_doubles = replace_doubles, keep_short_bins = keep_short_bins, $
   shift_duration = shift_duration, no_attenuation = no_attenuation, sys_uncert = sys_uncert, $
   generate_fits = generate_fits, specfile = specfile, srmfile = srmfile, silent = silent, $
-  background_data = background_data, plot = plot, xspec=xspec, ospex_obj = ospex_obj
+  plot = plot, xspec=xspec, ospex_obj = ospex_obj, tailing=tailing, include_damage=include_damage, _extra=extra
 
-  default, plot, 1
-  default, silent, 0
-  default, xspec, 0
   
   if n_elements(time_shift) eq 0 then begin
     if ~keyword_set(silent) then begin
-    message, 'Time shift value is not set. Using default value of 0 [s].', /info
-    print, 'File averaged values can be obtained from the FITS file header'
-    print, 'using stx_get_header_corrections.pro.'
+      message, 'Time shift value is not set. Using default value of 0 [s].', /info
+      print, 'File averaged values can be obtained from the FITS file header'
+      print, 'using stx_get_header_corrections.pro.'
     endif
     time_shift = 0.
   endif
-
-  default, plot, 1
-  default, elut_correction, 1 
   
+  default, shift_duration, 0
+  default, sys_uncert, 0.05
+  default, silent, 0
+  default, plot, 1
+  default, xspec, 0
+  default, tailing, 1
+  default, include_damage, 1
+  
+  ;;------------------------------------------------------------
+
   stx_read_spectrogram_fits_file, fits_path_data, time_shift, primary_header = primary_header, data_str = data_str, data_header = data_header, control_str = control_str, $
     control_header= control_header, energy_str = energy_str, energy_header = energy_header, t_axis = t_axis, energy_shift = energy_shift,  e_axis = e_axis , use_discriminators = 0,$
     replace_doubles = replace_doubles, keep_short_bins = keep_short_bins, shift_duration = shift_duration
 
-  data_level = 4
 
-  start_time = atime(stx_time2any((t_axis.time_start)[0]))
+  ;; Select indices of the energy bins (among the 32) that are actually present in the pixel data science file
+  energy_bin_mask = data_str.energy_bin_mask
+  energy_bin_idx  = where(energy_bin_mask eq 1)
 
-  elut_filename = stx_date2elut_file(start_time)
-  
-  if ~keyword_set(silent) then begin
-    print, 'Using ELUT file ' + elut_filename
+  energy_low  = e_axis.LOW
+  energy_high = e_axis.HIGH
+
+  energy_min = min(energy_low)
+  energy_max = max(energy_high)
+ 
+  if keyword_set(fits_path_bk) then begin
+
+    stx_read_pixel_data_fits_file, fits_path_bk, data_str = data_bkg, t_axis = t_axis_bkg, e_axis = e_axis_bkg, _extra=extra
+
+    if n_elements(t_axis_bkg.DURATION) gt 1 then message, 'The chosen file does not contain a background measurement'
+
+    ;; Check if the spectrogram and the BKG file are recorded with the same ELUT
+    elut_filename = stx_date2elut_file(stx_time2any(t_axis.TIME_START[0]))
+    elut_filename_bkg = stx_date2elut_file(stx_time2any(t_axis_bkg.TIME_START))
+    
+    elut_comp = STRCMP(elut_filename, elut_filename_bkg) ;; Compare ELUT tables
+
+    if not elut_comp then $
+      message, 'The background file must be recorded when the same ELUT as the science file was uploaded. Please choose a different background file that is closer in time to the science file.'
+    
+
+    ;; Select indices of the energy bins (among the 32) that are actually present in the pixel data bkg file
+    energy_bin_mask_bkg = data_bkg.energy_bin_mask
+    energy_bin_idx_bkg = where(energy_bin_mask_bkg eq 1)
+
+    energy_low_bkg  = e_axis_bkg.LOW
+    energy_high_bkg = e_axis_bkg.HIGH
+
+    ;; Extract energy range in common between science and background file
+    energy_min = max([energy_min,min(energy_low_bkg)])
+    energy_max = min([energy_max,max(energy_high_bkg)])
+    idx_energy_bkg = where((energy_low_bkg ge energy_min) and (energy_high_bkg le energy_max))
+
+    energy_bin_idx_bkg = energy_bin_idx_bkg[idx_energy_bkg]
+    energy_low_bkg = energy_low_bkg[idx_energy_bkg]
+    energy_high_bkg = energy_high_bkg[idx_energy_bkg]
+
   endif
   
+  ;; Extract energy range in common between science and background file
+  idx_energy = where((energy_low ge energy_min) and (energy_high le energy_max))
+
+  energy_bin_idx = energy_bin_idx[idx_energy]
+  energy_low = energy_low[idx_energy]
+  energy_high = energy_high[idx_energy]
+  
+  ct_edges = get_uniq( [energy_low,energy_high],epsilon=0.0001)
+
+  ;;--------- Create spectrogram structure
+  
+  data_level = 4
   uid = control_str.request_id
+  
+  ;; Define default file name for spectrum and srm
+  default, specfile, 'stx_spectrum_' + strtrim(uid,2) + '.fits'
+  if ~keyword_set(srmfile) then $
+    srmfile = xspec ? 'stx_srm_' + strtrim(uid,2) + '_XSPEC.fits' : 'stx_srm_' + strtrim(uid,2) + '.fits'
+  
+  if n_elements(distance) ne 0 then fits_distance = distance
 
   fits_info_params = stx_fits_info_params( fits_path_data = fits_path_data, data_level = data_level, $
-    distance = distance, time_shift = time_shift, fits_path_bk = fits_path_bk, uid = uid, $
+    distance = fits_distance, time_shift = time_shift, fits_path_bk = fits_path_bk, uid = uid, $
     generate_fits = generate_fits, specfile = specfile, srmfile = srmfile, elut_file = elut_filename, silent = silent)
 
   counts_in = data_str.counts
@@ -143,10 +195,9 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
 
   pixels_used = where(data_str.pixel_masks eq 1)
   detectors_used = where(control_str.detector_masks eq 1)
+  
 
-  energy_edges_used = where(control_str.energy_bin_edge_mask eq 1, n_energy_edges)
-  energy_bin_mask = stx_energy_edge2bin_mask(control_str.energy_bin_edge_mask)
-  energy_bins = where(energy_bin_mask eq 1, n_energies)
+  n_energies = n_elements(energy_bin_idx)
 
   pixel_mask_used = intarr(12)
   pixel_mask_used[pixels_used] = 1
@@ -161,11 +212,11 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
 
   spec_in = counts_in
 
-  counts_spec =  spec_in[energy_bins, *]
+  counts_spec =  spec_in[energy_bin_idx, *]
 
   counts_spec =  reform(counts_spec,[n_energies, n_times])
 
-  counts_err = data_str.counts_err[energy_bins,*]
+  counts_err = data_str.counts_err[energy_bin_idx,*]
 
   counts_err =  reform(counts_err,[n_energies, n_times])
 
@@ -175,30 +226,8 @@ pro  stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fi
 
   rcr = data_str.rcr
 
-
-if keyword_set(elut_correction) then begin
-  stx_read_elut, ekev_actual = ekev_actual, elut_filename = elut_filename
-
-  ave_edge  = mean(reform(ekev_actual[energy_edges_used-1, pixels_used, detectors_used, 0 ], n_energy_edges, n_pixels, n_detectors), dim = 2)
-  ave_edge  = mean(reform(ave_edge,n_energy_edges, n_detectors), dim = 2)
-
-  edge_products, ave_edge, width = ewidth
-
-  eff_ewidth =  (e_axis.width)/ewidth
+  ;; Create spectrogram structure for live time correction
   
-  counts_spec =  counts_spec * reproduce(eff_ewidth, n_times)
-
-  counts_spec =  reform(counts_spec,[n_energies, n_times])
-
-  counts_err = counts_err * reproduce(eff_ewidth, n_times)
-
-  counts_err =  reform(counts_err,[n_energies, n_times])
-endif
-
-
-
-
-  ;insert the information from the telemetry file into the expected stx_fsw_sd_spectrogram structure
   spectrogram = { $
     type          : "stx_fsw_sd_spectrogram", $
     counts        : counts_spec, $
@@ -210,62 +239,74 @@ endif
     detector_mask : detector_mask_used, $
     rcr           : rcr, $
     error         : counts_err}
-
-  data_dims = lonarr(4)
-  data_dims[0] = n_energies
-  data_dims[1] = 1
-  data_dims[2] = 1
-  data_dims[3] = n_times
-
-  ;get the rcr states and the times of rcr changes from the ql_lightcurves structure
-  ut_rcr = stx_time2any(t_axis.time_start)
-  find_changes, rcr, index, state, count=count
-
-  ; ************************************************************
-  ; ******************** TEMPORARY FIX *************************
-  ; ***** Andrea: 2022-April-05
-  ; Temporarily creation of the no_attenuation keyword in order
-  ; to avoid attenuation of the fitted curve. This is useful for
-  ; obtaining thermal fit parameters with the BKG detector in the
-  ; case the attenuator is inserted. We tested it with the X
-  ; class flare on 2021-Oct-26 and it works nicely.
-  if keyword_set(no_attenuation) then begin
-    rcr = rcr*0.
-    index = 0
-    state = 0
+  
+  
+  ;; Live time correction
+  livetime_data =  stx_spectrogram_livetime( spectrogram, corrected_counts = counts_spec, corrected_error = counts_spec_error, level = data_level )
+  livetime = livetime_data.livetime
+  livetime_err = livetime_data.livetime_err
+  
+  ;;----- BKG subtraction
+  
+  if keyword_set(fits_path_bk) then begin
+  
+    counts_bkg       = data_bkg.COUNTS
+    counts_error_bkg = data_bkg.COUNTS_ERR
+    counts_bkg       = counts_bkg[energy_bin_idx_bkg,*,*]
+    counts_error_bkg = counts_error_bkg[energy_bin_idx_bkg,*,*]
+  
+    live_time_bkg_data = stx_cpd_livetime(data_bkg.TRIGGERS, data_bkg.TRIGGERS_ERR, t_axis_bkg)
+    live_time_bkg = live_time_bkg_data.LIVE_TIME_BINS
+    live_time_error_bkg = live_time_bkg_data.LIVE_TIME_BINS_ERR
+  
+    live_time_bkg_rep = transpose(cmreplicate(live_time_bkg, [n_elements(energy_bin_idx),12]), [1,2,0])
+    live_time_error_bkg_rep = transpose(cmreplicate(live_time_error_bkg, [n_elements(energy_bin_idx),12]), [1,2,0])
+  
+    ;; Normalize by livetime
+    count_rates_bkg = f_div( counts_bkg, live_time_bkg_rep )
+    count_rates_bkg_error = count_rates_bkg * sqrt( f_div( counts_error_bkg, counts_bkg )^2. + f_div( live_time_error_bkg_rep, live_time_bkg_rep )^2. )
+  
+    ;; Sum over detectors and pixels
+    counts_spec_bkg = total(total(count_rates_bkg, 2) ,2)
+    counts_spec_bkg_error = sqrt(total(total(count_rates_bkg_error^2., 2) ,2))
+  
+    if n_times gt 1 then begin
+  
+      counts_spec_bkg = cmreplicate( counts_spec_bkg, n_times )
+      counts_spec_bkg_error = cmreplicate( counts_spec_bkg_error, n_times )
+      
+    endif
+    
+    counts_spec = counts_spec - counts_spec_bkg
+    counts_spec_error = sqrt(counts_spec_error^2. + counts_spec_bkg_error^2.)
+    
+  
   endif
-  ; ************************************************************
-  ; ************************************************************
 
-  ; ******************** TEMPORARY FIX *************************
-  ; ***** ECMD: 2022-Jun-27
-  ; As the reported time of the RCR status change can be inaccurate
-  ; up to several seconds correct this by finding the times where there is a
-  ; large change in counts in the counts of the 5 - 6 keV energy bin.
-  ; find all time intervals where the difference between adjacent bins is large
-  if max(rcr) gt 0 then begin; skip if in the standard state of RCR0 for the full time range
+  ;;------ Multiply by live time. The units of the spectrogram are counts
+  spec = counts_spec * livetime               
+  spec_error = abs(spec) * sqrt( f_div(counts_spec_error,counts_spec)^2. + f_div(livetime_err,livetime)^2. ) 
+  
+  
+  livetime_fraction = livetime_data.livetime_fraction
+  livetime_fraction_dim = size(livetime_fraction, /dim)
+  if n_elements(livetime_fraction_dim) ge 2 then livetime_fraction = reform(livetime_fraction[0,*])
+  
+  ;; Create spectrogram structure
+  spec_data = {type   : 'stx_spectrogram', $
+    data              : spec, $
+    t_axis            : t_axis, $
+    e_axis            : e_axis, $
+    ltime             : livetime_fraction, $ 
+    attenuator_state  : data_str.RCR , $
+    error             : spec_error}
 
-    jumps = where(abs( counts_spec[2,*] - shift(counts_spec[2,*],-1) ) gt 1e4)
-    ; include the starting bin
-    jumps = [0, jumps]
-    ; as the attenuator motion can be present in two consecutive bins select only the first
-    idx_jumps =  where(abs(jumps - shift(jumps, -1)) gt 2)
-    jumps_use= [jumps[idx_jumps]]
-    ; each transition should correspond close in time to a recorded transition in the FITS file
-    ; adjust the time indexes of these transitions to the closest jumps
-    index = jumps_use
+  ;;------------------------------------------------------
 
-  endif
-  ; ************************************************************
-
-  ;add the rcr information to a specpar structure so it can be included in the spectrum FITS file
-  specpar = { sp_atten_state :  {time:ut_rcr[index], state:state}, flare_xyoffset : fltarr(2), use_flare_xyoffset:0 }
-
-  stx_convert_science_data2ospex, spectrogram = spectrogram, specpar = specpar, time_shift = time_shift, data_level = data_level, $
-    data_dims = data_dims, fits_path_bk = fits_path_bk, fits_path_data = fits_path_data, $
-    elut_correction = elut_correction, eff_ewidth = eff_ewidth, fits_info_params = fits_info_params, sys_uncert = sys_uncert, $
-    aux_fits_file = aux_fits_file, flare_location_hpc = flare_location_hpc, flare_location_stx = flare_location_stx, $
-    silent = silent, background_data = background_data, plot = plot, generate_fits = generate_fits, xspec=xspec, ospex_obj = ospex_obj
+  stx_convert_spectrogram2ospex, spec_data, pixel_mask_used, detector_mask_used, fits_info_params, ct_edges, $
+    no_attenuation=no_attenuation, flare_location_stx=flare_location_stx, time_shift = time_shift, $
+    sys_uncert=sys_uncert, silent=silent, plot=plot, xspec=xspec, ospex_obj = ospex_obj, $
+    tailing=tailing, include_damage=include_damage, _extra=extra
 
 end
 

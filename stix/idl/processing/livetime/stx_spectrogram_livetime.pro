@@ -38,7 +38,8 @@
 ;    24-Feb-2021 - ECMD (Graz), initial release
 ;    22-Feb-2022 - ECMD (Graz), documented, added livetime error estimation 
 ;    23-Mar-2026 - Massa P. (FHNW), made it compatible with live time uncertainty propagation
-;
+;    07-May-2026 - Massa P. (FHNW), fixed bug. In the previous version, counts were normalized by livetime fraction instead of livetime.
+;                                   Now, both the livetime and the livetime fraction (and corresponding uncertainties) are returned 
 ;-
 function stx_spectrogram_livetime,  spectrogram, corrected_counts =corrected_counts, corrected_error= corrected_error, level = level
   ;convert the triggers to livetime
@@ -49,7 +50,8 @@ default, level, 1
   nenergies = (spectrogram.counts.dim)[0]
   det_used = where(spectrogram.detector_mask eq 1, ndet) + 1 ; stx_livetime_fraction expects detector number in the range 1 - 32 
 
-
+  time_bin_duration = transpose(cmreplicate(spectrogram.time_axis.duration, nenergies))
+  
   case level of
     1: begin
       dim_counts = [nenergies, ndet, ntimes]
@@ -57,7 +59,6 @@ default, level, 1
       livetime_fraction_data = stx_livetime_fraction(triggergram, det_used)
       livetime_fraction = transpose( rebin(reform(livetime_fraction_data.livetime_fraction, ndet, ntimes),[dim_counts[1:2],dim_counts[0]]),[2,0,1])
       livetime_fraction_err = transpose( rebin(reform(livetime_fraction_data.livetime_fraction_err, ndet, ntimes),[dim_counts[1:2],dim_counts[0]]),[2,0,1])
-      
 
     end
     4:begin
@@ -69,17 +70,22 @@ default, level, 1
       livetime_fraction = transpose( rebin(reform(livetime_fraction_data.livetime_fraction[0,*]),[dim_counts[1],dim_counts[0]]))
       livetime_fraction_err = transpose( rebin(reform(livetime_fraction_data.livetime_fraction_err[0,*]),[dim_counts[1],dim_counts[0]]))
 
-
     end
 
     else: message, 'Currently supported compaction levels are 1 (pixel data) and 4 (spectrogram)'
   endcase
+  
+  livetime = time_bin_duration * livetime_fraction
+  livetime_err = time_bin_duration * livetime_fraction_err
 
-  corrected_counts =  f_div(spectrogram.counts,livetime_fraction)
+  corrected_counts =  f_div(spectrogram.counts,livetime)
 
   corrected_error = abs(corrected_counts) * sqrt( f_div(spectrogram.error,spectrogram.counts)^2. + $
-    f_div(livetime_fraction_err,livetime_fraction)^2. )
+    f_div(livetime_err,livetime)^2. )
  
-  return, livetime_fraction
+  return, {livetime: livetime, $
+          livetime_err: livetime_err, $
+          livetime_fraction:livetime_fraction, $
+          livetime_fraction_err: livetime_fraction_err}
 
 end

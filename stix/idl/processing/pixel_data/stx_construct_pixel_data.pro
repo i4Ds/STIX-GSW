@@ -249,10 +249,7 @@ if keyword_set(path_bkg_file) then begin
   ;; Check if science and background files are reconrded with the same ELUT
 
   elut_filename = stx_date2elut_file(stx_time2any(this_time_range[0]))
-  stx_read_elut, elut_gain, elut_offset, adc4096_str, elut_filename = elut_filename, ekev_actual = ekev_actual_elut
-
   elut_filename_bkg = stx_date2elut_file(stx_time2any(t_axis_bkg.TIME_START))
-  stx_read_elut, ekev_actual = ekev_actual_bkg, elut_filename = elut_filename_bkg
 
   ;; Compare ELUT tables
   elut_comp = STRCMP(elut_filename, elut_filename_bkg)
