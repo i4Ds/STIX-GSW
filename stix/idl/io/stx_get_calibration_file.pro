@@ -152,6 +152,7 @@ function stx_get_calibration_file, start_time, end_time, out_dir=out_dir, clobbe
       found_files = found_files_array[idx_elut]
       duration = duration[idx_elut]
       start_time_file = start_time_file[idx_elut]
+      end_time_file = end_time_file[idx_elut]
       mid_time_file = mid_time_file[idx_elut]
       
       ;; Select calibration file with largest duration
@@ -166,6 +167,7 @@ function stx_get_calibration_file, start_time, end_time, out_dir=out_dir, clobbe
         found_files = found_files[idx_duration]
         duration = duration[idx_duration]
         start_time_file = start_time_file[idx_duration]
+        end_time_file = end_time_file[idx_duration]
         mid_time_file = mid_time_file[idx_duration]
         
         ;; If multiple files have the largest duration, select the closest one to the input time range
@@ -180,12 +182,14 @@ function stx_get_calibration_file, start_time, end_time, out_dir=out_dir, clobbe
           idx_file = idx_time_diff[0]
 
           selected_file = found_files[idx_file]
-          selected_file_time = start_time_file[idx_file]
+          selected_file_time_start = start_time_file[idx_file]
+          selected_file_time_end = end_time_file[idx_file]
         
         endif else begin
           
           selected_file = found_files
-          selected_file_time = start_time_file
+          selected_file_time_start = start_time_file
+          selected_file_time_end = end_time_file
           
         endelse
         
@@ -196,7 +200,8 @@ function stx_get_calibration_file, start_time, end_time, out_dir=out_dir, clobbe
   endelse
 
   ;; Download file
-  message, [" ", " ", "Download STIX calibration file recorded at " +anytim(selected_file_time, /vms), " ", " "], /continue
+  message, [" ", " ", "Download STIX calibration file recorded between " +anytim(selected_file_time_start, /vms)+$
+                      " and "+anytim(selected_file_time_end, /vms), " ", " "], /continue
   sock_copy, selected_file, out_name, local_file=out_file, out_dir = out_dir, clobber=clobber
 
   return, out_file
