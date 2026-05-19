@@ -103,7 +103,6 @@ pro stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fit
     time_shift = 0.
   endif
   
-  default, shift_duration, 0
   default, sys_uncert, 0.05
   default, silent, 0
   default, plot, 1
