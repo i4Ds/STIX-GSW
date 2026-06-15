@@ -195,6 +195,16 @@ pro stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fit
   pixels_used = where(data_str.pixel_masks eq 1)
   detectors_used = where(control_str.detector_masks eq 1)
   
+  ;; Check if fine-resolution sub-collimators have been considered for computing the spectrogram
+  ;; If that is the case, print a warning as the high energy calibration for those sub-collimators
+  ;; has not been completed yet
+  subc_fine_label = ['1a','1b','1c','2a','2b','2c']
+  subc_fine_index = stx_label2ind(subc_fine_label)
+  subc_fine_used = control_str.detector_masks[subc_fine_index]
+
+  idx = where(subc_fine_used eq 1b, n_det)
+
+  if n_det gt 0 then message, [" ", " ", "The spectrogram contains counts recorded by sub-collimator " + subc_fine_label[idx] + ", but the high-energy calibration for this sub-collimator is not completed yet. This could affect the spectral fit results.", " ", " "], /continue  
 
   n_energies = n_elements(energy_bin_idx)
 
