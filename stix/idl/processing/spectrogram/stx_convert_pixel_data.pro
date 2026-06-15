@@ -399,6 +399,8 @@ pro stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fits
       total_time = 0
     endwhile
 
+    iall = [iall,i]
+
     idx_time_min = iall[0:-2]
     idx_time_max = iall[1:-1]-1
 
