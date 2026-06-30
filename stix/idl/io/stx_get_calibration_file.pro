@@ -79,9 +79,8 @@ function stx_get_calibration_file, start_time, end_time, out_dir=out_dir, live_t
 
   if n_elements(found_files_array) eq 0 then begin
 
-    message, $
-      [" ", " ", "No STIX calibration file was found within "+num2str(window_days)+" days before or after "+$
-       date_path[0]+". Please, download an appropriate calibration file manually.", " ", " "]
+    message, "No STIX calibration file was found within "+num2str(window_days)+" days before or after "+$
+       date_path[0]+". Please, download an appropriate calibration file manually."
 
   endif else begin
 
@@ -134,8 +133,8 @@ function stx_get_calibration_file, start_time, end_time, out_dir=out_dir, live_t
 
     if n_elut_check eq 0 then begin
 
-      message, [" ", " ", "Available STIX calibration files within "+num2str(window_days)+" before or after "+$
-                date_path[0]+" have been registered with an onboard ELUT different from that used during the input time range. Please, download an appropriate calibration file manually.", " ", " "]
+      message, "Available STIX calibration files within "+num2str(window_days)+" before or after "+$
+                date_path[0]+" have been registered with an onboard ELUT different from that used during the input time range. Please, download an appropriate calibration file manually."
 
     endif else begin
 
@@ -151,8 +150,8 @@ function stx_get_calibration_file, start_time, end_time, out_dir=out_dir, live_t
 
       if n_duration eq 0 then begin
 
-        message, [" ", " ", "Available STIX calibration files within "+num2str(window_days)+" days before or after "+$
-                  date_path[0]+" have a duration shorter than 30K sec and should not be used. Please, download an appropriate calibration file manually.", " ", " "]
+        message, "Available STIX calibration files within "+num2str(window_days)+" days before or after "+$
+                  date_path[0]+" have a duration shorter than 30K sec and should not be used. Please, download an appropriate calibration file manually."
 
       endif else begin
 
@@ -211,8 +210,8 @@ function stx_get_calibration_file, start_time, end_time, out_dir=out_dir, live_t
 
     endfor
     
-    message, [" ", " ", "Available STIX calibration files within "+num2str(window_days)+" days before or after "+$
-              date_path[0]+" have a livetime shorter than 30K sec and should not be used. Please, download an appropriate calibration file manually.", " ", " "]
+    message, "Available STIX calibration files within "+num2str(window_days)+" days before or after "+$
+              date_path[0]+" have a livetime shorter than 30K sec and should not be used. Please, download an appropriate calibration file manually."
   
   endif
 
@@ -268,8 +267,12 @@ function stx_get_calibration_file, start_time, end_time, out_dir=out_dir, live_t
   endelse
 
   ;; Download file
-  message, [" ", " ", "Downloaded STIX calibration file recorded between " +anytim(selected_file_time_start, /vms)+$
-    " and "+anytim(selected_file_time_end, /vms), " ", " "], /continue
+  print
+  print
+  print, "Downloaded STIX calibration file recorded between " +anytim(selected_file_time_start, /vms)+$
+    " and "+anytim(selected_file_time_end, /vms)
+  print
+  print
 
   return, selected_file
 
