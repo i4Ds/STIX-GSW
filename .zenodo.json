@@ -1,0 +1,134 @@
+{
+  "title": "STIX Ground Analysis Software (STIX-GSW)",
+  "description": "IDL-based ground analysis software for the Spectrometer/Telescope for Imaging X-rays (STIX) instrument onboard ESA's Solar Orbiter mission. Provides tools for spectroscopy, imaging, aspect correction, livetime correction, and data conversion.",
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "other-open",
+  "version": "v0.6.1",
+  "keywords": [
+    "solar physics",
+    "Solar Orbiter",
+    "STIX",
+    "X-ray",
+    "spectroscopy",
+    "imaging",
+    "IDL",
+    "SolarSoftware"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "10.5281/zenodo.6815762",
+      "relation": "isNewVersionOf",
+      "scheme": "doi"
+    }
+  ],
+  "creators": [
+    {
+      "name": "Krucker, Säm",
+      "affiliation": "Fachhochschule Nordwestschweiz (FHNW) / Space Sciences Laboratory, UC Berkeley",
+      "orcid": "0000-0002-2002-9180"
+    },
+    {
+      "name": "Etesi, Laszlo",
+      "affiliation": "Fachhochschule Nordwestschweiz (FHNW)",
+      "orcid": "0000-0003-3681-7058"
+    },
+    {
+      "name": "Battaglia, Andrea F.",
+      "affiliation": "Istituto Ricerche Solari Locarno, Università della Svizzera italiana (IRSOL/USI)",
+      "orcid": "0000-0003-4490-7344"
+    },
+    {
+      "name": "Hochmuth, Nicky",
+      "affiliation": "Ateleris GmbH",
+      "orcid": "0009-0005-3785-7643"
+    },
+    {
+      "name": "Collier, Hannah",
+      "affiliation": "Fachhochschule Nordwestschweiz (FHNW) / ETH Zürich",
+      "orcid": "0000-0001-5592-8023"
+    },
+    {
+      "name": "Ryan, Daniel",
+      "affiliation": "Mullard Space Science Laboratory, University College London",
+      "orcid": "0000-0001-8661-3825"
+    },
+    {
+      "name": "Stiefel, Muriel",
+      "affiliation": "Fachhochschule Nordwestschweiz (FHNW)",
+      "orcid": "0000-0002-8538-3455"
+    },
+    {
+      "name": "Hurford, Gordon",
+      "affiliation": "Space Sciences Laboratory, UC Berkeley"
+    },
+    {
+      "name": "Massone, Anna Maria",
+      "affiliation": "Dipartimento di Matematica (DIMA/MIDA), Università degli Studi di Genova",
+      "orcid": "0000-0003-4966-8864"
+    },
+    {
+      "name": "Piana, Michele",
+      "affiliation": "Dipartimento di Matematica (DIMA/MIDA), Università degli Studi di Genova / INAF Osservatorio Astrofisico di Torino",
+      "orcid": "0000-0003-1700-991X"
+    },
+    {
+      "name": "Perracchione, Emma",
+      "affiliation": "DISMA, Politecnico di Torino",
+      "orcid": "0000-0003-2663-7803"
+    },
+    {
+      "name": "Lastufka, Erica",
+      "affiliation": "Department of Computer Science, University of Geneva",
+      "orcid": "0000-0003-1894-2074"
+    },
+    {
+      "name": "Kuhar, Matej",
+      "affiliation": "Fachhochschule Nordwestschweiz (FHNW)",
+      "orcid": "0000-0002-7210-180X"
+    },
+    {
+      "name": "Schuller, Frédéric",
+      "affiliation": "Leibniz-Institut für Astrophysik Potsdam (AIP)",
+      "orcid": "0000-0002-2609-1604"
+    },
+    {
+      "name": "Massa, Paolo",
+      "affiliation": "Fachhochschule Nordwestschweiz (FHNW)",
+      "orcid": "0000-0002-0993-1974"
+    },
+    {
+      "name": "Maloney, Shane",
+      "affiliation": "Dublin Institute for Advanced Studies (DIAS), Astronomy & Astrophysics Section",
+      "orcid": "0000-0002-4715-1805"
+    },
+    {
+      "name": "Xiao, Hualin",
+      "affiliation": "Fachhochschule Nordwestschweiz (FHNW)"
+    },
+    {
+      "name": "Dickson, Ewan",
+      "affiliation": "Royal Observatory of Belgium",
+      "orcid": "0000-0002-3992-8231"
+    },
+    {
+      "name": "Volpara, Anna",
+      "affiliation": "Dipartimento di Matematica (DIMA/MIDA), Università degli Studi di Genova",
+      "orcid": "0000-0003-1479-0827"
+    },
+    {
+      "name": "Benvenuto, Federico",
+      "affiliation": "Dipartimento di Matematica (DIMA/MIDA), Università degli Studi di Genova",
+      "orcid": "0000-0002-4776-0256"
+    },
+    {
+      "name": "Schwartz, Richard A.",
+      "affiliation": "NASA Goddard Space Flight Center"
+    },
+    {
+      "name": "Mithun, N. P. S.",
+      "affiliation": "Physical Research Laboratory, India",
+      "orcid": "0000-0003-3431-6110"
+    }
+  ]
+}
