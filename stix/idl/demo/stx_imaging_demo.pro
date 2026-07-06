@@ -94,7 +94,7 @@ stop
 ; - LIVE_TIME: live time of the calibration file
 ; - ELUT_NAME: name of the ELUT that was utilized onboard when the calibration file was recorded
 
-stx_read_calibration_data, path_calib_file, calib_data=calib_data
+calib_data = stx_create_calibration_data(path_calib_file)
 
 stop
 

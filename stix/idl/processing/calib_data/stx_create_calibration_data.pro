@@ -1,7 +1,7 @@
 ;+
 ;
 ; name:
-;       stx_read_calibration_data
+;       stx_create_calibration_data
 ;
 ; :description:
 ;    Read the values contained in an 'solo_CAL_stix-cal-energy' fits file and returns a corresponding 
@@ -38,19 +38,20 @@
 ;
 ; :returns:
 ;
-;    a 'stx_aux_data' structure containing the values read from an auxiliary fits file
+;    a 'stx_calibration_data' structure containing the values read from a 'solo_CAL_stix-cal-energy' calibration file. This structure is used to performed ELUT correction
 ;
 ; :examples:
 ;
-;    stx_read_aux_fits, fits_path, aux_data=aux_data
+;    calib_data = stx_create_calibration_data(path_calib_file)
 ;
 ; :history:
 ;
 ;    March 2026: Massa P. (FHNW), created
+;    July 2026: Massa P. (FHNW), modified to convert it from a procedure into a function
 ;
 ;-
 
-pro stx_read_calibration_data, fits_path, calib_data=calib_data, primary_header = primary_header, $
+function stx_create_calibration_data, fits_path, primary_header = primary_header, $
                                data_str = data, data_header = data_header, control_str = control, $
                                control_header= control_header, idb_version_str = idb_version, $
                                idb_version_header = idb_version_header
@@ -95,5 +96,7 @@ pro stx_read_calibration_data, fits_path, calib_data=calib_data, primary_header 
     
   ;; ELUT name
   calib_data.elut_name = control.OB_ELUT_NAME
+  
+  return, calib_data
 
 end
