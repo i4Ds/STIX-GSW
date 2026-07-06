@@ -1,0 +1,113 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+title: "STIX Ground Analysis Software (STIX-GSW)"
+abstract: >
+  The STIX Ground Analysis Software (STIX-GSW) is the IDL-based analysis
+  package for the Spectrometer/Telescope for Imaging X-rays (STIX), a hard
+  X-ray instrument onboard ESA's Solar Orbiter mission. STIX observes solar
+  flares and energetic particle events in the 4–150 keV energy range.
+  STIX-GSW provides tools for spectral analysis (OSPEX integration), X-ray
+  image reconstruction (CLEAN, MEM, EM, uv-smooth), aspect and pointing
+  correction, livetime and detector response corrections, and conversion of
+  telemetry data to calibrated science products. Distributed as part of
+  SolarSoftware (SSW).
+version: v0.6.1
+date-released: "2025-02-03"
+doi: 10.5281/zenodo.6815762
+license: CC-BY-4.0
+repository-code: "https://github.com/i4Ds/STIX-GSW"
+keywords:
+  - solar physics
+  - Solar Orbiter
+  - STIX
+  - X-ray
+  - spectroscopy
+  - imaging
+  - IDL
+  - SolarSoftware
+authors:
+  - family-names: Krucker
+    given-names: Säm
+    affiliation: "Fachhochschule Nordwestschweiz (FHNW) / Space Sciences Laboratory, UC Berkeley"
+    orcid: "https://orcid.org/0000-0002-2002-9180"
+  - family-names: Etesi
+    given-names: Laszlo
+    affiliation: "Fachhochschule Nordwestschweiz (FHNW)"
+    orcid: "https://orcid.org/0000-0003-3681-7058"
+  - family-names: Battaglia
+    given-names: "Andrea F."
+    affiliation: "Istituto Ricerche Solari Locarno, Università della Svizzera italiana (IRSOL/USI)"
+    orcid: "https://orcid.org/0000-0003-4490-7344"
+  - family-names: Hochmuth
+    given-names: Nicky
+    affiliation: "Ateleris GmbH"
+    orcid: "https://orcid.org/0009-0005-3785-7643"
+  - family-names: Collier
+    given-names: Hannah
+    affiliation: "Fachhochschule Nordwestschweiz (FHNW) / ETH Zürich"
+    orcid: "https://orcid.org/0000-0001-5592-8023"
+  - family-names: Ryan
+    given-names: Daniel
+    affiliation: "Mullard Space Science Laboratory, University College London"
+    orcid: "https://orcid.org/0000-0001-8661-3825"
+  - family-names: Stiefel
+    given-names: Muriel
+    affiliation: "Fachhochschule Nordwestschweiz (FHNW)"
+    orcid: "https://orcid.org/0000-0002-8538-3455"
+  - family-names: Hurford
+    given-names: Gordon
+    affiliation: "Space Sciences Laboratory, UC Berkeley"
+  - family-names: Massone
+    given-names: "Anna Maria"
+    affiliation: "Dipartimento di Matematica (DIMA/MIDA), Università degli Studi di Genova"
+    orcid: "https://orcid.org/0000-0003-4966-8864"
+  - family-names: Piana
+    given-names: Michele
+    affiliation: "Dipartimento di Matematica (DIMA/MIDA), Università degli Studi di Genova / INAF Osservatorio Astrofisico di Torino"
+    orcid: "https://orcid.org/0000-0003-1700-991X"
+  - family-names: Perracchione
+    given-names: Emma
+    affiliation: "DISMA, Politecnico di Torino"
+    orcid: "https://orcid.org/0000-0003-2663-7803"
+  - family-names: Lastufka
+    given-names: Erica
+    affiliation: "Department of Computer Science, University of Geneva"
+    orcid: "https://orcid.org/0000-0003-1894-2074"
+  - family-names: Kuhar
+    given-names: Matej
+    affiliation: "Fachhochschule Nordwestschweiz (FHNW)"
+    orcid: "https://orcid.org/0000-0002-7210-180X"
+  - family-names: Schuller
+    given-names: Frédéric
+    affiliation: "Leibniz-Institut für Astrophysik Potsdam (AIP)"
+    orcid: "https://orcid.org/0000-0002-2609-1604"
+  - family-names: Massa
+    given-names: Paolo
+    affiliation: "Fachhochschule Nordwestschweiz (FHNW)"
+    orcid: "https://orcid.org/0000-0002-0993-1974"
+  - family-names: Maloney
+    given-names: Shane
+    affiliation: "Dublin Institute for Advanced Studies (DIAS), Astronomy & Astrophysics Section"
+    orcid: "https://orcid.org/0000-0002-4715-1805"
+  - family-names: Xiao
+    given-names: Hualin
+    affiliation: "Fachhochschule Nordwestschweiz (FHNW)"
+  - family-names: Dickson
+    given-names: Ewan
+    affiliation: "Royal Observatory of Belgium"
+    orcid: "https://orcid.org/0000-0002-3992-8231"
+  - family-names: Volpara
+    given-names: Anna
+    affiliation: "Dipartimento di Matematica (DIMA/MIDA), Università degli Studi di Genova"
+    orcid: "https://orcid.org/0000-0003-1479-0827"
+  - family-names: Benvenuto
+    given-names: Federico
+    affiliation: "Dipartimento di Matematica (DIMA/MIDA), Università degli Studi di Genova"
+    orcid: "https://orcid.org/0000-0002-4776-0256"
+  - family-names: Schwartz
+    given-names: "Richard A."
+    affiliation: "NASA Goddard Space Flight Center"
+  - family-names: Mithun
+    given-names: "N. P. S."
+    affiliation: "Physical Research Laboratory, India"
+    orcid: "https://orcid.org/0000-0003-3431-6110"
