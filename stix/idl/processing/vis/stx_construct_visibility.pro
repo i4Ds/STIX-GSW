@@ -20,25 +20,15 @@
 ;   time_range: string array containing the start and the end of the time interval to consider
 ;   
 ;   energy_range: array containing the values of the lower and upper edge of the energy interval to consider
-;   
-;   mapcenter: two-element array containing the coordinates of the center of the map to reconstruct
-;              from the visibility values (STIX coordinate frame, arcsec). It is used during the visibility phase calibration 
-;              process. A phase factor is added to the visibilities so that coordinates saved in 'mapcenter' appear in the 
-;              center of the reconstructed map. Usually corresponds to an estimate of the flare location
 ;
 ; KEYWORDS:
 ;   
 ;   path_bkg_file: if provided, the background counts are subtracted to the countrates before computing the visibility values.
 ;                  Further, the field 'TOT_COUNTS_BKG' of the visibility structure is filled in with an estimate of the total
 ;                  number of background counts that are measured in the selected time and energy intervals
-;   
-;   elut_corr: if set, a correction based on a ELUT table is applied to the measured counts
 ;             
 ;   sumcase: string indicating which pixels are summed for computing the visibilities (see the header of 
 ;            'stx_calibrate_pixel_data' for more information). Default, 'TOP+BOT'
-;            
-;   f2r_sep: distance between the front and the rear grid (mm, used for computing the values of the (u,v) frequencies). 
-;            Default, 550 mm
 ;   
 ;   silent: if set, no message is printed
 ;   
@@ -67,7 +57,7 @@
 ;   - V: v coordinate of the frequencies sampled by the sub-collimators
 ;   - PHASE_SENSE: array containing the sense of the phase measured by the sub-collimator (-1 or 1 values)
 ;   - XYOFFSET: two-element array containing the coordinates of the center of the map to renconstruct from the
-;               visibility values (it is contains the values passed in 'mapcenter')
+;               visibility values (Default, (0,0))
 ;   - XY_FLARE: two-element array containing the coordinates of the estimated flare location (STIX coordinate frame, arcsec), 
 ;               which is used for computing the grid transmission correction. It is initialized with NaN values. 
 ;               If no correction is applied later (see stx_calibrate_visibility.pro), it remains filled with NaNs. 
@@ -76,26 +66,25 @@
 ;
 ; HISTORY: August 2022, Massa P., created
 ;          January 2026, Massa P., removed 'xy_flare' keyword. Grid transmission correction is used only for visibility amplitude calibration
+;          March 2026, Massa P., removed 'mapcenter', 'elut_corr', and 'f2r_sep' keywords as not necessary
 ;
 ; CONTACT:
 ;   paolo.massa@fhnw.ch
 ;-
-function stx_construct_visibility, path_sci_file, time_range, energy_range, mapcenter, path_bkg_file=path_bkg_file, $
-                                   elut_corr=elut_corr, sumcase=sumcase, f2r_sep=f2r_sep, silent=silent, $
-                                   subc_index=subc_index, no_small=no_small, no_rcr_check=no_rcr_check, _extra=extra
+function stx_construct_visibility, path_sci_file, time_range, energy_range, path_bkg_file=path_bkg_file, $
+                                   sumcase=sumcase, silent=silent, subc_index=subc_index, no_small=no_small, $
+                                   no_rcr_check=no_rcr_check, _extra=extra
 
 ;;************** Construct a 'stx_pixel_data_summed' structure
                              
 pixel_data_summed = stx_construct_pixel_data_summed(path_sci_file, time_range, energy_range, $
-                                                    path_bkg_file=path_bkg_file, $
-                                                    elut_corr=elut_corr, subc_index=subc_index, $
+                                                    path_bkg_file=path_bkg_file, subc_index=subc_index, $
                                                     sumcase=sumcase, silent=silent,no_small=no_small, $
                                                     no_rcr_check=no_rcr_check, _extra=extra)
 
 ;;************** Create an uncalibrated 'stx_visibility' structure from a the correpsonding 'stx_pixel_data_summed' structure
 
-vis = stx_pixel_data_summed2visibility(pixel_data_summed, subc_index=subc_index, $
-                                       f2r_sep=f2r_sep, mapcenter=mapcenter)                                                         
+vis = stx_pixel_data_summed2visibility(pixel_data_summed, subc_index=subc_index, _extra=extra)                                                         
                                        
 return, vis
 

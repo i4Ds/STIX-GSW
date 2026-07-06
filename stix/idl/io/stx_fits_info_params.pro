@@ -61,7 +61,8 @@
 ;
 ; :history:
 ;    17-Aug-2022 - ECMD (Graz), initial release
-;    05-Apr-2023 - ECMD (Graz), fix issue with taking header distance as default 
+;    05-Apr-2023 - ECMD (Graz), fix issue with taking header distance as default
+;    07-May-2026 - Massa P. (FHNW), print warning if generate_fits = 0 (regardless of 'specfile' or 'srmfile' are defined)
 ;
 ;-
 function stx_fits_info_params, fits_path_data = fits_path_data, data_level = data_level, $
@@ -69,8 +70,8 @@ function stx_fits_info_params, fits_path_data = fits_path_data, data_level = dat
   generate_fits = generate_fits, specfile = specfile, srmfile = srmfile, elut_file = elut_file, silent = silent
 
   if n_elements(generate_fits) ne 0 then begin
-    if generate_fits eq 0 and keyword_set(specfile) || keyword_set(srmfile) then begin
-      message, 'FITS file generation has been set to 0 but an output filename has been specified.'
+    if generate_fits eq 0 then begin
+      message, [" ", " ", 'FITS file generation has been set to 0.', " ", " "], /continue
     endif
   endif
 

@@ -14,6 +14,7 @@
 ; :History:
 ;   
 ;   18-april-2015, richard.schwartz@nasa.gov
+;   17-april-2025, Massa P. (FHNW), make it compatible with new version of stx_triggergram.pro
 
 ;-
 function stx_triggergram_construction_4test, rate, duration = duration
@@ -25,7 +26,9 @@ function stx_triggergram_construction_4test, rate, duration = duration
   ntbin = n_elements( duration )
   ratem = rate+fltarr(32)
   
-  det_select = (stx_vis()).isc  ;imaging subcollimators
+  subc_str = stx_construct_subcollimator()
+  idx_imaging_subc = where((subc_str.LABEL ne 'cfl') and (subc_str.LABEL ne 'bkg'))
+  det_select = subc_str[idx_imaging_subc].DET_N ;(stx_vis()).isc  ;imaging subcollimators
   all_det    = indgen( 32 ) + 1
   nofourier  = all_det [ where_arr( all_det, det_select, /notequal) ]
   ratem[ nofourier-1 ] = 0 ;very small rates in the background and flare location detectors
@@ -39,7 +42,7 @@ function stx_triggergram_construction_4test, rate, duration = duration
   ixpair = stx_ltpair_assignment( /pairs ) -1 ;det_index (0:31) of components of each trigger
   for i = 0, 15 do trigger[i,0] = transpose(  total( events[ ixpair[*,i], * ], 1) )
   
-  triggergram = stx_triggergram( trigger, time_axis )
+  triggergram = stx_triggergram( trigger, sqrt(trigger), time_axis ) ; we estimate trigger errors as the square root of the triggers (i.e., we assume no compression error)
   return, triggergram
   end
   

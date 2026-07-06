@@ -19,13 +19,7 @@
 ; KEYWORDS:
 ; 
 ;   subc_index: array containing the indexes of the subcollimators to be considered for computing the visibility
-;               values
-;               
-;   mapcenter: two-element array containing the coordinates of the center of the map to reconstruct 
-;              from the visibility values (STIX coordinate frame, arcsec)
-;             
-;   f2r_sep: distance between the front and the rear grid (mm, used for computing the values of the (u,v) frequencies)
-;   
+;               values                  
 ;
 ; OUTPUTS:
 ;
@@ -54,16 +48,17 @@
 ;   
 ; HISTORY: August 2022, Massa P., created
 ;          July 2023, Massa P., made it compatible with the new definition of (u,v)-points (see stx_uv_points)
+;          March 2026, Massa P., removed 'mapcenter' keyword as it is always (0,0) at this stage. 
+;                      A different value for 'mapcenter' can be set in 'stx_calibrate_pixel_data.pro'.
+;                      Further, removed 'f2r_sep' keyword and added '_extra=extra'. Finally, removed background 
+;                      subtraction step as performed already in 'stx_construct_pixel_data.pro'
 ;
 ; CONTACT:
-;   paolo.massa@wku.edu
+;   paolo.massa@fhnw.ch
 ;-
 
-function stx_pixel_data_summed2visibility, pixel_data_summed, subc_index=subc_index, mapcenter=mapcenter, $
-                                           f2r_sep=f2r_sep
+function stx_pixel_data_summed2visibility, pixel_data_summed, subc_index=subc_index, _extra=extra
 
-default, mapcenter, [0.,0.]
-default, f2r_sep, 545.30
 default, subc_index, stx_label2ind(['10a','10b','10c','9a','9b','9c','8a','8b','8c','7a','7b','7c',$
                                     '6a','6b','6c','5a','5b','5c','4a','4b','4c','3a','3b','3c'])
 
@@ -79,7 +74,7 @@ subc_str = subc_str[subc_index]
 
 ;;************** Define (u,v) points
 
-uv_data = stx_uv_points(subc_index)
+uv_data = stx_uv_points(subc_index, _extra=extra)
 u = uv_data.u
 v = uv_data.v
 
@@ -89,15 +84,6 @@ count_rates     = pixel_data_summed.COUNT_RATES
 count_rates     = count_rates[subc_index,*]
 counts_rates_error = pixel_data_summed.COUNTS_RATES_ERROR
 counts_rates_error = counts_rates_error[subc_index,*]
-
-count_rates_bkg = pixel_data_summed.COUNT_RATES_BKG
-count_rates_bkg = count_rates_bkg[subc_index,*]
-count_rates_error_bkg = pixel_data_summed.COUNT_RATES_ERROR_BKG
-count_rates_error_bkg = count_rates_error_bkg[subc_index,*]
-
-;; Background subtraction
-count_rates = count_rates - count_rates_bkg
-counts_rates_error = sqrt(counts_rates_error^2 + count_rates_error_bkg^2)
 
 ;; A,B,C,D
 A = count_rates[*,0]
@@ -170,7 +156,6 @@ vis.LIVE_TIME    = pixel_data_summed.LIVE_TIME[subc_index]
 vis.ENERGY_RANGE = pixel_data_summed.ENERGY_RANGE
 vis.TIME_RANGE   = pixel_data_summed.TIME_RANGE
 vis.PHASE_SENSE  = subc_str.PHASE
-vis.XYOFFSET     = mapcenter
 
 return, vis
 

@@ -73,6 +73,31 @@ aux_data = stx_create_auxiliary_data(aux_fits_file, time_range)
 
 stop
 
+;************************************* DOWNLOAD CALIBRATION FITS FILE *********************************
+
+; This file is used for creating a structure containing daily calibration data to be used for ELUT 
+; correction (see next section)
+path_calib_file = stx_get_calibration_file(time_range[0], time_range[1], out_dir=out_dir)
+
+stop
+
+;;********************************** CONSTRUCT CALIBRATION DATA STRUCTURE *****************************
+
+; Create a structure containing daily calibration data to use for ELUT correction:
+; - TIME_START: start time of the calibration file which is used to derive gain/offset values
+; - TIME_END: end time of the calibration file which is used to derive gain/offset values
+; - T_MEAN: mid point of the time range of the calibration file which is used to derive gain/offset values
+; - ENERGY_BIN_LOW: actual lower energy edges (in keV) of the science channels for each pixel
+; - ENERGY_BIN_HIGH: actual higher energy edges (in keV) of the science channels for each pixel
+; - GAIN: gain value for each pixel
+; - OFFSET: offset value for each pixel
+; - LIVE_TIME: live time of the calibration file
+; - ELUT_NAME: name of the ELUT that was utilized onboard when the calibration file was recorded
+
+calib_data = stx_create_calibration_data(path_calib_file)
+
+stop
+
 ;*************************************** ESTIMATE FLARE LOCATION **************************************
 
 ; Returns the coordinates of the estimated flare location (arcsec, Helioprojective Cartesian coordinates 
@@ -80,7 +105,7 @@ stop
 ; center of the maps to be reconstructed
 
 stx_estimate_flare_location, path_sci_file, time_range, aux_data, flare_loc=flare_loc, $
-                             path_bkg_file=path_bkg_file
+                             path_bkg_file=path_bkg_file, calib_data=calib_data
 
 stop
 
@@ -102,7 +127,7 @@ xy_flare  = mapcenter
 ;                             '6a','6b','6c','5a','5b','5c','4a','4b','4c','3a','3b','3c'])
 
 vis=stx_construct_calibrated_visibility(path_sci_file, time_range, energy_range, mapcenter, subc_index=subc_index, $
-                                        path_bkg_file=path_bkg_file, xy_flare=xy_flare)
+                                        path_bkg_file=path_bkg_file, xy_flare=xy_flare, calib_data=calib_data)
 
 stop
 
@@ -178,7 +203,8 @@ stop
 
 ; Expectation Maximization algorithm from STIX counts (see Massa P. et al (2019) for details). Takes as input a 
 ; summed pixel data structure
-pixel_data_summed = stx_construct_pixel_data_summed(path_sci_file, time_range, energy_range, path_bkg_file=path_bkg_file, /silent)
+pixel_data_summed = stx_construct_pixel_data_summed(path_sci_file, time_range, energy_range, path_bkg_file=path_bkg_file, $
+                                                    calib_data=calib_data, /silent)
 
 em_map = stx_em(pixel_data_summed, aux_data, imsize=imsize, pixel=pixel, xy_flare=xy_flare, mapcenter=mapcenter)
 

@@ -30,9 +30,7 @@
 ;
 ;   path_bkg_file: path of a background L1 fits file. If provided, the fields 'COUNT_RATES_BKG', 'COUNT_RATES_ERROR_BKG' 
 ;                  and 'LIVE_TIME_BKG' of the output 'stx_pixel_data_summed' structure are filled with the values read from the 
-;                  background measurement file
-;                  
-;   elut_corr: if set, a correction based on a ELUT table is applied to the measured counts
+;                  background measurement file               
 ;   
 ;   subc_index:  array containing the indices of the selected imginging detectors. Used only for plotting the lightcurve by means of
 ;             'stx_plot_selected_time_range' and for computing the total number of counts in the image. Default, indices of
@@ -50,18 +48,19 @@
 ; HISTORY: July 2022, Massa P., created
 ;          January 2026, Massa P., removed 'xy_flare' keyword. Grid transmission correction is not performed 
 ;                                  at this stage
+;          March 2026, Massa P., removed 'elut_corr' keyword as not necessary
 ;
 ; CONTACT:
 ;   paolo.massa@fhnw.ch
 ;-
 
 function stx_construct_pixel_data_summed, path_sci_file, time_range, energy_range, path_bkg_file=path_bkg_file, $
-                                          elut_corr=elut_corr, subc_index=subc_index, sumcase=sumcase, silent=silent, no_small=no_small,$
+                                          subc_index=subc_index, sumcase=sumcase, silent=silent, no_small=no_small,$
                                           no_rcr_check=no_rcr_check, _extra=extra                                                                           
 
 ;;************** Construct pixel data
 
-pixel_data = stx_construct_pixel_data(path_sci_file, time_range, energy_range, elut_corr=elut_corr, $
+pixel_data = stx_construct_pixel_data(path_sci_file, time_range, energy_range, $
                                       path_bkg_file=path_bkg_file, subc_index=subc_index, sumcase=sumcase, $
                                       silent=silent, no_small=no_small, no_rcr_check=no_rcr_check, _extra=extra)                                     
 ;;************** Sum pixel data

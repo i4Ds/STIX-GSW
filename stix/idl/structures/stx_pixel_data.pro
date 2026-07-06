@@ -18,7 +18,10 @@
 ;
 ;
 ; HISTORY: July 2022, Massa P., created
-;          January 2026, Massa P., removed 'xy_flare' entry as grid transmission correction is not applied anymore to the raw counts
+;          April 2025, Massa P., made it compatible with new ELUT correction. Bkg-subtraction is applied to the counts.
+;                      Therefore, information on bkg is not stored anymore
+;          February 2026, Massa P., Removed 'xy_flare' keyword as grid transmission correction is not applied anymore to raw counts
+;          March 2026, Massa P., updated to make it compatible with new ELUT correction.
 ;
 ; CONTACT:
 ;   paolo.massa@fhnw.ch
@@ -29,13 +32,13 @@ function stx_pixel_data
   return, { $
     type                  : 'stx_pixel_data', $
     live_time             : fltarr(32), $               ; Live time of the 32 detectors
+    live_time_error       : fltarr(32), $               ; Live time error of the 32 detectors
     time_range            : replicate(stx_time(),2), $  ; Selected time range (edges) 
     energy_range          : fltarr(2), $                ; Selected energy range (edges)
     counts                : dblarr(32,12), $            ; Counts recorded by the detector pixels (summed in time and energy)
-    counts_error          : dblarr(32,12), $            ; Errors associated with the measured counts (statistics + compression) 
-    live_time_bkg         : fltarr(32), $               ; Live time of the 32 detectors during the background measurement
-    counts_bkg            : dblarr(32,12), $            ; Counts recorded by the detector pixels during the background measurement (summed in time and energy)
-    counts_error_bkg      : dblarr(32,12), $            ; Errors associated with the measured background counts (statistics + compression) 
+    counts_error          : dblarr(32,12), $            ; Errors associated with the measured counts (statistics + compression)
+    tot_counts            : double(0), $                ; Estimate of the total number of flare counts recorded during the flaring event
+    tot_counts_bkg        : double(0), $                ; Estimate of the total number of background counts recorded during the flaring event
     rcr                   : byte(0), $                  ; Rate Control Regime (RCR) status
     pixel_masks           : bytarr(12), $               ; Matrix containing information on the pixels used for the measurement
     detector_masks        : bytarr(32) $                ; Matrix containing information on the detectors used for the measurement

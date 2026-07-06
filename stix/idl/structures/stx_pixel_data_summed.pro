@@ -19,6 +19,7 @@
 ;
 ; HISTORY: July 2022, Massa P., created
 ;          January 2026, Massa P., removed 'xy_flare' entry as grid transmission correction is not applied anymore to the raw counts
+;          March 2026, Massa P., made it compatible with new ELUT correction
 ;
 ; CONTACT:
 ;   paolo.massa@fhnw.ch
@@ -37,15 +38,10 @@ function stx_pixel_data_summed
     counts_rates_error    : dblarr(32,4), $             ; Errors associated with the measured counts rates (statistics + compression, 
                                                         ; no systematic errors are included)
     tot_counts            : double(0), $                ; Total number of counts recorded during the event
-    live_time_bkg         : fltarr(32), $               ; Live time of the 32 detectors during the background measurement
-    count_rates_bkg       : dblarr(32,4), $             ; Counts rates recored by the the sub-collimators (summed in time and energy) during the
-                                                        ; background measurement
-    count_rates_error_bkg : dblarr(32,4), $             ; Errors associated with the measured background counts (statistics + compression, 
-                                                        ; no systematic errors are included)
     tot_counts_bkg        : double(0), $                ; Estimate of the total number of background counts recorded during the flaring event
     rcr                   : byte(0), $                  ; Rate Control Regime (RCR) status
     sumcase               : string(""), $               ; Which pixels are summed: 'TOP' (top row), 'BOT' (bottom row), 'SMALL' (small pixels)
-                                                        ;                          'TOP+BOT' (top and bottom row), 'ALL', (all pixels)
+                                                        ; 'TOP+BOT' (top and bottom row), 'ALL', (all pixels)
     detector_masks        : bytarr(32) $                ; array containing information on the detectors used for the measurement 
                                                         ; (1 if the detector is used, 0 otherwise)
   }

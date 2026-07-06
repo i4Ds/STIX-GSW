@@ -29,20 +29,12 @@
 ;   path_bkg_file: if provided, the background counts are subtracted before computing the visibility values and the
 ;                  field 'TOT_COUNTS_BKG' of the visibility structure is filled in
 ;
-;   elut_corr: if set, a correction based on a ELUT table is applied to the measured counts
-;
 ;   xy_flare: two-element array containing the coordinates of the estimated flare location (STIX coordinate frame, arcsec).
 ;             It is used for computing the grid transmission correction within the visibility amplitude calibration.
 ;             If it is not provided, then the flare location is set equal to (0,0)
 ;
 ;   sumcase: string containing information on the pixels to be considered for computing the visibilities
 ;            (see the header of 'stx_sum_pixel_data' for more details).
-;
-;   f2r_sep: distance between the front and the rear grid (mm, used for computing the values of the (u,v) frequencies).
-;            Default, 550 mm
-;   
-;   r2d_sep: distance between the rear grid and the detectors (mm, used for computing the projection correction factors).
-;            Default, 47 mm
 ;   
 ;   silent: if set, no message is printed
 ;
@@ -68,14 +60,16 @@
 ;   amplitudes and phases. For information on the fields of the visibility structure see the header of 'stx_construct_visibility'
 ;
 ; HISTORY: August 2022, Massa P., created
+;          March 2026, Massa P., removed 'mapcenter' keyword from 'stx_construct_visibility'. Also, 'r2d_sep', 'f2r_sep=f2r_sep', and 'elut_corr'
+;          keywords are removed as not necessary
 ;
 ; CONTACT:
 ;   paolo.massa@fhnw.ch
 ;-
 
 function stx_construct_calibrated_visibility, path_sci_file, time_range, energy_range, mapcenter, $
-                                              path_bkg_file=path_bkg_file, elut_corr=elut_corr, xy_flare=xy_flare, $
-                                              sumcase=sumcase, f2r_sep=f2r_sep, r2d_sep=r2d_sep, silent=silent, $
+                                              path_bkg_file=path_bkg_file, xy_flare=xy_flare, $
+                                              sumcase=sumcase, silent=silent, $
                                               subc_index=subc_index, phase_calib_factors=phase_calib_factors, $
                                               amp_calib_factors=amp_calib_factors, syserr_sigamp = syserr_sigamp, $
                                               no_small=no_small, no_rcr_check=no_rcr_check, _extra=extra
@@ -84,15 +78,15 @@ function stx_construct_calibrated_visibility, path_sci_file, time_range, energy_
 
 ;;*********** Create visibility structure
 
-vis = stx_construct_visibility(path_sci_file, time_range, energy_range, mapcenter, path_bkg_file=path_bkg_file, $
-                               elut_corr=elut_corr, sumcase=sumcase, f2r_sep=f2r_sep, silent=silent, $
-                               subc_index=subc_index, no_small=no_small, no_rcr_check=no_rcr_check, _extra=extra)
+vis = stx_construct_visibility(path_sci_file, time_range, energy_range, path_bkg_file=path_bkg_file, $
+                               sumcase=sumcase, silent=silent, subc_index=subc_index, $
+                               no_small=no_small, no_rcr_check=no_rcr_check, _extra=extra)
 
 ;;*********** Calibrate visibility
 
-calibrated_vis = stx_calibrate_visibility(vis, xy_flare=xy_flare, phase_calib_factors=phase_calib_factors, $
+calibrated_vis = stx_calibrate_visibility(vis, mapcenter=mapcenter, xy_flare=xy_flare, phase_calib_factors=phase_calib_factors, $
                                           amp_calib_factors=amp_calib_factors, $
-                                          syserr_sigamp = syserr_sigamp, r2d_sep=r2d_sep, f2r_sep=f2r_sep)
+                                          syserr_sigamp = syserr_sigamp, _extra=extra)
 
 ;;********** Plot visibility amplitudes vs resolution (if ~silent)
 
