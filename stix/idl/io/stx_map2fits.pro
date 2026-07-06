@@ -14,9 +14,7 @@
 ;               PATH_SCI_FILE = path to the L1 file used for reconstructing the STIX image
 ;
 ; Keywords    : PATH_BKG_FILE = path to the L1 BKG file included for the reconstruction of the STIX image
-;               ERR = error string
-;               BYTE_SCALE = byte scale data
-;
+;               ERR ;
 ; Comments    : Based on map2fits in sswidl, but adapted for STIX images
 ; History     : 05-04-2022, Hualin Xiao (hualin.xiao@fhnw.ch)
 ;                - copied map2fits from ssw and add more keywords to the 
@@ -111,6 +109,10 @@
     alg = map[i].id
     algo_used = alg.remove(-2,-1)
     
+    ;; Number of counts
+    cnts_total = map[i].OBS_VIS[0].TOT_COUNTS
+    cnts_bkg = map[i].OBS_VIS[0].TOT_COUNTS_BKG
+    
     ;; Extract pointing information
     aux_data = map[i].aux_data
     stx_x = aux_data.stx_pointing[0]
@@ -177,9 +179,9 @@
     fxaddpar, header, 'RSUN_OBS', rsun_arc, '[arcsec] Apparent photospheric solar radius'
     fxaddpar, header, 'RSUN_ARC', rsun_arc, '[arcsec] Apparent photospheric solar radius'
     fxaddpar, header, 'HGLT_OBS', b0_ang, '[deg] s/c heliographic latitude (B0 angle)'
-    fxaddpar, header, 'HGLN_OBS', sxpar(this_header,'HGLN_OBS'), '[deg] s/c heliographic longitude'
+    fxaddpar, header, 'HGLN_OBS', l0_ang, '[deg] s/c heliographic longitude (L0 angle)'
     fxaddpar, header, 'CRLT_OBS', b0_ang, '[deg] s/c Carrington latitude (B0 angle)'
-    fxaddpar, header, 'CRLN_OBS', l0_ang, '[deg] s/c Carrington longitude (L0 angle)'
+    fxaddpar, header, 'CRLN_OBS', sxpar(this_header,'CRLN_OBS'), '[deg] s/c Carrington longitude'
     fxaddpar, header, 'DSUN_OBS', sxpar(this_header,'DSUN_OBS'), '[m] s/c distance from Sun'
     fxaddpar, header, 'HEEX_OBS', sxpar(this_header,'HEEX_OBS'), '[m] s/c Heliocentric Earth Ecliptic X'
     fxaddpar, header, 'HEEY_OBS', sxpar(this_header,'HEEY_OBS'), '[m] s/c Heliocentric Earth Ecliptic Y'
@@ -226,6 +228,10 @@
     fxaddpar,header,'CUNIT2','arcsec  ','units along axis 2'
     fxaddpar,header,'CROTACN1',map[i].roll_center[0],'[arcsec] Rotation x center'
     fxaddpar,header,'CROTACN1',map[i].roll_center[1],'[arcsec] Rotation y center'
+
+;-- also write the total number of counts and background counts
+    fxaddpar,header,'CNTS_TOT', cnts_total, 'Total number of counts'
+    fxaddpar,header,'CNTS_BKG', cnts_bkg, 'Number of counts subtracted as background'
 
 ;-- add in user-specified properties
 
