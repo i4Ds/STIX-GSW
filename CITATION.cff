@@ -14,7 +14,7 @@ abstract: >
 version: v0.6.1
 date-released: "2025-02-03"
 doi: 10.5281/zenodo.6815762
-license: CC-BY-4.0
+license: Apache-2.0
 repository-code: "https://github.com/i4Ds/STIX-GSW"
 keywords:
   - solar physics

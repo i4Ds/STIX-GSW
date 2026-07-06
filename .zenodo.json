@@ -3,7 +3,7 @@
   "description": "<p>The STIX Ground Analysis Software (STIX-GSW) is the IDL-based analysis package for the Spectrometer/Telescope for Imaging X-rays (STIX), a hard X-ray instrument onboard ESA's Solar Orbiter mission. STIX observes solar flares and energetic particle events in the 4–150 keV energy range, providing imaging spectroscopy of high-energy solar phenomena.</p><p>STIX-GSW provides the scientific community with tools to access, process, and analyse STIX observational data. Core capabilities include: spectral analysis and integration with OSPEX; X-ray image reconstruction using visibility-based algorithms (CLEAN, MEM, EM, uv-smooth); aspect and pointing correction; livetime and detector response corrections; and conversion of telemetry data to calibrated science products. The software is distributed as part of SolarSoftware (SSW).</p><p>A Python companion package, stixpy, is maintained separately at https://github.com/samaloney/stixpy.</p>",
   "upload_type": "software",
   "access_right": "open",
-  "license": "cc-by-4.0",
+  "license": "apache-2.0",
   "version": "v0.6.1",
   "keywords": [
     "solar physics",
