@@ -31,6 +31,7 @@
 ;   05-Feb-2024 - ECMD (Graz), files now downloaded using UID and stx_get_science_fits_file.pro
 ;   11-Nov-2024 - Massa P. (FHNW), changed "" with '' for string definition
 ;   2025-01-10, F. Schuller (AIP): add a test that out_dir exists and is writable
+;   07-Jul-2026 - Massa P. (FHNW), made it compatible with new ELUT correction based on daily calibration files
 ;
 ;-
 pro stx_ospex_spectroscopy_demo, out_dir = out_dir
@@ -105,7 +106,25 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
   
   ;The fit interval selected for this demonstration covers one minute over the first non-thermal peak
   spex_fit_time_interval = ['8-Feb-2022 21:38:59.937', '8-Feb-2022 21:40:00.437']
+  
+  ;********************************* DOWNLOAD CALIBRATION FILE *********************************
 
+  ; This file is used for creating a structure containing daily calibration data to be used for ELUT
+  ; correction (only if spectral fit is done from pixel data, not from spectrogram files)
+  path_calib_file = stx_get_calibration_file(spex_fit_time_interval[0], spex_fit_time_interval[1], out_dir=out_dir)
+
+  ; Create a structure containing daily calibration data to use for ELUT correction:
+  ; - TIME_START: start time of the calibration file which is used to derive gain/offset values
+  ; - TIME_END: end time of the calibration file which is used to derive gain/offset values
+  ; - T_MEAN: mid point of the time range of the calibration file which is used to derive gain/offset values
+  ; - ENERGY_BIN_LOW: actual lower energy edges (in keV) of the science channels for each pixel
+  ; - ENERGY_BIN_HIGH: actual higher energy edges (in keV) of the science channels for each pixel
+  ; - GAIN: gain value for each pixel
+  ; - OFFSET: offset value for each pixel
+  ; - LIVE_TIME: live time of the calibration file
+  ; - ELUT_NAME: name of the ELUT that was utilized onboard when the calibration file was recorded
+
+  calib_data = stx_create_calibration_data(path_calib_file)
 
   ;*************************************** FLARE LOCATION **************************************
   ;To accurately calculate the grid response the source location in the STIX coordinate frame is needed
@@ -324,7 +343,8 @@ pro stx_ospex_spectroscopy_demo, out_dir = out_dir
     flare_location_hpc = flare_loc, $
     distance = distance, $
     time_shift = time_shift, $
-    ospex_obj = ospex_obj_cpd
+    ospex_obj = ospex_obj_cpd, $
+    calib_data = calib_data
 
   ;set the values as defined in section 2 above for this object - only the file names of the spectrum and response matrix file are changed with
   ;respect to the previous two fits

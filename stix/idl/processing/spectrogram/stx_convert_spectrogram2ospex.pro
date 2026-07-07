@@ -56,7 +56,8 @@
    
 ;
 ; :history: 07-May-2026 - Massa P. (FHNW), created
-;
+;           07-Jul-2026 - Massa P. (FHNW), modified message, ..., /continue with print
+;                                          use of stx_unique_filename to define filenames for saving srm and spectrum
 ;-
 
 pro stx_convert_spectrogram2ospex, spec_data, pixel_mask_used, detector_mask_used, fits_info_params, ct_edges, $
@@ -92,7 +93,15 @@ pro stx_convert_spectrogram2ospex, spec_data, pixel_mask_used, detector_mask_use
   
   idx = where(subc_fine_used eq 1b, n_det)
   
-  if n_det gt 0 then message, [" ", " ", "The high-energy calibration of sub-collimator " + subc_fine_label[idx] + " is not completed yet. This could affect the spectral fit results.", " ", " "], /continue
+  if (~keyword_set(silent)) and (n_det gt 0) then begin
+    
+    print
+    print
+    print, "The high-energy calibration of sub-collimator " + subc_fine_label[idx] + " is not completed yet. This could affect the spectral fit results."
+    print
+    print
+  
+  endif
   
   ;;***************** CHECK FOR RCR CHANGES
   
@@ -221,6 +230,21 @@ pro stx_convert_spectrogram2ospex, spec_data, pixel_mask_used, detector_mask_use
   
     specfilename = fits_info_params.specfile
     srmfilename =  fits_info_params.srmfile
+    
+    ; Check if output files already exist and generate unique filenames to avoid overwriting
+    ; only when FITS generation is enabled.
+    new_specfilename = stx_unique_filename(specfilename)
+    if new_specfilename ne specfilename then begin
+      if ~keyword_set(silent) then print, 'Spectrum file ' + specfilename + ' already exists. Saving as: ' + new_specfilename
+      specfilename = new_specfilename
+    endif
+
+    new_srmfilename = stx_unique_filename(srmfilename)
+    if new_srmfilename ne srmfilename then begin
+      if ~keyword_set(silent) then print, 'SRM file ' + srmfilename + ' already exists. Saving as: ' + new_srmfilename
+      srmfilename = new_srmfilename
+    endif
+    
   
     fits_info_params.grid_factor.add, grid_factor
     fits_info_params.detused = detector_label + ', Pixels: ' + pixel_label

@@ -204,7 +204,13 @@ pro stx_convert_spectrogram, fits_path_data = fits_path_data, fits_path_bk = fit
 
   idx = where(subc_fine_used eq 1b, n_det)
 
-  if n_det gt 0 then message, [" ", " ", "The spectrogram contains counts recorded by sub-collimator " + subc_fine_label[idx] + ", but the high-energy calibration for this sub-collimator is not completed yet. This could affect the spectral fit results.", " ", " "], /continue  
+  if (~keyword_set(silent)) and (n_det gt 0) then begin
+    print
+    print
+    print, "The spectrogram contains counts recorded by sub-collimator " + subc_fine_label[idx] + ", but the high-energy calibration for this sub-collimator is not completed yet. This could affect the spectral fit results."
+    print
+    print
+  endif
 
   n_energies = n_elements(energy_bin_idx)
 
