@@ -11,8 +11,8 @@ abstract: >
   correction, livetime and detector response corrections, and conversion of
   telemetry data to calibrated science products. Distributed as part of
   SolarSoftware (SSW).
-version: v0.6.1
-date-released: "2025-02-03"
+version: v0.6.2
+date-released: "2026-07-07"
 doi: 10.5281/zenodo.6815762
 license: Apache-2.0
 repository-code: "https://github.com/i4Ds/STIX-GSW"
