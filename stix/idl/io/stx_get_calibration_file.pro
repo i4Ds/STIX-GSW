@@ -32,8 +32,9 @@
 ;    24-Mar-2026 - Massa P. (FHNW), first release
 ;    13-Apr-2026 - Massa P. (FHNW), updated to search for calibration files the day before or after the input date (in case there are no files for the input date)
 ;    22-Jun-2026 - Massa P. (FHNW), download files within ± window_days, read livetime, and dicard files with livetime less than 30K s
+;    07-Jul-2026 - Massa P. (FHNW), added silent keyword
 ;-
-function stx_get_calibration_file, start_time, end_time, out_dir=out_dir, live_time_thresh=live_time_thresh, window_days = window_days
+function stx_get_calibration_file, start_time, end_time, out_dir=out_dir, live_time_thresh=live_time_thresh, window_days = window_days, silent=silent
 
   cd, current=current
 
@@ -266,13 +267,14 @@ function stx_get_calibration_file, start_time, end_time, out_dir=out_dir, live_t
 
   endelse
 
-  ;; Download file
-  print
-  print
-  print, "Downloaded STIX calibration file recorded between " +anytim(selected_file_time_start, /vms)+$
-    " and "+anytim(selected_file_time_end, /vms)
-  print
-  print
+  if ~keyword_set(silent) then begin
+    print
+    print
+    print, "Downloaded STIX calibration file recorded between " +anytim(selected_file_time_start, /vms)+$
+      " and "+anytim(selected_file_time_end, /vms)
+    print
+    print
+  endif
 
   return, selected_file
 
