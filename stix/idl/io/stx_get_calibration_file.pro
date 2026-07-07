@@ -22,6 +22,9 @@
 ;   window_days: in, type="integer"
 ;                This routine searches for calibration files within a time window of ± window_days around the input flare time
 ;
+;   silent: in, type="boolean", default="0"
+;           If set, suppresses the informational print statement issued when a calibration file is downloaded
+;
 ; :returns:
 ;   Path of the downloaded STIX calibration FITS file
 ;
