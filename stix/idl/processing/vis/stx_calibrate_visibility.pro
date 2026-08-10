@@ -19,6 +19,14 @@
 ;
 ; KEYWORDS:
 ; 
+;   mapcenter: two-element array containing the coordinates of the center of the map to reconstruct
+;              from the visibility values (STIX coordinate frame, arcsec). It is used during the visibility phase calibration
+;              process. A phase factor is added to the visibilities so that coordinates saved in 'mapcenter' become the
+;              center of the reconstructed map.
+; 
+;   xy_flare: two-element array containing the coordinates of the estimated flare location (STIX coordinate frame, arcsec).
+;             It is used for computing the grid transmission correction within the visibility amplitude calibration. Default, (0,0)
+; 
 ;   phase_calib_factors: 32-element array containing the phase calibration factors for each detector (degrees).
 ;                        The default phase calibration factors consist of four terms:
 ;                         - a grid correction factor, which keeps into account the phase of the front and the rear grid;
@@ -32,12 +40,6 @@
 ;   
 ;   syserr_sigamp: float, percentage of systematic error to be added to the visibility amplitude errors. 
 ;                  Default, 5%
-;   
-;   f2r_sep: separation between the front and the rear grid (mm). Default, 550 mm. It is used for computing the default 
-;            projection correction factors
-;   
-;   r2d_sep: separation between the rear grid and the detector (mm, used for the phase projection correction).
-;            Default, 47 mm. It is used for computing the default 
 ;
 ; OUTPUTS:
 ;
@@ -46,20 +48,29 @@
 ; HISTORY: August 2022, Massa P., created
 ;          July 2023, Massa P., removed visibility phase 'projection correction' since the new definition of 
 ;          (u,v)-points is adopted (see stx_uv_points).
+;          February 2026, Massa P., new visibility amplitude calibration is implemented
+;          March 2026, Massa P., 'mapcenter' keyword is added here. Also 'f2r_sep' and 'r2d_sep' keyword are removed as not needed
 ;
 ; CONTACT:
-;   paolo.massa@wku.edu
+;   paolo.massa@fhnw.ch
 ;-
 
-function stx_calibrate_visibility, vis, phase_calib_factors=phase_calib_factors, amp_calib_factors=amp_calib_factors, $
-                                        syserr_sigamp = syserr_sigamp, r2d_sep=r2d_sep, f2r_sep=f2r_sep
+function stx_calibrate_visibility, vis, mapcenter=mapcenter, xy_flare=xy_flare, phase_calib_factors=phase_calib_factors, amp_calib_factors=amp_calib_factors, $
+                                   syserr_sigamp = syserr_sigamp
 
-default, f2r_sep, 545.30
-default, r2d_sep, 47.78
+default, mapcenter, [0.,0.]
+default, xy_flare, [0.,0.]
 
 n_vis = n_elements(vis)
 
-modulation_efficiency = !pi^3./(8.*sqrt(2.)) 
+;; Compute subcollimator transmission to perform amplitude modulation
+subc_transm = stx_subc_transmission(xy_flare, /simple_transm)
+
+subc_transm = subc_transm[vis.ISC - 1]
+slit2pitch = sqrt(subc_transm)
+
+modulation_efficiency = !pi^3./(8.*sqrt(2.)) / sin(!pi * slit2pitch)^2
+
 
 ;; Grid phase correction
 tmp = read_csv(loc_file( 'GridCorrection.csv', path = getenv('STX_VIS_PHASE') ), header=header, table_header=tableheader, n_table_header=2 )
@@ -70,7 +81,7 @@ tmp = read_csv(loc_file( 'PhaseCorrFactors.csv', path = getenv('STX_VIS_PHASE'))
 ad_hoc_phase_corr = tmp.field2[vis.ISC - 1]
 
 ;; Mapcenter correction
-phase_mapcenter_corr = -2 * !pi * (vis.XYOFFSET[0] * vis.U + vis.XYOFFSET[1] * vis.V ) * !radeg
+phase_mapcenter_corr = -2 * !pi * (mapcenter[0] * vis.U + mapcenter[1] * vis.V ) * !radeg
 
 default, amp_calib_factors, fltarr(n_vis) + modulation_efficiency
 default, phase_calib_factors, grid_phase_corr + ad_hoc_phase_corr + phase_mapcenter_corr
@@ -103,6 +114,9 @@ calibrated_vis = vis
 calibrated_vis.obsvis = calibrated_obsvis
 calibrated_vis.sigamp = calibrated_sigamp
 calibrated_vis.CALIBRATED = 1
+
+calibrated_vis.XY_FLARE = xy_flare
+calibrated_vis.XYOFFSET = mapcenter
 
 return, calibrated_vis
 

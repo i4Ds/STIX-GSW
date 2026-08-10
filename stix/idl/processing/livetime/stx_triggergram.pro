@@ -13,14 +13,14 @@
 ;       Data exchange structure for triggergrams
 ;
 ; CATEGORY:
-;       
+;
 ;
 ; CALLING SEQUENCE:
 ;       structure = stx_triggergram(triggerdata, t_axis)
 ;
 ; HISTORY:
 ;       17-apr-2015, based on stx_spectrogram
-;
+;       13-May-2024, P. Massa (FHNW), modified to return 'triggerdata_err'
 ;-
 
 ;+
@@ -32,9 +32,9 @@
 ;    triggerdata is the 2D-data array containing triggers over time, either all 16 triggers by time or 1 trigger id by time
 ;    t_axis is the 1D-data array containing the time axis
 ;    adg_idx - Keyword, if passed it is the adg_idx (1-16) of the single trigger accumulator data passed
-;    
+;
 ;-
-function stx_triggergram, triggerdata, t_axis, adg_idx = adg_idx
+function stx_triggergram, triggerdata, triggerdata_err, t_axis, adg_idx = adg_idx
   error = 0
   catch, error
   if (error ne 0)then begin
@@ -43,33 +43,42 @@ function stx_triggergram, triggerdata, t_axis, adg_idx = adg_idx
     message, err
     return, 0
   endif
-  
+
   t_axis_dim = size(t_axis.duration, /dimension)
-  if  t_axis_dim[0] eq 1 then triggerdata = reform(triggerdata,n_elements(triggerdata),1)
-  
+  if  t_axis_dim[0] eq 1 then begin
+    triggerdata = reform(triggerdata,n_elements(triggerdata),1)
+    triggerdata_err = reform(triggerdata_err,n_elements(triggerdata_err),1)
+  endif
+
   sizetriggerdata = size(triggerdata, /str)
+  sizetriggerdata_err = size(triggerdata_err, /str)
   ; Do some parameter checking
   if ~(isarray(triggerdata) and sizetriggerdata.dimensions[0] eq 16 or sizetriggerdata.dimensions[0] eq 1) then $
-     message, "Parameter 'triggerdata' must be a 16 x M or 1 x M int array"
+    message, "Parameter 'triggerdata' must be a 16 x M or 1 x M int array"
+  if ~(isarray(triggerdata_err) and sizetriggerdata_err.dimensions[0] eq 16 or sizetriggerdata_err.dimensions[0] eq 1) then $
+    message, "Parameter 'triggerdata' must be a 16 x M or 1 x M int array"
   if ~(ppl_typeof(t_axis,compareto='stx_time_axis')) then message, "Parameter 't_axis' must be a stx_time_axis structure"
-  if sizetriggerdata.dimensions[0] eq 16 then adg_idx = indgen(16) + 1
-  
-  
+  if sizetriggerdata_err.dimensions[0] eq 16 then adg_idx = indgen(16) + 1
+
+
   ; Do some final checking on dimenstions (do they agree)
   triggerdata_dim = sizetriggerdata.dimensions
-  
-  
-;  if (triggerdata_dim[1] ne t_axis_dim[0] or t_axis_dim[0] eq 1) then $
-    if (triggerdata_dim[1] ne t_axis_dim[0]) then $
-     message, "'t_axis' dimensions do not agree with 'triggerdata' dimensions"
-  
-  
+  triggerdata_err_dim = sizetriggerdata_err.dimensions
+
+  ;  if (triggerdata_dim[1] ne t_axis_dim[0] or t_axis_dim[0] eq 1) then $
+  if (triggerdata_dim[1] ne t_axis_dim[0]) then $
+    message, "'t_axis' dimensions do not agree with 'triggerdata' dimensions"
+  if (triggerdata_err_dim[1] ne t_axis_dim[0]) then $
+    message, "'t_axis' dimensions do not agree with 'triggerdata_err' dimensions"
+
+
   ; If all goes well, put the hsp_triggergram structure together and return it to caller
   trigstr = { type              : 'stx_triggergram', $
-          triggerdata           : ULONG64(triggerdata), $
-          adg_idx           : adg_idx, $
-          t_axis            : t_axis } ; $
+    triggerdata           : ULONG64(triggerdata), $
+    triggerdata_err       : DOUBLE(triggerdata_err), $
+    adg_idx           : adg_idx, $
+    t_axis            : t_axis } ; $
 
-    
+
   return, trigstr
 end

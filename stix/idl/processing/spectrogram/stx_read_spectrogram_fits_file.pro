@@ -80,7 +80,7 @@
 ;    15-Mar-2023 - ECMD (Graz), updated to handle release version of L1 FITS files
 ;    27-Mar-2023 - ECMD (Graz), added check for duration shift already applied in FITS file
 ;    13-Sep-2023 - ECMD (Graz), respect shift_duration if file is "possibly summed on board".
-;
+;    07-May-2026 - Massa P. (FHNW), added 'energy_bin_mask' to the output 'data' structure
 ;-
 pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = primary_header, data_str = data, data_header = data_header, control_str = control, $
   control_header= control_header, energy_str = energy, energy_header = energy_header, t_axis = t_axis, e_axis = e_axis, $
@@ -121,7 +121,7 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   edges_used = where( control.energy_bin_edge_mask eq 1, nedges)
   energy_bin_mask = stx_energy_edge2bin_mask(control.energy_bin_edge_mask)
   energies_used = where(energy_bin_mask eq 1)
-  
+
   data.counts_comp_err  = sqrt(data.counts_comp_err^2. + data.counts)
   data.triggers_comp_err = sqrt( data.triggers_comp_err^2. + data.triggers)
 
@@ -135,7 +135,7 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   if ~keyword_set(keep_short_bins) and (anytim(hstart_time) lt anytim('2020-11-25T00:00:00') ) then $
     message, 'Automatic short bin removal should not be attempted on observations before 25-Nov-20'
 
-  shift_duration = shift_duration && ~duration_shifted 
+  shift_duration = shift_duration && ~duration_shifted
 
   if keyword_set(shift_duration) and (anytim(hstart_time) gt anytim('2021-12-09T00:00:00') ) then $
     message, 'Shift of duration with respect to time bins is no longer needed after 09-Dec-21'
@@ -278,6 +278,8 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   t_axis.time_end = t_end
   t_axis.duration = duration
 
+  energy_edges_2 = transpose([[energy.e_low], [energy.e_high]])
+  
   data = {time: time_bin_center,$
     timedel:duration , $
     triggers:triggers, $
@@ -286,12 +288,11 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
     counts_err: counts_err ,$
     rcr: rcr,$
     pixel_masks: pixel_masks,$
-    control_index:control_index}
-
-  energy_edges_2 = transpose([[energy.e_low], [energy.e_high]])
+    control_index:control_index,$
+    detector_masks:control.detector_masks}
 
   if control.energy_bin_edge_mask[0] and ~keyword_set(use_discriminators) then begin
-    
+
     control.energy_bin_edge_mask[0] = 0
     data.counts[0,*] = 0.
     data.counts_err[0,*] = 0.
@@ -311,7 +312,7 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   edges_used = where( control.energy_bin_edge_mask eq 1, nedges)
   energy_bin_mask = stx_energy_edge2bin_mask(control.energy_bin_edge_mask)
   energies_used = where(energy_bin_mask eq 1)
-  
+
   ; changed 2023-03-15: Now only the used energies are in table energy, therefore:
   edge_products, energy_edges_2, edges_1 = energy_edges_1
 
@@ -320,6 +321,7 @@ pro stx_read_spectrogram_fits_file, fits_path, time_shift, primary_header = prim
   e_axis = stx_construct_energy_axis(energy_edges = energy_edges_1 + energy_shift, select =  use_edges )
   e_axis.low_fsw_idx = energies_used
   e_axis.high_fsw_idx = energies_used
-
-
+  
+  data = add_tag(data,energy_bin_mask,'energy_bin_mask')
+    
 end

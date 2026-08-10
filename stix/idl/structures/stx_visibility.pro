@@ -17,6 +17,8 @@
 ;     23-jul-2013, Richard Schwartz, no versioning, just one stx_visibility that may evolve
 ;     20-aug-2022, Paolo Massa, modified for including 'tot_counts', 'tot_counts_bkg' and 'xy_flare'. 
 ;                  'chi2' removed
+;     01-mar-2026, Paolo Massa, 'xy_flare' is initialized with NaNs. If no visibility amplitude calibration is performed (see stx_calibrate_visibility.pro), it remains filled with NaNs.
+;                  Otherwise, it will contain the coordinates of the location that is used for grid transmission correction.
 ;
 ;-
 function stx_visibility
@@ -42,8 +44,8 @@ function stx_visibility
     xyoffset: fltarr(2), $                  ; Coordinates (arcsec, STIX coordinate frame) of the center of the map that is reconstructed 
                                             ; from the visibility values. Used in the phase calibration
     
-    xy_flare : fltarr(2), $                 ; Coordinates (arcsec, STIX coordinate frame) of the estimated flare location. 
-                                            ; Used for grid transmission correction and projection correction in the visibility phases
+    xy_flare : [!VALUES.F_NaN,!VALUES.F_NaN], $ ; Coordinates (arcsec, STIX coordinate frame) of the estimated flare location. 
+                                             ; Used for determining the grid transmission value to be used within the amplitude calibration.
     
     calibrated : 0b $                       ; 1 if the visibility amplitude and phases are calibrated, 0 otherwise
     }

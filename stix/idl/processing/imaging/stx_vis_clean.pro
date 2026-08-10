@@ -100,6 +100,7 @@
 ; 05-jun-2022  Paolo: added 'aux_data' input
 ; 05-oct-2022  Paolo: updated for using 'stx_make_map'
 ; 02-jan-2023  Paolo: 'image_dim' casted as integer and fixed bug in the iterative plot.
+; 23-jun-2026  Frederic: minor changes when opening windows for plotting
 ;-
 
 
@@ -237,10 +238,12 @@ function stx_vis_clean, vis, aux_data, niter = niter, image_dim = image_dim_in, 
       ;contour, /over, cleaned_map_iter, col=2, thick=2, levels = interpol( minmax( cleaned_map_iter ), 5)
       ;cleaned_map_iter = convol( clean_map, clean_beam, /norm, /center, /edge_zero)
       cleaned_map_iter = convolve(clean_map, clean_beam/total(clean_beam))
-      if first_time eq 1 then begin
-        window,2,xsize=5*this_disp,ysize=this_disp
-        first_time=0
-      endif
+;      if first_time eq 1 then begin
+;        window,2,xsize=5*this_disp,ysize=this_disp
+;        first_time=0
+;      endif
+      device, Window_State=win_state
+      if win_state[7] then wset, 7 else window, 7, xsize=5*this_disp, ysize=this_disp
       erase
       this_dmap0=dmap0
       cc_indices=array_indices(this_dmap0,clean_box[iz]); indices of the clean component location
@@ -363,7 +366,8 @@ function stx_vis_clean, vis, aux_data, niter = niter, image_dim = image_dim_in, 
 
 
   if keyword_set(plot) then begin
-    window,6,xsize=5*this_disp,ysize=2*this_disp
+    device, Window_State=win_state
+    if win_state[6] then wset, 6 else window, 6, xsize=5*this_disp, ysize=2*this_disp
     cleanplot, /silent
     !p.multi=[0,3,1]
     chs2=2.

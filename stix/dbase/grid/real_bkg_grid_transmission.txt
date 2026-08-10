@@ -1,0 +1,14 @@
+;Real transmission factors for on-axis grid transmission in BGK detector pixels MZS - 18-Jun-24
+;N.B. tranmission for fully covered pixels is currently set to 0 
+0.1341096
+0.0010084
+0.0115397
+0.0000000 
+0.0000000 
+0.0113317
+0.0009876
+0.1393076
+0.0000000 
+0.0000000 
+0.0000000 
+0.0000000 

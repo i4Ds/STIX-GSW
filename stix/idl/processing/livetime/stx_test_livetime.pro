@@ -1,7 +1,9 @@
 ;stx_test_livetime, main program to build a testbest for the livetime computaton
 ;
 triggergram = stx_triggergram_construction_4test( rate, duration = duration )
-livetime_fraction = stx_livetime_fraction( triggergram,  det_select, tau_array = tau_array )
+livetime_fraction_data = stx_livetime_fraction( triggergram, det_select, tau_array = tau_array )
+livetime_fraction = livetime_fraction_data.livetime_fraction
+livetime_fraction_err = livetime_fraction_data.livetime_fraction_err
 help, rate, duration
 help, triggergram
 help, triggergram, /st
@@ -16,13 +18,17 @@ pmm, rate, livetime_fraction
 
 rate2 = 10.0 * rate
 triggergram = stx_triggergram_construction_4test( rate2, duration = duration )
-livetime_fraction = stx_livetime_fraction( triggergram,  det_select, tau_array = tau_array )
+livetime_fraction_data = stx_livetime_fraction( triggergram, det_select, tau_array = tau_array )
+livetime_fraction = livetime_fraction_data.livetime_fraction
+livetime_fraction_err = livetime_fraction_data.livetime_fraction_err
 print, 'Min and Max rate and  Livetime_fraction
 pmm, rate2, livetime_fraction
 
 rate3 = rate2 * 10.0
 triggergram = stx_triggergram_construction_4test( rate3, duration = duration )
-livetime_fraction = stx_livetime_fraction( triggergram,  det_select, tau_array = tau_array )
+livetime_fraction_data = stx_livetime_fraction( triggergram, det_select, tau_array = tau_array )
+livetime_fraction = livetime_fraction_data.livetime_fraction
+livetime_fraction_err = livetime_fraction_data.livetime_fraction_err
 print, 'Min and Max rate and  Livetime_fraction
 pmm, rate3, livetime_fraction
 

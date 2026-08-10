@@ -4,22 +4,22 @@
 ;   stx_map2pixelabcd_matrix
 ;
 ; PURPOSE:
-;   This function creates the matrix H that maps a vectorized flare image into an array containing 
-;   the set of counts recorded by STIX pixels (for further details see Massa, P., et al., 
+;   This function creates the matrix H that maps a vectorized flare image into an array containing
+;   the set of counts recorded by STIX pixels (for further details see Massa, P., et al.,
 ;   "Count-based imaging model for the Spectrometer/Telescope for Imaging X-rays (STIX) in Solar Orbiter", 2019)
 ;
 ; INPUTS:
 ;   imsize: array containing the size (number of pixels) of the image
 ;   pixel: array containing the pixel size (in arcsec) of the image
-;   
+;
 ; KEYWORDS:
 ;   XYOFFSET: array containing the coordinates of the center of the map (default is [0., 0.])
 ;   DURATION: duration of the flaring event (default is 1 sec)
 ;   DET_USED: array containing the indices of the detectors used (default is 0-31, 8 and 9 excluded)
-;   SUMCASE: indicates which of the 12 pixels are summed to build the 4 virtual pixels (it is needed to 
-;            compute the right value for the effective area). For further details on the summation 
+;   SUMCASE: indicates which of the 12 pixels are summed to build the 4 virtual pixels (it is needed to
+;            compute the right value for the effective area). For further details on the summation
 ;            see the header of 'stx_pixel_sums.pro'.
-;  
+;
 ; RETURNS:
 ;   A matrix that maps a vectorized flare image into an array containing the set of counts recorded by STIX pixels
 ;
@@ -33,11 +33,13 @@
 ;          -duration
 ;          -detector used
 ;          -sumcase
+;          February 2026, Massa P., made it compatible with new transmission calibration
+;          March 2026, Massa P., new subcollimator transmission is implemented
 ;
-;CONTACT: massa.p@dima.unige.it
+;CONTACT: paolo.massa@fhnw.ch
 ;-
 
-function stx_map2pixelabcd_matrix, imsize, pixel, u, v, phase_corr, XYOFFSET=xyoffset, SUMCASE = sumcase
+function stx_map2pixelabcd_matrix, imsize, pixel, u, v, phase_corr, subc_transm, XYOFFSET=xyoffset, SUMCASE = sumcase
 
   default, xyoffset, [0., 0.]
   n_det_idx = n_elements(u)
@@ -46,16 +48,18 @@ function stx_map2pixelabcd_matrix, imsize, pixel, u, v, phase_corr, XYOFFSET=xyo
   fact = 1.
   if sumcase eq 'SMALL' then fact = 2.
   effective_area = 1.
-  
-  ; Computation of the constant factors M0 and M1
-  M0 = 1./4.
-  M1 = fact* 4./(!pi^3.)*sin(!pi/(4.*fact))
-  
 
+  ; Computation of the constant factors M0 and M1
+  slit2pitch = sqrt(subc_transm)
+  
+  M0 = subc_transm
+  M1 = fact * 4./(!pi^3.) * sin(!pi/(4.*fact)) * sin(!pi * slit2pitch)^2.
+  
+  
   ; Initialization of the matrix 'H'
   npx2  = long(imsize[0])*long(imsize[1])
   H = dblarr(n_det_idx*4, npx2)
-  
+
   ; Discretization of the Sun domain (multiplied by 2 pi)
   xypi = Reform( ( Pixel_coord( [imsize[0], imsize[1]] ) ), 2, imsize[0], imsize[1] )
   xypi[0, *, *] = xypi[0, *, *] * pixel[0] + xyoffset[0]
@@ -63,18 +67,17 @@ function stx_map2pixelabcd_matrix, imsize, pixel, u, v, phase_corr, XYOFFSET=xyo
   xypi = xypi * (2.0 * !pi)
 
   for i=0,n_det_idx-1 do begin
-    
+
     phase =  u[i] * reform( xypi[0,*,*], npx2) + v[i] * reform( xypi[1,*,*], npx2) - phase_corr[i]
 
-    H[i, *] = -cos(phase)
-    H[n_det_idx + i, *] =  -sin(phase) 
-    H[2*n_det_idx + i, *] = cos(phase) 
-    H[3*n_det_idx + i, *] =  sin(phase) 
+    H[i, *] = M0[i] - 2 * M1[i] * cos(phase)
+    H[n_det_idx + i, *] =  M0[i] - 2 * M1[i] * sin(phase)    
+    H[2*n_det_idx + i, *] = M0[i] + 2 * M1[i] * cos(phase)    
+    H[3*n_det_idx + i, *] =  M0[i] + 2 * M1[i] * sin(phase)
 
   endfor
-  
+
   ; Application of the correction factors (needed because the units of the flux are photons s^-1 cm^-2 arcsec^-2)
-  H = H * 2. * M1 + M0
   H = H * (pixel[0]*pixel[1])
   return, H
 

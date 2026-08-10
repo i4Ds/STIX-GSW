@@ -75,7 +75,7 @@ function stx_fsw_sd_spectrogram2ospex, spectrogram, specpar = specpar, time_shif
   readcol, grid_transmission_file, grid_factors_file, format = 'f', skip = 2, silent = silent
   
     if (keyword_set(gtrans32) and n_elements(flare_location_stx) ne 0) then begin
-    grid_factors_proc = stx_subc_transmission(flare_location_stx, ph_in, /flux, silent = silent)
+    grid_factors_proc = stx_subc_transmission(flare_location_stx, ph_in, silent = silent)
 
     nph = n_elements(ph_in)
     ngrids = n_elements(grids_used)

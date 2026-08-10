@@ -13,17 +13,23 @@
 ;                      pixel data structure containing photon counts per time, energy, detector, and pixel
 ;                      (the counts registered are summed as if they were recorded by 4 virtual pixels per
 ;                      detector). For details on the summation see the header of 'stx_pixel_data_sum.pro'.
+;                      
+;   aux_data: auxiliary data structure corresponding to the selected time range
+;   
 ; KEYWORDS:
-;   DET_USED: array containing the indices of detector used 
-;             (default is 0-31, 8 and 9 excluded)
 ;   IMSIZE: output map size in pixels (default is [129, 129])
 ;   PIXEL: pixel size in arcsec (default is [1., 1.])
+;   MAPCENTER: two-element array containing the coordinates of the center of the map to reconstruct (STIX coordinate frame, arcsec).
+;              Default, (0.,0.)
+;   XY_FLARE: two-element array containing the coordinates of the estimated flare location (STIX coordinate frame, arcsec).
+;             It is used for computing the grid transmission correction. Default, (0,0)   
+;   SUBC_INDEX:  array containing the indices of the selected imginging detectors. Default, indices of
+;             the detectors from 10 to 3
 ;   MAXITER: max number of iterations (default is 5000)
 ;   TOLERANCE: parameter for the stopping rule (default is 0.01)
 ;   SILENT: if not set, plots the STD (variable to test convergence) and the
 ;           C-statistic every 25 iterations
 ;   MAKEMAP: if set, returns the map structure. Otherwise returns the 2D matrix
-;   XYOFFSET: array containing the map center coordinates.
 ;
 ; RETURNS:
 ;   an image (2D matrix) or an image map in the structure format provided by the
@@ -39,12 +45,14 @@
 ;          August 2022, Massa P., made it compatible with the up-to-date imaging software and added backrgound correction
 ;                       in the EM iterative scheme
 ;          July 2023, Massa P., made it compatible with the new definition of (u,v)-points (see stx_uv_points)
+;          March 2026, Massa P., new subcollimator transmission is implemented
+;          April 2026, Massa P., made it compatible with the fact that bkg subtraction is performed in 'stx_construct_pixel_data'
 ;             
-;CONTACT: massa.p@dima.unige.it
+;CONTACT: paolo.massa@fhnw.ch
 
 FUNCTION stx_em, pixel_data_summed, aux_data, imsize=imsize, pixel=pixel, $
-                 mapcenter=mapcenter, subc_index=subc_index, $
-                 maxiter=maxiter, tolerance=tolerance, silent=silent, makemap=makemap
+                 mapcenter=mapcenter, xy_flare=xy_flare, subc_index=subc_index, $
+                 maxiter=maxiter, tolerance=tolerance, silent=silent, makemap=makemap, _extra=extra
 
 default, subc_index, stx_label2ind(['3a','3b','3c','4a','4b','4c','5a','5b','5c','6a','6b','6c',$
                                        '7a','7b','7c','8a','8b','8c','9a','9b','9c','10a','10b','10c'])
@@ -56,7 +64,7 @@ default, tolerance, 0.001
 default, silent, 0
 default, makemap, 0
 default, mapcenter, [0, 0]
-
+default, xy_flare, [0, 0]
 
 ; input parameters control
 if imsize[0] ne imsize[1] then message, 'Error: imsize must be square.'
@@ -107,23 +115,22 @@ phase_corr *= !dtor
 
 ;;**************** Define (u,v) points
 
-uv_data = stx_uv_points(subc_index)
+uv_data = stx_uv_points(subc_index, _extra=extra)
 u = uv_data.u
 v = uv_data.v
 
 ;;**************** Transmission matrix
 
 ; Creation of the matrix 'H' used in the EM algorithm
-H = stx_map2pixelabcd_matrix(imsize, pixel, u, v, phase_corr, xyoffset = mapcenter, SUMCASE = sumcase)
+subc_transm = stx_subc_transmission(xy_flare, /simple_transm)
+subc_transm = subc_transm[subc_index]
+H = stx_map2pixelabcd_matrix(imsize, pixel, u, v, phase_corr, subc_transm, xyoffset = mapcenter, SUMCASE = sumcase)
 
 ; Vectorization of the matrix 'pixel_data.counts' containing the number of counts recorded
 ; by STIX pixels
 n_det_used = n_elements(subc_index)
 countrates = pixel_data_summed.COUNT_RATES[subc_index,*]
 y = reform(countrates, n_det_used*4)
-
-countrates_bkg = pixel_data_summed.COUNT_RATES_BKG[subc_index,*]
-b = reform(countrates_bkg, n_det_used*4)
 
 ;;**************** EXPECTATION MAXIMIZATION ALGORITHM
 
@@ -138,17 +145,17 @@ if ~keyword_set(silent) then print, 'EM iterations: ' & print, 'N. Iter:      ST
 ; Loop of the algorithm
 for iter = 1, maxiter do begin
   Hx = H # x
-  z = f_div(y , Hx + b)
+  z = f_div(y , Hx)
   Hz = H ## z
 
   x = x * transpose(f_div(Hz, Ht1))
 
-  cstat = 2. / n_elements(y[y_index]) * total(y[y_index] * alog(f_div(y[y_index],Hx[y_index] + b[y_index])) + Hx[y_index] + b[y_index] - y[y_index])
+  cstat = 2. / n_elements(y[y_index]) * total(y[y_index] * alog(f_div(y[y_index],Hx[y_index])) + Hx[y_index] - y[y_index])
 
   ; Stopping rule
   if iter gt 10 and (iter mod 25) eq 0 then begin
     emp_back_res = total((x * (Ht1 - Hz))^2)
-    std_back_res = total(x^2 * (f_div(1.0, Hx + b) # H2))
+    std_back_res = total(x^2 * (f_div(1.0, Hx) # H2))
     std_index = f_div(emp_back_res, std_back_res)
 
     if ~keyword_set(silent) then print, iter, std_index, cstat
@@ -162,8 +169,8 @@ x_im = reform(x, imsize[0],imsize[1])
 
 ;;**************** Create visibility structure to be used in 'stx_make_map'
 
-vis = stx_pixel_data_summed2visibility(pixel_data_summed,subc_index=subc_index, mapcenter=mapcenter)
-vis = stx_calibrate_visibility(vis)
+vis = stx_pixel_data_summed2visibility(pixel_data_summed,subc_index=subc_index)
+vis = stx_calibrate_visibility(vis, mapcenter=mapcenter, xy_flare=xy_flare)
 
 em_map = stx_make_map(x_im, aux_data, pixel, "EM", vis)
 

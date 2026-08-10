@@ -62,6 +62,7 @@
 ;    2023-09-06, FSc: added optional keyword method
 ;    2023-10-04, FSc: use highest version number of AUX file if several available
 ;    2023-10-16, FSc: added optional keywords clean_beam_width and set_clean_boxes
+;    2026-03-09, Paolo Massa: keyword 'xy_flare' moved from 'stx_construct_pixel_data_summed' to 'stx_em'
 ;
 ;-
 function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_uid, xy_flare=xy_flare, $
@@ -181,10 +182,9 @@ function stx_imaging_pipeline, stix_uid, time_range, energy_range, bkg_uid=bkg_u
   ; to be called depend on the imaging algorithm.
   
   if method eq "EM" then begin
-    pixel_data_summed = stx_construct_pixel_data_summed(path_sci_file, time_range, energy_range, $
-                                                        path_bkg_file=path_bkg_file, xy_flare=xy_flare)
+    pixel_data_summed = stx_construct_pixel_data_summed(path_sci_file, time_range, energy_range, path_bkg_file=path_bkg_file)
 
-    out_map = stx_em(pixel_data_summed, aux_data, imsize=imsize, pixel=pixel,mapcenter=mapcenter)
+    out_map = stx_em(pixel_data_summed, aux_data, imsize=imsize, pixel=pixel,mapcenter=mapcenter, xy_flare=xy_flare)
 
   endif else begin
     ; Compute calibrated visibilities

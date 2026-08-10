@@ -1,10 +1,10 @@
 ;+
 ; :Categories:
 ;   STIX imaging and spectroscopy
-;   
+;
 ; :Name:
 ;   stx_livetime_fraction
-;   
+;
 ; :Examples:
 ;   livetime_fraction = stx_livetime_fraction( triggergram, det_select, tau_array = tau_array )
 ;
@@ -21,7 +21,7 @@
 ;    ADG_IDX         INT       Array[16]  ;accumulator id's 1-16
 ;    T_AXIS          STRUCT    -> <Anonymous> Array[1];     stx time_axis structure
 ;   Det_select - sub-collimator numbers, 1-32
-;   
+;
 ; :Description:
 ;   28-Apr-13 gh
 ;
@@ -120,20 +120,21 @@
 ; :File_comments:
 ;   Uses a default Tau, deadtime per event, of 9.6 microseconds. This may need to
 ;   change based on tests of the Caliste detectors.
-;   
+;
 ; :Author:
 ;   richard.schwartz@nasa.gov
-;   
+;
 ; :History:
 ;   29-april-2013, created
 ;   18-april-2015, richard.schwartz@nasa.gov, major revision
 ;   03-dec-2018,   ECMD (Graz), change of calculation including eta and tau
 ;   03-mar-2022,   ECMD (Graz), update of eta and tau values and definition tau is now only readout time
-;   21-apr-2022,   ECMD (Graz), added pileup correction parameter 
-;   17-oct-2023,   ECMD (Graz), update of default eta value using empirical high trigger rate data 
+;   21-apr-2022,   ECMD (Graz), added pileup correction parameter
+;   17-oct-2023,   ECMD (Graz), update of default eta value using empirical high trigger rate data
+;   13-may-2024,   P. Massa (FHNW), modified to return statistical error on live time fraction
 ;
 ;-
-function stx_livetime_fraction, triggergram,  det_select, tau_array = tau_array,  eta_array=eta_array, error=error
+function stx_livetime_fraction, triggergram, det_select, tau_array = tau_array,  eta_array=eta_array, error=error
 
   error = 1
   adg_sc = stx_adg_sc_table()
@@ -143,7 +144,7 @@ function stx_livetime_fraction, triggergram,  det_select, tau_array = tau_array,
   default, tau_array, 10.1e-6 + fltarr(ntrig) ;10.1 microseconds readout time per event
   default, eta_array, 1.10e-6 + fltarr(ntrig) ;1.1 microseconds latency time per event (best fit May 2023)
 
-  beta = stx_pileup_corr_parameter() ; get estimate of pileup correction parameter 
+  beta = stx_pileup_corr_parameter() ; get estimate of pileup correction parameter
 
   idx_select = ( adg_sc[ where_arr( adg_sc.sc, det_select ) ] ).adg_idx ;these are the agd id needed (1-16)
   test_triggers = where_arr( triggergram.adg_idx, idx_select, /notequal, test_forzero ) ;which triggers to use
@@ -151,14 +152,25 @@ function stx_livetime_fraction, triggergram,  det_select, tau_array = tau_array,
   ;triggergram must be sorted into adg_idx order!
   ix_fordet = value_locate( triggergram.adg_idx, idx_select )
 
-  ndt = n_elements( triggergram.t_axis.duration )
+  ndt = n_elements(triggergram.t_axis.duration )
   duration = transpose( rebin( triggergram.t_axis.duration, ndt, ntrig ))
   tau_rate =   rebin( tau_array, ntrig, ndt ) / duration
   eta_rate = rebin( eta_array, ntrig, ndt ) / duration
   nin = triggergram.triggerdata / (1. -  triggergram.triggerdata *(tau_rate+eta_rate))
+  nin_err = 1. / (1. -  triggergram.triggerdata *(tau_rate+eta_rate))^2. * triggergram.triggerdata_err
+  ;triggergram.triggerdata / (1. -  triggergram.triggerdata *(tau_rate+eta_rate))
   livetime_fraction = exp( -1.*beta*eta_rate*nin) /(1. + (tau_rate+eta_rate)* nin)
-  result = livetime_fraction[ ix_fordet[sort((where_arr( adg_sc.sc, det_select,/map ))[where_arr( adg_sc.sc, det_select)])], * ]
-  error = 0
-  return, result
   
+  ;; Compute statistical error on live time fraction
+  livetime_fraction_err = exp(-1.*beta*eta_rate*nin) * $
+    abs(-1.*beta*eta_rate - 1.*beta*eta_rate * (tau_rate+eta_rate) * nin - (tau_rate+eta_rate)) / $
+    (1. + (tau_rate+eta_rate)* nin)^2. * nin_err
+  livetime_fraction = livetime_fraction[ ix_fordet[sort((where_arr( adg_sc.sc, det_select,/map ))[where_arr( adg_sc.sc, det_select)])], * ]
+  livetime_fraction_err = livetime_fraction_err[ ix_fordet[sort((where_arr( adg_sc.sc, det_select,/map ))[where_arr( adg_sc.sc, det_select)])], * ]
+  error = 0
+  result = {livetime_fraction:livetime_fraction,$
+    livetime_fraction_err: livetime_fraction_err}
+
+  return, result
+
 end

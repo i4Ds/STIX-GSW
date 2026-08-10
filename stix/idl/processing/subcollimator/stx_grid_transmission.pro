@@ -6,102 +6,76 @@
 ;
 ; PURPOSE:
 ;
-;   Compute the transmission of a STIX grid corrected for internal shadowing
+;   Compute the transmission of a STIX grid
 ;
 ; CALLING SEQUENCE:
 ;
-;   transmission = stx_grid_transmission(x_flare, y_flare, grid_orient, grid_pitch, grid_slit, grid_thick)
+;   transmission = stx_grid_transmission(pitch, slit, thickness, L, simple_transm=simple_transm)
 ;
 ; INPUTS:
 ;
-;   x_flare: X coordinate of the flare location (arcsec, in the STIX coordinate frame)
+;   pitch: float, pitch of the grid (mm)
+;   
+;   slit: float, effective slit width of the grid at low energies (mm). This value must be
+;         pre-calculated from low-energy calibration data, taking into account any potential
+;         dependence on the flare location and subcollimator (e.g. using stx_subc_transmission.pro),
+;         before being passed to this function.
+;   
+;   thickness: float, grid thickness (mm)
+;   
+;   L: float array, path length of X-rays in tungsten (mm) 
 ;
-;   y_flare: Y coordinate of the flare location (arcsec, in the STIX coordinate frame)
-;
-;   grid_orient: orientation angle of the slits of the grid (looking from detector side, in degrees)
-;
-;   grid_pitch: dimension of pitch of the grid (mm)
-;
-;   grid_slit: dimension of slit of the grid (mm)
-;
-;   grid_thick: thickness of the grid (mm)
-;
-;   bridge_width: width of the bridges for the given grid (mm)
-;
-;   bridge_pitch: pitch of the bridges for the given grid (mm)
-;
-;   linear_attenuation: Linear Attenuation Coefficient for grid material [mm^-1] (assumed to be pure Tungsten)
-;
-;   flux: If set calculate the flux calibration factor rather than the amplitude calibration factor
-;
-;   simple_transm: if set a simplified version of the grid transmission is computed
+; KEYWORDS:
+; 
+; simple_transm: if set a simplified version of the grid transmission is computed (no energy dependence)
+; 
+; ds: float, width of the wedge model (mm)
+; 
+; dh: float, height of the wedge model (mm)
 ;
 ; OUTPUTS:
 ;
-;   A float number that represent the grid transmission value
+;   A float number that represents the grid transmission value
 ;
 ; HISTORY: August 2022, Massa P., created
 ;          11-Jul-2023, ECMD (Graz), updated following Recipe for STIX Flux and Amplitude Calibration (8-Nov 2022 gh)
 ;                                    to include grid transparency and corner cutting
 ;          31-Oct-2023, Massa P., added 'simple_transm' keyword to compute a simple version of the grid transmission
 ;                                 (temporary solution used for imaging)
+;          14-Oct-2025, Massa P., high energy calibration based on wedge shape model
 ;
 ; CONTACT:
-;   paolo.massa@wku.edu
+;   paolo.massa@fhnw.ch
 ;-
 
+function stx_grid_transmission, pitch, slit, thickness, L, simple_transm=simple_transm, ds=ds, dh=dh
 
-function stx_grid_transmission, x_flare, y_flare, grid_orient, grid_pitch, grid_slit, grid_thick, $
-  bridge_width, bridge_pitch, linear_attenuation, flux = flux, simple_transm = simple_transm
-
-  default, flux, 1
-
+  ;; Parameters of the wedge grid transmission model. The values are derived from fitting of STIX observation (ds in mm, dh in mm)
+  default, ds, 5e-3
+  default, dh, 5e-2
+  
   if ~keyword_set(simple_transm) then begin
   
-    bridge_factor = 1.0 - f_div(bridge_width,bridge_pitch)
+    n_energies = n_elements(L)
   
-    ;; Distance of the flare on the axis perpendicular to the grid orientation
-    flare_dist   = abs(x_flare * cos(grid_orient * !dtor) + y_flare * sin(grid_orient * !dtor))
+    slit_rep = replicate(slit, n_energies)
+    pitch_rep = replicate(pitch, n_energies)
+    H_rep = replicate(thickness, n_energies)
   
-    ;; Internal shadowing
-    shadow_width = grid_thick  * tan(flare_dist / 3600. * !dtor)
+    ;; Transmission for a wedge shape model for grid imperfections
+    g0 = f_div(slit_rep, pitch_rep) + f_div(pitch_rep - slit_rep, pitch_rep) * exp( - f_div(H_rep, L) )
+    ttt = f_div(L, dh) * ( 1. - exp(- f_div(dh, L) ) )
+    g1 = 2. * f_div(ds, pitch_rep) * (ttt - exp( - f_div(H_rep, L) ))
+    
+    g_transmission = g0 + g1
   
-    nenergies = n_elements(linear_attenuation)
-  
-    slat_optical_depth = grid_thick * linear_attenuation
-  
-    slat_transmission = exp(-slat_optical_depth)
-  
-    ;calculate the transmission through the slat edge
-    edge_transmission = (1. - slat_transmission) /slat_optical_depth
-  
-    grid_slit_e = replicate(grid_slit, nenergies)
-    shadow_width_e = replicate(shadow_width, nenergies)
-    grid_pitch_e =  replicate(grid_pitch, nenergies)
-  
-    effective_slit_width = grid_slit_e + shadow_width_e * (1. - 2.* (1- edge_transmission)/(1. - slat_transmission))
-  
-    flux_calibration = 2*(slat_transmission + (1.- slat_transmission)*effective_slit_width*bridge_factor/grid_pitch_e)
-  
-    amplitude_calibration = (1. - slat_transmission) * bridge_factor * sin(!pi * effective_slit_width / grid_pitch_e )
-  
-    transmission = keyword_set(flux) ? flux_calibration : amplitude_calibration 
-
-    ; factors are relative to 0.5 value for ideal grids
-    return, transmission/2.
-
   endif else begin
     
-    ;; Distance of the flare on the axis perpendicular to the grid orientation
-    flare_dist   = abs(x_flare * cos(grid_orient * !dtor) + y_flare * sin(grid_orient * !dtor))
-
-    ;; Internal shadowing
-    shadow_width = grid_thick  * tan(flare_dist / 3600. * !dtor)
-
-    return, (grid_slit - shadow_width) / grid_pitch
-    
+    g_transmission = f_div(slit, pitch)
+  
   endelse
   
+  return, g_transmission
   
 
 end
