@@ -50,7 +50,7 @@
 function stx_construct_subcollimator, fpath
   
   ;  Set default file path location
-  fpath = exist(fpath) ? fpath : loc_file( 'stx_subc_params.txt', path = getenv('STX_GRID') )
+  fpath = exist(fpath) ? fpath : loc_file( 'stx_subc_params.csv', path = getenv('STX_SUBCOLL') )
   
   ;  Return error if look-up file does not exist
   if ~file_exist(fpath) then return, -10

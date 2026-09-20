@@ -33,7 +33,8 @@
 ;
 ; HISTORY: May 2025, Massa P., based on the previous version by ECMD.
 ;                    Working only for detectors 3 to 10.
-;          March 2026, Massa P., new sub-collimator transmission including also 1a,b,c and 2a,b,c 
+;          March 2026, Massa P., new sub-collimator transmission including also 1a,b,c and 2a,b,c
+;          September 2026, Massa P., minor modifications to make it compatible with new structure of STIX-CONF repo 
 ;          
 ; CONTACT:
 ;   paolo.massa@fhnw.ch
@@ -57,21 +58,11 @@ function stx_subc_transmission, flare_loc, ph_in, simple_transm = simple_transm,
 
 
   ;;************ Read grid parameters
-  restore,loc_file( 'grid_temp.sav', path = getenv('STX_GRID') )
-  fff=read_ascii(loc_file( 'grid_param_front.txt', path = getenv('STX_GRID') ),temp=grid_temp)
-  rrr=read_ascii(loc_file( 'grid_param_rear.txt', path = getenv('STX_GRID') ),temp=grid_temp)
-  
-  ;; Orientation of the slits of the grid as seen from the detector side
-  grid_orient_front_all = fff.o 
-  grid_orient_rear_all = rrr.o
-  
-  pitch_front_all = fff.P
-  pitch_rear_all = rrr.P
-  
-  thickness_front_all = fff.THICK
-  thickness_rear_all = rrr.THICK
 
-  sc = fff.SC
+  readcol, loc_file( 'grid_param_front.txt', path = getenv('STX_GRID')), sc_front, pitch_front_all, grid_orient_front_all, $
+    phase_front_all, slit_front_all, grad_front_all, rms_front_all, thick_front_all, bwidth_front_all, bpitch_front_all, FORMAT='I,F,F,F,F,F,F,F,F,F', /silent
+  readcol, loc_file( 'grid_param_rear.txt', path = getenv('STX_GRID')), sc_rear, pitch_rear_all, grid_orient_rear_all, $
+    phase_rear_all, slit_rear_all, grad_rear_all, rms_rear_all, thick_rear_all, bwidth_rear_all, bpitch_rear_all, FORMAT='I,F,F,F,F,F,F,F,F,F', /silent
   
   ;;************ Read intercept and slope of the transmission linear fits
   fpath = loc_file( 'stix_subcoll_transmission_10_15keV.csv', path = getenv('STX_GRID') )
@@ -127,8 +118,7 @@ function stx_subc_transmission, flare_loc, ph_in, simple_transm = simple_transm,
       
       ;;-------- FRONT GRID
 
-      subc_n_front = fff.SC
-      idx = where(subc_n_front eq (subc_n+1), count)
+      idx = where(sc_front eq (subc_n+1), count)
 
       if count ne 0 then begin 
 
@@ -161,8 +151,7 @@ function stx_subc_transmission, flare_loc, ph_in, simple_transm = simple_transm,
 
       ;;-------- REAR GRID
 
-      subc_n_rear = rrr.SC
-      idx = where(subc_n_rear eq (subc_n+1), count)
+      idx = where(sc_rear eq (subc_n+1), count)
       
       if count ne 0 then begin 
 
@@ -242,8 +231,7 @@ function stx_subc_transmission, flare_loc, ph_in, simple_transm = simple_transm,
       
       ;;-------- FRONT GRID
 
-      subc_n_front = fff.SC
-      idx = where(subc_n_front eq (subc_n+1), count)
+      idx = where(sc_front eq (subc_n+1), count)
 
       if count ne 0 then begin 
 
@@ -261,8 +249,7 @@ function stx_subc_transmission, flare_loc, ph_in, simple_transm = simple_transm,
 
       ;;-------- REAR GRID
 
-      subc_n_rear = rrr.SC
-      idx = where(subc_n_rear eq (subc_n+1), count)
+      idx = where(sc_rear eq (subc_n+1), count)
 
       if count ne 0 then begin 
 
