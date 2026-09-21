@@ -63,7 +63,8 @@ function stx_construct_subcollimator, fpath
            subc_y_cen, subc_f_xsize, subc_f_ysize, subc_r_xsize, $
            subc_r_ysize, subc_d_xsize, subc_d_ysize, subc_d_l_xsz, $
            subc_d_l_ysz, subc_d_s_xsz, subc_d_s_ysz, $
-           count = nlines, /silent, format = 'I,A,D,D,I,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D'
+           skipline = 28, count = nlines, /silent, $
+           format = 'I,A,D,D,I,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D'
   ;     det_num          -> subcollimator detector number
   ;     grid_label       -> subcollimator label indicating the grid 
   ;                           resolution (1 = fine, 10 = coarse) and 
