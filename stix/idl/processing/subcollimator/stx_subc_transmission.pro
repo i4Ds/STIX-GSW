@@ -60,9 +60,9 @@ function stx_subc_transmission, flare_loc, ph_in, simple_transm = simple_transm,
   ;;************ Read grid parameters
 
   readcol, loc_file( 'grid_param_front.txt', path = getenv('STX_GRID')), sc_front, pitch_front_all, grid_orient_front_all, $
-    phase_front_all, slit_front_all, grad_front_all, rms_front_all, thick_front_all, bwidth_front_all, bpitch_front_all, FORMAT='I,F,F,F,F,F,F,F,F,F', /silent
+    phase_front_all, slit_front_all, grad_front_all, rms_front_all, thickness_front_all, bwidth_front_all, bpitch_front_all, FORMAT='I,F,F,F,F,F,F,F,F,F', /silent
   readcol, loc_file( 'grid_param_rear.txt', path = getenv('STX_GRID')), sc_rear, pitch_rear_all, grid_orient_rear_all, $
-    phase_rear_all, slit_rear_all, grad_rear_all, rms_rear_all, thick_rear_all, bwidth_rear_all, bpitch_rear_all, FORMAT='I,F,F,F,F,F,F,F,F,F', /silent
+    phase_rear_all, slit_rear_all, grad_rear_all, rms_rear_all, thickness_rear_all, bwidth_rear_all, bpitch_rear_all, FORMAT='I,F,F,F,F,F,F,F,F,F', /silent
   
   ;;************ Read intercept and slope of the transmission linear fits
   fpath = loc_file( 'stix_subcoll_transmission_10_15keV.csv', path = getenv('STX_GRID') )
