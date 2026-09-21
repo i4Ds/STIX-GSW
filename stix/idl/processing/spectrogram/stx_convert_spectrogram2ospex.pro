@@ -157,7 +157,7 @@ pro stx_convert_spectrogram2ospex, spec_data, pixel_mask_used, detector_mask_use
   
   pixel_mask =detector_mask_used ## pixel_mask_used
   
-  transmission = read_csv(loc_file( 'stix_transmission_highres_20251110.csv', path = getenv('STX_GRID')))
+  transmission = read_csv(loc_file( 'stix_transmission_highres_20251110.csv', path = getenv('STX_TRANSM')))
   
   emin = 4
   emax = 150

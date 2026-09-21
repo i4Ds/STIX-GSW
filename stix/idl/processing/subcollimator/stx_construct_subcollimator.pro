@@ -50,7 +50,7 @@
 function stx_construct_subcollimator, fpath
   
   ;  Set default file path location
-  fpath = exist(fpath) ? fpath : loc_file( 'stx_subc_params.txt', path = getenv('STX_GRID') )
+  fpath = exist(fpath) ? fpath : loc_file( 'stx_subc_params.csv', path = getenv('STX_SUBCOLL') )
   
   ;  Return error if look-up file does not exist
   if ~file_exist(fpath) then return, -10
@@ -63,7 +63,7 @@ function stx_construct_subcollimator, fpath
            subc_y_cen, subc_f_xsize, subc_f_ysize, subc_r_xsize, $
            subc_r_ysize, subc_d_xsize, subc_d_ysize, subc_d_l_xsz, $
            subc_d_l_ysz, subc_d_s_xsz, subc_d_s_ysz, $
-           skipline = 9, count = nlines, /silent, $
+           skipline = 28, count = nlines, /silent, $
            format = 'I,A,D,D,I,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D'
   ;     det_num          -> subcollimator detector number
   ;     grid_label       -> subcollimator label indicating the grid 

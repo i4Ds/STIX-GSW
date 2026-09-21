@@ -29,7 +29,7 @@
 ;-
 function stx_date2elut_file, date
 
-  elut_index = loc_file( 'elut_index.csv', path = getenv('STX_DET'))
+  elut_index = loc_file( 'elut_index.csv', path = getenv('STX_ELUT'))
 
   str_index = read_csv(elut_index, n_table_header = 1)
 
