@@ -97,6 +97,7 @@
 ;    2024-07-12, F. Schuller (AIP): added optional keyword xspec
 ;    07-May-2025 - Stiefel M. and Massa P. (FHNW), re-implemented to take into account new ELUT correction, new subcollimator transmission and live time normalization
 ;    07-May-2026 - Massa P. (FHNW), this function now calls 'stx_convert_spectrogram2ospex'
+;    23-Nov-2026 - Massa P. (FHNW), modified to account for science data files with single time bin
 ;
 ;-
 pro stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fits_path_bk, $
@@ -289,8 +290,17 @@ pro stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fits
   live_time_bins_error = live_time_data.LIVE_TIME_BINS_ERR
   live_time_fraction_bins = live_time_data.LIVETIME_FRACTION
 
-  live_time_bins_rep = transpose(cmreplicate(live_time_bins, [n_elements(energy_bin_idx),12]), [2,3,0,1])
-  live_time_bins_error_rep = transpose(cmreplicate(live_time_bins_error, [n_elements(energy_bin_idx),12]), [2,3,0,1])
+  if n_times gt 1 then begin
+
+    live_time_bins_rep = transpose(cmreplicate(live_time_bins, [n_elements(energy_bin_idx),12]), [2,3,0,1])
+    live_time_bins_error_rep = transpose(cmreplicate(live_time_bins_error, [n_elements(energy_bin_idx),12]), [2,3,0,1])
+
+  endif else begin
+    
+    live_time_bins_rep = transpose(cmreplicate(live_time_bins, [n_elements(energy_bin_idx),12]), [1,2,0])
+    live_time_bins_error_rep = transpose(cmreplicate(live_time_bins_error, [n_elements(energy_bin_idx),12]), [1,2,0])
+
+  endelse
 
   if keyword_set(fits_path_bk) then begin
 
@@ -401,10 +411,17 @@ pro stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fits
 
     iall = [iall,i]
 
-    idx_time_min = iall[0:-2]
-    idx_time_max = iall[1:-1]-1
-
-
+    if n_times eq 1 then begin
+      
+      idx_time_min = 0
+      idx_time_max = 0
+      
+    endif else begin
+      
+      idx_time_min = iall[0:-2]
+      idx_time_max = iall[1:-1]-1
+      
+    endelse
 
     count_rates_elut = fltarr(count_rates.dim)
     count_rates_error_elut = fltarr(count_rates_error.dim)
@@ -496,8 +513,17 @@ pro stx_convert_pixel_data, fits_path_data = fits_path_data, fits_path_bk = fits
   endelse
 
   ;; Compute average livetime and livetime fraction
-  avg_live_time_bins = average(live_time_bins[detectors_used,*], 1)
-  avg_live_time_fraction_bins = average(live_time_fraction_bins[detectors_used,*], 1)
+  if n_times eq 1 then begin
+    
+    avg_live_time_bins = live_time_bins[detectors_used]
+    avg_live_time_fraction_bins = live_time_fraction_bins[detectors_used]
+    
+  endif else begin
+    
+    avg_live_time_bins = average(live_time_bins[detectors_used,*], 1)
+    avg_live_time_fraction_bins = average(live_time_fraction_bins[detectors_used,*], 1)
+    
+  endelse  
 
   ;; Multiply by average live time. The units of the spectrogram are counts
   avg_live_time_bins_rep = transpose(cmreplicate(avg_live_time_bins, n_elements(energy_bin_idx)))
